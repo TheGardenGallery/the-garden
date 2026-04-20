@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { fetchExhibition, fetchExhibitions } from "@/lib/verse-api";
 import type { Exhibition } from "@/lib/types";
+import { WorksGrid } from "@/components/WorksGrid";
 
 export async function generateStaticParams() {
   const all = await fetchExhibitions();
@@ -130,38 +131,7 @@ function WorksSection({ works }: { works: Exhibition["works"] }) {
             Selected works
           </h2>
         </header>
-
-        <div className="works-listing">
-          {works!.map((work) => (
-            <article key={work.id} className="work-item">
-              <a
-                className="work-item-plate"
-                href={`#${work.id}`}
-                aria-label={`${work.title}, ${work.number}, view details`}
-              >
-                <Image
-                  src={work.image}
-                  alt={work.alt}
-                  fill
-                  sizes="(max-width: 720px) 92vw, (max-width: 960px) 45vw, 30vw"
-                />
-                <span className="coord-tag">{work.coord}</span>
-              </a>
-              <div className="work-item-title">
-                <em>{work.title}</em>, <span className="year">{work.year}</span>
-              </div>
-              <div className="work-item-medium">
-                {work.number} · {work.edition}
-              </div>
-              <div className="work-item-actions">
-                <a href="#">More views</a>
-                <a href="https://verse.works" target="_blank" rel="noopener">
-                  Inquire
-                </a>
-              </div>
-            </article>
-          ))}
-        </div>
+        <WorksGrid works={works!} />
       </div>
     </section>
   );
