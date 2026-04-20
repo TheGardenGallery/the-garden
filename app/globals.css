@@ -145,6 +145,11 @@ nav,.site-nav{
   transition:transform 240ms cubic-bezier(0.4, 0, 0.2, 1),
              opacity 180ms cubic-bezier(0.4, 0, 0.2, 1);
 }
+/* iOS Safari triggers :focus-visible on tap and leaves it sticky; the
+   hamburger's own state (dots → X) is already a clear interaction signal,
+   so suppress the outline here specifically. Other buttons keep theirs. */
+.nav-toggle:focus,
+.nav-toggle:focus-visible{outline:none;}
 .nav-toggle[aria-expanded="true"] .nav-toggle-dots span:nth-child(1){transform:translate(3.5px, 3.5px);}
 .nav-toggle[aria-expanded="true"] .nav-toggle-dots span:nth-child(2){opacity:0;}
 .nav-toggle[aria-expanded="true"] .nav-toggle-dots span:nth-child(3){opacity:0;}
