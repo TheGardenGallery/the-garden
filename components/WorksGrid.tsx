@@ -17,11 +17,11 @@ export function WorksGrid({ works }: WorksGridProps) {
   const reduced = useReducedMotion();
 
   const itemVariants = {
-    hidden: reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 },
+    hidden: reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
+      transition: { duration: 0.95, ease: [0.22, 1, 0.36, 1] as const },
     },
   };
 
@@ -33,7 +33,7 @@ export function WorksGrid({ works }: WorksGridProps) {
       viewport={{ once: true, amount: 0.15 }}
       variants={{
         visible: {
-          transition: { staggerChildren: reduced ? 0 : 0.04 },
+          transition: { staggerChildren: reduced ? 0 : 0.1 },
         },
       }}
     >
