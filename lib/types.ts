@@ -1,0 +1,53 @@
+export type Artist = {
+  slug: string;
+  name: string;
+  coord: { row: string; col: number };
+};
+
+export type Work = {
+  id: string;
+  title: string;
+  year: number;
+  number: string;        // "№ 07"
+  edition: string;       // "1/1 edition"
+  image: string;         // /images/...
+  alt: string;
+  coord: string;         // "A,01"
+};
+
+export type ExhibitionStatus = "current" | "upcoming" | "past";
+
+export type ExhibitionLink = {
+  slug: string;
+  artistName: string;
+  title: string;
+};
+
+export type Exhibition = {
+  slug: string;
+  artistSlug: string;
+  artistName: string;
+  title: string;
+  year: number;
+  month: string;         // "Jul" — short, for past archive
+  date: string;          // "July 2024" — long form
+  location: string;
+  status: ExhibitionStatus;
+  description?: string[];        // paragraphs (HTML allowed in prose)
+  hero?: string;                 // used on exhibition detail page
+  homepageHero?: string;         // used on homepage hero — may differ from detail hero
+  works?: Work[];
+  workCount?: number;            // total works (e.g. 96, even if only some shown)
+  presentedBy?: string;
+  prev?: ExhibitionLink;
+  next?: ExhibitionLink;
+};
+
+export type JournalEntry = {
+  slug: string;
+  headline: string;
+  byline: string;
+  date: string;
+  excerpt?: string;
+  hero?: string;
+};
