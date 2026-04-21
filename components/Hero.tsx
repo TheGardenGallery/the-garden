@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import type { Exhibition } from "@/lib/types";
 import { HeroCardReveal } from "./HeroCardReveal";
 import { HeroArtwork } from "./HeroArtwork";
@@ -36,7 +36,6 @@ export function Hero({ exhibitions }: HeroProps) {
 
   if (slides.length === 0) return null;
   const ex = slides[index % slides.length];
-  const heroImage = ex.homepageHero ?? ex.hero!;
   const theme = ex.heroTheme ?? "dark";
 
   return (
@@ -47,21 +46,23 @@ export function Hero({ exhibitions }: HeroProps) {
       onMouseLeave={() => setPaused(false)}
     >
       <div className="hero-slides">
-        <AnimatePresence initial={false}>
-          <motion.div
-            key={ex.slug}
-            className="slide active"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: CROSSFADE_S, ease: EASE }}
-          >
-            <HeroArtwork
-              src={heroImage}
-              alt={`${ex.artistName}, ${ex.title}`}
-            />
-          </motion.div>
-        </AnimatePresence>
+        {slides.map((slide, i) => {
+          const img = slide.homepageHero ?? slide.hero!;
+          return (
+            <motion.div
+              key={slide.slug}
+              className="slide"
+              initial={false}
+              animate={{ opacity: i === index ? 1 : 0 }}
+              transition={{ duration: CROSSFADE_S, ease: EASE }}
+            >
+              <HeroArtwork
+                src={img}
+                alt={`${slide.artistName}, ${slide.title}`}
+              />
+            </motion.div>
+          );
+        })}
       </div>
 
       <Link
