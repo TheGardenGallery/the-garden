@@ -51,6 +51,7 @@ export type Exhibition = {
   featuredArtworks?: FeaturedArtwork[];
   workCount?: number;            // total works (e.g. 96, even if only some shown)
   presentedBy?: string;
+  verseSeriesUrl?: string;       // external link to the exhibition's Verse series page
   prev?: ExhibitionLink;
   next?: ExhibitionLink;
 };

@@ -46,15 +46,33 @@ export default async function ExhibitionDetailPage({
       {/* 02 · HERO */}
       <section className="ex-hero" aria-label="Featured artwork">
         {exhibition.hero ? (
-          <figure className="ex-hero-plate">
-            <Image
-              src={exhibition.hero}
-              alt={`${exhibition.artistName}, ${exhibition.title} (featured work)`}
-              width={1240}
-              height={1550}
-              priority
-            />
-          </figure>
+          exhibition.verseSeriesUrl ? (
+            <a
+              className="ex-hero-plate"
+              href={exhibition.verseSeriesUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`View ${exhibition.title} series on Verse`}
+            >
+              <Image
+                src={exhibition.hero}
+                alt={`${exhibition.artistName}, ${exhibition.title} (featured work)`}
+                width={1240}
+                height={1550}
+                priority
+              />
+            </a>
+          ) : (
+            <figure className="ex-hero-plate">
+              <Image
+                src={exhibition.hero}
+                alt={`${exhibition.artistName}, ${exhibition.title} (featured work)`}
+                width={1240}
+                height={1550}
+                priority
+              />
+            </figure>
+          )
         ) : (
           <figure className="ex-hero-plate" />
         )}

@@ -93,6 +93,7 @@ export const exhibitions: Exhibition[] = [
     homepageHero: "/images/chuck-anderson/homepage-hero.jpg",
     presentedBy: "Ivan Zhyzhkevych",
     workCount: 96,
+    verseSeriesUrl: "https://verse.works/series/imagined-wreckage-by-chuck-anderson",
     works: imaginedWreckageWorks,
     featuredArtworks: [
       {

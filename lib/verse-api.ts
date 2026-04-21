@@ -28,7 +28,7 @@ type VerseCollection = {
 };
 
 const VERSE_QUERY = `
-  query CuratorExhibitions($id: ID!) {
+  query CuratorExhibitions($id: PersonID!) {
     explore(
       filter: { personIds: [$id] }
       sorting: { sort: RECENCY, direction: DESC }
@@ -69,13 +69,21 @@ const fetchVerseCollections = cache(async (): Promise<VerseCollection[]> => {
       }),
       next: { revalidate: 3600 },
     });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      const body = await res.text();
+      console.warn(`[verse] fetch failed: ${res.status}`, body.slice(0, 300));
+      return [];
+    }
     const json = (await res.json()) as {
       data?: { explore?: { nodes?: VerseCollection[] } };
       errors?: unknown;
     };
+    if (json.errors) {
+      console.warn("[verse] graphql errors:", JSON.stringify(json.errors));
+    }
     return json.data?.explore?.nodes ?? [];
-  } catch {
+  } catch (err) {
+    console.warn("[verse] fetch threw:", err);
     return [];
   }
 });
