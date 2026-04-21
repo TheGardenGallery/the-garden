@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import { fetchExhibition, fetchExhibitions } from "@/lib/verse-api";
 import type { Exhibition } from "@/lib/types";
 import { WorksGrid } from "@/components/WorksGrid";
+import { FeaturedArtworks } from "@/components/FeaturedArtworks";
 
 export async function generateStaticParams() {
   const all = await fetchExhibitions();
@@ -96,6 +97,11 @@ export default async function ExhibitionDetailPage({
       {/* 04 · WORKS */}
       {exhibition.works && exhibition.works.length > 0 && (
         <WorksSection works={exhibition.works} />
+      )}
+
+      {/* 04b · FEATURED */}
+      {exhibition.featuredArtworks && exhibition.featuredArtworks.length > 0 && (
+        <FeaturedArtworks items={exhibition.featuredArtworks} />
       )}
 
       {/* 05 · COLOPHON */}

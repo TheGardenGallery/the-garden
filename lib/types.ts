@@ -16,6 +16,14 @@ export type Work = {
   coord: string;         // "A,01"
 };
 
+export type FeaturedArtwork = {
+  id: string;
+  title: string;        // artwork title only, no series name
+  image: string;        // local path under /images
+  alt: string;
+  verseUrl: string;     // absolute URL to the artwork on Verse
+};
+
 export type ExhibitionStatus = "current" | "upcoming" | "past";
 
 export type ExhibitionLink = {
@@ -40,6 +48,7 @@ export type Exhibition = {
   hero?: string;                 // used on exhibition detail page
   homepageHero?: string;         // used on homepage hero — may differ from detail hero
   works?: Work[];
+  featuredArtworks?: FeaturedArtwork[];
   workCount?: number;            // total works (e.g. 96, even if only some shown)
   presentedBy?: string;
   prev?: ExhibitionLink;

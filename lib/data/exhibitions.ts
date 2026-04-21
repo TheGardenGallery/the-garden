@@ -94,6 +94,25 @@ export const exhibitions: Exhibition[] = [
     presentedBy: "Ivan Zhyzhkevych",
     workCount: 96,
     works: imaginedWreckageWorks,
+    featuredArtworks: [
+      {
+        id: "scratch-disk-amnesia",
+        title: "Scratch Disk Amnesia",
+        image: "/images/chuck-anderson/featured/scratch-disk-amnesia.jpg",
+        alt: "Chuck Anderson, Scratch Disk Amnesia",
+        verseUrl:
+          "https://verse.works/items/ethereum/0x74f41f4d43c064f69958c56536381a235be906c4/0",
+      },
+      {
+        id: "completely-legal-esoteric-scrabble-strategy",
+        title: "Completely Legal Esoteric Scrabble Strategy",
+        image:
+          "/images/chuck-anderson/featured/completely-legal-esoteric-scrabble-strategy.jpg",
+        alt: "Chuck Anderson, Completely Legal Esoteric Scrabble Strategy",
+        verseUrl:
+          "https://verse.works/items/ethereum/0x74f41f4d43c064f69958c56536381a235be906c4/44",
+      },
+    ],
     description: [
       `The Garden is pleased to present <em>Imagined Wreckage</em>, a series of photo collage and generative AI works by Chicago-based artist <a class="prose-link" href="/artists/chuck-anderson">Chuck Anderson</a>. Known for his multidisciplinary approach, Anderson's work is characterised by his distinctive use of colour, light, and foregrounding of digital technology.`,
       `Described by the artist as a collection &ldquo;about amalgamation,&rdquo; the series dissects the boundaries between an artist's life and work in a post-internet, AI-focused era. The use of generative AI echoes across the works not simply in the output of the models, but through the way their processes parallel Anderson's own assembly of aggregated experience.`,
