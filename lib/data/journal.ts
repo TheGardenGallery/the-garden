@@ -2,12 +2,15 @@ import type { JournalEntry } from "@/lib/types";
 
 export const journalEntries: JournalEntry[] = [
   {
-    slug: "encoding-the-unseen",
-    headline: "Encoding the Unseen: Paul Prudence on ISO/IEC 10646 and the Poetics of the Character Set",
+    slug: "weaving-the-digital-a-celebration-of-unicode-textiles-and-computing",
+    headline: "Weaving the Digital: A Celebration of Unicode, Textiles, and Computing",
     byline: "Paul Prudence",
-    date: "August 2025",
+    date: "November 12, 2024",
     excerpt:
       "Prudence discusses how the Unicode character encoding standard, a bureaucratic artifact meant to catalogue every written symbol in human history, became the source material for a body of generative pattern work that treats data structures as ornamental grammars.",
+    hero: "/images/paul-prudence/iso-iec-10646-journal.jpg",
+    externalUrl: "https://verse.works/journal/weaving-the-digital-a-celebration-of-unicode-textiles-and-computing",
+    disableHoverZoom: true,
   },
   {
     slug: "distrakted-essay",

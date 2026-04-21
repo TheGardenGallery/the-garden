@@ -30,11 +30,11 @@ export default async function ExhibitionsPage() {
         <div className="ex-section-inner">
           <h2 className="ex-section-title">Current</h2>
           <div className="exhibitions-list">
-            {current.map((ex, i) => (
+            {current.map((ex) => (
               <ExhibitionRow
                 key={ex.slug}
                 exhibition={ex}
-                mirror={i % 2 === 1}
+                variant={current.length === 1 ? "featured" : "card"}
               />
             ))}
           </div>
@@ -51,12 +51,8 @@ export default async function ExhibitionsPage() {
                 body="Join the newsletter to hear first."
               />
             ) : (
-              upcoming.map((ex, i) => (
-                <ExhibitionRow
-                  key={ex.slug}
-                  exhibition={ex}
-                  mirror={i % 2 === 1}
-                />
+              upcoming.map((ex) => (
+                <ExhibitionRow key={ex.slug} exhibition={ex} />
               ))
             )}
           </div>

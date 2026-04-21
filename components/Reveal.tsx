@@ -1,11 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import type { Exhibition } from "@/lib/types";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
-export function PastCard({ exhibition }: { exhibition: Exhibition }) {
-  const ref = useRef<HTMLAnchorElement>(null);
+export function Reveal({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -31,14 +29,8 @@ export function PastCard({ exhibition }: { exhibition: Exhibition }) {
   }, []);
 
   return (
-    <Link
-      ref={ref}
-      href={`/exhibitions/${exhibition.slug}`}
-      className={visible ? "past-card is-visible" : "past-card"}
-    >
-      <div className="past-artist">{exhibition.artistName}</div>
-      <div className="past-title">{exhibition.title}</div>
-      <div className="past-month">{exhibition.month}</div>
-    </Link>
+    <div ref={ref} className={visible ? "reveal is-visible" : "reveal"}>
+      {children}
+    </div>
   );
 }

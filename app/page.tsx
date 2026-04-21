@@ -3,6 +3,7 @@ import { Hero } from "@/components/Hero";
 import { ExhibitionCard } from "@/components/ExhibitionCard";
 import { JournalHero } from "@/components/JournalHero";
 import { JournalItem } from "@/components/JournalItem";
+import { Reveal } from "@/components/Reveal";
 import { fetchExhibitions, fetchJournalEntries } from "@/lib/verse-api";
 import { getArtworkPalette } from "@/lib/palette";
 
@@ -43,7 +44,9 @@ export default async function HomePage() {
           <h2 className="hybrid-section-title">Past</h2>
           <div className="exhibitions-grid-hybrid">
             {pastExhibitions.map((ex) => (
-              <ExhibitionCard key={ex.slug} exhibition={ex} />
+              <Reveal key={ex.slug}>
+                <ExhibitionCard exhibition={ex} />
+              </Reveal>
             ))}
           </div>
         </div>
@@ -53,10 +56,14 @@ export default async function HomePage() {
         <div className="hybrid-container">
           <h2 className="hybrid-section-title">Journal</h2>
           <div className="journal-grid">
-            <JournalHero entry={journalHero} />
+            <Reveal>
+              <JournalHero entry={journalHero} />
+            </Reveal>
             <div className="journal-sidebar">
               {journalSidebar.map((entry) => (
-                <JournalItem key={entry.slug} entry={entry} />
+                <Reveal key={entry.slug}>
+                  <JournalItem entry={entry} />
+                </Reveal>
               ))}
               <Link href="/journal" className="journal-all">
                 <span className="journal-all-label">View all articles</span>

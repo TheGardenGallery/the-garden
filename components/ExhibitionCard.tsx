@@ -18,26 +18,28 @@ export function ExhibitionCard({ exhibition }: { exhibition: Exhibition }) {
   return (
     <Link href={href} className="exhibition-card">
       <div className="exhibition-card-image">
-        {exhibition.cardVideo ? (
-          <video
-            className="exhibition-card-video"
-            src={exhibition.cardVideo}
-            poster={coverImage}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            aria-label={`${exhibition.artistName}, ${exhibition.title}`}
-          />
-        ) : coverImage ? (
-          <Image
-            src={coverImage}
-            alt={`${exhibition.artistName}, ${exhibition.title}`}
-            width={600}
-            height={750}
-          />
-        ) : null}
+        <div className="exhibition-card-media">
+          {exhibition.cardVideo ? (
+            <video
+              className="exhibition-card-video"
+              src={exhibition.cardVideo}
+              poster={coverImage}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-label={`${exhibition.artistName}, ${exhibition.title}`}
+            />
+          ) : coverImage ? (
+            <Image
+              src={coverImage}
+              alt={`${exhibition.artistName}, ${exhibition.title}`}
+              width={600}
+              height={750}
+            />
+          ) : null}
+        </div>
       </div>
       <Stack gap={1}>
         <DisplayName as="h3" size="md">

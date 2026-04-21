@@ -1,25 +1,33 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import type { Exhibition } from "@/lib/types";
 
 type ExhibitionRowProps = {
   exhibition: Exhibition;
-  mirror?: boolean;
+  variant?: "card" | "featured";
 };
 
-export function ExhibitionRow({ exhibition, mirror = false }: ExhibitionRowProps) {
+export function ExhibitionRow({ exhibition, variant = "card" }: ExhibitionRowProps) {
   const href = `/exhibitions/${exhibition.slug}`;
   const image = exhibition.hero ?? exhibition.works?.[0]?.image;
+  const imageStyle = exhibition.listImageScale
+    ? ({ "--img-scale": exhibition.listImageScale } as CSSProperties)
+    : undefined;
+  const classes = ["exhibition-row"];
+  if (variant === "featured") classes.push("featured");
+  if (exhibition.disableListHoverZoom) classes.push("no-hover-zoom");
+  const className = classes.join(" ");
 
   return (
-    <article className={mirror ? "exhibition-row mirror" : "exhibition-row"}>
-      <div className="row-image">
+    <Link href={href} className={className} aria-label={`${exhibition.artistName}, ${exhibition.title}`}>
+      <div className="row-image" style={imageStyle}>
         {image && (
           <Image
             src={image}
             alt={`${exhibition.artistName}, ${exhibition.title}`}
-            width={800}
-            height={600}
+            width={1600}
+            height={variant === "featured" ? 1067 : 1125}
           />
         )}
       </div>
@@ -28,22 +36,18 @@ export function ExhibitionRow({ exhibition, mirror = false }: ExhibitionRowProps
           <div className="row-artist">{exhibition.artistName}</div>
           <div className="row-title">{exhibition.title}</div>
         </div>
-        <div className="row-meta">
-          <div className="row-dates">{exhibition.date}</div>
-          <div className="row-meta-sep"></div>
-          <div className="row-location">{exhibition.location}</div>
-        </div>
-        {exhibition.description?.[0] && (
-          <p
-            className="row-description"
-            dangerouslySetInnerHTML={{ __html: exhibition.description[0] }}
-          />
+        {variant === "featured" ? (
+          <div className="row-meta-right">
+            <div className="row-dates">{exhibition.date}</div>
+            {exhibition.location && <div className="row-location">{exhibition.location}</div>}
+          </div>
+        ) : (
+          <div className="row-meta">
+            {exhibition.date}
+            {exhibition.location ? ` · ${exhibition.location}` : ""}
+          </div>
         )}
-        <Link href={href} className="row-cta">
-          <span className="row-cta-label">Explore now</span>
-          <span className="row-cta-arrow">→</span>
-        </Link>
       </div>
-    </article>
+    </Link>
   );
 }

@@ -44,14 +44,47 @@ export type Exhibition = {
   status: ExhibitionStatus;
   description?: string[];        // paragraphs (HTML allowed in prose)
   descriptionMarkdown?: string;  // markdown from Verse — takes priority when present
+  descriptionByArtist?: boolean; // when true, render a "Text by the artist" byline under the description
   artistBio?: string;            // plain-text bio from Verse (colophon)
   hero?: string;                 // used on exhibition detail page
   homepageHero?: string;         // used on homepage hero — may differ from detail hero
   heroTheme?: "dark" | "paper";  // hero backdrop — cream for light-surface pieces, dark for digital
+  frameColor?: string;           // background of the exhibitions-list image frame, matched to the artwork's palette
+  listImageScale?: number;       // multiplier for the exhibitions-list thumbnail, compensating for mattes baked into the hero file
+  disableListHoverZoom?: boolean; // skip the hover scale on the exhibitions-list row when fine patterns in the artwork would shimmer under sub-pixel scaling
   cardImage?: string;            // thumbnail used in homepage ExhibitionCard
   cardVideo?: string;            // if set, ExhibitionCard plays this muted-autoplay loop instead of cardImage
   works?: Work[];
   featuredArtworks?: FeaturedArtwork[];
+  /** A pair (or more) of artworks inserted between description paragraphs.
+      `afterParagraphIndex` is 0-based against `description`. If an item
+      omits `verseUrl`, it falls back to the exhibition's `verseSeriesUrl`. */
+  inlineArtworks?: {
+    afterParagraphIndex: number;
+    items: { image: string; alt: string; title?: string; verseUrl?: string }[];
+  };
+  /** Hi-fidelity detail crops of a single work, shown as a grid like
+      "Selected works" but all derived from the same source image via
+      CSS background-position / background-size. `zoom` is the
+      magnification factor (e.g., 3 = 3x); `x`/`y` are percentages
+      (0–100) giving the focal point of the crop. */
+  details?: {
+    sourceImage: string;
+    title?: string;           // optional work title shown under the heading
+    verseUrl?: string;        // if set, the title becomes a link to the work on Verse
+    aspectRatio?: string;     // e.g. "1" (default), "4/5"
+    /** Percentage inset of the actual artwork inside the source file,
+        excluding any cream matte / bleed. Used to clamp each crop so
+        the matte never leaks into a detail view. */
+    artworkInset?: { top?: number; right?: number; bottom?: number; left?: number };
+    crops: {
+      id: string;
+      x: number;
+      y: number;
+      zoom: number;
+      caption?: string;
+    }[];
+  };
   workCount?: number;            // total works (e.g. 96, even if only some shown)
   presentedBy?: string;
   verseSeriesUrl?: string;       // external link to the exhibition's Verse series page
@@ -66,4 +99,6 @@ export type JournalEntry = {
   date: string;
   excerpt?: string;
   hero?: string;
+  externalUrl?: string;      // when set, the journal item links out to this URL instead of the internal /journal/[slug] route
+  disableHoverZoom?: boolean; // when true, skip the hover scale on the hero image — use for fine-pattern artwork where the scale slices into the grid
 };

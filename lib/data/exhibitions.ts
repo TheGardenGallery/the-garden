@@ -77,9 +77,47 @@ export const exhibitions: Exhibition[] = [
     status: "current",
     hero: "/images/paul-prudence/iso-iec-10646-hero.jpg",
     heroTheme: "paper",
+    descriptionByArtist: true,
+    disableListHoverZoom: true,
     verseSeriesUrl: "https://verse.works/series/iso-iec-10646-by-paul-prudence",
+    workCount: 70,
+    details: {
+      sourceImage: "/images/paul-prudence/iso-iec-10646-detail-source.png",
+      title: "ISO/IEC 10646 #70",
+      verseUrl: "https://verse.works/items/ethereum/0x67f56e7a4a5f071a46f13e67d467f78c34df3051/69",
+      aspectRatio: "1",
+      artworkInset: { top: 5, right: 6, bottom: 5, left: 6 },
+      crops: [
+        { id: "upper-texture", x: 40, y: 25, zoom: 2.6 },
+        { id: "mid-bands",     x: 50, y: 50, zoom: 2.6 },
+        { id: "lower-weave",   x: 55, y: 75, zoom: 2.6 },
+      ],
+    },
+    inlineArtworks: {
+      afterParagraphIndex: 1,
+      items: [
+        {
+          image: "/images/paul-prudence/iso-iec-10646-inline-1.png",
+          alt: "Paul Prudence, ISO/IEC 10646 #45",
+          title: "ISO/IEC 10646 #45",
+          verseUrl:
+            "https://verse.works/items/ethereum/0x67f56e7a4a5f071a46f13e67d467f78c34df3051/44",
+        },
+        {
+          image: "/images/paul-prudence/iso-iec-10646-inline-2.png",
+          alt: "Paul Prudence, ISO/IEC 10646 #34",
+          title: "ISO/IEC 10646 #34",
+          verseUrl:
+            "https://verse.works/items/ethereum/0x67f56e7a4a5f071a46f13e67d467f78c34df3051/33",
+        },
+      ],
+    },
     description: [
-      "Generative pattern systems derived from the Unicode character encoding standard. Prudence treats the administrative scaffolding of written language, with its glyph tables, code points, and supplementary planes, as source material, mapping its internal geometries into time-based visual compositions. The release presents a suite of real-time works alongside a printed companion examining the standard's typographic architecture.",
+      `<em>ISO/IEC 10646</em>* marks a culmination in a series of works exploring the use of text and signs as a material from which to weave fabrics of encoded patterns. The collection explores the historical links between weaving and computing, and their shared history of punched-card programming.`,
+      `Using solely the Unicode block elements as a base material, the generated patterns evoke a nostalgia for the age of teletype and early dot-matrix printers while simultaneously referencing early computational aesthetics such as arcade games and command-line interfaces. Now no longer tied to their original utility for use in software terminal emulation these special characters, which are today index fossils from the early era of computing, have been transcoded into weave patterns that define larger pictorial systems. Just as there are ancient tapestries depicting scenes from culturally significant events, some outputs of <em>ISO/IEC 10646</em> recall images of our earliest arcade games with scenes of partly-destroyed fortresses and floating space debris, rockets and asteroids. But among the many permutations of the collection you will also find the traces of cartographic systems, the rubrics of ciphers and the aesthetics of MS DOS&rsquo;s Defrag program.`,
+      `<em>ISO/IEC 10646</em> is a homage to the computational universality of the grid for mapping and as a tool for notation. It celebrates grids as encoders of transferable intelligence and is a paean to the grid&rsquo;s universal interactions which &mdash; as intimated by Turing&rsquo;s revolutionary thesis &mdash; culminates in the proposition that that universality could be used to reconstruct all human knowledge.`,
+      `My earliest memories of computer science lessons at school involved using a machine with a dial-up modem. I used to spend school breaks writing programs in BASIC using trigonometry functions to plot visual patterns which I would then print out on a dot-matrix printer. <em>ISO/IEC 10646</em> touches on my nostalgia for those early dialogues with machines and the grid-based formatting of information that we relied on to communicate with one another.`,
+      `<span class="ex-footnote">*The title of the series <em>ISO/IEC 10646</em> is the international standard reference that specifies the Universal Coded Character Set of which the block elements are a small subset.</span>`,
     ],
   },
   {
@@ -91,9 +129,10 @@ export const exhibitions: Exhibition[] = [
     month: "Jul",
     date: "July 2024",
     location: "Verse",
-    status: "current",
+    status: "past",
     hero: "/images/chuck-anderson/imagined-wreckage-hero.jpg",
     homepageHero: "/images/chuck-anderson/homepage-hero.jpg",
+    frameColor: "#000000",
     presentedBy: "Ivan Zhyzhkevych",
     workCount: 96,
     verseSeriesUrl: "https://verse.works/series/imagined-wreckage-by-chuck-anderson",
@@ -145,7 +184,7 @@ export const exhibitions: Exhibition[] = [
   { slug: "isle-of-alcina",         artistSlug: "t-k-z",             artistName: "Tù.úk'z",           title: "Isle of Alcina",         year: 2024, month: "Mar", date: "March 2024",    location: "Verse", status: "past" },
   { slug: "glitch-garden",          artistSlug: "sp-gelsesmaskinen", artistName: "Spøgelsesmaskinen", title: "Glitch Garden",          year: 2024, month: "Feb", date: "February 2024", location: "Verse", status: "past" },
   { slug: "making-an-egg",          artistSlug: "nikita-diakur",     artistName: "Nikita Diakur",     title: "Making an Egg with Hands", year: 2024, month: "Jan", date: "January 2024", location: "Verse", status: "past" },
-  { slug: "the-flood",              artistSlug: "yoshi-sodeoka",     artistName: "Yoshi Sodeoka",     title: "The Flood: Orchestrated", year: 2024, month: "Jan", date: "January 2024",  location: "Verse", status: "past", cardVideo: "/images/yoshi-sodeoka/the-flood-orchestrated.mp4", cardImage: "/images/yoshi-sodeoka/the-flood-orchestrated-poster.jpg" },
+  { slug: "the-flood",              artistSlug: "yoshi-sodeoka",     artistName: "Yoshi Sodeoka",     title: "The Flood", year: 2024, month: "Jan", date: "January 2024",  location: "Verse", status: "past", cardVideo: "/images/yoshi-sodeoka/the-flood-orchestrated.mp4", cardImage: "/images/yoshi-sodeoka/the-flood-orchestrated-poster.jpg" },
 
   // === PAST — 2023 ===
   { slug: "constraint",             artistSlug: "eric-andwer",       artistName: "Eric Andwer",       title: "Constraint",             year: 2023, month: "Nov", date: "November 2023", location: "Verse", status: "past" },
