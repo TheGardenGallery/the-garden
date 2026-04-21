@@ -496,18 +496,20 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 
 .hero{
   position:relative;padding-top:var(--nav-height);
-  height:100vh;height:100svh;overflow:hidden;
+  height:100vh;height:100dvh;overflow:hidden;
   background:#0a0a0c;
   --hero-foreground:var(--on-dark-fg);
   --hero-shadow:rgba(0,0,0,0.55);
 }
 /* Each slide carries its own palette-derived backdrop, so when slides
-   crossfade the walls dissolve together with the artwork. */
+   crossfade the walls dissolve together with the artwork. Gentle
+   gradient: a centered glow and a soft fall-off to `deep`, no hard
+   corners — the palette extractor already pulls `deep` close to `base`. */
 .slide-bg{
   position:absolute;inset:0;pointer-events:none;
   background:
-    radial-gradient(ellipse 70% 60% at 50% 52%, color-mix(in srgb, var(--hero-glow) 55%, transparent) 0%, transparent 62%),
-    radial-gradient(ellipse 130% 110% at 50% 50%, var(--hero-base) 0%, var(--hero-deep) 75%);
+    radial-gradient(ellipse 65% 55% at 50% 50%, color-mix(in srgb, var(--hero-glow) 35%, transparent) 0%, transparent 70%),
+    radial-gradient(ellipse 160% 130% at 50% 50%, var(--hero-base) 0%, var(--hero-deep) 100%);
 }
 .slide-link{display:block;width:100%;height:100%;position:relative;z-index:1;text-decoration:none;color:inherit;cursor:pointer;}
 .slide-link:focus-visible{outline:none;}
@@ -529,23 +531,29 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .hero-card-link{display:block;color:inherit;text-decoration:none;cursor:pointer;}
 .hero-card-link:focus-visible{outline:2px solid var(--hero-foreground);outline-offset:8px;}
 
-/* Triangle prev/next — tiny, corners, palette-aware color */
+/* Triangle prev/next — hidden by default, fade in when the pointer is in
+   the outer 22% of the hero on that side. Touch devices (no hover) keep
+   them dimly visible so they remain tappable. */
 .hero-nav{position:absolute;inset:0;pointer-events:none;z-index:3;}
 .hero-nav-btn{
   position:absolute;top:50%;transform:translateY(-50%);
-  pointer-events:auto;
   background:transparent;border:0;padding:14px;cursor:pointer;
-  color:var(--hero-foreground);opacity:0.55;
-  transition:opacity 240ms var(--ease-slow), transform 240ms var(--ease-slow);
+  color:var(--hero-foreground);
+  opacity:0;pointer-events:none;
+  transition:opacity 520ms var(--ease-slow), transform 320ms var(--ease-slow);
 }
 .hero-nav-prev{left:16px;}
 .hero-nav-next{right:16px;}
 @media (hover:hover){
-  .hero-nav-btn:hover{opacity:1;}
-  .hero-nav-prev:hover{transform:translateY(-50%) translateX(-2px);}
-  .hero-nav-next:hover{transform:translateY(-50%) translateX(2px);}
+  .hero-nav-btn[data-visible="true"]{opacity:0.78;pointer-events:auto;}
+  .hero-nav-btn[data-visible="true"]:hover{opacity:1;}
+  .hero-nav-prev[data-visible="true"]:hover{transform:translateY(-50%) translateX(-2px);}
+  .hero-nav-next[data-visible="true"]:hover{transform:translateY(-50%) translateX(2px);}
 }
-.hero-nav-btn:focus-visible{opacity:1;outline:1px solid var(--hero-foreground);outline-offset:6px;}
+@media (hover:none){
+  .hero-nav-btn{opacity:0.5;pointer-events:auto;}
+}
+.hero-nav-btn:focus-visible{opacity:1;pointer-events:auto;outline:1px solid var(--hero-foreground);outline-offset:6px;}
 .hero-headline{display:flex;flex-direction:column;gap:4px;}
 .hero-artist{font-family:'Cormorant','Title CJK',serif;font-weight:500;font-style:normal;font-size:32px;letter-spacing:-0.25px;line-height:1;color:var(--on-dark-fg);text-transform:uppercase;font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;}
 .hero-title{font-family:'Cormorant','Title CJK',serif;font-weight:400;font-style:italic;font-size:32px;letter-spacing:-0.25px;line-height:1.05;color:var(--on-dark-fg);text-transform:none;}
@@ -590,7 +598,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 
 .exhibitions-grid-hybrid{display:grid;grid-template-columns:repeat(3, 1fr);gap:56px 32px;}
 .exhibition-card{display:flex;flex-direction:column;cursor:pointer;}
-.exhibition-card-image{width:100%;aspect-ratio:4/5;background:var(--paper-warm);overflow:hidden;border-radius:0;margin-bottom:16px;display:flex;align-items:center;justify-content:center;}
+.exhibition-card-image{width:100%;aspect-ratio:4/5;background:var(--paper-warm);overflow:hidden;border-radius:0;margin-bottom:16px;display:flex;align-items:center;justify-content:center;padding:10% 12%;}
 .exhibition-card-image img,
 .exhibition-card-image video{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;transition:transform 0.5s;color:transparent;font-size:0;display:block;}
 .exhibition-card:hover .exhibition-card-image img,

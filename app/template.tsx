@@ -4,12 +4,15 @@ import { motion } from "motion/react";
 
 /**
  * Page transition wrapper. Next.js App Router mounts <Template> on every
- * route change, so this gives a quiet fade + 4px lift as routes swap.
- *
- * Easing matches --ease-slow in globals.css for visual consistency with
- * the mobile nav panel and image hover transitions.
+ * route change. When experimental.viewTransition is enabled in
+ * next.config.ts, the router layers on the browser's View Transitions
+ * API for a native crossfade on top of this motion fade.
  */
-export default function Template({ children }: { children: React.ReactNode }) {
+export default function Template({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 4 }}

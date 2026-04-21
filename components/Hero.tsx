@@ -25,6 +25,7 @@ export function Hero({ slides }: HeroProps) {
   const reduced = useReducedMotion();
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [arrowZone, setArrowZone] = useState<null | "left" | "right">(null);
 
   useEffect(() => {
     if (reduced || slides.length < 2 || paused) return;
@@ -53,7 +54,17 @@ export function Hero({ slides }: HeroProps) {
       className="hero"
       style={heroVars}
       onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onMouseLeave={() => {
+        setPaused(false);
+        setArrowZone(null);
+      }}
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const frac = (e.clientX - rect.left) / rect.width;
+        if (frac < 0.22) setArrowZone("left");
+        else if (frac > 0.78) setArrowZone("right");
+        else setArrowZone(null);
+      }}
     >
       <div className="hero-slides">
         {slides.map((s, i) => {
@@ -126,6 +137,7 @@ export function Hero({ slides }: HeroProps) {
           <button
             type="button"
             className="hero-nav-btn hero-nav-prev"
+            data-visible={arrowZone === "left"}
             onClick={prev}
             aria-label="Previous exhibition"
           >
@@ -136,6 +148,7 @@ export function Hero({ slides }: HeroProps) {
           <button
             type="button"
             className="hero-nav-btn hero-nav-next"
+            data-visible={arrowZone === "right"}
             onClick={next}
             aria-label="Next exhibition"
           >

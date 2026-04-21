@@ -86,12 +86,15 @@ async function extract(src: string): Promise<Palette> {
   const isDark = lum < 0.5;
 
   const base = rgbToHex(r, g, b);
-  const glow = shift(r, g, b, isDark ? 14 : 10);
-  const deep = shift(r, g, b, isDark ? -10 : -32);
+  const glow = shift(r, g, b, isDark ? 12 : 6);
+  // Deep is a gentle off-base tone — too-dark corners read as a drop shadow
+  // around the hero instead of ambient fall-off. 4–8 units is enough to
+  // hint at depth without painting a vignette.
+  const deep = shift(r, g, b, isDark ? -6 : -8);
   const foreground = isDark ? "#F5F3EF" : "#232326";
   const shadow = isDark
-    ? "rgba(0, 0, 0, 0.55)"
-    : `rgba(${clamp(r - 60)}, ${clamp(g - 60)}, ${clamp(b - 60)}, 0.18)`;
+    ? "rgba(0, 0, 0, 0.5)"
+    : `rgba(${clamp(r - 60)}, ${clamp(g - 60)}, ${clamp(b - 60)}, 0.14)`;
 
   return { base, glow, deep, foreground, shadow, isDark };
 }
