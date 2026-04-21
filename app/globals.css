@@ -257,6 +257,10 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 }
 .f-col ul a:hover{color:var(--on-dark-fg);}
 .f-col ul a:hover::after{transform:scaleX(1);}
+/* Opt out of the reveal-underline on specific f-col links (e.g., the
+   "Worldwide (Online)" location, which reads as a statement not a CTA). */
+.f-col ul a.no-reveal::after{display:none;}
+.f-col ul a.no-reveal:hover{color:var(--on-dark-fg-soft);cursor:default;}
 
 .footer-bottom{
   padding-top:32px;

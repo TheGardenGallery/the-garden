@@ -38,7 +38,7 @@ export function Footer() {
           <span className="f-col-label">Locations</span>
           <ul>
             <li>
-              <Link href="/locations">
+              <Link href="/locations" className="no-reveal">
                 Worldwide{" "}
                 <span
                   style={{
