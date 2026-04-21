@@ -24,7 +24,7 @@ export default function RootLayout({
         />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500&family=Cormorant:ital,wght@0,400;0,500;1,400&family=Barlow:wght@400;500;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;1,400&family=Barlow:wght@400;500;600&family=Inter:wght@700&display=swap"
         />
       </head>
       <body>
