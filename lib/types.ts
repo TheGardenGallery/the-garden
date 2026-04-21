@@ -47,6 +47,7 @@ export type Exhibition = {
   artistBio?: string;            // plain-text bio from Verse (colophon)
   hero?: string;                 // used on exhibition detail page
   homepageHero?: string;         // used on homepage hero — may differ from detail hero
+  heroTheme?: "dark" | "paper";  // hero backdrop — cream for light-surface pieces, dark for digital
   works?: Work[];
   featuredArtworks?: FeaturedArtwork[];
   workCount?: number;            // total works (e.g. 96, even if only some shown)

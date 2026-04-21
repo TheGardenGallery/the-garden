@@ -11,9 +11,9 @@ type HeroProps = {
   exhibitions: Exhibition[];
 };
 
-const DWELL_MS = 9000;
-const CROSSFADE_S = 1.8;
-const CARD_FADE_S = 0.7;
+const DWELL_MS = 10000;
+const CROSSFADE_S = 2.6;
+const CARD_FADE_S = 1.4;
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function Hero({ exhibitions }: HeroProps) {
@@ -37,10 +37,12 @@ export function Hero({ exhibitions }: HeroProps) {
   if (slides.length === 0) return null;
   const ex = slides[index % slides.length];
   const heroImage = ex.homepageHero ?? ex.hero!;
+  const theme = ex.heroTheme ?? "dark";
 
   return (
     <section
       className="hero"
+      data-theme={theme}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -70,42 +72,33 @@ export function Hero({ exhibitions }: HeroProps) {
 
       <div className="hero-card">
         <HeroCardReveal>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={ex.slug}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: CARD_FADE_S, ease: EASE }}
-            >
-              <div className="hero-headline">
-                <div className="hero-artist">{ex.artistName}</div>
-                <div className="hero-title">{ex.title}</div>
-              </div>
-              <div className="hero-meta">{ex.date}</div>
-              <Link
-                href={`/exhibitions/${ex.slug}`}
-                className="hero-link"
+          <div className="hero-card-stage">
+            <AnimatePresence initial={false}>
+              <motion.div
+                key={ex.slug}
+                className="hero-card-slide"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: CARD_FADE_S, ease: EASE }}
               >
-                <span className="hero-link-label">View Exhibition</span>
-                <span className="hero-link-arrow">→</span>
-              </Link>
-            </motion.div>
-          </AnimatePresence>
+                <div className="hero-headline">
+                  <div className="hero-artist">{ex.artistName}</div>
+                  <div className="hero-title">{ex.title}</div>
+                </div>
+                <div className="hero-meta">{ex.date}</div>
+                <Link
+                  href={`/exhibitions/${ex.slug}`}
+                  className="hero-link"
+                >
+                  <span className="hero-link-label">View Exhibition</span>
+                  <span className="hero-link-arrow">→</span>
+                </Link>
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </HeroCardReveal>
       </div>
-
-      {slides.length > 1 && (
-        <div className="hero-index" aria-hidden="true">
-          <span className="hero-index-num">
-            {String(index + 1).padStart(2, "0")}
-          </span>
-          <span className="hero-index-sep">—</span>
-          <span className="hero-index-total">
-            {String(slides.length).padStart(2, "0")}
-          </span>
-        </div>
-      )}
     </section>
   );
 }

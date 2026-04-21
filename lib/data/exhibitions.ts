@@ -76,6 +76,7 @@ export const exhibitions: Exhibition[] = [
     location: "Verse",
     status: "current",
     hero: "/images/paul-prudence/iso-iec-10646-hero.jpg",
+    heroTheme: "paper",
     verseSeriesUrl: "https://verse.works/series/iso-iec-10646-by-paul-prudence",
     description: [
       "Generative pattern systems derived from the Unicode character encoding standard. Prudence treats the administrative scaffolding of written language, with its glyph tables, code points, and supplementary planes, as source material, mapping its internal geometries into time-based visual compositions. The release presents a suite of real-time works alongside a printed companion examining the standard's typographic architecture.",

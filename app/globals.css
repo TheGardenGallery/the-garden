@@ -486,7 +486,24 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   background:
     radial-gradient(ellipse 70% 60% at 50% 52%, rgba(245,243,239,0.05) 0%, rgba(245,243,239,0) 65%),
     radial-gradient(ellipse 120% 100% at 50% 50%, #14141a 0%, #0a0a0c 70%);
+  transition:background-color 1200ms var(--ease-slow);
 }
+/* Paper theme — for works on cream stock that disappear against #0a0a0c */
+.hero[data-theme="paper"]{
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 50%, #faf8f3 0%, #ebe7de 72%, #d9d3c6 100%);
+}
+.hero[data-theme="paper"] .hero-artist,
+.hero[data-theme="paper"] .hero-title{color:var(--ink);}
+.hero[data-theme="paper"] .hero-meta{color:rgba(35,35,38,0.6);}
+.hero[data-theme="paper"] .hero-link{color:rgba(35,35,38,0.78);}
+.hero[data-theme="paper"] .hero-link:hover{color:var(--ink);}
+.hero[data-theme="paper"] .hero-link-label{border-bottom-color:rgba(35,35,38,0.35);}
+.hero[data-theme="paper"] .hero-link-label::after{background:var(--ink);}
+.hero[data-theme="paper"] .slide img{
+  filter:drop-shadow(0 18px 48px rgba(40,35,25,0.18)) drop-shadow(0 2px 6px rgba(40,35,25,0.10));
+}
+.hero[data-theme="paper"]::after{display:none;}
 .hero-slides{position:absolute;inset:var(--nav-height) 0 0 0;display:flex;align-items:center;justify-content:center;}
 .slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease;display:flex;align-items:center;justify-content:center;padding:32px 32px 32px 32px;}
 .slide.active{opacity:1;}
@@ -522,19 +539,11 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .hero-link:hover .hero-link-label::after{transform:scaleX(1);}
 .hero-link-arrow{font-style:normal;font-size:13px;line-height:1;}
 
-/* Refined slide index — small, Barlow, bottom-right. No arrows, no dots. */
-.hero-index{
-  position:absolute;right:40px;bottom:40px;z-index:2;
-  display:inline-flex;align-items:baseline;gap:8px;
-  font-family:'Barlow',sans-serif;
-  font-weight:400;font-size:10px;letter-spacing:1.8px;
-  color:rgba(245,243,239,0.55);
-  text-transform:uppercase;
-  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
-  pointer-events:none;
-}
-.hero-index-num{color:var(--on-dark-fg);}
-.hero-index-sep{font-size:9px;opacity:0.55;}
+/* Stage that lets crossfading slides share the same layout cell.
+   Both slides occupy grid-area "stack" so they overlap cleanly during
+   the AnimatePresence crossfade — no vertical push, no flash-of-empty. */
+.hero-card-stage{display:grid;grid-template-areas:"stack";}
+.hero-card-slide{grid-area:stack;}
 
 @media (max-width:960px){
   .slide{padding:24px;}
