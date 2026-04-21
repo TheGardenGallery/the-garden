@@ -940,7 +940,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .exhibition-row{
   display:grid;
   grid-template-columns:7fr 5fr;
-  gap:80px;
+  gap:64px;
   padding:48px 0;
   border-bottom:1px solid var(--rule-warm);
   align-items:center;
@@ -948,8 +948,13 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .exhibition-row:first-child{padding-top:12px;}
 .exhibition-row:last-child{border-bottom:none;}
 
+/* Mirror: flip column widths so the image always takes the 7fr slot
+   (the larger one) and the body always takes 5fr. Otherwise the body
+   column would be 7fr-wide but the text capped at 46ch, leaving a
+   huge gap between text and image on mirrored rows. */
+.exhibition-row.mirror{grid-template-columns:5fr 7fr;}
 .exhibition-row.mirror .row-image{order:2;}
-.exhibition-row.mirror .row-body{order:1;}
+.exhibition-row.mirror .row-body{order:1;justify-self:end;}
 
 .row-image{
   aspect-ratio:3/4;
