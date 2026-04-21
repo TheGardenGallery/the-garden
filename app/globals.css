@@ -497,15 +497,12 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .hero{
   position:relative;padding-top:var(--nav-height);
   height:100vh;height:100dvh;overflow:hidden;
-  background:
-    radial-gradient(ellipse 70% 60% at 50% 52%, rgba(245,243,239,0.05) 0%, rgba(245,243,239,0) 65%),
-    radial-gradient(ellipse 120% 100% at 50% 50%, #14141a 0%, #0a0a0c 70%);
+  background:#0c0c10;
   transition:background-color 1200ms var(--ease-slow);
   --hero-foreground:var(--on-dark-fg);
 }
 .hero[data-theme="paper"]{
-  background:
-    radial-gradient(ellipse 80% 70% at 50% 50%, #faf8f3 0%, #ebe7de 72%, #d9d3c6 100%);
+  background:#ece8de;
   --hero-foreground:var(--ink);
 }
 .hero[data-theme="paper"] .hero-artist,
@@ -522,7 +519,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .slide-link:focus-visible{outline:none;}
 .hero-slides{position:absolute;inset:var(--nav-height) 0 0 0;display:flex;align-items:center;justify-content:center;}
 .slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:64px 56px;}
-.slide img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;image-rendering:-webkit-optimize-contrast;color:transparent;font-size:0;filter:drop-shadow(0 18px 48px rgba(0,0,0,0.55)) drop-shadow(0 2px 6px rgba(0,0,0,0.35));position:relative;z-index:1;}
+.slide img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;image-rendering:auto;color:transparent;font-size:0;filter:drop-shadow(0 18px 48px rgba(0,0,0,0.55)) drop-shadow(0 2px 6px rgba(0,0,0,0.35));position:relative;z-index:1;transform:translateZ(0);backface-visibility:hidden;}
 /* Wrapper inside .slide that participates in flex layout so the artwork
    respects .slide's padding (next/image fill otherwise ignores it by
    positioning absolutely to the padding edge). */
@@ -543,23 +540,24 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    them dimly visible so they remain tappable. */
 .hero-nav{position:absolute;inset:0;pointer-events:none;z-index:3;}
 .hero-nav-btn{
-  position:absolute;top:50%;transform:translateY(-50%);
+  position:absolute;top:50%;
   background:transparent;border:0;padding:14px;cursor:pointer;
   color:var(--hero-foreground);
   opacity:0;pointer-events:none;
-  transition:opacity 520ms var(--ease-slow), transform 320ms var(--ease-slow);
+  transition:opacity 900ms var(--ease-slow), transform 900ms var(--ease-slow);
 }
 .hero-nav-btn svg{display:block;width:14px;height:14px;}
-.hero-nav-prev{left:24px;}
-.hero-nav-next{right:24px;}
+.hero-nav-prev{left:24px;transform:translate(-10px, -50%);}
+.hero-nav-next{right:24px;transform:translate(10px, -50%);}
 @media (hover:hover){
-  .hero-nav-btn[data-visible="true"]{opacity:0.78;pointer-events:auto;}
+  .hero-nav-prev[data-visible="true"]{opacity:0.8;pointer-events:auto;transform:translate(0, -50%);}
+  .hero-nav-next[data-visible="true"]{opacity:0.8;pointer-events:auto;transform:translate(0, -50%);}
   .hero-nav-btn[data-visible="true"]:hover{opacity:1;}
-  .hero-nav-prev[data-visible="true"]:hover{transform:translateY(-50%) translateX(-2px);}
-  .hero-nav-next[data-visible="true"]:hover{transform:translateY(-50%) translateX(2px);}
+  .hero-nav-prev[data-visible="true"]:hover{transform:translate(-3px, -50%);}
+  .hero-nav-next[data-visible="true"]:hover{transform:translate(3px, -50%);}
 }
 @media (hover:none){
-  .hero-nav-btn{opacity:0.5;pointer-events:auto;}
+  .hero-nav-prev,.hero-nav-next{opacity:0.5;pointer-events:auto;transform:translate(0, -50%);}
 }
 .hero-nav-btn:focus-visible{opacity:1;pointer-events:auto;outline:1px solid var(--hero-foreground);outline-offset:6px;}
 .hero-headline{display:flex;flex-direction:column;gap:4px;}
