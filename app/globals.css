@@ -480,11 +480,17 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    INDEX — homepage-specific styles.
    ======================================================================= */
 
-.hero{position:relative;padding-top:var(--nav-height);height:100vh;height:100svh;overflow:hidden;background:#0a0a0c;}
+.hero{
+  position:relative;padding-top:var(--nav-height);
+  height:100vh;height:100svh;overflow:hidden;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 52%, rgba(245,243,239,0.05) 0%, rgba(245,243,239,0) 65%),
+    radial-gradient(ellipse 120% 100% at 50% 50%, #14141a 0%, #0a0a0c 70%);
+}
 .hero-slides{position:absolute;inset:var(--nav-height) 0 0 0;display:flex;align-items:center;justify-content:center;}
 .slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease;display:flex;align-items:center;justify-content:center;padding:32px 32px 32px 32px;}
 .slide.active{opacity:1;}
-.slide img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;image-rendering:-webkit-optimize-contrast;color:transparent;font-size:0;}
+.slide img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;image-rendering:-webkit-optimize-contrast;color:transparent;font-size:0;filter:drop-shadow(0 18px 48px rgba(0,0,0,0.55)) drop-shadow(0 2px 6px rgba(0,0,0,0.35));}
 /* Wrapper inside .slide that participates in flex layout so the artwork
    respects .slide's padding (next/image fill otherwise ignores it by
    positioning absolutely to the padding edge). */
