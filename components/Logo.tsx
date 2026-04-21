@@ -30,10 +30,9 @@ export function Logo({ variant = "nav" }: LogoProps) {
               points="50,12 88,88 12,88"
               fill="none"
               stroke="currentColor"
-              strokeWidth="3.5"
+              strokeWidth="12"
               strokeLinejoin="miter"
               strokeMiterlimit="4"
-              vectorEffect="non-scaling-stroke"
             />
           </svg>
         </span>
