@@ -16,14 +16,16 @@ export function Hero({ exhibition }: HeroProps) {
             <Image
               src={heroImage}
               alt={`${exhibition.artistName}, ${exhibition.title}`}
-              fill
+              width={1600}
+              height={2000}
               priority
               sizes="100vw"
               style={{
-                objectFit: "contain",
                 maxWidth: "100%",
                 maxHeight: "100%",
-                position: "absolute",
+                width: "auto",
+                height: "auto",
+                objectFit: "contain",
               }}
             />
           )}
