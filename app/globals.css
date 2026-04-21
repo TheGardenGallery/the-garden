@@ -115,7 +115,7 @@ nav,.site-nav{
 
 .logo{
   font-family:'Inter',sans-serif;
-  font-weight:600;font-size:20px;
+  font-weight:560;font-size:20px;
   letter-spacing:-0.3px;
   text-transform:uppercase;
   display:inline-block;
@@ -228,7 +228,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 }
 .f-logo{
   font-family:'Inter',sans-serif;
-  font-weight:600;font-size:14px;letter-spacing:-0.2px;
+  font-weight:560;font-size:14px;letter-spacing:-0.2px;
   text-transform:uppercase;
   color:var(--on-dark-fg);
   line-height:1;
