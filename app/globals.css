@@ -801,8 +801,16 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   .plot-cell.filled:active,
   .plot-cell.filled:active .artist-initial,
   .plot-cell.filled:active .artist-name,
-  .plot-cell.filled:active .artist-coord{transition-delay:160ms;}
+  .plot-cell.filled:active .artist-coord{transition-delay:130ms;}
 }
+
+/* While the row is horizontally scrolling, the browser does not
+   always drop :active (the touch stays inside the scroll container).
+   Explicitly neutralize the invert so the cell never flashes. */
+.plot-row-cells[data-scrolling="true"] .plot-cell.filled:active{background:transparent;}
+.plot-row-cells[data-scrolling="true"] .plot-cell.filled:active .artist-initial,
+.plot-row-cells[data-scrolling="true"] .plot-cell.filled:active .artist-name{color:var(--ink);}
+.plot-row-cells[data-scrolling="true"] .plot-cell.filled:active .artist-coord{color:#7a756d;}
 
 @media (max-width:1280px){
   .plot-top,.plot-row{--cols:6;}

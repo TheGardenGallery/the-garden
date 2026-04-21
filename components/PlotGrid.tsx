@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import type { Artist } from "@/lib/types";
 import { PlotCell } from "./PlotCell";
@@ -86,15 +87,41 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
               variants={rowVariants}
             >
               <div className="plot-row-label">{row}</div>
-              <div className="plot-row-cells">
+              <PlotRowCells>
                 {cells.map(({ col, artist }) => (
                   <PlotCell key={col} col={col} row={row} artist={artist} />
                 ))}
-              </div>
+              </PlotRowCells>
             </motion.div>
           );
         })}
       </motion.div>
     </section>
+  );
+}
+
+/**
+ * Horizontally-scrollable cell container that flags itself while
+ * scrolling so :active invert styles can be suppressed (prevents a
+ * tap flash when the user is actually scrolling).
+ */
+function PlotRowCells({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<number | null>(null);
+
+  const onScroll = () => {
+    const el = ref.current;
+    if (!el) return;
+    el.dataset.scrolling = "true";
+    if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    timeoutRef.current = window.setTimeout(() => {
+      if (ref.current) ref.current.dataset.scrolling = "false";
+    }, 220);
+  };
+
+  return (
+    <div ref={ref} className="plot-row-cells" onScroll={onScroll}>
+      {children}
+    </div>
   );
 }
