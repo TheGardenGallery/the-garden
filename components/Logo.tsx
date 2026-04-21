@@ -26,13 +26,10 @@ export function Logo({ variant = "nav" }: LogoProps) {
             xmlns="http://www.w3.org/2000/svg"
             aria-hidden="true"
           >
-            <polygon
-              points="50,12 88,88 12,88"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="22"
-              strokeLinejoin="miter"
-              strokeMiterlimit="4"
+            <path
+              d="M50 0 L100 100 L0 100 Z M50 25 L82 89 L18 89 Z"
+              fill="currentColor"
+              fillRule="evenodd"
             />
           </svg>
         </span>
