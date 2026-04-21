@@ -94,14 +94,14 @@ export default async function ExhibitionDetailPage({
         </div>
       </section>
 
-      {/* 04 · WORKS */}
-      {exhibition.works && exhibition.works.length > 0 && (
-        <WorksSection works={exhibition.works} />
-      )}
-
-      {/* 04b · FEATURED */}
+      {/* 04 · FEATURED */}
       {exhibition.featuredArtworks && exhibition.featuredArtworks.length > 0 && (
         <FeaturedArtworks items={exhibition.featuredArtworks} />
+      )}
+
+      {/* 04b · WORKS */}
+      {exhibition.works && exhibition.works.length > 0 && (
+        <WorksSection works={exhibition.works} />
       )}
 
       {/* 05 · COLOPHON */}
