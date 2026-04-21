@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import ReactMarkdown from "react-markdown";
 import { fetchExhibition, fetchExhibitions } from "@/lib/verse-api";
 import type { Exhibition } from "@/lib/types";
 import { WorksGrid } from "@/components/WorksGrid";
@@ -82,12 +83,13 @@ export default async function ExhibitionDetailPage({
         </aside>
 
         <div className="ex-overview-body">
-          {exhibition.description?.map((para, i) => (
-            <p
-              key={i}
-              dangerouslySetInnerHTML={{ __html: para }}
-            />
-          ))}
+          {exhibition.descriptionMarkdown ? (
+            <ReactMarkdown>{exhibition.descriptionMarkdown}</ReactMarkdown>
+          ) : (
+            exhibition.description?.map((para, i) => (
+              <p key={i} dangerouslySetInnerHTML={{ __html: para }} />
+            ))
+          )}
         </div>
       </section>
 
@@ -144,7 +146,10 @@ function Colophon({ exhibition }: { exhibition: Exhibition }) {
         <ColBlock
           label="About the artist"
           title={exhibition.artistName}
-          body="Chicago-based multidisciplinary artist known for his distinctive use of colour, light, and foregrounding of digital technology across collage, photography, and generative systems."
+          body={
+            exhibition.artistBio ??
+            "Multidisciplinary artist working across digital and generative systems."
+          }
           links={[
             {
               label: "Artist profile",

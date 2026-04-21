@@ -2,6 +2,7 @@ export type Artist = {
   slug: string;
   name: string;
   coord: { row: string; col: number };
+  bio?: string;
 };
 
 export type Work = {
@@ -34,6 +35,8 @@ export type Exhibition = {
   location: string;
   status: ExhibitionStatus;
   description?: string[];        // paragraphs (HTML allowed in prose)
+  descriptionMarkdown?: string;  // markdown from Verse — takes priority when present
+  artistBio?: string;            // plain-text bio from Verse (colophon)
   hero?: string;                 // used on exhibition detail page
   homepageHero?: string;         // used on homepage hero — may differ from detail hero
   works?: Work[];
