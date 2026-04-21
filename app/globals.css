@@ -734,7 +734,10 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   transform:translate(-50%,-50%);
   transition:background 245ms, transform 245ms, width 245ms, height 245ms;
 }
-.plot-cell.empty:hover::before{background:var(--ink);transform:translate(-50%,-50%) scale(2);}
+@media (hover:hover){
+  .plot-cell.empty:hover::before{background:var(--ink);transform:translate(-50%,-50%) scale(2);}
+  .plot-cell:hover .coord-readout{opacity:1;}
+}
 
 .plot-cell .coord-readout{
   position:absolute;top:10px;right:12px;
@@ -743,20 +746,21 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   color:#7a756d;
   opacity:0;transition:opacity 245ms;pointer-events:none;
 }
-.plot-cell:hover .coord-readout{opacity:1;}
 
-.plot-cell.filled:hover,
 .plot-cell.filled:focus-visible,
 .plot-cell.filled:active{background:var(--ink);}
-.plot-cell.filled:hover .artist-initial,
-.plot-cell.filled:hover .artist-name,
-.plot-cell.filled:hover .artist-coord,
 .plot-cell.filled:focus-visible .artist-initial,
 .plot-cell.filled:focus-visible .artist-name,
 .plot-cell.filled:focus-visible .artist-coord,
 .plot-cell.filled:active .artist-initial,
 .plot-cell.filled:active .artist-name,
 .plot-cell.filled:active .artist-coord{color:var(--paper-warm);}
+@media (hover:hover){
+  .plot-cell.filled:hover{background:var(--ink);}
+  .plot-cell.filled:hover .artist-initial,
+  .plot-cell.filled:hover .artist-name,
+  .plot-cell.filled:hover .artist-coord{color:var(--paper-warm);}
+}
 .plot-cell.filled .artist-initial{
   position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);
   font-family:'Cormorant',serif;
