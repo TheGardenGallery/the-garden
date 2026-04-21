@@ -27,7 +27,7 @@ export function Logo({ variant = "nav" }: LogoProps) {
             aria-hidden="true"
           >
             <path
-              d="M50 0 L100 100 L0 100 Z M50 49 L64 78 L36 78 Z"
+              d="M50 0 L100 100 L0 100 Z M50 46 L67 79 L33 79 Z"
               fill="currentColor"
               fillRule="evenodd"
             />
