@@ -679,9 +679,12 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   display:grid;
   grid-auto-flow:column;
   grid-auto-columns:calc(100% / var(--cols, 7));
+  border-left:1px solid #c5c2ba;
 }
 .plot-top-cells::-webkit-scrollbar,
 .plot-row-cells::-webkit-scrollbar{display:none;}
+.plot-top-cells > :first-child,
+.plot-row-cells > :first-child{border-left:none;}
 
 .plot-top{border-bottom:1px solid #c5c2ba;background:var(--paper-warm);}
 .plot-origin{
