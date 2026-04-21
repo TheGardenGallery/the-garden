@@ -10,7 +10,7 @@
 /* ---- TOKENS --------------------------------------------------------- */
 :root{
   /* Layout */
-  --nav-height: 80px;
+  --nav-height: 70px;
   --content-max: 1440px;
   --gutter: 40px;
 
@@ -92,10 +92,10 @@ nav,.site-nav{
   border-bottom:1px solid var(--rule);
   height:var(--nav-height);
 }
-.nav-links{display:flex;gap:56px;list-style:none;}
+.nav-links{display:flex;gap:48px;list-style:none;}
 .nav-links a{
   font-family:'Barlow',sans-serif;
-  font-weight:400;font-size:24px;letter-spacing:0.5px;
+  font-weight:500;font-size:17px;letter-spacing:0.4px;
   text-transform:uppercase;
   color:#000;
   line-height:1;
@@ -115,7 +115,7 @@ nav,.site-nav{
 
 .logo{
   font-family:'Inter',sans-serif;
-  font-weight:700;font-size:32px;
+  font-weight:700;font-size:28px;
   letter-spacing:-0.5px;
   text-transform:uppercase;
   display:inline-block;
@@ -304,14 +304,14 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 @media (max-width:720px){
   .nav-links{display:none;}
   .nav-toggle{display:inline-flex;align-items:center;justify-content:center;}
-  :root{--nav-height:68px;--gutter:28px;}
+  :root{--nav-height:60px;--gutter:28px;}
   nav,.site-nav{padding:20px var(--gutter);}
   footer{padding:56px var(--gutter) 32px;}
 }
 @media (max-width:600px){
-  :root{--nav-height:62px;--gutter:24px;}
+  :root{--nav-height:56px;--gutter:24px;}
   nav,.site-nav{padding:18px var(--gutter);}
-  .logo{font-size:26px;letter-spacing:-0.4px;}
+  .logo{font-size:22px;letter-spacing:-0.3px;}
   .nav-panel{padding:40px 24px 40px;}
   .nav-panel a{font-size:32px;}
   footer{padding:48px var(--gutter) 32px;}
