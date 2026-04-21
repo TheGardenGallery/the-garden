@@ -115,7 +115,7 @@ nav,.site-nav{
 
 .logo{
   font-family:'Inter',sans-serif;
-  font-weight:700;font-size:22px;
+  font-weight:700;font-size:20.9px;
   letter-spacing:-0.4px;
   text-transform:uppercase;
   display:inline-block;
@@ -228,7 +228,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 }
 .f-logo{
   font-family:'Inter',sans-serif;
-  font-weight:700;font-size:14px;letter-spacing:-0.25px;
+  font-weight:700;font-size:13.3px;letter-spacing:-0.25px;
   text-transform:uppercase;
   color:var(--on-dark-fg);
   line-height:1;
@@ -315,7 +315,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 @media (max-width:600px){
   :root{--nav-height:56px;--gutter:24px;}
   nav,.site-nav{padding:18px var(--gutter);}
-  .logo{font-size:20px;letter-spacing:-0.3px;}
+  .logo{font-size:19px;letter-spacing:-0.3px;}
   .nav-panel{padding:40px 24px 40px;}
   .nav-panel a{font-size:32px;}
   footer{padding:48px var(--gutter) 32px;}
