@@ -28,8 +28,12 @@ export function Logo({ variant = "nav" }: LogoProps) {
           >
             <polygon
               points="50,12 88,88 12,88"
-              fill="currentColor"
-              stroke="none"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="4"
+              strokeLinejoin="miter"
+              strokeMiterlimit="4"
+              vectorEffect="non-scaling-stroke"
             />
           </svg>
         </span>
