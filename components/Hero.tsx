@@ -13,21 +13,16 @@ export function Hero({ exhibition }: HeroProps) {
       <div className="hero-slides">
         <div className="slide active">
           {heroImage && (
-            <Image
-              src={heroImage}
-              alt={`${exhibition.artistName}, ${exhibition.title}`}
-              width={1600}
-              height={2000}
-              priority
-              sizes="100vw"
-              style={{
-                maxWidth: "100%",
-                maxHeight: "100%",
-                width: "auto",
-                height: "auto",
-                objectFit: "contain",
-              }}
-            />
+            <div className="slide-frame">
+              <Image
+                src={heroImage}
+                alt={`${exhibition.artistName}, ${exhibition.title}`}
+                fill
+                priority
+                sizes="100vw"
+                style={{ objectFit: "contain" }}
+              />
+            </div>
           )}
         </div>
       </div>
