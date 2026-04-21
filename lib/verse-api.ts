@@ -1,12 +1,14 @@
 /**
  * Verse Works API integration.
  *
- * Local seed data (images, works grid, presented-by, prev/next) stays the
- * source of truth for layout. At fetch time we pull the curator's 27
- * exhibitions from Verse and overlay the editorial text (description,
- * artist bio) by matching on a normalized title.
+ * Source of editorial copy: the Exhibition type on Verse
+ * (verse.works/exhibitions/<slug>), whose `about` field holds the
+ * curator-authored exhibition text. Matched to local seed data by the
+ * shared slug. Artist bios come from the same query's `artists { bio }`.
  *
- * Next.js caches the fetch across the request and revalidates hourly.
+ * The Collection type (formerly queried via `explore`) returns the
+ * artist-authored series text, which is not what the curator's
+ * exhibition page is supposed to render.
  */
 
 import { cache } from "react";
@@ -16,41 +18,29 @@ import { journalEntries } from "@/lib/data/journal";
 import type { Artist, Exhibition, JournalEntry } from "@/lib/types";
 
 const VERSE_ENDPOINT = "https://verse.works/query";
-const CURATOR_PERSON_ID =
-  process.env.VERSE_PERSON_ID ?? "8933862f-da37-4de3-bacc-49fd33f81dd2";
 
-type VerseCollection = {
+type VerseExhibition = {
   id: string;
-  name: string;
   slug: string;
-  description: string | null;
+  name: string;
+  about: string | null;
   artists: { name: string; slug: string; bio: string | null }[];
 };
 
 const VERSE_QUERY = `
-  query CuratorExhibitions($id: PersonID!) {
-    explore(
-      filter: { personIds: [$id] }
-      sorting: { sort: RECENCY, direction: DESC }
-      first: 50
-    ) {
-      nodes {
-        id
-        name
-        slug
-        description
-        artists { name slug bio }
-      }
+  query AllExhibitions {
+    exhibitions {
+      id
+      slug
+      name
+      about
+      artists { name slug bio }
     }
   }
 `;
 
-/**
- * Normalize a title for matching. Lowercase, collapse whitespace/punct to
- * single dashes. Matches "ISO/IEC 10646" against "iso-iec-10646".
- */
-function normalize(title: string): string {
-  return title
+function normalize(name: string): string {
+  return name
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -58,75 +48,69 @@ function normalize(title: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-const fetchVerseCollections = cache(async (): Promise<VerseCollection[]> => {
+const fetchVerseExhibitions = cache(async (): Promise<VerseExhibition[]> => {
   try {
     const res = await fetch(VERSE_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: VERSE_QUERY,
-        variables: { id: CURATOR_PERSON_ID },
-      }),
+      body: JSON.stringify({ query: VERSE_QUERY }),
       next: { revalidate: 3600 },
     });
     if (!res.ok) {
-      const body = await res.text();
-      console.warn(`[verse] fetch failed: ${res.status}`, body.slice(0, 300));
+      console.warn(`[verse] ${res.status} ${res.statusText}`);
       return [];
     }
     const json = (await res.json()) as {
-      data?: { explore?: { nodes?: VerseCollection[] } };
+      data?: { exhibitions?: VerseExhibition[] };
       errors?: unknown;
     };
-    if (json.errors) {
-      console.warn("[verse] graphql errors:", JSON.stringify(json.errors));
-    }
-    return json.data?.explore?.nodes ?? [];
+    if (json.errors) console.warn("[verse] graphql errors:", JSON.stringify(json.errors));
+    return json.data?.exhibitions ?? [];
   } catch (err) {
     console.warn("[verse] fetch threw:", err);
     return [];
   }
 });
 
-const getVerseByNormalizedTitle = cache(async () => {
-  const nodes = await fetchVerseCollections();
-  const map = new Map<string, VerseCollection>();
-  for (const node of nodes) map.set(normalize(node.name), node);
+const getVerseBySlug = cache(async () => {
+  const nodes = await fetchVerseExhibitions();
+  const map = new Map<string, VerseExhibition>();
+  for (const node of nodes) map.set(node.slug, node);
   return map;
 });
 
 function mergeExhibitionWithVerse(
   ex: Exhibition,
-  verse: VerseCollection | undefined
+  verse: VerseExhibition | undefined
 ): Exhibition {
   if (!verse) return ex;
   return {
     ...ex,
-    descriptionMarkdown: verse.description ?? ex.descriptionMarkdown,
+    descriptionMarkdown: verse.about ?? ex.descriptionMarkdown,
     artistBio: verse.artists[0]?.bio ?? ex.artistBio,
   };
 }
 
 export async function fetchArtists(): Promise<Artist[]> {
-  const verseMap = await getVerseByNormalizedTitle();
-  const bioByArtistSlug = new Map<string, string>();
-  for (const node of verseMap.values()) {
+  const nodes = await fetchVerseExhibitions();
+  const bioByArtistName = new Map<string, string>();
+  for (const node of nodes) {
     for (const a of node.artists) {
-      if (a.bio && !bioByArtistSlug.has(normalize(a.name))) {
-        bioByArtistSlug.set(normalize(a.name), a.bio);
+      if (a.bio && !bioByArtistName.has(normalize(a.name))) {
+        bioByArtistName.set(normalize(a.name), a.bio);
       }
     }
   }
   return artists.map((a) => ({
     ...a,
-    bio: bioByArtistSlug.get(normalize(a.name)) ?? a.bio,
+    bio: bioByArtistName.get(normalize(a.name)) ?? a.bio,
   }));
 }
 
 export async function fetchExhibitions(): Promise<Exhibition[]> {
-  const verseMap = await getVerseByNormalizedTitle();
+  const verseMap = await getVerseBySlug();
   return seedExhibitions.map((ex) =>
-    mergeExhibitionWithVerse(ex, verseMap.get(normalize(ex.title)))
+    mergeExhibitionWithVerse(ex, verseMap.get(ex.slug))
   );
 }
 
@@ -135,8 +119,8 @@ export async function fetchExhibition(
 ): Promise<Exhibition | undefined> {
   const ex = seedExhibitions.find((e) => e.slug === slug);
   if (!ex) return undefined;
-  const verseMap = await getVerseByNormalizedTitle();
-  return mergeExhibitionWithVerse(ex, verseMap.get(normalize(ex.title)));
+  const verseMap = await getVerseBySlug();
+  return mergeExhibitionWithVerse(ex, verseMap.get(slug));
 }
 
 export async function fetchJournalEntries(): Promise<JournalEntry[]> {
