@@ -2,19 +2,7 @@ import { ExhibitionRow } from "@/components/ExhibitionRow";
 import { PastCard } from "@/components/PastCard";
 import { EmptyState } from "@/components/EmptyState";
 import { fetchExhibitions } from "@/lib/verse-api";
-import { getArtworkPalette } from "@/lib/palette";
 import type { Exhibition } from "@/lib/types";
-
-async function withMatte(ex: Exhibition) {
-  const src = ex.hero ?? ex.works?.[0]?.image;
-  if (!src) return { exhibition: ex, matte: undefined };
-  try {
-    const palette = await getArtworkPalette(src);
-    return { exhibition: ex, matte: palette.base };
-  } catch {
-    return { exhibition: ex, matte: undefined };
-  }
-}
 
 export const metadata = {
   title: "Exhibitions | The Garden",
@@ -22,8 +10,8 @@ export const metadata = {
 
 export default async function ExhibitionsPage() {
   const all = await fetchExhibitions();
-  const current = await Promise.all(all.filter((e) => e.status === "current").map(withMatte));
-  const upcoming = await Promise.all(all.filter((e) => e.status === "upcoming").map(withMatte));
+  const current = all.filter((e) => e.status === "current");
+  const upcoming = all.filter((e) => e.status === "upcoming");
   const past = all.filter((e) => e.status === "past");
 
   const pastByYear = past.reduce<Record<number, Exhibition[]>>((acc, ex) => {
@@ -42,12 +30,11 @@ export default async function ExhibitionsPage() {
         <div className="ex-section-inner">
           <h2 className="ex-section-title">Current</h2>
           <div className="exhibitions-list">
-            {current.map(({ exhibition: ex, matte }, i) => (
+            {current.map((ex, i) => (
               <ExhibitionRow
                 key={ex.slug}
                 exhibition={ex}
                 mirror={i % 2 === 1}
-                matte={matte}
               />
             ))}
           </div>
@@ -64,12 +51,11 @@ export default async function ExhibitionsPage() {
                 body="Join the newsletter to hear first."
               />
             ) : (
-              upcoming.map(({ exhibition: ex, matte }, i) => (
+              upcoming.map((ex, i) => (
                 <ExhibitionRow
                   key={ex.slug}
                   exhibition={ex}
                   mirror={i % 2 === 1}
-                  matte={matte}
                 />
               ))
             )}
