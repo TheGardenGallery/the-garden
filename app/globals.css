@@ -917,11 +917,11 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 
 .exhibitions-page{background:var(--paper-warm);color:var(--ink);min-height:100dvh;padding-top:var(--nav-height);}
 
-.ex-section{padding:80px var(--gutter) 80px;}
+.ex-section{padding:64px var(--gutter) 64px;}
 .ex-section-inner{
   max-width:var(--content-max);
   margin:0 auto;
-  display:flex;flex-direction:column;gap:48px;
+  display:flex;flex-direction:column;gap:28px;
 }
 .ex-section + .ex-section{padding-top:0;}
 .ex-section-title{
@@ -936,24 +936,24 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 
 .exhibition-row{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:64px;
-  padding:64px 0;
+  grid-template-columns:7fr 5fr;
+  gap:80px;
+  padding:48px 0;
   border-bottom:1px solid var(--rule-warm);
-  align-items:start;
+  align-items:center;
 }
-.exhibition-row:first-child{padding-top:40px;}
+.exhibition-row:first-child{padding-top:12px;}
 .exhibition-row:last-child{border-bottom:none;}
 
 .exhibition-row.mirror .row-image{order:2;}
 .exhibition-row.mirror .row-body{order:1;}
 
 .row-image{
-  aspect-ratio:4/5;
+  aspect-ratio:3/4;
   background:var(--paper-warm);
   overflow:hidden;
   display:flex;align-items:center;justify-content:center;
-  padding:10% 12%;
+  padding:7% 9%;
 }
 .row-image img{
   display:block;
@@ -968,7 +968,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   .exhibition-row:hover .row-image img{transform:scale(1.015);}
 }
 
-.row-body{display:flex;flex-direction:column;}
+.row-body{display:flex;flex-direction:column;max-width:46ch;}
 .row-headline{display:flex;flex-direction:column;gap:4px;}
 .row-artist{
   font-family:'Cormorant','Title CJK',serif;
