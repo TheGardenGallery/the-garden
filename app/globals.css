@@ -43,6 +43,13 @@
 /* ---- RESET ---------------------------------------------------------- */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{font-size:16px;-webkit-font-smoothing:antialiased;scroll-behavior:smooth;}
+
+/* ---- NO-SELECT: images + grid interactives ------------------------- */
+img{-webkit-user-select:none;user-select:none;-webkit-user-drag:none;user-drag:none;pointer-events:auto;}
+.exhibitions-grid-hybrid,
+.journal-grid,
+.ex-works,
+.plot-wrap{-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;}
 body{
   background:var(--paper);
   color:#000;
