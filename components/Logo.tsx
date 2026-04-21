@@ -30,7 +30,7 @@ export function Logo({ variant = "nav" }: LogoProps) {
               points="50,12 88,88 12,88"
               fill="none"
               stroke="currentColor"
-              strokeWidth="12"
+              strokeWidth="15"
               strokeLinejoin="miter"
               strokeMiterlimit="4"
             />
