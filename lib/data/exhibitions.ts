@@ -136,7 +136,7 @@ export const exhibitions: Exhibition[] = [
   { slug: "phantasmagoria",         artistSlug: "mazin",             artistName: "Mazin",             title: "Phantasmagoria",         year: 2024, month: "Oct", date: "October 2024",  location: "Verse", status: "past" },
   { slug: "bully",                  artistSlug: "riiiis",            artistName: "RIIIIS",            title: "Bully",                  year: 2024, month: "Oct", date: "October 2024",  location: "Verse", status: "past" },
   { slug: "piezo",                  artistSlug: "rudxane",           artistName: "Rudxane",           title: "Piezo",                  year: 2024, month: "Jul", date: "July 2024",     location: "Verse", status: "past" },
-  { slug: "equinox",                artistSlug: "aluan-wang",        artistName: "Aluan Wang",        title: "Equinox",                year: 2024, month: "Jul", date: "July 2024",     location: "Verse", status: "past" },
+  { slug: "equinox",                artistSlug: "aluan-wang",        artistName: "Aluan Wang",        title: "春分 ｜ Equinox",        year: 2024, month: "Jul", date: "July 2024",     location: "Verse", status: "past", cardImage: "/images/aluan-wang/equinox.jpg" },
   { slug: "escapes",                artistSlug: "t-k-z",             artistName: "Tù.úk'z",           title: "Escapes",                year: 2024, month: "Jun", date: "June 2024",     location: "Verse", status: "past" },
   { slug: "deluge",                 artistSlug: "chepertom",         artistName: "CHEPERTOM",         title: "Deluge",                 year: 2024, month: "May", date: "May 2024",      location: "Verse", status: "past" },
   { slug: "basalt-gifs",            artistSlug: "itsgalo",           artistName: "Itsgalo",           title: "Basalt GIFs",            year: 2024, month: "May", date: "May 2024",      location: "Verse", status: "past" },
@@ -145,11 +145,11 @@ export const exhibitions: Exhibition[] = [
   { slug: "isle-of-alcina",         artistSlug: "t-k-z",             artistName: "Tù.úk'z",           title: "Isle of Alcina",         year: 2024, month: "Mar", date: "March 2024",    location: "Verse", status: "past" },
   { slug: "glitch-garden",          artistSlug: "sp-gelsesmaskinen", artistName: "Spøgelsesmaskinen", title: "Glitch Garden",          year: 2024, month: "Feb", date: "February 2024", location: "Verse", status: "past" },
   { slug: "making-an-egg",          artistSlug: "nikita-diakur",     artistName: "Nikita Diakur",     title: "Making an Egg with Hands", year: 2024, month: "Jan", date: "January 2024", location: "Verse", status: "past" },
-  { slug: "the-flood",              artistSlug: "yoshi-sodeoka",     artistName: "Yoshi Sodeoka",     title: "The Flood",              year: 2024, month: "Jan", date: "January 2024",  location: "Verse", status: "past" },
+  { slug: "the-flood",              artistSlug: "yoshi-sodeoka",     artistName: "Yoshi Sodeoka",     title: "The Flood: Orchestrated", year: 2024, month: "Jan", date: "January 2024",  location: "Verse", status: "past", cardVideo: "/images/yoshi-sodeoka/the-flood-orchestrated.mp4", cardImage: "/images/yoshi-sodeoka/the-flood-orchestrated-poster.jpg" },
 
   // === PAST — 2023 ===
   { slug: "constraint",             artistSlug: "eric-andwer",       artistName: "Eric Andwer",       title: "Constraint",             year: 2023, month: "Nov", date: "November 2023", location: "Verse", status: "past" },
-  { slug: "haha-over-time",         artistSlug: "john-provencher",   artistName: "John Provencher",   title: "Haha, Over-Time",        year: 2023, month: "Nov", date: "November 2023", location: "Verse", status: "past" },
+  { slug: "haha-over-time",         artistSlug: "john-provencher",   artistName: "John Provencher",   title: "HAHA, over-time",        year: 2023, month: "Nov", date: "November 2023", location: "Verse", status: "past", cardImage: "/images/john-provencher/haha.jpg" },
   { slug: "new-life-to-still-life", artistSlug: "cydr",              artistName: "Cydr",              title: "New-Life, to Still-Life", year: 2023, month: "Sep", date: "September 2023", location: "Verse", status: "past" },
   { slug: "space-time",             artistSlug: "loackme",           artistName: "Loackme",           title: "Space\\Time",            year: 2023, month: "Aug", date: "August 2023",   location: "Verse", status: "past" },
   { slug: "simple-thoughts",        artistSlug: "khwampa",           artistName: "Khwampa",           title: "Simple Thoughts",        year: 2023, month: "Jun", date: "June 2023",     location: "Verse", status: "past" },

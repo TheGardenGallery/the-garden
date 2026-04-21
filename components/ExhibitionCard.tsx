@@ -12,12 +12,25 @@ import { DisplayName, DisplayTitle, MetaLine, Stack } from "@/components/ds";
  */
 export function ExhibitionCard({ exhibition }: { exhibition: Exhibition }) {
   const href = `/exhibitions/${exhibition.slug}`;
-  const coverImage = exhibition.hero ?? exhibition.works?.[0]?.image;
+  const coverImage =
+    exhibition.cardImage ?? exhibition.hero ?? exhibition.works?.[0]?.image;
 
   return (
     <Link href={href} className="exhibition-card">
       <div className="exhibition-card-image">
-        {coverImage ? (
+        {exhibition.cardVideo ? (
+          <video
+            className="exhibition-card-video"
+            src={exhibition.cardVideo}
+            poster={coverImage}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-label={`${exhibition.artistName}, ${exhibition.title}`}
+          />
+        ) : coverImage ? (
           <Image
             src={coverImage}
             alt={`${exhibition.artistName}, ${exhibition.title}`}

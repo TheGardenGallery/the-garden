@@ -573,8 +573,10 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .exhibitions-grid-hybrid{display:grid;grid-template-columns:repeat(3, 1fr);gap:56px 32px;}
 .exhibition-card{display:flex;flex-direction:column;cursor:pointer;}
 .exhibition-card-image{width:100%;aspect-ratio:4/5;background:var(--placeholder);overflow:hidden;border-radius:0;margin-bottom:16px;}
-.exhibition-card-image img{width:100%;height:100%;object-fit:cover;transition:transform 0.5s;color:transparent;font-size:0;}
-.exhibition-card:hover .exhibition-card-image img{transform:scale(1.03);}
+.exhibition-card-image img,
+.exhibition-card-image video{width:100%;height:100%;object-fit:cover;transition:transform 0.5s;color:transparent;font-size:0;display:block;}
+.exhibition-card:hover .exhibition-card-image img,
+.exhibition-card:hover .exhibition-card-image video{transform:scale(1.03);}
 .exhibition-card-headline{display:flex;flex-direction:column;gap:4px;}
 .exhibition-card-artist{font-family:'Cormorant',serif;font-weight:500;font-style:normal;font-size:24px;letter-spacing:-0.2px;line-height:1;color:var(--ink);text-transform:uppercase;font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;}
 .exhibition-card-title{font-family:'Cormorant',serif;font-weight:400;font-style:italic;font-size:24px;letter-spacing:-0.2px;line-height:1.05;color:var(--ink);text-transform:none;}

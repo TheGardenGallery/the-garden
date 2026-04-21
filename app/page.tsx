@@ -16,9 +16,10 @@ export default async function HomePage() {
           exhibitions.find((e) => e.status === "current") ?? exhibitions[0],
         ].filter(Boolean);
 
-  const pastExhibitions = exhibitions
-    .filter((e) => e.status === "past")
-    .slice(0, 3);
+  const PAST_PICKS = ["the-flood", "equinox", "haha-over-time"];
+  const pastExhibitions = PAST_PICKS
+    .map((slug) => exhibitions.find((e) => e.slug === slug))
+    .filter((e): e is NonNullable<typeof e> => Boolean(e));
 
   const journalHero = journal[0];
   const journalSidebar = journal.slice(1, 4);

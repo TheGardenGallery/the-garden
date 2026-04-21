@@ -48,6 +48,8 @@ export type Exhibition = {
   hero?: string;                 // used on exhibition detail page
   homepageHero?: string;         // used on homepage hero — may differ from detail hero
   heroTheme?: "dark" | "paper";  // hero backdrop — cream for light-surface pieces, dark for digital
+  cardImage?: string;            // thumbnail used in homepage ExhibitionCard
+  cardVideo?: string;            // if set, ExhibitionCard plays this muted-autoplay loop instead of cardImage
   works?: Work[];
   featuredArtworks?: FeaturedArtwork[];
   workCount?: number;            // total works (e.g. 96, even if only some shown)
