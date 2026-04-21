@@ -21,6 +21,12 @@ export function Hero({ exhibition }: HeroProps) {
         </div>
       </div>
 
+      <Link
+        href={`/exhibitions/${exhibition.slug}`}
+        className="hero-full-link"
+        aria-label={`View ${exhibition.artistName}, ${exhibition.title}`}
+      />
+
       <div className="hero-card">
         <HeroCardReveal>
           <div className="hero-headline">

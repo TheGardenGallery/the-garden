@@ -502,6 +502,14 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   pointer-events:none;z-index:1;
 }
 
+.hero-full-link{
+  position:absolute;inset:var(--nav-height) 0 0 0;z-index:1;
+  display:block;cursor:pointer;
+  outline:none;
+}
+.hero-full-link:focus-visible{
+  outline:2px solid var(--on-dark-fg);outline-offset:-16px;
+}
 .hero-card{position:absolute;bottom:40px;left:40px;background:transparent;padding:0;max-width:380px;z-index:2;}
 .hero-headline{display:flex;flex-direction:column;gap:4px;}
 .hero-artist{font-family:'Cormorant',serif;font-weight:500;font-style:normal;font-size:32px;letter-spacing:-0.25px;line-height:1;color:var(--on-dark-fg);text-transform:uppercase;font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;}
