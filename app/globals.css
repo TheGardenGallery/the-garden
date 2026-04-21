@@ -794,19 +794,11 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   transition:color 245ms;
 }
 
-/* Touch devices: delay :active so a scroll gesture cancels it before
-   the highlight ever appears. Browser drops :active when the touch
-   moves; if the delay hasn't elapsed, no transition has started. */
-@media (hover:none){
-  .plot-cell.filled:active,
-  .plot-cell.filled:active .artist-initial,
-  .plot-cell.filled:active .artist-name,
-  .plot-cell.filled:active .artist-coord{transition-delay:130ms;}
-}
-
 /* While the row is horizontally scrolling, the browser does not
    always drop :active (the touch stays inside the scroll container).
-   Explicitly neutralize the invert so the cell never flashes. */
+   Explicitly neutralize the invert so the cell never flashes.
+   This replaces the earlier :active-delay approach — taps now
+   invert immediately, scroll gestures never do. */
 .plot-row-cells[data-scrolling="true"] .plot-cell.filled:active{background:transparent;}
 .plot-row-cells[data-scrolling="true"] .plot-cell.filled:active .artist-initial,
 .plot-row-cells[data-scrolling="true"] .plot-cell.filled:active .artist-name{color:var(--ink);}
