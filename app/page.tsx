@@ -9,10 +9,12 @@ export default async function HomePage() {
   const exhibitions = await fetchExhibitions();
   const journal = await fetchJournalEntries();
 
-  const heroExhibition =
-    exhibitions.find((e) => e.status === "current" && e.hero) ??
-    exhibitions.find((e) => e.status === "current") ??
-    exhibitions[0];
+  const heroExhibitions =
+    exhibitions.filter((e) => e.status === "current" && e.hero).length > 0
+      ? exhibitions.filter((e) => e.status === "current" && e.hero)
+      : [
+          exhibitions.find((e) => e.status === "current") ?? exhibitions[0],
+        ].filter(Boolean);
 
   const pastExhibitions = exhibitions
     .filter((e) => e.status === "past")
@@ -25,7 +27,7 @@ export default async function HomePage() {
     <>
       <h1 className="sr-only">The Garden — a digital art gallery</h1>
 
-      <Hero exhibition={heroExhibition} />
+      <Hero exhibitions={heroExhibitions} />
 
       <section className="exhibitions-hybrid">
         <div className="hybrid-container">

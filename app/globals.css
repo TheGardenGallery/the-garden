@@ -522,6 +522,20 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .hero-link:hover .hero-link-label::after{transform:scaleX(1);}
 .hero-link-arrow{font-style:normal;font-size:13px;line-height:1;}
 
+/* Refined slide index — small, Barlow, bottom-right. No arrows, no dots. */
+.hero-index{
+  position:absolute;right:40px;bottom:40px;z-index:2;
+  display:inline-flex;align-items:baseline;gap:8px;
+  font-family:'Barlow',sans-serif;
+  font-weight:400;font-size:10px;letter-spacing:1.8px;
+  color:rgba(245,243,239,0.55);
+  text-transform:uppercase;
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
+  pointer-events:none;
+}
+.hero-index-num{color:var(--on-dark-fg);}
+.hero-index-sep{font-size:9px;opacity:0.55;}
+
 @media (max-width:960px){
   .slide{padding:24px;}
   .hero-card{max-width:340px;bottom:32px;left:32px;}
