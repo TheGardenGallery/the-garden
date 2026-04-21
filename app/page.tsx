@@ -4,6 +4,7 @@ import { ExhibitionCard } from "@/components/ExhibitionCard";
 import { JournalHero } from "@/components/JournalHero";
 import { JournalItem } from "@/components/JournalItem";
 import { fetchExhibitions, fetchJournalEntries } from "@/lib/verse-api";
+import { getArtworkPalette } from "@/lib/palette";
 
 export default async function HomePage() {
   const exhibitions = await fetchExhibitions();
@@ -28,7 +29,14 @@ export default async function HomePage() {
     <>
       <h1 className="sr-only">The Garden — a digital art gallery</h1>
 
-      <Hero exhibitions={heroExhibitions} />
+      <Hero
+        slides={await Promise.all(
+          heroExhibitions.map(async (ex) => ({
+            exhibition: ex,
+            palette: await getArtworkPalette(ex.homepageHero ?? ex.hero!),
+          }))
+        )}
+      />
 
       <section className="exhibitions-hybrid">
         <div className="hybrid-container">
