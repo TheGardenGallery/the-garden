@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import type { CSSProperties } from "react";
 import type { Exhibition } from "@/lib/types";
 import type { Palette } from "@/lib/palette";
 import { HeroCardReveal } from "./HeroCardReveal";
@@ -38,12 +37,8 @@ export function Hero({ slides }: HeroProps) {
 
   if (slides.length === 0) return null;
   const current = slides[index % slides.length];
-  const { exhibition: ex, palette } = current;
-
-  const heroVars: CSSProperties = {
-    ["--hero-foreground" as string]: palette.foreground,
-    ["--hero-shadow" as string]: palette.shadow,
-  };
+  const { exhibition: ex } = current;
+  const theme = ex.heroTheme ?? (current.palette.isDark ? "dark" : "paper");
 
   const prev = () =>
     setIndex((n) => (n - 1 + slides.length) % slides.length);
@@ -52,7 +47,7 @@ export function Hero({ slides }: HeroProps) {
   return (
     <section
       className="hero"
-      style={heroVars}
+      data-theme={theme}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => {
         setPaused(false);
@@ -69,21 +64,14 @@ export function Hero({ slides }: HeroProps) {
       <div className="hero-slides">
         {slides.map((s, i) => {
           const img = s.exhibition.homepageHero ?? s.exhibition.hero!;
-          const slideVars: CSSProperties = {
-            ["--hero-base" as string]: s.palette.base,
-            ["--hero-glow" as string]: s.palette.glow,
-            ["--hero-deep" as string]: s.palette.deep,
-          };
           return (
             <motion.div
               key={s.exhibition.slug}
               className="slide"
-              style={slideVars}
               initial={false}
               animate={{ opacity: i === index ? 1 : 0 }}
               transition={{ duration: CROSSFADE_S, ease: EASE }}
             >
-              <div className="slide-bg" aria-hidden="true" />
               <Link
                 href={`/exhibitions/${s.exhibition.slug}`}
                 className="slide-link"
@@ -141,8 +129,17 @@ export function Hero({ slides }: HeroProps) {
             onClick={prev}
             aria-label="Previous exhibition"
           >
-            <svg viewBox="0 0 10 14" width="10" height="14" aria-hidden="true">
-              <polygon points="9,0 9,14 0,7" fill="currentColor" />
+            <svg
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                d="M0 50 L100 0 L100 100 Z M46 50 L79 33 L79 67 Z"
+                fill="currentColor"
+                fillRule="evenodd"
+              />
             </svg>
           </button>
           <button
@@ -152,8 +149,17 @@ export function Hero({ slides }: HeroProps) {
             onClick={next}
             aria-label="Next exhibition"
           >
-            <svg viewBox="0 0 10 14" width="10" height="14" aria-hidden="true">
-              <polygon points="0,0 0,14 10,7" fill="currentColor" />
+            <svg
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                d="M100 50 L0 0 L0 100 Z M54 50 L21 67 L21 33 Z"
+                fill="currentColor"
+                fillRule="evenodd"
+              />
             </svg>
           </button>
         </div>
