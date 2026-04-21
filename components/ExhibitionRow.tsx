@@ -5,15 +5,24 @@ import type { Exhibition } from "@/lib/types";
 type ExhibitionRowProps = {
   exhibition: Exhibition;
   mirror?: boolean;
+  /** Palette-derived backdrop for the plate — matches the artwork edges. */
+  matte?: string;
 };
 
-export function ExhibitionRow({ exhibition, mirror = false }: ExhibitionRowProps) {
+export function ExhibitionRow({
+  exhibition,
+  mirror = false,
+  matte,
+}: ExhibitionRowProps) {
   const href = `/exhibitions/${exhibition.slug}`;
   const image = exhibition.hero ?? exhibition.works?.[0]?.image;
 
   return (
     <article className={mirror ? "exhibition-row mirror" : "exhibition-row"}>
-      <div className="row-image">
+      <div
+        className="row-image"
+        style={matte ? { background: matte } : undefined}
+      >
         {image && (
           <Image
             src={image}
