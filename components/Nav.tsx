@@ -61,6 +61,19 @@ export function Nav() {
   return (
     <>
       <nav>
+        <Logo />
+        <ul className="nav-links">
+          {LINKS.map((link) => (
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                aria-current={isActive(link.href) ? "page" : undefined}
+              >
+                {link.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
         <button
           ref={toggleRef}
           type="button"
@@ -77,19 +90,6 @@ export function Nav() {
             <span></span>
           </span>
         </button>
-        <ul className="nav-links">
-          {LINKS.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                aria-current={isActive(link.href) ? "page" : undefined}
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <Logo />
       </nav>
 
       <div
