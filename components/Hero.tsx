@@ -1,7 +1,7 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { Exhibition } from "@/lib/types";
 import { HeroCardReveal } from "./HeroCardReveal";
+import { HeroArtwork } from "./HeroArtwork";
 
 type HeroProps = { exhibition: Exhibition };
 
@@ -13,16 +13,10 @@ export function Hero({ exhibition }: HeroProps) {
       <div className="hero-slides">
         <div className="slide active">
           {heroImage && (
-            <div className="slide-frame">
-              <Image
-                src={heroImage}
-                alt={`${exhibition.artistName}, ${exhibition.title}`}
-                fill
-                priority
-                sizes="100vw"
-                style={{ objectFit: "contain" }}
-              />
-            </div>
+            <HeroArtwork
+              src={heroImage}
+              alt={`${exhibition.artistName}, ${exhibition.title}`}
+            />
           )}
         </div>
       </div>
