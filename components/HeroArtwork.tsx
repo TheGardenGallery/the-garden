@@ -30,7 +30,7 @@ export function HeroArtwork({ src, alt }: HeroArtworkProps) {
         reduced
           ? undefined
           : {
-              duration: 22,
+              duration: 26,
               repeat: Infinity,
               repeatType: "reverse",
               ease: [0.45, 0, 0.55, 1],
