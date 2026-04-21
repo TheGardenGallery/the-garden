@@ -456,7 +456,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    INDEX — homepage-specific styles.
    ======================================================================= */
 
-.hero{position:relative;padding-top:var(--nav-height);height:100vh;height:100dvh;overflow:hidden;background:#0a0a0c;}
+.hero{position:relative;padding-top:var(--nav-height);height:100vh;height:100svh;overflow:hidden;background:#0a0a0c;}
 .hero-slides{position:absolute;inset:var(--nav-height) 0 0 0;display:flex;align-items:center;justify-content:center;}
 .slide{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease;display:flex;align-items:center;justify-content:center;padding:32px 32px 32px 32px;}
 .slide.active{opacity:1;}
