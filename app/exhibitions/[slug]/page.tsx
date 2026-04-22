@@ -191,7 +191,7 @@ function OverviewSegments({ exhibition }: { exhibition: Exhibition }) {
   const renderBody = (paras: string[], includeHeader: boolean, key: string) => (
     <div key={key} className="ex-overview-body">
       {includeHeader && exhibition.descriptionByArtist && (
-        <p className="ex-description-byline">Text by {exhibition.artistName}</p>
+        <p className="ex-description-byline">(Text by {exhibition.artistName})</p>
       )}
       {paras.map((para, i) => (
         <p key={i} dangerouslySetInnerHTML={{ __html: preserveHyphens(para) }} />
