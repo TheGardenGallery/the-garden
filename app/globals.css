@@ -1286,18 +1286,12 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 }
 /* Equinox's solo inline artwork is natively 5:4 landscape; the default
    420px :only-child cap reads ~10% small next to the square pair above.
-   Widen it to match the width of one pair-square. */
-/* Solo is pinned to the left edge of the hero artwork. The hero image
-   is square at 85% of min(frame-w, frame-h), centered inside a frame
-   with 56px horizontal padding — so its left edge sits at
-   vw/2 − hero-side/2. The solo block is otherwise centered at vw/2,
-   so we shift it left by (block-width/2 − hero-side/2). */
+   Widen it to match the width of one pair-square, centered on the
+   page so it shares the same axis as the prose column above and
+   below. */
 .exhibition-detail[data-slug="equinox"] .ex-inline-artworks:has(> :only-child){
-  --hero-side: min(calc((100vw - 112px) * 0.85), calc((100vh - var(--nav-height) - 128px) * 0.85));
-  max-width:609px;
+  max-width:733px;
   margin:24px auto;
-  position:relative;
-  left:calc(304.5px - var(--hero-side) / 2);
 }
 /* The shared <Image> component declares width=1200 height=1500 (4:5
    portrait) for CLS reservation. That HTML-attr default aspect can
