@@ -54,7 +54,7 @@ export default async function HomePage() {
 
       <section className="news-hybrid">
         <div className="hybrid-container">
-          <h2 className="hybrid-section-title">Journal</h2>
+          <h2 className="hybrid-section-title">Interview</h2>
           <div
             className={`journal-grid${
               journalSidebar.length === 0 ? " is-solo" : ""

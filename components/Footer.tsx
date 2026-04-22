@@ -4,7 +4,7 @@ import { Logo } from "./Logo";
 const exploreLinks = [
   { href: "/artists",     label: "Artists" },
   { href: "/exhibitions", label: "Exhibitions" },
-  { href: "/journal",     label: "Journal" },
+  { href: "/journal",     label: "Interview" },
   { href: "/about",       label: "About" },
 ];
 
