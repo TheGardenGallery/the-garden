@@ -139,7 +139,7 @@ function HeroMedia({ exhibition }: { exhibition: Exhibition }) {
     <video
       className="ex-hero-video"
       src={exhibition.heroVideo}
-      poster={exhibition.hero}
+      poster={exhibition.heroVideoPoster ?? exhibition.hero}
       autoPlay
       muted
       loop

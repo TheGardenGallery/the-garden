@@ -48,6 +48,7 @@ export type Exhibition = {
   artistBio?: string;            // plain-text bio from Verse (colophon)
   hero?: string;                 // used on exhibition detail page
   heroVideo?: string;            // if set, the detail hero renders this muted autoplay loop instead of the hero image
+  heroVideoPoster?: string;      // poster frame for heroVideo, if different from `hero`. Prevents a visible frame-jump when the video starts playing from a still that isn't its first frame.
   homepageHero?: string;         // used on homepage hero — may differ from detail hero
   heroTheme?: "dark" | "paper";  // hero backdrop — cream for light-surface pieces, dark for digital
   frameColor?: string;           // background of the exhibitions-list image frame, matched to the artwork's palette

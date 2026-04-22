@@ -198,6 +198,7 @@ export const exhibitions: Exhibition[] = [
     location: "Verse",
     status: "past",
     heroVideo: "/images/yoshi-sodeoka/the-flood-hero.mp4",
+    heroVideoPoster: "/images/yoshi-sodeoka/the-flood-hero-poster.jpg",
     hero: "/images/yoshi-sodeoka/the-flood-orchestrated-poster.jpg",
     cardVideo: "/images/yoshi-sodeoka/the-flood-orchestrated.mp4",
     cardImage: "/images/yoshi-sodeoka/the-flood-orchestrated-poster.jpg",
