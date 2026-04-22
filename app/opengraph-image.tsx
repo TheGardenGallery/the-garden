@@ -33,22 +33,31 @@ export default async function Image() {
           fontFamily: "Inter",
         }}
       >
+        {/*
+          Mirror the site-logo proportions from globals.css `.logo`:
+          - triangle: 0.73em × 0.73em (not 0.875em)
+          - margin: -0.05em left, 0.02em right (not symmetric)
+          - letter-spacing: -0.019em (matches 20.9px font / -0.4px tracking)
+          - baseline-aligned with the letters, not center-aligned
+          At 160px font size those ratios land at 117px / -8px / 3px / -3px.
+        */}
         <div
           style={{
             display: "flex",
-            alignItems: "center",
+            alignItems: "baseline",
             fontSize: 160,
             fontWeight: 700,
-            letterSpacing: -6,
+            letterSpacing: -3,
+            lineHeight: 1,
           }}
         >
           <span>THE G</span>
           <svg
-            width="140"
-            height="140"
+            width="117"
+            height="117"
             viewBox="0 0 100 100"
             xmlns="http://www.w3.org/2000/svg"
-            style={{ marginLeft: -4, marginRight: -4 }}
+            style={{ marginLeft: -8, marginRight: 3 }}
           >
             <path
               d="M50 0 L100 100 L0 100 Z M50 46 L67 79 L33 79 Z"
