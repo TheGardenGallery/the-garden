@@ -55,21 +55,27 @@ export default async function HomePage() {
       <section className="news-hybrid">
         <div className="hybrid-container">
           <h2 className="hybrid-section-title">Journal</h2>
-          <div className="journal-grid">
+          <div
+            className={`journal-grid${
+              journalSidebar.length === 0 ? " is-solo" : ""
+            }`}
+          >
             <Reveal>
               <JournalHero entry={journalHero} />
             </Reveal>
-            <div className="journal-sidebar">
-              {journalSidebar.map((entry) => (
-                <Reveal key={entry.slug}>
-                  <JournalItem entry={entry} />
-                </Reveal>
-              ))}
-              <Link href="/journal" className="journal-all">
-                <span className="journal-all-label">View all articles</span>
-                <span className="journal-all-arrow">→</span>
-              </Link>
-            </div>
+            {journalSidebar.length > 0 && (
+              <div className="journal-sidebar">
+                {journalSidebar.map((entry) => (
+                  <Reveal key={entry.slug}>
+                    <JournalItem entry={entry} />
+                  </Reveal>
+                ))}
+                <Link href="/journal" className="journal-all">
+                  <span className="journal-all-label">View all articles</span>
+                  <span className="journal-all-arrow">→</span>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </section>

@@ -675,6 +675,14 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   gap:64px;
   align-items:start;
 }
+/* Solo layout: only one real journal entry exists, so center the hero
+   and drop to a single column. Keeps the two-column grid markup intact
+   for when more entries are populated. */
+.journal-grid.is-solo{
+  grid-template-columns:minmax(0, 880px);
+  justify-content:center;
+  gap:0;
+}
 
 .journal-hero{display:flex;flex-direction:column;cursor:pointer;color:var(--ink);text-decoration:none;transition:color 0.3s ease-out;}
 .journal-hero-image{

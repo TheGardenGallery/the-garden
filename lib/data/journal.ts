@@ -1,5 +1,15 @@
 import type { JournalEntry } from "@/lib/types";
 
+/**
+ * Journal entries surface on the homepage: the first entry renders as
+ * `JournalHero` (large image + headline + excerpt), entries [1..4) fill
+ * the `JournalSidebar` on the right, and everything else is reachable
+ * via the "View all articles" link.
+ *
+ * While there is only one real entry we render the hero solo and
+ * centered (see `app/page.tsx`). Add more entries here and the sidebar
+ * reappears automatically.
+ */
 export const journalEntries: JournalEntry[] = [
   {
     slug: "weaving-the-digital-a-celebration-of-unicode-textiles-and-computing",
@@ -11,24 +21,6 @@ export const journalEntries: JournalEntry[] = [
     hero: "/images/paul-prudence/iso-iec-10646-journal.jpg",
     externalUrl: "https://verse.works/journal/weaving-the-digital-a-celebration-of-unicode-textiles-and-computing",
     disableHoverZoom: true,
-  },
-  {
-    slug: "distrakted-essay",
-    headline: "DistraKted: On Glitch, Fragmentation, and the Aesthetics of Refusal",
-    byline: "Mark Webster",
-    date: "December 2024",
-  },
-  {
-    slug: "phantasmagoria-essay",
-    headline: "Phantasmagoria: Slow Images and the Residue of Attention",
-    byline: "Mazin",
-    date: "October 2024",
-  },
-  {
-    slug: "bully-essay",
-    headline: "bully: RIIIIS on Confrontation as Compositional Principle",
-    byline: "RIIIIS",
-    date: "October 2024",
   },
 ];
 
