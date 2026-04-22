@@ -13,15 +13,19 @@ import { ExhibitionDetails } from "@/components/ExhibitionDetails";
  * Light typographic cleanup on exhibition prose:
  *   - Hyphens between letters/digits become U+2011 (non-breaking hyphen) so
  *     compound words like "dot-matrix" don't break across lines.
+ *   - The space after a colon becomes U+00A0 so "Section: value" can't wrap
+ *     with the colon stranded at end of line.
  *   - Spaces inside <em>…</em> titles become U+00A0 (non-breaking space) so
- *     an italic title like "The Flood: Orchestrated" never breaks — and in
- *     particular, the colon can't strand at the end of a line.
+ *     an italic title like "The Flood: Orchestrated" never breaks.
  * Skips HTML tags so attribute values are unaffected.
  */
 function preserveHyphens(html: string): string {
   const hyphenated = html.replace(/(<[^>]*>)|([^<]+)/g, (_m, tag, text) => {
     if (tag) return tag;
-    return (text as string).replace(/(\p{L}|\d)-(\p{L}|\d)/gu, "$1\u2011$2");
+    let t = text as string;
+    t = t.replace(/(\p{L}|\d)-(\p{L}|\d)/gu, "$1\u2011$2");
+    t = t.replace(/(\p{L}|\d): (?=\p{L}|\d)/gu, "$1:\u00A0");
+    return t;
   });
   return hyphenated.replace(/<em>([^<]*)<\/em>/g, (_m, content) =>
     `<em>${(content as string).replace(/ /g, "\u00A0")}</em>`
@@ -396,7 +400,10 @@ function ColBlock({
     <div className="col-block">
       <span className="col-label">{label}</span>
       <h3 className="col-title">{title}</h3>
-      <p className="col-body">{body}</p>
+      <p
+        className="col-body"
+        dangerouslySetInnerHTML={{ __html: preserveHyphens(body) }}
+      />
       <div className="col-links">
         {links.map((link) => (
           <Link
