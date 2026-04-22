@@ -1290,8 +1290,8 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    page so it shares the same axis as the prose column above and
    below. */
 .exhibition-detail[data-slug="equinox"] .ex-inline-artworks:has(> :only-child){
-  max-width:733px;
-  margin:24px auto;
+  max-width:960px;
+  margin:56px auto;
 }
 /* The shared <Image> component declares width=1200 height=1500 (4:5
    portrait) for CLS reservation. That HTML-attr default aspect can
@@ -1592,8 +1592,13 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
 }
 .ex-inline-caption em{font-style:italic;font-weight:400;color:inherit;}
+.ex-inline-caption-link{
+  color:inherit;text-decoration:none;
+  transition:color 0.3s ease-out;
+}
 @media (hover:hover){
   a.ex-inline-artwork:hover{color:#aeaeae;}
+  .ex-inline-caption-link:hover{color:#aeaeae;}
 }
 @media (max-width:720px){
   .ex-inline-artworks{grid-template-columns:1fr;gap:16px;margin:16px auto;}

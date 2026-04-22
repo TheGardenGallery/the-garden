@@ -371,6 +371,7 @@ export const exhibitions: Exhibition[] = [
             title: "over-time, i",
             iframe: "https://public-bucket-verse-dev.s3.eu-west-1.amazonaws.com/genart/over-time-final%2010302023/index.html?payload=eyJoYXNoIjoicm9zZS1wZXRhbC0wMSJ9",
             aspectRatio: 1,
+            verseUrl: "https://verse.works/series/over-time-by-john-provencher",
           },
           {
             image: "/images/john-provencher/over-time-doc-2.webp",
@@ -378,6 +379,7 @@ export const exhibitions: Exhibition[] = [
             title: "over-time, ii",
             iframe: "https://public-bucket-verse-dev.s3.eu-west-1.amazonaws.com/genart/over-time-final%2010302023/index.html?payload=eyJoYXNoIjoiYXVyb3JhLWJsdWUtMDIifQ==",
             aspectRatio: 1,
+            verseUrl: "https://verse.works/series/over-time-by-john-provencher",
           },
           {
             image: "/images/john-provencher/over-time-doc-1.webp",
@@ -385,6 +387,7 @@ export const exhibitions: Exhibition[] = [
             title: "over-time, iii",
             iframe: "https://public-bucket-verse-dev.s3.eu-west-1.amazonaws.com/genart/over-time-final%2010302023/index.html?payload=eyJoYXNoIjoibWVhZG93LWdyZWVuLTAzIn0=",
             aspectRatio: 1,
+            verseUrl: "https://verse.works/series/over-time-by-john-provencher",
           },
         ],
       },

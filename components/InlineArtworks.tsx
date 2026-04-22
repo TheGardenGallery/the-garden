@@ -144,14 +144,27 @@ function InlineArtworkItem({
       )}
       {item.title && (
         <figcaption className="ex-inline-caption">
-          <em>{item.title}</em>
+          {item.iframe && (item.verseUrl ?? fallbackUrl) ? (
+            <a
+              className="ex-inline-caption-link"
+              href={item.verseUrl ?? fallbackUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <em>{item.title}</em>
+            </a>
+          ) : (
+            <em>{item.title}</em>
+          )}
         </figcaption>
       )}
     </figure>
   );
 
   // Iframes host interactive generative art — skip the <a> wrapper so
-  // clicks land on the artwork's own controls, not a link.
+  // clicks land on the artwork's own controls, not a link. The
+  // figcaption title above is a link instead, so the work still has
+  // a path out to its Verse page.
   if (item.iframe) {
     return <div className="ex-inline-artwork">{figure}</div>;
   }
