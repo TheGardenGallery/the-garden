@@ -3,13 +3,22 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import "./globals.css";
 
+// Resolve the canonical origin for absolute URLs in meta tags (og:image,
+// twitter:image, etc.). `VERCEL_URL` is the per-deployment immutable URL,
+// which requires auth for previews — crawlers can't fetch OG images from
+// it, so link previews silently fall back to scraping random page images.
+// `VERCEL_PROJECT_PRODUCTION_URL` is the stable production alias (e.g.
+// the-garden-flax.vercel.app) and is publicly reachable.
+const siteOrigin =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000");
+
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ??
-      (process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000"),
-  ),
+  metadataBase: new URL(siteOrigin),
   title: "The Garden",
   description: "A digital art gallery",
 };
