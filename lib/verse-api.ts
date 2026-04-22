@@ -121,10 +121,26 @@ export async function fetchExhibitions(): Promise<Exhibition[]> {
 export async function fetchExhibition(
   slug: string
 ): Promise<Exhibition | undefined> {
-  const ex = seedExhibitions.find((e) => e.slug === slug);
-  if (!ex) return undefined;
+  const idx = seedExhibitions.findIndex((e) => e.slug === slug);
+  if (idx === -1) return undefined;
+  const ex = seedExhibitions[idx];
   const verseMap = await getVerseBySlug();
-  return mergeExhibitionWithVerse(ex, verseMap.get(slug));
+  const merged = mergeExhibitionWithVerse(ex, verseMap.get(slug));
+  const toLink = (e: Exhibition) => ({
+    slug: e.slug,
+    artistName: e.artistName,
+    title: e.title,
+  });
+  const last = seedExhibitions.length - 1;
+  return {
+    ...merged,
+    prev:
+      merged.prev ??
+      toLink(seedExhibitions[idx > 0 ? idx - 1 : last]),
+    next:
+      merged.next ??
+      toLink(seedExhibitions[idx < last ? idx + 1 : 0]),
+  };
 }
 
 export async function fetchJournalEntries(): Promise<JournalEntry[]> {

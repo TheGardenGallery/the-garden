@@ -1313,7 +1313,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .exhibition-detail{--rule-thin:#e5e2da;}
 
 .ex-title-bar{
-  position:absolute;left:var(--gutter);bottom:40px;z-index:3;
+  position:absolute;left:var(--gutter);bottom:64px;z-index:3;
   text-align:left;pointer-events:none;
 }
 .ex-title-bar *{pointer-events:auto;}
@@ -1347,16 +1347,15 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   background:#f1f4f6;
 }
 .ex-hero[data-theme="dark"]{background:#0c0c10;}
+/* Canonical hero framing: 64px top/bottom, 56px sides. Title-bar
+   sits at bottom:64px so its baseline meets the artwork's bottom
+   edge when the plate fills the frame vertically. Equinox and
+   haha-over-time override this for their specific compositions. */
 .ex-hero-frame{
   position:absolute;inset:var(--nav-height) 0 0 0;
   display:flex;align-items:center;justify-content:center;
-  padding:56px var(--gutter) 160px;
+  padding:64px 56px;
 }
-/* Paul Prudence / ISO-IEC 10646: match the homepage Hero's artwork frame
-   (64px top/bottom, 56px sides) so the hero feels like the same plate
-   settling into place when you click through from the homepage. */
-.ex-hero[data-slug="iso-iec-10646"] .ex-hero-frame{padding:64px 56px;}
-.ex-hero[data-slug="iso-iec-10646"] .ex-title-bar{bottom:64px;}
 /* Aluan Wang / Equinox: same hero framing as Paul's. Artwork is
    capped at 85% of the frame for breathing room around a dense
    edge-to-edge composition, leaving a 7.5%-of-frame gap below it.
@@ -1364,7 +1363,6 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    bottom — it sits slightly higher than Paul/Yoshi's title, but the
    artwork-title relationship reads tighter than forcing the title
    to the shared viewport baseline. */
-.ex-hero[data-slug="equinox"] .ex-hero-frame{padding:64px 56px;}
 .ex-hero[data-slug="equinox"] .ex-hero-plate img{
   max-width:85%;
   max-height:85%;
@@ -1396,8 +1394,6 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    bottom, where the title-bar also sits. Width auto-adjusts to the
    video's natural aspect. Default drop-shadow outlines the actual
    video rectangle. */
-.ex-hero[data-slug="the-flood"] .ex-hero-frame{padding:64px 56px;}
-.ex-hero[data-slug="the-flood"] .ex-title-bar{bottom:64px;}
 .ex-hero[data-slug="the-flood"] .ex-hero-plate .ex-hero-video{
   height:100%;width:auto;
   max-width:100%;
@@ -1489,7 +1485,8 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   background:transparent;line-height:0;
 }
 .ex-hero-plate:not(:has(img)):not(:has(video)){
-  width:min(520px,92vw);height:auto;
+  width:auto;height:auto;
+  max-width:100%;max-height:100%;
   aspect-ratio:4/5;background:var(--placeholder);
 }
 .ex-hero-plate img,
@@ -1499,22 +1496,6 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   width:auto;height:auto;
   object-fit:contain;
   filter:drop-shadow(0 14px 32px rgba(40,35,25,0.10)) drop-shadow(0 2px 6px rgba(40,35,25,0.06));
-  /* Ken Burns breath — mirrors the homepage hero (1.000 → 1.035
-     over 26s, ease-in-out, alternating). A negative animation-
-     delay starts the cycle mid-breath so when the shared-element
-     morph lands on this page, the image is already moving and
-     there's no visible "animation finished" beat. */
-  transform-origin:50% 50%;
-  animation:ex-hero-breath 26s cubic-bezier(0.45,0,0.55,1) -7s infinite alternate;
-  will-change:transform;
-}
-@keyframes ex-hero-breath{
-  from{transform:scale(1);}
-  to  {transform:scale(1.035);}
-}
-@media (prefers-reduced-motion:reduce){
-  .ex-hero-plate img,
-  .ex-hero-plate .ex-hero-video{animation:none;transform:none;}
 }
 .ex-hero[data-theme="dark"] .ex-hero-plate img{
   filter:drop-shadow(0 18px 48px rgba(0,0,0,0.55)) drop-shadow(0 2px 6px rgba(0,0,0,0.35));

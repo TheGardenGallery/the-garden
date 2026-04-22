@@ -1,67 +1,4 @@
-import type { Exhibition, Work } from "@/lib/types";
-
-const imaginedWreckageWorks: Work[] = [
-  {
-    id: "xerox-bouquet",
-    title: "Xerox Bouquet",
-    year: 2024,
-    number: "№ 07",
-    edition: "1/1 edition",
-    image: "/images/chuck-anderson/xerox-bouquet.jpg",
-    alt: "Chuck Anderson, Xerox Bouquet, 2024",
-    coord: "A,01",
-  },
-  {
-    id: "cathode-moth",
-    title: "Cathode Moth",
-    year: 2024,
-    number: "№ 14",
-    edition: "1/1 edition",
-    image: "/images/chuck-anderson/cathode-moth.jpg",
-    alt: "Chuck Anderson, Cathode Moth, 2024",
-    coord: "A,02",
-  },
-  {
-    id: "wiring-harness",
-    title: "Wiring Harness",
-    year: 2024,
-    number: "№ 22",
-    edition: "1/1 edition",
-    image: "/images/chuck-anderson/wiring-harness.jpg",
-    alt: "Chuck Anderson, Wiring Harness, 2024",
-    coord: "A,03",
-  },
-  {
-    id: "viewfinder",
-    title: "Viewfinder",
-    year: 2024,
-    number: "№ 31",
-    edition: "1/1 edition",
-    image: "/images/chuck-anderson/viewfinder.jpg",
-    alt: "Chuck Anderson, Viewfinder, 2024",
-    coord: "B,01",
-  },
-  {
-    id: "engine-garden",
-    title: "Engine / Garden",
-    year: 2024,
-    number: "№ 44",
-    edition: "1/1 edition",
-    image: "/images/chuck-anderson/engine-garden.jpg",
-    alt: "Chuck Anderson, Engine / Garden, 2024",
-    coord: "B,02",
-  },
-  {
-    id: "latent-daydream",
-    title: "Latent Daydream",
-    year: 2024,
-    number: "№ 89",
-    edition: "1/1 edition",
-    image: "/images/chuck-anderson/latent-daydream.jpg",
-    alt: "Chuck Anderson, Latent Daydream, 2024",
-    coord: "B,03",
-  },
-];
+import type { Exhibition } from "@/lib/types";
 
 export const exhibitions: Exhibition[] = [
   // === CURRENT ===
@@ -139,28 +76,43 @@ export const exhibitions: Exhibition[] = [
     presentedBy: "Ivan Zhyzhkevych",
     workCount: 96,
     verseSeriesUrl: "https://verse.works/series/imagined-wreckage-by-chuck-anderson",
-    works: imaginedWreckageWorks,
-    featuredArtworks: [
+    details: {
+      sourceImage: "/images/chuck-anderson/featured/raw-digital-materials.jpg",
+      title: "Raw Digital Materials",
+      verseUrl:
+        "https://verse.works/items/ethereum/0x74f41f4d43c064f69958c56536381a235be906c4/87",
+      aspectRatio: "1",
+      artworkInset: { top: 0, right: 0, bottom: 0, left: 0 },
+      crops: [
+        { id: "engine-black",  x: 28, y: 75, zoom: 2.6 },
+        { id: "flame-bridge",  x: 48, y: 50, zoom: 2.6 },
+        { id: "blue-field",    x: 60, y: 24, zoom: 2.6 },
+      ],
+    },
+    inlineArtworks: [
       {
-        id: "scratch-disk-amnesia",
-        title: "Scratch Disk Amnesia",
-        image: "/images/chuck-anderson/featured/scratch-disk-amnesia.jpg",
-        alt: "Chuck Anderson, Scratch Disk Amnesia",
-        verseUrl:
-          "https://verse.works/items/ethereum/0x74f41f4d43c064f69958c56536381a235be906c4/0",
-      },
-      {
-        id: "completely-legal-esoteric-scrabble-strategy",
-        title: "Completely Legal Esoteric Scrabble Strategy",
-        image:
-          "/images/chuck-anderson/featured/completely-legal-esoteric-scrabble-strategy.jpg",
-        alt: "Chuck Anderson, Completely Legal Esoteric Scrabble Strategy",
-        verseUrl:
-          "https://verse.works/items/ethereum/0x74f41f4d43c064f69958c56536381a235be906c4/44",
+        afterParagraphIndex: 1,
+        items: [
+          {
+            image: "/images/chuck-anderson/featured/scratch-disk-amnesia.jpg",
+            alt: "Chuck Anderson, Scratch Disk Amnesia",
+            title: "Scratch Disk Amnesia",
+            verseUrl:
+              "https://verse.works/items/ethereum/0x74f41f4d43c064f69958c56536381a235be906c4/0",
+          },
+          {
+            image:
+              "/images/chuck-anderson/featured/completely-legal-esoteric-scrabble-strategy.jpg",
+            alt: "Chuck Anderson, Completely Legal Esoteric Scrabble Strategy",
+            title: "Completely Legal Esoteric Scrabble Strategy",
+            verseUrl:
+              "https://verse.works/items/ethereum/0x74f41f4d43c064f69958c56536381a235be906c4/44",
+          },
+        ],
       },
     ],
     description: [
-      `The Garden is pleased to present <em>Imagined Wreckage</em>, a series of photo collage and generative AI works by Chicago-based artist <a class="prose-link" href="/artists/chuck-anderson">Chuck Anderson</a>. Known for his multidisciplinary approach, Anderson's work is characterised by his distinctive use of colour, light, and foregrounding of digital technology.`,
+      `The Garden is pleased to present <em>Imagined Wreckage</em>, a series of photo collage and generative AI works by Chicago-based artist Chuck Anderson. Known for his multidisciplinary approach, Anderson's work is characterised by his distinctive use of colour, light, and foregrounding of digital technology.`,
       `Described by the artist as a collection &ldquo;about amalgamation,&rdquo; the series dissects the boundaries between an artist's life and work in a post-internet, AI-focused era. The use of generative AI echoes across the works not simply in the output of the models, but through the way their processes parallel Anderson's own assembly of aggregated experience.`,
       `Elements of the digital process lie embedded in the pieces. Wires, circuit boards, screens, and viewfinders are scattered throughout, eroding the line between the work and the working practice. The inclusion of photography gives the series an almost autobiographical quality, humanising the use of AI and embedding Anderson directly into the fabric of the collection.`,
       `Engine parts alongside nods to hardcore and punk tropes are bathed in iridescence, balanced against flowers and butterflies, breaking down traditional aesthetic associations. Hard edges become surprisingly softened; crystalline textures feel malleable; opaque fogs settle into almost structural components. The pieces resist easy categorisation &mdash; equal parts virtual, sculptural, and photographic &mdash; giving <em>Imagined Wreckage</em> a dream-like quality that speaks to the AI hallucinations and latent dreaming informing so much of contemporary digital art.`,
@@ -402,7 +354,22 @@ export const exhibitions: Exhibition[] = [
 export const getExhibitionsByStatus = (status: Exhibition["status"]) =>
   exhibitions.filter((e) => e.status === status);
 
-export const getExhibitionBySlug = (slug: string) =>
-  exhibitions.find((e) => e.slug === slug);
+export const getExhibitionBySlug = (slug: string) => {
+  const idx = exhibitions.findIndex((e) => e.slug === slug);
+  if (idx === -1) return undefined;
+  const ex = exhibitions[idx];
+  const toLink = (e: Exhibition) => ({
+    slug: e.slug,
+    artistName: e.artistName,
+    title: e.title,
+  });
+  return {
+    ...ex,
+    prev: ex.prev ?? (idx > 0 ? toLink(exhibitions[idx - 1]) : undefined),
+    next:
+      ex.next ??
+      (idx < exhibitions.length - 1 ? toLink(exhibitions[idx + 1]) : undefined),
+  };
+};
 
 export const getExhibitionSlugs = () => exhibitions.map((e) => e.slug);
