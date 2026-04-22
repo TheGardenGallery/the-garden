@@ -56,6 +56,18 @@ export default async function ExhibitionDetailPage({
   const heroTheme = exhibition.heroTheme ?? "paper";
   return (
     <div className="exhibition-detail" data-slug={exhibition.slug}>
+      {/* Kick off the hero video fetch during HTML parse so the browser
+          starts buffering before React hydrates the <video>. Without
+          this, autoplay begins with an empty buffer on slow connections
+          and the first seconds stutter. */}
+      {exhibition.heroVideo && (
+        <link
+          rel="preload"
+          as="video"
+          href={exhibition.heroVideo}
+          type="video/mp4"
+        />
+      )}
       {/* 01 · HERO — full-viewport, mirrors the homepage Hero: paper
           backdrop, artwork centered, title card pinned bottom-left, so
           clicking a hero card reads as the same element settling into
@@ -132,7 +144,7 @@ function HeroMedia({ exhibition }: { exhibition: Exhibition }) {
       muted
       loop
       playsInline
-      preload="metadata"
+      preload="auto"
       aria-label={label}
     />
   ) : exhibition.hero ? (
