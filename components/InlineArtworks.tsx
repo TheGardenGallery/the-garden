@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Exhibition } from "@/lib/types";
 
 type Group = NonNullable<Exhibition["inlineArtworks"]>[number];
+type Item = Group["items"][number];
 
 /**
  * Inline artwork block that fades in when scrolled into view, matching
@@ -12,6 +13,14 @@ type Group = NonNullable<Exhibition["inlineArtworks"]>[number];
  * ease-out). Adds `.reveal` directly to the existing container rather
  * than wrapping, so sibling-based CSS selectors on `.ex-inline-artworks`
  * keep working.
+ *
+ * Each item may be (in priority order):
+ *   - `iframe` → live-rendered generative artwork (e.g., Verse's
+ *     iframeUrl). Rendered without an <a> wrapper so clicks land on
+ *     the artwork's own controls, not a link.
+ *   - `video` → muted-loop video, scroll-gated so it only plays when
+ *     visible (resumes from currentTime, not the beginning).
+ *   - `image` → static asset via next/image.
  */
 export function InlineArtworks({
   group,
@@ -77,59 +86,86 @@ export function InlineArtworks({
 
   return (
     <div ref={ref} className={cls}>
-      {group.items.map((item, j) => {
-        const href = item.verseUrl ?? fallbackUrl;
-        const figure = (
-          <figure className="ex-inline-figure">
-            {item.video ? (
-              <div className="ex-inline-plate">
-                <div className="ex-inline-media">
-                  <video
-                    src={item.video}
-                    poster={item.image}
-                    muted
-                    loop
-                    playsInline
-                    preload="auto"
-                    aria-label={item.alt}
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="ex-inline-image">
-                <Image
-                  src={item.image}
-                  alt={item.alt}
-                  width={1200}
-                  height={1500}
-                  sizes="(min-width: 900px) 40vw, 92vw"
-                  unoptimized={/\.(gif|webp)$/i.test(item.image)}
-                />
-              </div>
-            )}
-            {item.title && (
-              <figcaption className="ex-inline-caption">
-                <em>{item.title}</em>
-              </figcaption>
-            )}
-          </figure>
-        );
-        return href ? (
-          <a
-            key={j}
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ex-inline-artwork"
-          >
-            {figure}
-          </a>
-        ) : (
-          <div key={j} className="ex-inline-artwork">
-            {figure}
-          </div>
-        );
-      })}
+      {group.items.map((item, j) => (
+        <InlineArtworkItem key={j} item={item} fallbackUrl={fallbackUrl} />
+      ))}
     </div>
+  );
+}
+
+function InlineArtworkItem({
+  item,
+  fallbackUrl,
+}: {
+  item: Item;
+  fallbackUrl?: string;
+}) {
+  const figure = (
+    <figure className="ex-inline-figure">
+      {item.iframe ? (
+        <div
+          className="ex-inline-iframe"
+          style={{ aspectRatio: String(item.aspectRatio ?? 1) }}
+        >
+          <iframe
+            src={item.iframe}
+            title={item.alt}
+            loading="eager"
+            referrerPolicy="no-referrer"
+            allow="autoplay; fullscreen"
+            sandbox="allow-scripts allow-same-origin"
+          />
+        </div>
+      ) : item.video ? (
+        <div className="ex-inline-plate">
+          <div className="ex-inline-media">
+            <video
+              src={item.video}
+              poster={item.image}
+              muted
+              loop
+              playsInline
+              preload="auto"
+              aria-label={item.alt}
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="ex-inline-image">
+          <Image
+            src={item.image}
+            alt={item.alt}
+            width={1200}
+            height={1500}
+            sizes="(min-width: 900px) 40vw, 92vw"
+            unoptimized={/\.(gif|webp)$/i.test(item.image)}
+          />
+        </div>
+      )}
+      {item.title && (
+        <figcaption className="ex-inline-caption">
+          <em>{item.title}</em>
+        </figcaption>
+      )}
+    </figure>
+  );
+
+  // Iframes host interactive generative art — skip the <a> wrapper so
+  // clicks land on the artwork's own controls, not a link.
+  if (item.iframe) {
+    return <div className="ex-inline-artwork">{figure}</div>;
+  }
+  const href = item.verseUrl ?? fallbackUrl;
+  return href ? (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="ex-inline-artwork"
+    >
+      {figure}
+    </a>
+  ) : (
+    <div className="ex-inline-artwork">{figure}</div>
   );
 }
