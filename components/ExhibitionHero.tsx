@@ -32,6 +32,12 @@ export function ExhibitionHero({ exhibition }: { exhibition: Exhibition }) {
 
 function HeroMedia({ exhibition }: { exhibition: Exhibition }) {
   const label = `${exhibition.artistName}, ${exhibition.title} (featured work)`;
+  // Pairs with the exhibition card on the listings page under the
+  // same name, so the card image morphs into the hero position
+  // on navigation.
+  const transitionStyle = {
+    viewTransitionName: `ex-hero-${exhibition.slug}`,
+  };
   const media = exhibition.heroVideo ? (
     <video
       className="ex-hero-video"
@@ -54,12 +60,13 @@ function HeroMedia({ exhibition }: { exhibition: Exhibition }) {
     />
   ) : null;
 
-  if (!media) return <figure className="ex-hero-plate" />;
+  if (!media) return <figure className="ex-hero-plate" style={transitionStyle} />;
 
   if (exhibition.verseSeriesUrl) {
     return (
       <a
         className="ex-hero-plate"
+        style={transitionStyle}
         href={exhibition.verseSeriesUrl}
         target="_blank"
         rel="noopener noreferrer"
@@ -69,5 +76,5 @@ function HeroMedia({ exhibition }: { exhibition: Exhibition }) {
       </a>
     );
   }
-  return <figure className="ex-hero-plate">{media}</figure>;
+  return <figure className="ex-hero-plate" style={transitionStyle}>{media}</figure>;
 }

@@ -11,9 +11,17 @@ type ExhibitionRowProps = {
 export function ExhibitionRow({ exhibition, variant = "card" }: ExhibitionRowProps) {
   const href = `/exhibitions/${exhibition.slug}`;
   const image = exhibition.hero ?? exhibition.works?.[0]?.image;
-  const imageStyle = exhibition.listImageScale
-    ? ({ "--img-scale": exhibition.listImageScale } as CSSProperties)
-    : undefined;
+  const imageStyle: CSSProperties = {
+    // Shared-element transition: pairs this card image with the
+    // exhibition detail page's hero under the same name, so
+    // navigating looks like the card image morphing into place.
+    viewTransitionName: `ex-hero-${exhibition.slug}`,
+  };
+  if (exhibition.listImageScale) {
+    (imageStyle as CSSProperties & { "--img-scale"?: number })[
+      "--img-scale"
+    ] = exhibition.listImageScale;
+  }
   const classes = ["exhibition-row"];
   if (variant === "featured") classes.push("featured");
   if (exhibition.disableListHoverZoom) classes.push("no-hover-zoom");

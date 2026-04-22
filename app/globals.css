@@ -65,9 +65,17 @@
   animation-duration:420ms;
   animation-timing-function:cubic-bezier(0.22, 1, 0.36, 1);
 }
+/* Named shared-element groups (exhibition-card image ↔ detail
+   hero) get a slightly longer morph so the geometry interpolation
+   has room to breathe. */
+::view-transition-group(*){
+  animation-duration:560ms;
+  animation-timing-function:cubic-bezier(0.22, 1, 0.36, 1);
+}
 @media (prefers-reduced-motion:reduce){
   ::view-transition-old(root),
-  ::view-transition-new(root){animation-duration:0ms;}
+  ::view-transition-new(root),
+  ::view-transition-group(*){animation-duration:0ms;}
 }
 
 /* ---- SCROLL REVEAL --------------------------------------------------- */
