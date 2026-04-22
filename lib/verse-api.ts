@@ -54,7 +54,11 @@ const fetchVerseExhibitions = cache(async (): Promise<VerseExhibition[]> => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query: VERSE_QUERY }),
-      next: { revalidate: 3600 },
+      // Fetch once at build time and bake the result into the static
+      // HTML. `revalidate: false` disables ISR entirely — production
+      // serves pure static files and never re-hits the Verse API.
+      // Redeploy to pick up any upstream copy changes.
+      next: { revalidate: false },
     });
     if (!res.ok) {
       console.warn(`[verse] ${res.status} ${res.statusText}`);
