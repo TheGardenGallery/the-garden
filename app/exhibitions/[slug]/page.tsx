@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import React from "react";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { fetchExhibition, fetchExhibitions } from "@/lib/verse-api";
@@ -9,15 +10,22 @@ import { FeaturedArtworks } from "@/components/FeaturedArtworks";
 import { ExhibitionDetails } from "@/components/ExhibitionDetails";
 
 /**
- * Replace hyphens between letters/digits with U+2011 (non-breaking hyphen) so
- * compound words like "dot-matrix" don't break across lines. Skips HTML tags so
- * attribute values (hrefs, class names) are unaffected.
+ * Light typographic cleanup on exhibition prose:
+ *   - Hyphens between letters/digits become U+2011 (non-breaking hyphen) so
+ *     compound words like "dot-matrix" don't break across lines.
+ *   - Spaces inside <em>…</em> titles become U+00A0 (non-breaking space) so
+ *     an italic title like "The Flood: Orchestrated" never breaks — and in
+ *     particular, the colon can't strand at the end of a line.
+ * Skips HTML tags so attribute values are unaffected.
  */
 function preserveHyphens(html: string): string {
-  return html.replace(/(<[^>]*>)|([^<]+)/g, (_m, tag, text) => {
+  const hyphenated = html.replace(/(<[^>]*>)|([^<]+)/g, (_m, tag, text) => {
     if (tag) return tag;
     return (text as string).replace(/(\p{L}|\d)-(\p{L}|\d)/gu, "$1\u2011$2");
   });
+  return hyphenated.replace(/<em>([^<]*)<\/em>/g, (_m, content) =>
+    `<em>${(content as string).replace(/ /g, "\u00A0")}</em>`
+  );
 }
 
 export async function generateStaticParams() {
@@ -47,7 +55,7 @@ export default async function ExhibitionDetailPage({
 
   const heroTheme = exhibition.heroTheme ?? "paper";
   return (
-    <div className="exhibition-detail">
+    <div className="exhibition-detail" data-slug={exhibition.slug}>
       {/* 01 · HERO — full-viewport, mirrors the homepage Hero: paper
           backdrop, artwork centered, title card pinned bottom-left, so
           clicking a hero card reads as the same element settling into
@@ -55,40 +63,11 @@ export default async function ExhibitionDetailPage({
       <section
         className="ex-hero"
         data-theme={heroTheme}
+        data-slug={exhibition.slug}
         aria-label="Featured artwork"
       >
         <div className="ex-hero-frame">
-          {exhibition.hero ? (
-            exhibition.verseSeriesUrl ? (
-              <a
-                className="ex-hero-plate"
-                href={exhibition.verseSeriesUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`View ${exhibition.title} series on Verse`}
-              >
-                <Image
-                  src={exhibition.hero}
-                  alt={`${exhibition.artistName}, ${exhibition.title} (featured work)`}
-                  width={1240}
-                  height={1550}
-                  priority
-                />
-              </a>
-            ) : (
-              <figure className="ex-hero-plate">
-                <Image
-                  src={exhibition.hero}
-                  alt={`${exhibition.artistName}, ${exhibition.title} (featured work)`}
-                  width={1240}
-                  height={1550}
-                  priority
-                />
-              </figure>
-            )
-          ) : (
-            <figure className="ex-hero-plate" />
-          )}
+          <HeroMedia exhibition={exhibition} />
         </div>
 
         <header className="ex-title-bar" aria-labelledby="exTitle">
@@ -104,14 +83,13 @@ export default async function ExhibitionDetailPage({
           rather than as a plate above the essay. */}
       <section className="ex-overview">
         <ExhibitionFacts exhibition={exhibition} />
-        {exhibition.descriptionMarkdown &&
-        !(exhibition.descriptionByArtist && exhibition.description?.length) ? (
+        {exhibition.description && exhibition.description.length > 0 ? (
+          <OverviewSegments exhibition={exhibition} />
+        ) : exhibition.descriptionMarkdown ? (
           <div className="ex-overview-body">
             <ReactMarkdown>{exhibition.descriptionMarkdown}</ReactMarkdown>
           </div>
-        ) : (
-          <OverviewSegments exhibition={exhibition} />
-        )}
+        ) : null}
       </section>
 
       {/* 04 · DETAILS — hi-fidelity crops of a single work. */}
@@ -143,15 +121,56 @@ export default async function ExhibitionDetailPage({
   );
 }
 
+function HeroMedia({ exhibition }: { exhibition: Exhibition }) {
+  const label = `${exhibition.artistName}, ${exhibition.title} (featured work)`;
+  const media = exhibition.heroVideo ? (
+    <video
+      className="ex-hero-video"
+      src={exhibition.heroVideo}
+      poster={exhibition.hero}
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      aria-label={label}
+    />
+  ) : exhibition.hero ? (
+    <Image
+      src={exhibition.hero}
+      alt={label}
+      width={1240}
+      height={1550}
+      priority
+    />
+  ) : null;
+
+  if (!media) return <figure className="ex-hero-plate" />;
+
+  if (exhibition.verseSeriesUrl) {
+    return (
+      <a
+        className="ex-hero-plate"
+        href={exhibition.verseSeriesUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`View ${exhibition.title} series on Verse`}
+      >
+        {media}
+      </a>
+    );
+  }
+  return <figure className="ex-hero-plate">{media}</figure>;
+}
+
 function OverviewSegments({ exhibition }: { exhibition: Exhibition }) {
   const paragraphs = exhibition.description ?? [];
-  const inline = exhibition.inlineArtworks;
-  const breakIndex = inline?.afterParagraphIndex;
-  const hasBreak =
-    inline && typeof breakIndex === "number" && breakIndex >= 0 && breakIndex < paragraphs.length - 1;
-
-  const before = hasBreak ? paragraphs.slice(0, breakIndex! + 1) : paragraphs;
-  const after = hasBreak ? paragraphs.slice(breakIndex! + 1) : [];
+  const breaks = (exhibition.inlineArtworks ?? [])
+    .filter(
+      (b) =>
+        b.afterParagraphIndex >= 0 && b.afterParagraphIndex < paragraphs.length - 1
+    )
+    .sort((a, b) => a.afterParagraphIndex - b.afterParagraphIndex);
 
   const renderBody = (paras: string[], includeHeader: boolean, key: string) => (
     <div key={key} className="ex-overview-body">
@@ -164,11 +183,32 @@ function OverviewSegments({ exhibition }: { exhibition: Exhibition }) {
     </div>
   );
 
+  const segments: { paras: string[]; breakAt?: typeof breaks[number] }[] = [];
+  let cursor = 0;
+  for (const br of breaks) {
+    segments.push({
+      paras: paragraphs.slice(cursor, br.afterParagraphIndex + 1),
+      breakAt: br,
+    });
+    cursor = br.afterParagraphIndex + 1;
+  }
+  if (cursor < paragraphs.length) {
+    segments.push({ paras: paragraphs.slice(cursor) });
+  }
+
   return (
     <>
-      {renderBody(before, true, "body-before")}
-      {hasBreak && <InlineArtworks exhibition={exhibition} />}
-      {hasBreak && after.length > 0 && renderBody(after, false, "body-after")}
+      {segments.map((seg, i) => (
+        <React.Fragment key={i}>
+          {renderBody(seg.paras, i === 0, `body-${i}`)}
+          {seg.breakAt && (
+            <InlineArtworks
+              group={seg.breakAt}
+              fallbackUrl={exhibition.verseSeriesUrl}
+            />
+          )}
+        </React.Fragment>
+      ))}
     </>
   );
 }
@@ -191,25 +231,45 @@ function ExhibitionFacts({ exhibition }: { exhibition: Exhibition }) {
   );
 }
 
-function InlineArtworks({ exhibition }: { exhibition: Exhibition }) {
-  const inline = exhibition.inlineArtworks;
-  if (!inline) return null;
-  const fallback = exhibition.verseSeriesUrl;
+function InlineArtworks({
+  group,
+  fallbackUrl,
+}: {
+  group: NonNullable<Exhibition["inlineArtworks"]>[number];
+  fallbackUrl?: string;
+}) {
   return (
     <div className="ex-inline-artworks">
-      {inline.items.map((item, j) => {
-        const href = item.verseUrl ?? fallback;
+      {group.items.map((item, j) => {
+        const href = item.verseUrl ?? fallbackUrl;
         const figure = (
           <figure className="ex-inline-figure">
-            <div className="ex-inline-image">
-              <Image
-                src={item.image}
-                alt={item.alt}
-                width={1200}
-                height={1500}
-                sizes="(min-width: 900px) 40vw, 92vw"
-              />
-            </div>
+            {item.video ? (
+              <div className="ex-inline-plate">
+                <div className="ex-inline-media">
+                  <video
+                    src={item.video}
+                    poster={item.image}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    aria-label={item.alt}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="ex-inline-image">
+                <Image
+                  src={item.image}
+                  alt={item.alt}
+                  width={1200}
+                  height={1500}
+                  sizes="(min-width: 900px) 40vw, 92vw"
+                />
+              </div>
+            )}
             {item.title && (
               <figcaption className="ex-inline-caption">
                 <em>{item.title}</em>
@@ -269,15 +329,21 @@ function Colophon({ exhibition }: { exhibition: Exhibition }) {
             },
           ]}
         />
-        <ColBlock
-          label="Documents"
-          title="Press & reading"
-          body="A press release and curator's note accompany the exhibition, including technical notes on the generative process and a conversation with the artist."
-          links={[
-            { label: "Press release (PDF)", href: "#", icon: "↓" },
-            { label: "Artist interview", href: "#", icon: "→" },
-          ]}
-        />
+        {exhibition.documents && (
+          <ColBlock
+            label="Documents"
+            title="Press & reading"
+            body="A press release and curator's note accompany the exhibition, including technical notes on the generative process and a conversation with the artist."
+            links={[
+              ...(exhibition.documents.pressPdfUrl
+                ? [{ label: "Press release (PDF)", href: exhibition.documents.pressPdfUrl, icon: "↓" }]
+                : []),
+              ...(exhibition.documents.interviewUrl
+                ? [{ label: "Artist interview", href: exhibition.documents.interviewUrl, icon: "→" }]
+                : []),
+            ]}
+          />
+        )}
         <ColBlock
           label="Enquiries"
           title="Works available"
@@ -289,7 +355,13 @@ function Colophon({ exhibition }: { exhibition: Exhibition }) {
               icon: "↗",
               external: true,
             },
-            { label: "Enquire", href: "#", icon: "→" },
+            {
+              label: "Enquire",
+              href: `mailto:chilltulpa@gmail.com?subject=${encodeURIComponent(
+                `Enquiry: ${exhibition.artistName}, ${exhibition.title}`
+              )}`,
+              icon: "→",
+            },
           ]}
         />
       </div>

@@ -540,7 +540,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   pointer-events:none;z-index:1;
 }
 
-.hero-card{position:absolute;bottom:40px;left:40px;background:transparent;padding:0;max-width:380px;z-index:3;}
+.hero-card{position:absolute;bottom:64px;left:40px;background:transparent;padding:0;max-width:380px;z-index:3;}
 .hero-card-link{display:block;color:inherit;text-decoration:none;cursor:pointer;}
 .hero-card-link:focus-visible{outline:2px solid var(--hero-foreground);outline-offset:8px;}
 
@@ -572,10 +572,10 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .hero-headline{display:flex;flex-direction:column;gap:4px;}
 .hero-artist{font-family:'Cormorant','Title CJK',serif;font-weight:500;font-style:normal;font-size:clamp(24px, calc(0.9vw + 16px), 32px);letter-spacing:-0.25px;line-height:1;color:var(--on-dark-fg);text-transform:uppercase;font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;}
 .hero-title{font-family:'Cormorant','Title CJK',serif;font-weight:400;font-style:italic;font-size:clamp(24px, calc(0.9vw + 16px), 32px);letter-spacing:-0.25px;line-height:1.05;color:var(--on-dark-fg);text-transform:none;}
-.hero-meta{font-size:10px;letter-spacing:0.5px;color:rgba(245,243,239,0.6);font-weight:400;line-height:1;text-transform:uppercase;margin-top:16px;}
-.hero-link{display:inline-flex;align-items:baseline;gap:8px;font-family:'Cormorant','Title CJK',serif;font-style:italic;font-size:14px;line-height:1;color:rgba(245,243,239,0.85);text-decoration:none;margin-top:24px;}
+.hero-meta{font-size:10px;letter-spacing:0.5px;color:rgba(245,243,239,0.6);font-weight:400;line-height:1;text-transform:uppercase;margin-top:12px;}
+.hero-link{display:inline-flex;align-items:baseline;gap:8px;font-family:'Cormorant','Title CJK',serif;font-style:italic;font-size:14px;line-height:1;color:rgba(245,243,239,0.85);text-decoration:none;margin-top:16px;}
 .hero-link-label{position:relative;}
-.hero-link-arrow{font-style:normal;font-size:13px;line-height:1;}
+.hero-link-arrow{font-style:normal;font-size:13px;line-height:1;position:relative;top:1px;}
 /* Unified hover: fade every text element in the hero card to gray,
    same treatment as homepage exhibition cards. Per-theme dim target
    so the result reads as "dimmed" against both paper and dark. */
@@ -989,7 +989,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   line-height:1;
 }
 
-.exhibitions-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:64px 40px;max-width:92%;margin:0 auto;width:100%;}
+.exhibitions-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:64px 40px;width:100%;}
 
 .exhibition-row{
   display:flex;flex-direction:column;
@@ -1054,9 +1054,9 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .exhibition-row.featured .row-image{
   aspect-ratio:4/3;
   max-height:65vh;
-  margin-bottom:24px;
+  margin-bottom:16px;
 }
-.exhibition-row.featured .row-image{padding:4% 5%;}
+.exhibition-row.featured .row-image{padding:9% 5%;}
 .exhibition-row.featured .row-image img{
   transform:scale(calc(var(--img-scale) * 1.02));
   transition:transform 1s ease-out;
@@ -1108,7 +1108,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-family:'Barlow',sans-serif;
   font-weight:500;font-size:11px;letter-spacing:1.5px;
   color:var(--ink);
-  padding-top:76px;padding-bottom:24px;margin:0;
+  padding-top:64px;padding-bottom:24px;margin:0;
   line-height:1;text-transform:uppercase;
   font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
@@ -1118,7 +1118,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto;
   column-gap:48px;
-  align-items:center;
+  align-items:baseline;
   padding:22px 0;
   border-top:1px solid #ece9df;
   cursor:pointer;
@@ -1256,17 +1256,38 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   display:flex;align-items:center;justify-content:center;
   padding:56px var(--gutter) 160px;
 }
+/* Paul Prudence / ISO-IEC 10646: match the homepage Hero's artwork frame
+   (64px top/bottom, 56px sides) so the hero feels like the same plate
+   settling into place when you click through from the homepage. */
+.ex-hero[data-slug="iso-iec-10646"] .ex-hero-frame{padding:64px 56px;}
+.ex-hero[data-slug="iso-iec-10646"] .ex-title-bar{bottom:64px;}
+
+/* Yoshi Sodeoka / The Flood: mirror Paul's hero structurally.
+   Video keeps its true intrinsic aspect (no cropping, no forced 4:5),
+   but we force its height to fill the frame so its bottom edge lands
+   on the same baseline as Paul's image — 64px from the viewport
+   bottom, where the title-bar also sits. Width auto-adjusts to the
+   video's natural aspect. Default drop-shadow outlines the actual
+   video rectangle. */
+.ex-hero[data-slug="the-flood"] .ex-hero-frame{padding:64px 56px;}
+.ex-hero[data-slug="the-flood"] .ex-title-bar{bottom:64px;}
+.ex-hero[data-slug="the-flood"] .ex-hero-plate .ex-hero-video{
+  height:100%;width:auto;
+  max-width:100%;
+  object-fit:contain;
+}
 .ex-hero-plate{
   position:relative;
   width:100%;height:100%;
   display:flex;align-items:center;justify-content:center;
   background:transparent;line-height:0;
 }
-.ex-hero-plate:not(:has(img)){
+.ex-hero-plate:not(:has(img)):not(:has(video)){
   width:min(520px,92vw);height:auto;
   aspect-ratio:4/5;background:var(--placeholder);
 }
-.ex-hero-plate img{
+.ex-hero-plate img,
+.ex-hero-plate .ex-hero-video{
   display:block;
   max-width:100%;max-height:100%;
   width:auto;height:auto;
@@ -1352,16 +1373,83 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   margin:56px auto;
   align-self:center;
 }
+/* When the prose has only one inline artwork, collapse to a single
+   centered column at roughly the old half-width footprint. */
+.ex-inline-artworks:has(> :only-child){
+  grid-template-columns:1fr;
+  max-width:420px;
+}
 .ex-inline-artwork{
   display:block;margin:0;
   color:var(--ink);text-decoration:none;
   transition:color 0.3s ease-out;
 }
 .ex-inline-figure{margin:0;display:flex;flex-direction:column;gap:16px;}
+/* Image-only inline artwork (Paul): image fills the cell, matte baked
+   into the file, soft drop-shadow for a plate feel without a wrapper. */
 .ex-inline-image{line-height:0;}
 .ex-inline-image img{
   width:100%;height:auto;display:block;
   filter:drop-shadow(0 10px 24px rgba(40,35,25,0.08)) drop-shadow(0 1px 4px rgba(40,35,25,0.05));
+}
+/* Video inline artwork (Yoshi): 4:5 matted plate with interior padding,
+   mirroring the homepage Past-card plate so the motion has breathing
+   room around it. */
+.ex-inline-plate{
+  width:100%;aspect-ratio:4/5;background:#f1f4f6;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  padding:10% 12%;
+}
+.ex-inline-media{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  line-height:0;
+}
+.ex-inline-media img,
+.ex-inline-media video{
+  max-width:100%;max-height:100%;width:auto;height:auto;
+  object-fit:contain;display:block;
+}
+/* Yoshi / The Flood: size the inline Orchestrated block to match the
+   hero video exactly. Hero frame height = 100vh - nav - 64px top - 64px
+   bottom; with 9/16 aspect, matching width is that height * 9/16. */
+.exhibition-detail[data-slug="the-flood"] .ex-inline-artworks:has(> :only-child){
+  max-width:calc((100vh - var(--nav-height) - 128px) * 9 / 16);
+}
+/* The second inline-artworks block is Chaos, whose video is natively
+   square. Override just that plate to a square aspect so the content
+   isn't dwarfed by top/bottom matte. */
+.exhibition-detail[data-slug="the-flood"] .ex-inline-artworks
+  ~ .ex-inline-artworks:has(> :only-child){
+  max-width:462px;
+}
+.exhibition-detail[data-slug="the-flood"] .ex-inline-artworks
+  ~ .ex-inline-artworks .ex-inline-plate{
+  aspect-ratio:1;
+}
+/* Dissolve the grey plate into the page for Yoshi — the videos are pure
+   white, so a grey matte creates a hard seam. Remove the plate bg and
+   give the video a soft drop-shadow so it reads as a print resting on
+   the page rather than stuck inside a box. Also pin the plate's aspect
+   ratio to the video's intrinsic aspect so the plate is exactly the
+   video's footprint and the caption below lines up with the video's
+   left edge (not an invisible matte margin). */
+.exhibition-detail[data-slug="the-flood"] .ex-inline-plate{
+  background:transparent;
+  padding:0;
+  aspect-ratio:9 / 16;
+}
+.exhibition-detail[data-slug="the-flood"] .ex-inline-media video{
+  filter:drop-shadow(0 14px 32px rgba(40,35,25,0.08))
+         drop-shadow(0 2px 6px rgba(40,35,25,0.05));
+}
+/* Yoshi prose links (series titles) drop the shared underline — the
+   italic <em> already flags them as titles, and the underline reads too
+   loud against the airy prose. Keep the shared hover color change for
+   discoverability. */
+.exhibition-detail[data-slug="the-flood"] .ex-overview-body .prose-link{
+  border-bottom:0;
+  padding-bottom:0;
 }
 .ex-inline-caption{
   font-family:'Cormorant','Title CJK',serif;
@@ -1557,7 +1645,18 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .col-body em,.col-body i{
   font-family:'Cormorant','Title CJK',serif;font-style:italic;font-weight:400;font-size:inherit;
 }
-.col-links{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
+/* Clamp the artist-bio column (always first in the colophon grid) to a
+   short excerpt — the full bio lives on the Artist profile page and the
+   link below points there. Prevents long Verse-imported bios from
+   bloating the colophon and throwing off the column baselines. */
+.ex-colophon .col-block:first-child .col-body{
+  display:-webkit-box;
+  -webkit-line-clamp:6;
+  -webkit-box-orient:vertical;
+  line-clamp:6;
+  overflow:hidden;
+}
+.col-links{display:flex;flex-direction:column;gap:12px;margin-top:auto;padding-top:6px;}
 .col-link{
   font-family:'Cormorant','Title CJK',serif;font-style:italic;font-weight:400;
   font-size:15px;line-height:1;color:var(--ink);

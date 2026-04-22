@@ -70,15 +70,16 @@ export const exhibitions: Exhibition[] = [
     artistSlug: "paul-prudence",
     artistName: "Paul Prudence",
     title: "ISO/IEC 10646",
-    year: 2025,
-    month: "Aug",
-    date: "August 2025",
+    year: 2024,
+    month: "Nov",
+    date: "November 2024",
     location: "Verse",
     status: "current",
     hero: "/images/paul-prudence/iso-iec-10646-hero.jpg",
     heroTheme: "paper",
     descriptionByArtist: true,
     disableListHoverZoom: true,
+    listImageScale: 1.12,
     verseSeriesUrl: "https://verse.works/series/iso-iec-10646-by-paul-prudence",
     workCount: 70,
     details: {
@@ -93,25 +94,27 @@ export const exhibitions: Exhibition[] = [
         { id: "lower-weave",   x: 55, y: 75, zoom: 2.6 },
       ],
     },
-    inlineArtworks: {
-      afterParagraphIndex: 1,
-      items: [
-        {
-          image: "/images/paul-prudence/iso-iec-10646-inline-1.png",
-          alt: "Paul Prudence, ISO/IEC 10646 #45",
-          title: "ISO/IEC 10646 #45",
-          verseUrl:
-            "https://verse.works/items/ethereum/0x67f56e7a4a5f071a46f13e67d467f78c34df3051/44",
-        },
-        {
-          image: "/images/paul-prudence/iso-iec-10646-inline-2.png",
-          alt: "Paul Prudence, ISO/IEC 10646 #34",
-          title: "ISO/IEC 10646 #34",
-          verseUrl:
-            "https://verse.works/items/ethereum/0x67f56e7a4a5f071a46f13e67d467f78c34df3051/33",
-        },
-      ],
-    },
+    inlineArtworks: [
+      {
+        afterParagraphIndex: 1,
+        items: [
+          {
+            image: "/images/paul-prudence/iso-iec-10646-inline-1.png",
+            alt: "Paul Prudence, ISO/IEC 10646 #45",
+            title: "ISO/IEC 10646 #45",
+            verseUrl:
+              "https://verse.works/items/ethereum/0x67f56e7a4a5f071a46f13e67d467f78c34df3051/44",
+          },
+          {
+            image: "/images/paul-prudence/iso-iec-10646-inline-2.png",
+            alt: "Paul Prudence, ISO/IEC 10646 #34",
+            title: "ISO/IEC 10646 #34",
+            verseUrl:
+              "https://verse.works/items/ethereum/0x67f56e7a4a5f071a46f13e67d467f78c34df3051/33",
+          },
+        ],
+      },
+    ],
     description: [
       `<em>ISO/IEC 10646</em>* marks a culmination in a series of works exploring the use of text and signs as a material from which to weave fabrics of encoded patterns. The collection explores the historical links between weaving and computing, and their shared history of punched-card programming.`,
       `Using solely the Unicode block elements as a base material, the generated patterns evoke a nostalgia for the age of teletype and early dot-matrix printers while simultaneously referencing early computational aesthetics such as arcade games and command-line interfaces. Now no longer tied to their original utility for use in software terminal emulation these special characters, which are today index fossils from the early era of computing, have been transcoded into weave patterns that define larger pictorial systems. Just as there are ancient tapestries depicting scenes from culturally significant events, some outputs of <em>ISO/IEC 10646</em> recall images of our earliest arcade games with scenes of partly-destroyed fortresses and floating space debris, rockets and asteroids. But among the many permutations of the collection you will also find the traces of cartographic systems, the rubrics of ciphers and the aesthetics of MS DOS&rsquo;s Defrag program.`,
@@ -184,7 +187,54 @@ export const exhibitions: Exhibition[] = [
   { slug: "isle-of-alcina",         artistSlug: "t-k-z",             artistName: "Tù.úk'z",           title: "Isle of Alcina",         year: 2024, month: "Mar", date: "March 2024",    location: "Verse", status: "past" },
   { slug: "glitch-garden",          artistSlug: "sp-gelsesmaskinen", artistName: "Spøgelsesmaskinen", title: "Glitch Garden",          year: 2024, month: "Feb", date: "February 2024", location: "Verse", status: "past" },
   { slug: "making-an-egg",          artistSlug: "nikita-diakur",     artistName: "Nikita Diakur",     title: "Making an Egg with Hands", year: 2024, month: "Jan", date: "January 2024", location: "Verse", status: "past" },
-  { slug: "the-flood",              artistSlug: "yoshi-sodeoka",     artistName: "Yoshi Sodeoka",     title: "The Flood", year: 2024, month: "Jan", date: "January 2024",  location: "Verse", status: "past", cardVideo: "/images/yoshi-sodeoka/the-flood-orchestrated.mp4", cardImage: "/images/yoshi-sodeoka/the-flood-orchestrated-poster.jpg" },
+  {
+    slug: "the-flood",
+    artistSlug: "yoshi-sodeoka",
+    artistName: "Yoshi Sodeoka",
+    title: "The Flood",
+    year: 2024,
+    month: "Jan",
+    date: "January 2024",
+    location: "Verse",
+    status: "past",
+    heroVideo: "/images/yoshi-sodeoka/the-flood-hero.mp4",
+    hero: "/images/yoshi-sodeoka/the-flood-orchestrated-poster.jpg",
+    cardVideo: "/images/yoshi-sodeoka/the-flood-orchestrated.mp4",
+    cardImage: "/images/yoshi-sodeoka/the-flood-orchestrated-poster.jpg",
+    verseSeriesUrl: "https://verse.works/exhibitions/the-flood",
+    inlineArtworks: [
+      {
+        afterParagraphIndex: 1,
+        items: [
+          {
+            image: "/images/yoshi-sodeoka/the-flood-orchestrated-artwork-poster.jpg",
+            video: "/images/yoshi-sodeoka/the-flood-orchestrated-artwork.mp4",
+            alt: "Yoshi Sodeoka, The Flood: Orchestrated",
+            title: "The Flood: Orchestrated",
+            verseUrl: "https://verse.works/artworks/9468ee6a-3421-42d4-bcd7-d4ae58a961f5",
+          },
+        ],
+      },
+      {
+        afterParagraphIndex: 2,
+        items: [
+          {
+            image: "/images/yoshi-sodeoka/the-flood-chaos-poster.jpg",
+            video: "/images/yoshi-sodeoka/the-flood-chaos.mp4",
+            alt: "Yoshi Sodeoka, The Flood: Chaos",
+            title: "The Flood: Chaos",
+            verseUrl: "https://verse.works/artworks/c5c92f89-8ff5-4620-8b08-461404a50871",
+          },
+        ],
+      },
+    ],
+    description: [
+      `Yoshi Sodeoka&rsquo;s <a class="prose-link" href="https://verse.works/artworks/9468ee6a-3421-42d4-bcd7-d4ae58a961f5" target="_blank" rel="noopener"><em>The Flood: Orchestrated</em></a> and <a class="prose-link" href="https://verse.works/artworks/c5c92f89-8ff5-4620-8b08-461404a50871" target="_blank" rel="noopener"><em>The Flood: Chaos</em></a> consist of code-based simulations that juxtapose the organic behavioural patterns of spiders with the inorganic nature of algorithmic animation. While each generative spider in <a class="prose-link" href="https://verse.works/artworks/9468ee6a-3421-42d4-bcd7-d4ae58a961f5" target="_blank" rel="noopener"><em>The Flood: Orchestrated</em></a> is custom coded with unique parameters, those in <a class="prose-link" href="https://verse.works/artworks/c5c92f89-8ff5-4620-8b08-461404a50871" target="_blank" rel="noopener"><em>The Flood: Chaos</em></a> are governed by randomised behaviours generated by diverse parameters, symbolising both the inherent behaviours biological encoded within nature as well as the unpredictability that proliferates within the natural world. The resulting videos fluctuate between ballets and battles, with predator and prey struggling interminably in 13-second loops.`,
+      `Sodeoka&rsquo;s fascination with spiders carries a personal resonance, stemming from his late mother&rsquo;s belief in their auspicious presence, they are symbolic of good luck, yet they are simultaneously involved in nature&rsquo;s tumultuous rhythms. The works in these series are not merely visual spectacles, but symphonies of structured chaos. Sodeoka&rsquo;s interest in storytelling even within the abstract realm is apparent in the narrative conflict within these works. For example, the parameters of each work in <a class="prose-link" href="https://verse.works/artworks/c5c92f89-8ff5-4620-8b08-461404a50871" target="_blank" rel="noopener"><em>The Flood: Chaos</em></a> are randomised, yet specified to mirror the hunting behaviours of spiders &mdash; their range of view whilst searching for prey, how eager they are when chasing their prey. Maintaining a sense of progression even within a very limited timeframe was a central aim in his creative process.`,
+      `The series began with transforming footage of spiders&rsquo; behaviour into looping animations which were then manipulated using motion graphics softwares. In many of the works the spiders emanate from a central point symbolic of the nest, the origin of the spider&rsquo;s ominous journey. The spiders&rsquo; movements often escape beyond the confines of the digital canvas, leaving eerie trails in their wake. Both series contain auditory elements that adds to the disquieting visual environment, with the amalgamation of sight and sound heightening the sense of conflict and the viewer&rsquo;s experience of the works.`,
+      `While the predator-prey interactions in <a class="prose-link" href="https://verse.works/artworks/9468ee6a-3421-42d4-bcd7-d4ae58a961f5" target="_blank" rel="noopener"><em>The Flood: Orchestrated</em></a> are meticulously coded to mirror the calculated movements of spiders, <a class="prose-link" href="https://verse.works/artworks/c5c92f89-8ff5-4620-8b08-461404a50871" target="_blank" rel="noopener"><em>The Flood: Chaos</em></a> embraces spontaneity, presenting a less scripted and more impromptu exploration. In the latter series, each iteration yields a new result utilising from the same initial parameters, utilising algorithmic spontaneity to create organic, unpredictable, and free-flowing depictions of arachnid-inspired behaviours. Together, these artworks provide viewers with a dual perspective that mirrors both the natural world and algorithmic creative possibilities, with <a class="prose-link" href="https://verse.works/artworks/9468ee6a-3421-42d4-bcd7-d4ae58a961f5" target="_blank" rel="noopener"><em>The Flood: Orchestrated</em></a> showcasing orchestrated precision, while <a class="prose-link" href="https://verse.works/artworks/c5c92f89-8ff5-4620-8b08-461404a50871" target="_blank" rel="noopener"><em>The Flood: Chaos</em></a> unveils the untamed beauty of disorder.`,
+    ],
+  },
 
   // === PAST — 2023 ===
   { slug: "constraint",             artistSlug: "eric-andwer",       artistName: "Eric Andwer",       title: "Constraint",             year: 2023, month: "Nov", date: "November 2023", location: "Verse", status: "past" },

@@ -47,6 +47,7 @@ export type Exhibition = {
   descriptionByArtist?: boolean; // when true, render a "Text by the artist" byline under the description
   artistBio?: string;            // plain-text bio from Verse (colophon)
   hero?: string;                 // used on exhibition detail page
+  heroVideo?: string;            // if set, the detail hero renders this muted autoplay loop instead of the hero image
   homepageHero?: string;         // used on homepage hero — may differ from detail hero
   heroTheme?: "dark" | "paper";  // hero backdrop — cream for light-surface pieces, dark for digital
   frameColor?: string;           // background of the exhibitions-list image frame, matched to the artwork's palette
@@ -59,10 +60,13 @@ export type Exhibition = {
   /** A pair (or more) of artworks inserted between description paragraphs.
       `afterParagraphIndex` is 0-based against `description`. If an item
       omits `verseUrl`, it falls back to the exhibition's `verseSeriesUrl`. */
+  /** One or more inline artwork groups inserted between description
+      paragraphs. Each group has its own `afterParagraphIndex` so multiple
+      plates can break up long prose at different points. */
   inlineArtworks?: {
     afterParagraphIndex: number;
-    items: { image: string; alt: string; title?: string; verseUrl?: string }[];
-  };
+    items: { image: string; alt: string; title?: string; verseUrl?: string; video?: string }[];
+  }[];
   /** Hi-fidelity detail crops of a single work, shown as a grid like
       "Selected works" but all derived from the same source image via
       CSS background-position / background-size. `zoom` is the
@@ -88,6 +92,13 @@ export type Exhibition = {
   workCount?: number;            // total works (e.g. 96, even if only some shown)
   presentedBy?: string;
   verseSeriesUrl?: string;       // external link to the exhibition's Verse series page
+  /** Documents block on the exhibition page (press release PDF, artist
+      interview, etc.). If present, renders the "Press & reading" colophon
+      block. Absent for past exhibitions that never had formal docs. */
+  documents?: {
+    pressPdfUrl?: string;
+    interviewUrl?: string;
+  };
   prev?: ExhibitionLink;
   next?: ExhibitionLink;
 };
