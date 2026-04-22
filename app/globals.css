@@ -1270,14 +1270,18 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .ex-hero[data-slug="iso-iec-10646"] .ex-hero-frame{padding:64px 56px;}
 .ex-hero[data-slug="iso-iec-10646"] .ex-title-bar{bottom:64px;}
 /* Aluan Wang / Equinox: same hero framing as Paul's — tighter bottom
-   padding so the artwork reaches near the title-bar, title pinned to
-   64px from the viewport bottom. Cap the artwork at 85% of the frame
-   so it sits comfortably rather than filling edge-to-edge. */
+   padding so the artwork reaches near the title-bar. The artwork is
+   capped at 85% of the frame (for breathing room around a
+   edge-to-edge composition), which leaves a 7.5%-of-frame gap below
+   it. The title-bar has to drop by that same amount so its baseline
+   meets the artwork's bottom rather than the viewport bottom. */
 .ex-hero[data-slug="equinox"] .ex-hero-frame{padding:64px 56px;}
-.ex-hero[data-slug="equinox"] .ex-title-bar{bottom:64px;}
 .ex-hero[data-slug="equinox"] .ex-hero-plate img{
   max-width:85%;
   max-height:85%;
+}
+.ex-hero[data-slug="equinox"] .ex-title-bar{
+  bottom:calc(64px + (100vh - var(--nav-height) - 128px) * 0.075);
 }
 
 /* Yoshi Sodeoka / The Flood: mirror Paul's hero structurally.
