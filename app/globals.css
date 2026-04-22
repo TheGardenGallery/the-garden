@@ -1278,8 +1278,8 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .ex-hero[data-slug="equinox"] .ex-hero-frame{padding:64px 56px;}
 .ex-hero[data-slug="equinox"] .ex-title-bar{bottom:64px;}
 .ex-hero[data-slug="equinox"] .ex-hero-plate img{
-  max-width:85%;
-  max-height:85%;
+  max-width:93%;
+  max-height:93%;
 }
 
 /* Yoshi Sodeoka / The Flood: mirror Paul's hero structurally.
