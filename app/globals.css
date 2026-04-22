@@ -1905,3 +1905,46 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   color:var(--ink-whisper);text-transform:uppercase;
 }
 
+/* 404 — branded not-found page.
+   Centered editorial composition: small uppercase label, italic
+   serif headline, return link. Sits inside <main> so the shared
+   Nav and Footer still frame the view. */
+.not-found{
+  display:flex;align-items:center;justify-content:center;
+  min-height:calc(100vh - var(--nav-height));
+  min-height:calc(100dvh - var(--nav-height));
+  padding:80px var(--gutter) 120px;
+  background:var(--paper);
+}
+.not-found-inner{
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  gap:24px;max-width:640px;
+}
+.not-found-label{
+  font-family:'Barlow',sans-serif;font-weight:500;
+  font-size:11px;letter-spacing:1.5px;
+  color:var(--ink-whisper);text-transform:uppercase;
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
+}
+.not-found-title{
+  font-family:'Cormorant','Title CJK',serif;font-weight:400;
+  font-size:56px;line-height:1.1;letter-spacing:-0.4px;
+  color:var(--ink);
+}
+.not-found-link{
+  display:inline-flex;align-items:baseline;gap:8px;
+  font-family:'Cormorant','Title CJK',serif;font-style:italic;
+  font-size:16px;line-height:1;color:var(--ink-soft);
+  margin-top:8px;transition:color 0.3s ease-out;
+}
+.not-found-link-arrow{font-style:normal;font-size:15px;position:relative;top:1px;}
+@media (hover:hover){
+  .not-found-link:hover{color:#aeaeae;}
+}
+@media (max-width:720px){
+  .not-found-title{font-size:42px;}
+}
+@media (max-width:480px){
+  .not-found-title{font-size:34px;}
+}
+
