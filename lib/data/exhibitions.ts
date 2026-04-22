@@ -184,7 +184,7 @@ export const exhibitions: Exhibition[] = [
   { slug: "basalt-gifs",            artistSlug: "itsgalo",           artistName: "Itsgalo",           title: "Basalt GIFs",            year: 2024, month: "May", date: "May 2024",      location: "Verse", status: "past" },
   { slug: "autoscope",              artistSlug: "erik-swahn",        artistName: "Erik Swahn",        title: "Autoscope",              year: 2024, month: "Apr", date: "April 2024",    location: "Verse", status: "past" },
   { slug: "gwanak-gu",              artistSlug: "earthsample",       artistName: "Earthsample",       title: "Gwanak-gu",              year: 2024, month: "Mar", date: "March 2024",    location: "Verse", status: "past" },
-  { slug: "isle-of-alcina",         artistSlug: "t-k-z",             artistName: "Tù.úk'z",           title: "Isle of Alcina",         year: 2024, month: "Feb", date: "February 2024", location: "Verse", status: "past" },
+  { slug: "isle-of-alcina",         artistSlug: "t-k-z",             artistName: "Tù.úk'z",           title: "Isle of Alcina",         year: 2024, month: "Mar", date: "March 2024",    location: "Verse", status: "past" },
   { slug: "glitch-garden",          artistSlug: "sp-gelsesmaskinen", artistName: "Spøgelsesmaskinen", title: "Glitch Garden",          year: 2024, month: "Feb", date: "February 2024", location: "Verse", status: "past" },
   { slug: "making-an-egg",          artistSlug: "nikita-diakur",     artistName: "Nikita Diakur",     title: "Making an Egg with Hands", year: 2024, month: "Jan", date: "January 2024", location: "Verse", status: "past" },
   {
