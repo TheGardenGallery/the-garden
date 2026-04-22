@@ -1121,7 +1121,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
 .past-year:first-of-type{padding-top:16px;}
-.past-year-group{display:block;border-top:1px solid #c8c5bc;}
+.past-year-group{display:block;border-top:1.5px solid #c8c5bc;}
 .past-card{
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto;
@@ -1904,3 +1904,4 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-family:'Barlow',sans-serif;font-size:11px;letter-spacing:1.5px;
   color:var(--ink-whisper);text-transform:uppercase;
 }
+
