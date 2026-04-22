@@ -198,7 +198,40 @@ export const exhibitions: Exhibition[] = [
       `Mapping is not a mere simulation; it is the transformation of reality.`,
       `In Asian culture, the equinox symbolizes rebirth and renewal, akin to the significance of Easter in the West. For me, this festival holds special meaning as it is an integral part of my rural upbringing and a vessel for my childhood memories and emotions.`,
       `Throughout my artistic journey, I have been exploring invisible pathways and overarching systems. From my audiovisual work <em>Dynamized Center</em> a decade ago to last year&rsquo;s <em>Automatic Messages</em>, each piece delves into the essence of generative systems. I firmly believe that the heart of generative art lies not only in the visual output but also in the comprehensive systems driving these outputs.`,
-      `In <em>Equinox</em>, I designed several interacting systems whose interplay results in unpredictable outcomes, embodying seasonal transitions and natural cycles whilst aiming to capture subtle emotions that are easily overlooked in our fast-paced world. Rather than serving as an imitation of reality, <em>Equinox</em> is a reinterpretation and creation of it.`,
+      `Within this series, I designed several interacting systems whose interplay results in unpredictable outcomes, embodying seasonal transitions and natural cycles whilst aiming to capture subtle emotions that are easily overlooked in our fast-paced world. Rather than serving as an imitation of reality, <em>Equinox</em> is a reinterpretation and creation of it.`,
+    ],
+    inlineArtworks: [
+      {
+        afterParagraphIndex: 1,
+        items: [
+          {
+            image: "/images/aluan-wang/equinox-inline-1.jpg",
+            alt: "Aluan Wang, Equinox #12",
+            title: "Equinox #12",
+            verseUrl:
+              "https://verse.works/items/ethereum/0x909666d671fef2f593ef8c70cbd43abf60e75c24/11",
+          },
+          {
+            image: "/images/aluan-wang/equinox-inline-2.jpg",
+            alt: "Aluan Wang, Equinox #13",
+            title: "Equinox #13",
+            verseUrl:
+              "https://verse.works/items/ethereum/0x909666d671fef2f593ef8c70cbd43abf60e75c24/12",
+          },
+        ],
+      },
+      {
+        afterParagraphIndex: 2,
+        items: [
+          {
+            image: "/images/aluan-wang/equinox-inline-3.jpg",
+            alt: "Aluan Wang, Equinox #21",
+            title: "Equinox #21",
+            verseUrl:
+              "https://verse.works/items/ethereum/0x909666d671fef2f593ef8c70cbd43abf60e75c24/20",
+          },
+        ],
+      },
     ],
   },
   { slug: "escapes",                artistSlug: "t-k-z",             artistName: "Tù.úk'z",           title: "Escapes",                year: 2024, month: "Jun", date: "June 2024",     location: "Verse", status: "past" },
