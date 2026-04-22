@@ -1,5 +1,5 @@
-import Link from "next/link";
 import Image from "next/image";
+import { TransitionLink } from "./TransitionLink";
 import type { CSSProperties } from "react";
 import type { Exhibition } from "@/lib/types";
 
@@ -20,7 +20,7 @@ export function ExhibitionRow({ exhibition, variant = "card" }: ExhibitionRowPro
   const className = classes.join(" ");
 
   return (
-    <Link href={href} className={className} aria-label={`${exhibition.artistName}, ${exhibition.title}`}>
+    <TransitionLink href={href} className={className} aria-label={`${exhibition.artistName}, ${exhibition.title}`}>
       <div className="row-image" style={imageStyle}>
         {image && (
           <Image
@@ -48,6 +48,6 @@ export function ExhibitionRow({ exhibition, variant = "card" }: ExhibitionRowPro
           </div>
         )}
       </div>
-    </Link>
+    </TransitionLink>
   );
 }

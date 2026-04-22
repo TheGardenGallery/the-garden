@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Exhibition } from "@/lib/types";
+import { TransitionLink } from "./TransitionLink";
 
 export function PastCard({ exhibition }: { exhibition: Exhibition }) {
   const ref = useRef<HTMLAnchorElement>(null);
@@ -31,7 +31,7 @@ export function PastCard({ exhibition }: { exhibition: Exhibition }) {
   }, []);
 
   return (
-    <Link
+    <TransitionLink
       ref={ref}
       href={`/exhibitions/${exhibition.slug}`}
       className={visible ? "past-card is-visible" : "past-card"}
@@ -39,6 +39,6 @@ export function PastCard({ exhibition }: { exhibition: Exhibition }) {
       <div className="past-artist">{exhibition.artistName}</div>
       <div className="past-title">{exhibition.title}</div>
       <div className="past-month">{exhibition.month}</div>
-    </Link>
+    </TransitionLink>
   );
 }
