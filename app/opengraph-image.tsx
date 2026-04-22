@@ -34,12 +34,18 @@ export default async function Image() {
         }}
       >
         {/*
-          Mirror the site-logo proportions from globals.css `.logo`:
-          - triangle: 0.73em × 0.73em (not 0.875em)
-          - margin: -0.05em left, 0.02em right (not symmetric)
-          - letter-spacing: -0.019em (matches 20.9px font / -0.4px tracking)
-          - baseline-aligned with the letters, not center-aligned
-          At 160px font size those ratios land at 117px / -8px / 3px / -3px.
+          Mirror the site-logo proportions from globals.css `.logo`.
+          CSS on the nav renders `G<span.triangle>RDEN` as one continuous
+          text run, so letter-spacing (-0.019em) bridges the gap between
+          the G, the triangle, and the R. Satori splits that into three
+          flex children and letter-spacing no longer applies across them,
+          so we absorb the missing tracking into the triangle's margins:
+
+          site:   margin-left  = -0.05em + letter-spacing(-0.019em) = -0.069em
+          site:   margin-right =  0.02em + letter-spacing(-0.019em) =  0.001em
+          at 160px font: -11px left, 0px right. Triangle stays 0.73em.
+          alignItems:baseline so the triangle sits on the text baseline
+          instead of the descender line.
         */}
         <div
           style={{
@@ -57,7 +63,7 @@ export default async function Image() {
             height="117"
             viewBox="0 0 100 100"
             xmlns="http://www.w3.org/2000/svg"
-            style={{ marginLeft: -8, marginRight: 3 }}
+            style={{ marginLeft: -11, marginRight: 0 }}
           >
             <path
               d="M50 0 L100 100 L0 100 Z M50 46 L67 79 L33 79 Z"
