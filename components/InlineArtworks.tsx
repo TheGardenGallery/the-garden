@@ -103,6 +103,7 @@ export function InlineArtworks({
                   width={1200}
                   height={1500}
                   sizes="(min-width: 900px) 40vw, 92vw"
+                  unoptimized={/\.(gif|webp)$/i.test(item.image)}
                 />
               </div>
             )}

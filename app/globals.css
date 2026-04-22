@@ -494,7 +494,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-size:14px;line-height:1;color:var(--ink);
   align-self:flex-start;
 }
-.ds-cta-arrow{font-style:normal;font-size:13px;line-height:1;}
+.ds-cta-arrow{font-style:normal;font-size:13px;line-height:1;position:relative;top:1px;}
 .ds-cta--on-dark{color:rgba(245,243,239,0.85);transition:color 245ms;}
 .ds-cta--on-dark:hover{color:var(--on-dark-fg);}
 
@@ -781,7 +781,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   text-decoration:none;
 }
 .journal-all-label{padding-bottom:1px;}
-.journal-all-arrow{font-style:normal;font-size:13px;line-height:1;}
+.journal-all-arrow{font-style:normal;font-size:13px;line-height:1;position:relative;top:1px;}
 
 @media (max-width:1024px){
   .journal-grid{grid-template-columns:1fr;gap:56px;}
@@ -1321,6 +1321,85 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   max-width:100%;
   object-fit:contain;
 }
+/* John Provencher / HAHA, over-time: full-bleed hero — the gallery
+   photo fills the entire hero section edge to edge. object-fit:cover
+   with object-position:left top anchors the image's top-left in the
+   frame, so the extra height (since source aspect is narrower than
+   the frame's) gets clipped from the bottom — trimming the floor
+   band away from where the title sits. */
+.ex-hero[data-slug="haha-over-time"] .ex-hero-frame{padding:0;}
+.ex-hero[data-slug="haha-over-time"] .ex-hero-plate{
+  width:100%;height:100%;
+}
+.ex-hero[data-slug="haha-over-time"] .ex-hero-plate img{
+  width:100%;height:100%;
+  max-width:none;max-height:none;
+  object-fit:cover;
+  object-position:left top;
+  filter:none;
+}
+/* Title centered over the photo — sits in the cleaner middle of the
+   gallery wall area so it doesn't clash with the vertical black
+   lines or the floor band. */
+.ex-hero[data-slug="haha-over-time"] .ex-title-bar{
+  left:50%;top:50%;bottom:auto;
+  transform:translate(-50%,-50%);
+  text-align:center;
+}
+.ex-hero[data-slug="haha-over-time"] .ex-title-headline{
+  align-items:center;
+}
+/* John Provencher: the installation pair reads a touch too wide next
+   to the surrounding prose column. Trim inline-artwork blocks by 8%
+   so the pair sits more comfortably within the page rhythm. */
+.exhibition-detail[data-slug="haha-over-time"] .ex-inline-artworks{
+  max-width:883px;
+}
+.exhibition-detail[data-slug="haha-over-time"] .ex-inline-artworks:has(> :only-child){
+  max-width:386px;
+}
+/* Solo inline artworks on this page include a 720x1600 portrait
+   (haha-artwork) that would run past the viewport at the 386px cell
+   width. Cap image height so it fits on screen with a little
+   whitespace top and bottom, and shrink the wrapping link to the
+   image's actual width so the caption stays flush with its left edge. */
+.exhibition-detail[data-slug="haha-over-time"] .ex-inline-artworks:has(> :only-child) .ex-inline-artwork{
+  width:fit-content;
+  margin:0 auto;
+}
+.exhibition-detail[data-slug="haha-over-time"] .ex-inline-artworks:has(> :only-child) .ex-inline-image img{
+  width:auto;
+  height:auto;
+  max-width:100%;
+  max-height:85vh;
+}
+/* Wide over-time gallery photo: sized to read as a wide figure
+   without dominating the prose column. Disable click-through since
+   this image isn't tied to a single artwork page. */
+.exhibition-detail[data-slug="haha-over-time"] .ex-inline-artworks:has(img[src*="over-time-installation-wide"]){
+  max-width:798px;
+}
+.exhibition-detail[data-slug="haha-over-time"] .ex-inline-artworks:has(img[src*="over-time-installation-wide"]) .ex-inline-artwork{
+  pointer-events:none;
+}
+/* Three-up row of over-time artwork variants after HAHA's generative
+   process block: 3 columns instead of the default 2, at editorial
+   width. Items are live iframes, so target by :has(iframe). */
+/* Progressive-complexity row: the over-time script ties grid density
+   to iframe width (floor(width / 16.5) cells per side), so giving
+   the three cells increasing width produces a left-simpler →
+   right-more-intricate visual progression. Ratios sum to 3 to keep
+   the row the same total width as an even split. */
+.exhibition-detail[data-slug="haha-over-time"] .ex-inline-artworks:has(iframe){
+  grid-template-columns:0.8fr 1fr 1.2fr;
+  max-width:918px;
+  align-items:start;
+}
+/* Collapse an empty paragraph body between two inline-artworks blocks
+   that share the same afterParagraphIndex, so back-to-back blocks sit
+   at the same rhythm as a single block instead of creating a visible
+   gap. */
+.exhibition-detail[data-slug="haha-over-time"] .ex-overview-body:empty{display:none;}
 .ex-hero-plate{
   position:relative;
   width:100%;height:100%;
@@ -1430,6 +1509,21 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   transition:color 0.3s ease-out;
 }
 .ex-inline-figure{margin:0;display:flex;flex-direction:column;gap:16px;}
+/* Live-rendered generative artwork (iframe) — aspect-ratio comes
+   from the item data so each cell matches its work's native shape.
+   Align row cells to start so mixed aspects don't stretch. */
+.ex-inline-iframe{
+  width:100%;
+  line-height:0;
+  filter:drop-shadow(0 10px 24px rgba(40,35,25,0.08)) drop-shadow(0 1px 4px rgba(40,35,25,0.05));
+}
+.ex-inline-iframe iframe{
+  width:100%;height:100%;
+  border:0;display:block;background:#fff;
+}
+.exhibition-detail[data-slug="haha-over-time"] .ex-inline-artworks:has(iframe){
+  align-items:start;
+}
 /* Image-only inline artwork (Paul): image fills the cell, matte baked
    into the file, soft drop-shadow for a plate feel without a wrapper. */
 .ex-inline-image{line-height:0;}
@@ -1708,7 +1802,10 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   display:inline-flex;align-items:baseline;gap:8px;
   align-self:flex-start;padding-bottom:2px;
 }
-.col-link .arrow{font-style:normal;font-size:13px;color:var(--ink-muted);}
+.col-link .arrow{
+  font-style:normal;font-size:13px;line-height:1;color:var(--ink-muted);
+  display:inline-flex;position:relative;top:1px;
+}
 
 .ex-nav{
   border-top:1px solid var(--rule-thin);background:var(--paper);

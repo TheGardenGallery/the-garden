@@ -24,7 +24,8 @@ function preserveHyphens(html: string): string {
     if (tag) return tag;
     let t = text as string;
     t = t.replace(/(\p{L}|\d)-(\p{L}|\d)/gu, "$1\u2011$2");
-    t = t.replace(/(\p{L}|\d): (?=\p{L}|\d)/gu, "$1:\u00A0");
+    t = t.replace(/(\p{L}|\d): (?=\p{L}|\d|$)/gu, "$1:\u00A0");
+    t = t.replace(/(\p{L}|\d); (?=\p{L}|\d|$)/gu, "$1;\u00A0");
     return t;
   });
   return hyphenated.replace(/<em>([^<]*)<\/em>/g, (_m, content) =>
@@ -260,7 +261,21 @@ function InlineArtworks({
         const href = item.verseUrl ?? fallbackUrl;
         const figure = (
           <figure className="ex-inline-figure">
-            {item.video ? (
+            {item.iframe ? (
+              <div
+                className="ex-inline-iframe"
+                style={{ aspectRatio: String(item.aspectRatio ?? 1) }}
+              >
+                <iframe
+                  src={item.iframe}
+                  title={item.alt}
+                  loading="eager"
+                  referrerPolicy="no-referrer"
+                  allow="autoplay; fullscreen"
+                  sandbox="allow-scripts allow-same-origin"
+                />
+              </div>
+            ) : item.video ? (
               <div className="ex-inline-plate">
                 <div className="ex-inline-media">
                   <video
@@ -293,6 +308,11 @@ function InlineArtworks({
             )}
           </figure>
         );
+        // Iframes host interactive generative art — skip the <a> wrapper
+        // so clicks land on the artwork's own controls, not a link.
+        if (item.iframe) {
+          return <div key={j} className="ex-inline-artwork">{figure}</div>;
+        }
         return href ? (
           <a
             key={j}
@@ -326,6 +346,37 @@ function WorksSection({ works }: { works: Exhibition["works"] }) {
   );
 }
 
+/* Colophon link arrows share one SVG family so they read as a set and
+   never fall back to an emoji glyph on mobile (which some OSes do for
+   ↗ in particular). Same viewBox, stroke, and cap style across all
+   three directions keeps them visually unified. */
+const arrowSvgProps = {
+  viewBox: "0 0 16 16",
+  width: 13,
+  height: 13,
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.25,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  "aria-hidden": true,
+};
+const ArrowRight = () => (
+  <svg {...arrowSvgProps}>
+    <path d="M3 8 H13 M9 4.5 L12.5 8 L9 11.5" />
+  </svg>
+);
+const ArrowDown = () => (
+  <svg {...arrowSvgProps}>
+    <path d="M8 3 V13 M4.5 9 L8 12.5 L11.5 9" />
+  </svg>
+);
+const ArrowNE = () => (
+  <svg {...arrowSvgProps}>
+    <path d="M4 12 L12 4 M6.5 4 L12 4 L12 9.5" />
+  </svg>
+);
+
 function Colophon({ exhibition }: { exhibition: Exhibition }) {
   return (
     <section className="ex-colophon">
@@ -341,7 +392,7 @@ function Colophon({ exhibition }: { exhibition: Exhibition }) {
             {
               label: "Artist profile",
               href: `/artists/${exhibition.artistSlug}`,
-              icon: "→",
+              icon: <ArrowRight />,
             },
           ]}
         />
@@ -352,10 +403,10 @@ function Colophon({ exhibition }: { exhibition: Exhibition }) {
             body="A press release and curator's note accompany the exhibition, including technical notes on the generative process and a conversation with the artist."
             links={[
               ...(exhibition.documents.pressPdfUrl
-                ? [{ label: "Press release (PDF)", href: exhibition.documents.pressPdfUrl, icon: "↓" }]
+                ? [{ label: "Press release (PDF)", href: exhibition.documents.pressPdfUrl, icon: <ArrowDown /> }]
                 : []),
               ...(exhibition.documents.interviewUrl
-                ? [{ label: "Artist interview", href: exhibition.documents.interviewUrl, icon: "→" }]
+                ? [{ label: "Artist interview", href: exhibition.documents.interviewUrl, icon: <ArrowRight /> }]
                 : []),
             ]}
           />
@@ -368,7 +419,7 @@ function Colophon({ exhibition }: { exhibition: Exhibition }) {
             {
               label: "View on Verse",
               href: exhibition.verseSeriesUrl ?? "https://verse.works",
-              icon: "↗",
+              icon: <ArrowNE />,
               external: true,
             },
             {
@@ -376,7 +427,7 @@ function Colophon({ exhibition }: { exhibition: Exhibition }) {
               href: `mailto:chilltulpa@gmail.com?subject=${encodeURIComponent(
                 `Enquiry: ${exhibition.artistName}, ${exhibition.title}`
               )}`,
-              icon: "→",
+              icon: <ArrowRight />,
             },
           ]}
         />
@@ -394,7 +445,7 @@ function ColBlock({
   label: string;
   title: string;
   body: string;
-  links: { label: string; href: string; icon: string; external?: boolean }[];
+  links: { label: string; href: string; icon: React.ReactNode; external?: boolean }[];
 }) {
   return (
     <div className="col-block">

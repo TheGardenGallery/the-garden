@@ -294,7 +294,102 @@ export const exhibitions: Exhibition[] = [
 
   // === PAST — 2023 ===
   { slug: "constraint",             artistSlug: "eric-andwer",       artistName: "Eric Andwer",       title: "Constraint",             year: 2023, month: "Nov", date: "November 2023", location: "Verse", status: "past" },
-  { slug: "haha-over-time",         artistSlug: "john-provencher",   artistName: "John Provencher",   title: "HAHA, over-time",        year: 2023, month: "Nov", date: "November 2023", location: "Verse", status: "past", cardImage: "/images/john-provencher/haha.jpg" },
+  {
+    slug: "haha-over-time",
+    artistSlug: "john-provencher",
+    artistName: "John Provencher",
+    title: "HAHA, over-time",
+    year: 2023,
+    month: "Nov",
+    date: "November 2023",
+    location: "Verse",
+    status: "past",
+    hero: "/images/john-provencher/haha-hero.jpg",
+    heroTheme: "paper",
+    cardImage: "/images/john-provencher/haha.jpg",
+    verseSeriesUrl: "https://verse.works/exhibitions/haha-over-time",
+    description: [
+      `The Garden is delighted to present John Provencher&rsquo;s <em>HAHA</em> and <em>over-time</em>, which are both inherently digital. Provencher is a designer, educator, and artist working primarily with generative systems.`,
+      `His work is largely inspired by net-art, art about the web composed of its constituent elements - and is embedded with the physicality of the internet. He often uses web interfaces as his canvas, and the rudimentary building blocks of the web such as check boxes and dot matrices as his medium.`,
+      `<em>HAHA</em> and <em>over-time</em>, illustrate the elements of the web that Provencher is most enamoured with; the ability to self-publish and self-curate, the permanence of digital activity enabled by web3 technology, the power of chance within generative systems. These works visualise the intangible. Generative work is about iteration; <em>over-time</em> visualises iteration. The blockchain is about recording transactions; <em>HAHA</em> visualises and plays on the transactional nature of NFTs by physically printing generative receipts. The internet itself is an ever-evolving, ever-adapting entity, just as <em>over-time</em> adapts to each browser it is rendered in.`,
+      `Both of these series are evidence of Provencher&rsquo;s determination to master his medium, having spent recent years learning to program and manipulate the perfect circle, coding lissajous forms through dot matrices while thinking about how they can occupy space both on and offline.`,
+      `Provencher&rsquo;s love for technology has been a pillar throughout his life. He never felt like he had to decide between physical or digital art, there was no internal debate necessary, the choice always seemed obvious. He always related more to digital artists and their work, and he believes that the ability to create images with a computer changed the trajectory of his life.`,
+      `Since creating his first myspace, Provencher has been fascinated with the web as a publishing tool - anyone can publish anything, for better or for worse. He has always been drawn to digital communication, computers, and the opportunities they presented, and with the advent of the blockchain the idea that self-curated, self-published work could be online permanently was a game changer.`,
+      `Provencher has spent the past few years coding scripts focused on using pixel grids to depict light and form. In these grids, he&rsquo;s been working with a form called the Lissajou, creating circular and DNA-like shapes on the canvas. By adding programmatic tweaks to these shapes, he aims to introduce imperfections in the hopes of creating something new. In projects like <em>HAHA</em> and <em>over-time</em>, Provencher combines lissajous forms with dot matrices and dithering to create generative artworks that explore what he loves most about the web and technological evolution, without shying away from its inherent humour.`,
+      `Both of these series employ text, which is rare in digital art as text can&rsquo;t be embedded in generative scripts, and fonts are difficult to render across browsers. In <em>HAHA</em>, Provencher uses his own typeface, inspired by typefaces based on dot matrices consisting of 2D patterned arrays representing characters, symbols and images.`,
+      `Across both of these series you can see circles and lissajous forms. These are patterns created by the intersection of two sinusoidal curves that are perpendicular to each other. They are mathematically challenging to program, but incredibly rewarding, you can keep iterating on the algorithm, manipulating the forms. After spending a year learning to program and manipulate circles, matrices and pixel grids, the possibilities now feel endless, and have led to the creation of these two series.`,
+      `When you push the algorithm for generative lissajous forms to an extreme, you create concrete poetry. Concrete poems are objects composed of words, letters, typefaces, that often incorporate visual, verbal, kinetic or sonic elements. The form of the poem tends to be more important than its constituent words or characters, it is visually rather than linguistically evocative.`,
+      `<em>HAHA</em>&rsquo;s outputs consist of circular and lissajous forms composed of &lsquo;h&rsquo;s and &lsquo;a&rsquo;s.`,
+      `The title is a play on the way that NFTs are seen as a joke by many, and the way that terminology can be misused, for example in relation to NFTs being transactions, or receipts, rather than the artworks themselves. <em>HAHA</em> outputs are visual representations of the conflation of the artworks and the receipts.`,
+      `Provencher has been working on <em>over-time</em> for the past two years, continuously tweaking it. It was inspired by Alexei Shulgin&rsquo;s <em>Form Art</em> from 1997 which hugely influenced John&rsquo;s artistic practice and attitude towards creating digital art. <em>Form Art</em> was an interactive website that utilised the components of the web to create a conceptual work of art that navigated aimlessly through HTML forms composed of text boxes, check boxes and radio buttons. It was one of the first examples of net-art and fascinated Provencher.`,
+      `The works in <em>over-time</em> make use of the same elements as <em>Form Art</em>, and similarly employ the colours of the internet, specifically back when computer screens could only display a finite number of colours. Provencher&rsquo;s works tend to adhere to distinct bold colour palettes that are limited to 2-4 colours each, differing according to the idea he is exploring in the work.`,
+      `<em>over-time</em> works show two algorithms colliding, bringing together dithering and lissajous forms interacting. Provencher wanted the works to create a friction between smooth animation and random breaks. The work is meant to highlight the fragile nature of the web and how it is meant to form and respond within different browsers and standards. In the piece, the web becomes a canvas designed to break.`,
+    ],
+    inlineArtworks: [
+      {
+        afterParagraphIndex: 1,
+        items: [
+          {
+            image: "/images/john-provencher/haha-installation.jpg",
+            alt: "HAHA installation view",
+            title: "HAHA, installation",
+            verseUrl: "https://verse.works/artworks/2e99c816-6168-4d2a-a70a-9db13383f847",
+          },
+          {
+            image: "/images/john-provencher/over-time-installation-portrait.jpg",
+            alt: "over-time installation view",
+            title: "over-time, installation",
+            verseUrl: "https://verse.works/artworks/2bc887df-8a90-418e-8def-abc8576b32c9",
+          },
+        ],
+      },
+      {
+        afterParagraphIndex: 4,
+        items: [
+          {
+            image: "/images/john-provencher/over-time-installation-wide.webp",
+            alt: "over-time gallery installation — blue lissajous artwork on left wall",
+          },
+        ],
+      },
+      {
+        afterParagraphIndex: 6,
+        items: [
+          {
+            image: "/images/john-provencher/haha-artwork.jpg",
+            alt: "HAHA artwork detail — lissajous composed of 'h's and 'a's",
+            title: "HAHA",
+          },
+        ],
+      },
+      {
+        afterParagraphIndex: 11,
+        items: [
+          {
+            image: "/images/john-provencher/over-time-doc-1.webp",
+            alt: "over-time generative artwork — live render (variation one)",
+            title: "over-time, i",
+            iframe: "https://public-bucket-verse-dev.s3.eu-west-1.amazonaws.com/genart/over-time-final%2010302023/index.html?payload=eyJoYXNoIjoicm9zZS1wZXRhbC0wMSJ9",
+            aspectRatio: 1,
+          },
+          {
+            image: "/images/john-provencher/over-time-doc-2.webp",
+            alt: "over-time generative artwork — live render (variation two)",
+            title: "over-time, ii",
+            iframe: "https://public-bucket-verse-dev.s3.eu-west-1.amazonaws.com/genart/over-time-final%2010302023/index.html?payload=eyJoYXNoIjoiYXVyb3JhLWJsdWUtMDIifQ==",
+            aspectRatio: 1,
+          },
+          {
+            image: "/images/john-provencher/over-time-doc-1.webp",
+            alt: "over-time generative artwork — live render (variation three)",
+            title: "over-time, iii",
+            iframe: "https://public-bucket-verse-dev.s3.eu-west-1.amazonaws.com/genart/over-time-final%2010302023/index.html?payload=eyJoYXNoIjoibWVhZG93LWdyZWVuLTAzIn0=",
+            aspectRatio: 1,
+          },
+        ],
+      },
+    ],
+  },
   { slug: "new-life-to-still-life", artistSlug: "cydr",              artistName: "Cydr",              title: "New-Life, to Still-Life", year: 2023, month: "Sep", date: "September 2023", location: "Verse", status: "past" },
   { slug: "space-time",             artistSlug: "loackme",           artistName: "Loackme",           title: "Space\\Time",            year: 2023, month: "Aug", date: "August 2023",   location: "Verse", status: "past" },
   { slug: "simple-thoughts",        artistSlug: "khwampa",           artistName: "Khwampa",           title: "Simple Thoughts",        year: 2023, month: "Jun", date: "June 2023",     location: "Verse", status: "past" },
