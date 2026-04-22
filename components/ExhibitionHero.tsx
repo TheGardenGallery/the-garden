@@ -20,7 +20,11 @@ export function ExhibitionHero({ exhibition }: { exhibition: Exhibition }) {
         <HeroMedia exhibition={exhibition} />
       </div>
 
-      <header className="ex-title-bar" aria-labelledby="exTitle">
+      <header
+        className="ex-title-bar"
+        aria-labelledby="exTitle"
+        style={{ viewTransitionName: "ex-title-bar" }}
+      >
         <div className="ex-title-headline" id="exTitle">
           <div className="ex-title-artist">{exhibition.artistName}</div>
           <h1 className="ex-title-title">{exhibition.title}</h1>

@@ -66,16 +66,35 @@
   animation-timing-function:cubic-bezier(0.22, 1, 0.36, 1);
 }
 /* Named shared-element groups (exhibition-card image ↔ detail
-   hero) get a slightly longer morph so the geometry interpolation
-   has room to breathe. */
+   hero) get a longer morph so the geometry interpolation between
+   different aspect ratios has room to settle. */
 ::view-transition-group(*){
-  animation-duration:560ms;
+  animation-duration:680ms;
   animation-timing-function:cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Title-bar on the exhibition detail page is staggered: holds at
+   its initial state while the hero morphs into place, then reveals
+   on a 120ms pause after the hero settles. Reads as an editorial
+   beat — hero arrives, then the type announces itself. */
+::view-transition-new(ex-title-bar){
+  animation:ex-title-arrive 560ms cubic-bezier(0.22, 1, 0.36, 1) 800ms both;
+}
+::view-transition-old(ex-title-bar){
+  animation:ex-title-depart 180ms ease-out both;
+}
+@keyframes ex-title-arrive{
+  from{opacity:0;transform:translateY(16px);}
+  to  {opacity:1;transform:translateY(0);}
+}
+@keyframes ex-title-depart{
+  to{opacity:0;}
 }
 @media (prefers-reduced-motion:reduce){
   ::view-transition-old(root),
   ::view-transition-new(root),
-  ::view-transition-group(*){animation-duration:0ms;}
+  ::view-transition-group(*),
+  ::view-transition-new(ex-title-bar),
+  ::view-transition-old(ex-title-bar){animation-duration:0ms;animation-delay:0ms;}
 }
 
 /* ---- SCROLL REVEAL --------------------------------------------------- */
@@ -92,6 +111,43 @@
 /* ---- RESET ---------------------------------------------------------- */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{font-size:16px;-webkit-font-smoothing:antialiased;scroll-behavior:smooth;}
+
+/* ---- TYPOGRAPHY POLISH ---------------------------------------------- */
+/* Editorial OpenType features applied broadly, with per-class overrides
+   below for cases where lining-nums or old-style should win.
+   - `kern` (kerning) and `liga` (standard ligatures) are on by default;
+     we add `dlig` (discretionary ligatures) for Cormorant's refined
+     italic pairs (ct, st) that read as deliberately classical.
+   - `text-wrap: pretty` on headings eliminates ugly widow lines without
+     changing layout; supported by Chromium/Safari, no-op elsewhere.
+   - `hanging-punctuation: first last` pulls leading/trailing marks into
+     the margin so paragraphs hug a cleaner optical edge. Safari-only,
+     no-op elsewhere. */
+h1,h2,h3,h4{text-wrap:pretty;}
+body{hanging-punctuation:first last;}
+/* Italic Cormorant titles/links get discretionary ligatures */
+.row-title,
+.past-title,
+.hero-title,
+.ex-title-title,
+.hero-link,
+.not-found-title,
+.not-found-link,
+.ex-inline-caption em,
+figcaption em{font-feature-settings:"kern" 1, "liga" 1, "dlig" 1;}
+/* Numeric metadata uses tabular lining figures so dates align when
+   rows stack. Doesn't override classes that explicitly want old-style
+   or proportional nums (those declare their own). */
+.row-meta,
+.row-dates,
+.row-location,
+.past-month,
+.hero-meta,
+.journal-item-date,
+.journal-hero-date{
+  font-variant-numeric:tabular-nums lining-nums;
+  font-feature-settings:"tnum" 1, "lnum" 1;
+}
 
 /* ---- SELECTION: branded highlight color ---------------------------- */
 /* Warm parchment cream on light grounds; soft paper on dark grounds
@@ -1443,6 +1499,22 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   width:auto;height:auto;
   object-fit:contain;
   filter:drop-shadow(0 14px 32px rgba(40,35,25,0.10)) drop-shadow(0 2px 6px rgba(40,35,25,0.06));
+  /* Ken Burns breath — mirrors the homepage hero (1.000 → 1.035
+     over 26s, ease-in-out, alternating). A negative animation-
+     delay starts the cycle mid-breath so when the shared-element
+     morph lands on this page, the image is already moving and
+     there's no visible "animation finished" beat. */
+  transform-origin:50% 50%;
+  animation:ex-hero-breath 26s cubic-bezier(0.45,0,0.55,1) -7s infinite alternate;
+  will-change:transform;
+}
+@keyframes ex-hero-breath{
+  from{transform:scale(1);}
+  to  {transform:scale(1.035);}
+}
+@media (prefers-reduced-motion:reduce){
+  .ex-hero-plate img,
+  .ex-hero-plate .ex-hero-video{animation:none;transform:none;}
 }
 .ex-hero[data-theme="dark"] .ex-hero-plate img{
   filter:drop-shadow(0 18px 48px rgba(0,0,0,0.55)) drop-shadow(0 2px 6px rgba(0,0,0,0.35));
