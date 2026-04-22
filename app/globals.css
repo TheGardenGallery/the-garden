@@ -1269,17 +1269,20 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    settling into place when you click through from the homepage. */
 .ex-hero[data-slug="iso-iec-10646"] .ex-hero-frame{padding:64px 56px;}
 .ex-hero[data-slug="iso-iec-10646"] .ex-title-bar{bottom:64px;}
-/* Aluan Wang / Equinox: same hero framing as Paul's. The artwork is
+/* Aluan Wang / Equinox: same hero framing as Paul's. Artwork is
    capped at 85% of the frame for breathing room around a dense
-   edge-to-edge composition. Title-bar stays pinned 64px from the
-   viewport bottom like every other exhibition, so the title baseline
-   across pages is consistent — the extra gap between the centered
-   artwork and the title reads as intentional breathing room. */
+   edge-to-edge composition, leaving a 7.5%-of-frame gap below it.
+   The title-bar tracks that gap so its baseline meets the artwork's
+   bottom — it sits slightly higher than Paul/Yoshi's title, but the
+   artwork-title relationship reads tighter than forcing the title
+   to the shared viewport baseline. */
 .ex-hero[data-slug="equinox"] .ex-hero-frame{padding:64px 56px;}
-.ex-hero[data-slug="equinox"] .ex-title-bar{bottom:64px;}
 .ex-hero[data-slug="equinox"] .ex-hero-plate img{
-  max-width:93%;
-  max-height:93%;
+  max-width:85%;
+  max-height:85%;
+}
+.ex-hero[data-slug="equinox"] .ex-title-bar{
+  bottom:calc(64px + (100vh - var(--nav-height) - 128px) * 0.075);
 }
 
 /* Yoshi Sodeoka / The Flood: mirror Paul's hero structurally.
