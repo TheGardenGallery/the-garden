@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Exhibition } from "@/lib/types";
 import { preserveHyphens } from "@/lib/typography";
 import { ArrowRight, ArrowDown, ArrowNE } from "@/components/Arrows";
+import { ClampedBody } from "@/components/ClampedBody";
 
 /**
  * Museum-style colophon at the foot of each exhibition page. Up to
@@ -19,6 +20,7 @@ export function ExhibitionColophon({ exhibition }: { exhibition: Exhibition }) {
             exhibition.artistBio ??
             "Multidisciplinary artist working across digital and generative systems."
           }
+          clampLines={6}
           links={[
             {
               label: "Artist profile",
@@ -79,20 +81,26 @@ function ColBlock({
   title,
   body,
   links,
+  clampLines,
 }: {
   label: string;
   title: string;
   body: string;
   links: ColBlockLink[];
+  clampLines?: number;
 }) {
   return (
     <div className="col-block">
       <span className="col-label">{label}</span>
       <h3 className="col-title">{title}</h3>
-      <p
-        className="col-body"
-        dangerouslySetInnerHTML={{ __html: preserveHyphens(body) }}
-      />
+      {clampLines ? (
+        <ClampedBody text={body} className="col-body" lines={clampLines} />
+      ) : (
+        <p
+          className="col-body"
+          dangerouslySetInnerHTML={{ __html: preserveHyphens(body) }}
+        />
+      )}
       <div className="col-links">
         {links.map((link) => (
           <Link

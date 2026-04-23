@@ -725,7 +725,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   width:100%;height:100%;
   display:flex;align-items:center;justify-content:center;
   transform:translateZ(0) scale(1.02);
-  transition:transform 1s ease-out;
+  transition:transform 600ms var(--ease-slow);
   will-change:transform;
   backface-visibility:hidden;
 }
@@ -1394,6 +1394,15 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    bottom, where the title-bar also sits. Width auto-adjusts to the
    video's natural aspect. Default drop-shadow outlines the actual
    video rectangle. */
+/* Eric Andwer / Constraint: landscape painting capped at 75% of the
+   frame so it lifts clear of the title's horizontal zone. Title-bar
+   stays at the canonical bottom:64px — the painting's soft, splatter-
+   dissipating bottom has no crisp edge to pair against, so letting the
+   title settle into its own whitespace zone below the art reads better
+   than forcing an Aluan-style plate+caption alignment. */
+.ex-hero[data-slug="constraint"] .ex-hero-plate img{
+  max-height:75%;
+}
 .ex-hero[data-slug="the-flood"] .ex-hero-plate .ex-hero-video{
   height:100%;width:auto;
   max-width:100%;
@@ -1427,6 +1436,15 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .ex-hero[data-slug="haha-over-time"] .ex-title-headline{
   align-items:center;
 }
+/* Eric Andwer: the two Constraint features are compositional twins
+   but their palettes clash, so tighten the frame to read as a diptych —
+   narrower max-width and smaller gap make the pairing feel deliberate
+   even when the colors don't agree. */
+.exhibition-detail[data-slug="constraint"] .ex-inline-artworks{
+  max-width:880px;
+  gap:20px;
+}
+
 /* John Provencher: the installation pair reads a touch too wide next
    to the surrounding prose column. Trim inline-artwork blocks by 8%
    so the pair sits more comfortably within the page rhythm. */
@@ -1764,6 +1782,11 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   image-rendering:auto;
   overflow:hidden;
 }
+.ex-detail-link{display:block;text-decoration:none;color:inherit;}
+@media (hover:hover){
+  .ex-detail-link:hover .ex-detail-crop{opacity:0.92;}
+  .ex-detail-crop{transition:opacity 200ms var(--ease-slow);}
+}
 .ex-detail-caption{
   position:absolute;left:10px;bottom:10px;
   font-family:'Barlow',sans-serif;font-weight:400;font-size:10px;letter-spacing:0.5px;
@@ -1809,7 +1832,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .work-item-plate img{
   position:absolute;inset:0;
   width:100%;height:100%;object-fit:cover;
-  transition:transform 540ms var(--ease-slow);
+  transition:transform 600ms var(--ease-slow);
 }
 .work-item-plate:hover img{transform:scale(1.02);}
 .work-item-plate .plate-fill{

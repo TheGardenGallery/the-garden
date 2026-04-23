@@ -51,25 +51,38 @@ export function ExhibitionDetails({ details, title }: { details: Details; title:
         <div className="ex-details-grid">
           {details.crops.map((c) => {
             const { bgX, bgY } = resolveCrop(c, inset);
-            return (
+            const style = {
+              aspectRatio: aspect,
+              backgroundImage: `url(${details.sourceImage})`,
+              backgroundSize: `${c.zoom * 100}%`,
+              backgroundPosition: `${bgX}% ${bgY}%`,
+            } as React.CSSProperties;
+            const label = `${title}, detail${c.caption ? ` — ${c.caption}` : ""}`;
+            const figure = (
               <figure
-                key={c.id}
                 className="ex-detail-crop"
-                style={
-                  {
-                    aspectRatio: aspect,
-                    backgroundImage: `url(${details.sourceImage})`,
-                    backgroundSize: `${c.zoom * 100}%`,
-                    backgroundPosition: `${bgX}% ${bgY}%`,
-                  } as React.CSSProperties
-                }
+                style={style}
                 role="img"
-                aria-label={`${title}, detail${c.caption ? ` — ${c.caption}` : ""}`}
+                aria-label={label}
               >
                 {c.caption && (
                   <figcaption className="ex-detail-caption">{c.caption}</figcaption>
                 )}
               </figure>
+            );
+            return details.verseUrl ? (
+              <a
+                key={c.id}
+                href={details.verseUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ex-detail-link"
+                aria-label={label}
+              >
+                {figure}
+              </a>
+            ) : (
+              <div key={c.id}>{figure}</div>
             );
           })}
         </div>

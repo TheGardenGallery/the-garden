@@ -37,6 +37,7 @@ export function ExhibitionCard({ exhibition }: { exhibition: Exhibition }) {
               alt={`${exhibition.artistName}, ${exhibition.title}`}
               width={600}
               height={750}
+              sizes="(min-width: 960px) 30vw, (min-width: 600px) 46vw, 92vw"
             />
           ) : null}
         </div>

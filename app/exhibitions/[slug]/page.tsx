@@ -7,6 +7,7 @@ import { ExhibitionHero } from "@/components/ExhibitionHero";
 import { ExhibitionOverview } from "@/components/ExhibitionOverview";
 import { ExhibitionColophon } from "@/components/ExhibitionColophon";
 import { ExhibitionNav } from "@/components/ExhibitionNav";
+import { Reveal } from "@/components/Reveal";
 import type { Exhibition } from "@/lib/types";
 
 export async function generateStaticParams() {
@@ -54,21 +55,27 @@ export default async function ExhibitionDetailPage({
       <ExhibitionOverview exhibition={exhibition} />
 
       {exhibition.details && exhibition.details.crops.length > 0 && (
-        <ExhibitionDetails
-          details={exhibition.details}
-          title={exhibition.title}
-        />
+        <Reveal>
+          <ExhibitionDetails
+            details={exhibition.details}
+            title={exhibition.title}
+          />
+        </Reveal>
       )}
 
       {exhibition.featuredArtworks && exhibition.featuredArtworks.length > 0 && (
-        <FeaturedArtworks items={exhibition.featuredArtworks} />
+        <Reveal>
+          <FeaturedArtworks items={exhibition.featuredArtworks} />
+        </Reveal>
       )}
 
       {exhibition.works && exhibition.works.length > 0 && (
         <WorksSection works={exhibition.works} />
       )}
 
-      <ExhibitionColophon exhibition={exhibition} />
+      <Reveal>
+        <ExhibitionColophon exhibition={exhibition} />
+      </Reveal>
 
       {(exhibition.prev || exhibition.next) && (
         <ExhibitionNav exhibition={exhibition} />

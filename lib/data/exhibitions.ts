@@ -245,7 +245,62 @@ export const exhibitions: Exhibition[] = [
   },
 
   // === PAST — 2023 ===
-  { slug: "constraint",             artistSlug: "eric-andwer",       artistName: "Eric Andwer",       title: "Constraint",             year: 2023, month: "Nov", date: "November 2023", location: "Verse", status: "past" },
+  {
+    slug: "constraint",
+    artistSlug: "eric-andwer",
+    artistName: "Eric Andwer",
+    title: "Constraint",
+    year: 2023,
+    month: "Nov",
+    date: "November 2023",
+    location: "Verse",
+    status: "past",
+    workCount: 231,
+    hero: "/images/eric-andwer/constraint-hero.jpg",
+    verseSeriesUrl: "https://verse.works/series/constraint-by-eric-andwer",
+    description: [
+      `For so many artists, their work is a way of processing emotion. The inherent humanity of creative expression does not cease when a computer is introduced. In many cases, just like pencils, paint, paper, clay: code is merely a tool with which to bring these emotions to life. Eric Andwer&rsquo;s <em>Constraint</em> is evidence of this.`,
+      `The works battle with the constraints we experience as we move through life. They visualise the emotions that can overwhelm us, and provide a therapeutic outlet.`,
+      `Eric&rsquo;s imagination has always been awash with images that he wanted to bring into existence, but believing his drawing skills were inadequate, it wasn&rsquo;t until he found generative art that he had a medium that allowed him to do so. Upon discovering Art Blocks, a door was opened, and in 2020 Eric began creating art through code.`,
+      `Eric holds transparency in high regard &mdash; he&rsquo;s struggled with depression, and he recognises that sometimes life is messy. For him creating art is like opening the pressure valve on the emotions that build up within. It is somewhere to deposit anger, frustration, anxiety and depression to create something beautiful. It is a transformative, expressive alchemy. It allows people to take raw emotion and connect with others through a shared passion, the love of art.`,
+      `Life is full of constraints. We are governed by social norms that dictate what is and isn&rsquo;t acceptable. Sometimes we must mask our emotions, but in the process of creation Eric felt he was able to shed the mask and break through the ties that bind us, embracing imperfections.`,
+      `It is tempting to ask the interminable question, which came first, the chicken or the egg? Are these outputs steeped in emotion because it was hard coded into their algorithm by Eric, or do the outputs stir our emotions because the impulse to connect and feel deeply is hard coded into us?`,
+      `These imperfections can be seen in the sometimes scribbled, gritty texture of the outputs, and the drops and drips that proliferate, scattering across the images like life&rsquo;s essence bursting out beyond repressive boundaries. Some outputs are dominated by bold blacks and reds and yellows, conveying aggression or confidence, and some have more muted colour palettes, just as we can feel subdued and defeated at times. Some outputs are chaotic and others minimal, conveying feelings of being overwhelmed and isolated respectively.`,
+    ],
+    details: {
+      sourceImage: "/images/eric-andwer/featured/constraint-details-source.jpg",
+      title: "Constraint #143",
+      verseUrl:
+        "https://verse.works/items/ethereum/0x6de9E8644dF88312632CAB82a3C0e773D8C55412/617321169",
+      aspectRatio: "1",
+      crops: [
+        { id: "upper-burst",     x: 33, y: 32, zoom: 2.6 },
+        { id: "right-form",      x: 68, y: 48, zoom: 2.6 },
+        { id: "lower-spectrum",  x: 68, y: 76, zoom: 2.6 },
+      ],
+    },
+    inlineArtworks: [
+      {
+        afterParagraphIndex: 1,
+        items: [
+          {
+            image: "/images/eric-andwer/featured/constraint-feature-1.jpg",
+            alt: "Eric Andwer, Constraint #145",
+            title: "Constraint #145",
+            verseUrl:
+              "https://verse.works/items/ethereum/0x6de9E8644dF88312632CAB82a3C0e773D8C55412/1403191220",
+          },
+          {
+            image: "/images/eric-andwer/featured/constraint-feature-2.jpg",
+            alt: "Eric Andwer, Constraint #160",
+            title: "Constraint #160",
+            verseUrl:
+              "https://verse.works/items/ethereum/0x6de9E8644dF88312632CAB82a3C0e773D8C55412/2340282753",
+          },
+        ],
+      },
+    ],
+  },
   {
     slug: "haha-over-time",
     artistSlug: "john-provencher",
