@@ -122,7 +122,26 @@ export const exhibitions: Exhibition[] = [
   },
 
   // === PAST — 2025 ===
-  { slug: "pictography",            artistSlug: "1mposter",          artistName: "1mposter",          title: "Pictography",            year: 2025, month: "Apr", date: "April 2025",    location: "Verse", status: "past" },
+  {
+    slug: "pictography",
+    artistSlug: "1mposter",
+    artistName: "1mposter",
+    title: "Pictography",
+    year: 2025,
+    month: "Apr",
+    date: "April 2025",
+    location: "Verse",
+    status: "past",
+    hero: "/images/1mposter/pictography-hero.gif",
+    heroTheme: "dark",
+    frameColor: "#000000",
+    disableListHoverZoom: true,
+    descriptionByArtist: true,
+    description: [
+      `Even though these animated pictograms are fairly high resolution (1575x1575px), they are all rendered in a 45x45 character grid as ASCII art.`,
+      `In a way, they are very low resolution depictions of ideas and feelings.`,
+    ],
+  },
 
   // === PAST — 2024 ===
   { slug: "distrakted",             artistSlug: "mark-webster",      artistName: "Mark Webster",      title: "DistraKted",             year: 2024, month: "Dec", date: "December 2024", location: "Verse", status: "past" },

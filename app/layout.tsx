@@ -20,7 +20,7 @@ const siteOrigin =
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
   title: "The Garden",
-  description: "A digital art gallery",
+  description: "An online gallery for digital art.",
 };
 
 export default function RootLayout({

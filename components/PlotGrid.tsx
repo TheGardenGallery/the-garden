@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import type { Artist } from "@/lib/types";
 import { PlotCell } from "./PlotCell";
@@ -10,30 +10,92 @@ type PlotGridProps = {
   columns?: number;
 };
 
-const defaultColumns = 7;
+const defaultColumns = 6;
+const LETTER_ROWS = Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
-/**
- * Full-bleed artist coordinate plot.
- *
- * Each row reveals with a 40ms stagger on mount, creating a quiet top-down
- * wave. No per-cell animation — the row-level grain keeps it readable, not
- * busy. Respects prefers-reduced-motion.
- */
+/* Staggered hover timing — column leads, row follows, cell settles
+   last. Delays run on enter; leave clears everything simultaneously
+   and CSS transitions handle the parallel fade-out. */
+const ROW_DELAY_MS = 85;
+const CELL_DELAY_MS = 140;
+
+type DisplayRow = {
+  label: string;
+  letters: string[];
+  isCollapsed: boolean;
+};
+
+/** Build the list of rows to render. The `#` row (numeric-prefix artists)
+    always comes first, labeled "1". Then A–Z, with any run of 3+ consecutive
+    empty letters collapsed into a single range row like "F—H". Shorter runs
+    render as individual empty rows. */
+function buildDisplayRows(occupied: Set<string>): DisplayRow[] {
+  const rows: DisplayRow[] = [];
+  if (occupied.has("#")) {
+    rows.push({ label: "1", letters: ["#"], isCollapsed: false });
+  }
+  let emptyRun: string[] = [];
+  const flush = () => {
+    if (emptyRun.length >= 3) {
+      rows.push({
+        label: `${emptyRun[0]}—${emptyRun[emptyRun.length - 1]}`,
+        letters: [...emptyRun],
+        isCollapsed: true,
+      });
+    } else {
+      emptyRun.forEach((l) =>
+        rows.push({ label: l, letters: [l], isCollapsed: false }),
+      );
+    }
+    emptyRun = [];
+  };
+  for (const letter of LETTER_ROWS) {
+    if (occupied.has(letter)) {
+      flush();
+      rows.push({ label: letter, letters: [letter], isCollapsed: false });
+    } else {
+      emptyRun.push(letter);
+    }
+  }
+  flush();
+  return rows;
+}
+
 export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
   const reduced = useReducedMotion();
-  const rows = Array.from(new Set(artists.map((a) => a.coord.row)));
+  const occupied = new Set(artists.map((a) => a.coord.row));
+  const displayRows = buildDisplayRows(occupied);
 
-  // Each row spans at least `columns` cells, but extends as far as needed
-  // to fit the artist with the highest col index in that row. Empty trailing
-  // cells are not rendered — the row scrolls only when there's content beyond
-  // the visible area.
-  const colsByRow = new Map<string, number>();
-  rows.forEach((row) => {
-    const maxColInRow = artists
-      .filter((a) => a.coord.row === row)
-      .reduce((m, a) => Math.max(m, a.coord.col), 0);
-    colsByRow.set(row, Math.max(columns, maxColInRow));
-  });
+  const [hoverCol, setHoverCol] = useState<number | null>(null);
+  const [hoverRow, setHoverRow] = useState<string | null>(null);
+  const [hoverCellKey, setHoverCellKey] = useState<string | null>(null);
+  const timersRef = useRef<{ row?: number; cell?: number }>({});
+
+  const clearTimers = () => {
+    if (timersRef.current.row) window.clearTimeout(timersRef.current.row);
+    if (timersRef.current.cell) window.clearTimeout(timersRef.current.cell);
+    timersRef.current = {};
+  };
+
+  // Cleanup timers on unmount
+  useEffect(() => clearTimers, []);
+
+  const handleEnter = (row: string, col: number) => {
+    clearTimers();
+    setHoverCol(col);
+    timersRef.current.row = window.setTimeout(() => setHoverRow(row), ROW_DELAY_MS);
+    timersRef.current.cell = window.setTimeout(
+      () => setHoverCellKey(`${row}-${col}`),
+      CELL_DELAY_MS,
+    );
+  };
+
+  const handleLeave = () => {
+    clearTimers();
+    setHoverCol(null);
+    setHoverRow(null);
+    setHoverCellKey(null);
+  };
 
   const rowVariants = {
     hidden: reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 },
@@ -51,8 +113,13 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
         <div className="plot-top-cells">
           {Array.from({ length: columns }, (_, i) => {
             const col = i + 1;
+            const active = hoverCol === col;
             return (
-              <div key={col} className="plot-col-label" data-col={col}>
+              <div
+                key={col}
+                className={`plot-col-label${active ? " plot-col-label--active" : ""}`}
+                data-col={col}
+              >
                 {String(col).padStart(2, "0")}
               </div>
             );
@@ -70,26 +137,44 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
           },
         }}
       >
-        {rows.map((row) => {
-          const rowCols = colsByRow.get(row) ?? columns;
-          const cells = Array.from({ length: rowCols }, (_, i) => {
+        {displayRows.map(({ label, letters, isCollapsed }) => {
+          const rowArtists = artists.filter((a) =>
+            letters.includes(a.coord.row),
+          );
+          const maxCol = Math.max(
+            columns,
+            ...rowArtists.map((a) => a.coord.col),
+          );
+          // Numeric row uses "1" for the coord readout instead of "#"
+          const coordRow = letters[0] === "#" ? "1" : letters[0];
+          const cells = Array.from({ length: maxCol }, (_, i) => {
             const col = i + 1;
-            const artist = artists.find(
-              (a) => a.coord.row === row && a.coord.col === col
-            );
+            const artist = rowArtists.find((a) => a.coord.col === col);
             return { col, artist };
           });
 
+          const rowActive = hoverRow != null && letters.includes(hoverRow);
+
           return (
             <motion.div
-              key={row}
-              className="plot-row"
+              key={label}
+              className={`plot-row${rowActive ? " plot-row--active" : ""}`}
+              data-collapsed={isCollapsed || undefined}
               variants={rowVariants}
             >
-              <div className="plot-row-label">{row}</div>
+              <div className="plot-row-label">{label}</div>
               <PlotRowCells>
                 {cells.map(({ col, artist }) => (
-                  <PlotCell key={col} col={col} row={row} artist={artist} />
+                  <PlotCell
+                    key={col}
+                    col={col}
+                    row={coordRow}
+                    artist={isCollapsed ? undefined : artist}
+                    isColActive={hoverCol === col}
+                    isCellActive={hoverCellKey === `${coordRow}-${col}`}
+                    onEnter={handleEnter}
+                    onLeave={handleLeave}
+                  />
                 ))}
               </PlotRowCells>
             </motion.div>
@@ -100,11 +185,9 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
   );
 }
 
-/**
- * Horizontally-scrollable cell container that flags itself while
- * scrolling so :active invert styles can be suppressed (prevents a
- * tap flash when the user is actually scrolling).
- */
+/** Horizontally-scrollable cell container that flags itself while
+    scrolling so :active invert styles can be suppressed (prevents a
+    tap flash when the user is actually scrolling). */
 function PlotRowCells({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<number | null>(null);

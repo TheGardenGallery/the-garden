@@ -221,15 +221,11 @@ nav,.site-nav{
   position:relative;
   transition:color 245ms;
 }
-.nav-links a::after{
-  content:'';
-  position:absolute;left:0;right:0;bottom:0;
-  height:1px;background:#000;
-  transform:scaleX(0);transform-origin:left center;
-  transition:transform var(--reveal);
+.nav-links a[aria-current="page"]{color:var(--ink-muted);}
+@media (hover:hover){
+  .nav-links a:hover{color:var(--ink-muted);}
+  .nav-links a[aria-current="page"]:hover{color:#000;}
 }
-.nav-links a:hover::after,
-.nav-links a[aria-current="page"]::after{transform:scaleX(1);}
 
 .logo{
   font-family:'Inter',sans-serif;
@@ -607,13 +603,13 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .hero[data-theme="paper"] .hero-meta{color:rgba(35,35,38,0.6);}
 .hero[data-theme="paper"] .hero-link{color:rgba(35,35,38,0.78);}
 .hero[data-theme="paper"] .slide img{
-  filter:drop-shadow(0 8px 20px rgba(40,35,25,0.08)) drop-shadow(0 1px 3px rgba(40,35,25,0.06));
+  filter:drop-shadow(0 6px 16px rgba(40,35,25,0.06)) drop-shadow(0 1px 3px rgba(40,35,25,0.045));
 }
 .slide-link{display:block;width:100%;height:100%;position:relative;z-index:1;text-decoration:none;color:inherit;cursor:pointer;}
 .slide-link:focus-visible{outline:none;}
 .hero-slides{position:absolute;inset:var(--nav-height) 0 0 0;display:flex;align-items:center;justify-content:center;}
 .slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:64px 56px;}
-.slide img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;image-rendering:auto;color:transparent;font-size:0;filter:drop-shadow(0 18px 48px rgba(0,0,0,0.55)) drop-shadow(0 2px 6px rgba(0,0,0,0.35));position:relative;z-index:1;transform:translateZ(0);backface-visibility:hidden;}
+.slide img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;image-rendering:auto;color:transparent;font-size:0;filter:drop-shadow(0 14px 38px rgba(0,0,0,0.42)) drop-shadow(0 2px 5px rgba(0,0,0,0.26));position:relative;z-index:1;transform:translateZ(0);backface-visibility:hidden;}
 /* Wrapper inside .slide that participates in flex layout so the artwork
    respects .slide's padding (next/image fill otherwise ignores it by
    positioning absolutely to the padding edge). */
@@ -1117,6 +1113,17 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   align-items:stretch;
 }
 
+/* Grid rule system — one hairline value for all interior divisions,
+   a slightly firmer value under the column header to mark the catalog
+   cap. Kept as CSS vars so tone is tunable in one place. */
+.plot-wrap{
+  --rule:rgba(22,20,16,0.06);
+  --rule-strong:rgba(22,20,16,0.12);
+  --col-tint:rgba(22,20,16,0.028);
+  --row-tint:rgba(22,20,16,0.03);
+  --cell-tint:rgba(22,20,16,0.043);
+}
+
 .plot-top-cells,.plot-row-cells{
   flex:1 1 0;
   min-width:0;
@@ -1125,157 +1132,158 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   scrollbar-width:none;
   display:grid;
   grid-auto-flow:column;
-  grid-auto-columns:calc(100% / var(--cols, 7));
-  border-left:1px solid #c5c2ba;
+  grid-auto-columns:calc(100% / var(--cols, 6));
+  border-left:1px solid var(--rule);
 }
 .plot-top-cells::-webkit-scrollbar,
 .plot-row-cells::-webkit-scrollbar{display:none;}
 .plot-top-cells > :first-child,
 .plot-row-cells > :first-child{border-left:none;}
 
-.plot-top{border-bottom:1px solid #c5c2ba;background:var(--paper-warm);}
+.plot-top{border-bottom:1px solid var(--rule-strong);background:var(--paper-warm);}
 .plot-origin{
   flex:0 0 var(--row-label-width);
-  background:var(--ink);color:#fff;
+  background:var(--paper-warm);
+  color:var(--ink-whisper);
   font-family:'Barlow',sans-serif;
-  font-weight:400;font-size:11px;letter-spacing:1px;
+  font-weight:500;font-size:9px;letter-spacing:1.4px;
   display:flex;align-items:center;justify-content:center;
   padding:18px 0 16px;
-  text-transform:lowercase;
+  text-transform:uppercase;
 }
 .plot-col-label{
   font-family:'Barlow',sans-serif;
-  font-weight:500;font-size:11px;letter-spacing:1.5px;
-  color:var(--ink-soft);
+  font-weight:400;font-size:10px;letter-spacing:1.6px;
+  color:var(--ink-whisper);
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
   display:flex;align-items:center;justify-content:center;
   padding:18px 0 16px;
-  border-left:1px solid #c5c2ba;
+  border-left:1px solid var(--rule);
   background:var(--paper-warm);
+  transition:background 190ms ease-in;
 }
+.plot-col-label.plot-col-label--active{transition:background 120ms ease-out;}
 
 .plot-body{display:flex;flex-direction:column;background:var(--paper-warm);position:relative;}
-.plot-row{border-bottom:1px solid #c5c2ba;}
+.plot-row{border-bottom:1px solid var(--rule);transition:background 190ms ease-in;}
+.plot-row.plot-row--active{transition:background 140ms ease-out;}
 .plot-row:last-child{border-bottom:none;}
+/* Left axis (A–Z): infrastructural. Quiet enough to stay background
+   structure; no hover interaction. Opacity reduces presence ~25%. */
 .plot-row-label{
   flex:0 0 var(--row-label-width);
   font-family:'Barlow',sans-serif;
-  font-weight:500;font-size:11px;letter-spacing:1.5px;
-  color:var(--ink-soft);
+  font-weight:400;font-size:12px;letter-spacing:1.2px;
+  color:var(--ink);opacity:0.75;
   display:flex;align-items:center;justify-content:center;
-  background:var(--paper-warm);
+  background:transparent;
+}
+.plot-row[data-collapsed] .plot-row-label{
+  color:var(--ink-whisper);opacity:1;
+  font-size:10px;letter-spacing:0.8px;
 }
 
+/* Hover stagger — driven by JS state (see PlotGrid.tsx).
+   Column activates first (t=0), row follows at t=70ms, cell settles
+   at t=120ms. Each element carries its own transition duration so
+   fade-outs on mouseleave also feel layered (column 120, row 140,
+   cell 160). */
+.plot-row.plot-row--active{background:var(--row-tint);}
+
 .plot-cell{
-  aspect-ratio:1;
-  border-left:1px solid #c5c2ba;
+  min-height:calc(1.3rem + 44px);
+  border-left:1px solid var(--rule);
   position:relative;overflow:hidden;
   background:transparent;
-  transition:background 245ms;
+  transition:background 190ms ease-in;
 }
+.plot-cell.plot-cell--col-active{background:var(--col-tint);transition:background 120ms ease-out;}
+.plot-cell.plot-cell--cell-active{background:var(--cell-tint);transition:background 160ms ease-out;}
+.plot-col-label.plot-col-label--active{background:var(--col-tint);}
+
 .plot-cell.filled{
   display:block;
   color:inherit;text-decoration:none;
   cursor:pointer;
 }
 
-.plot-cell.empty::before{
-  content:'';position:absolute;top:50%;left:50%;
-  width:3px;height:3px;background:var(--ink-whisper);border-radius:50%;
-  transform:translate(-50%,-50%);
-  transition:background 245ms, transform 245ms, width 245ms, height 245ms;
-}
-@media (hover:hover){
-  .plot-cell.empty:hover::before{background:var(--ink);transform:translate(-50%,-50%) scale(2);}
-  .plot-cell:hover .coord-readout{opacity:1;}
-}
+/* Empty cells are silent — no dot, no readout. The emptiness itself
+   is the statement: unbuilt catalog slots. */
 
-.plot-cell .coord-readout{
-  position:absolute;top:10px;right:12px;
-  font-family:'Barlow',sans-serif;
-  font-size:9px;letter-spacing:0.5px;
-  color:#7a756d;
-  opacity:0;transition:opacity 245ms;pointer-events:none;
+/* Press state: firmer tint than hover so the click registers, but
+   never an inversion — text stays ink-on-paper. */
+.plot-cell.filled:active{background:rgba(22,20,16,0.09);}
+/* Keyboard focus: typographic underline on the name, catalog-style
+   selection mark. No cell inversion, no outline ring. */
+.plot-cell.filled:focus-visible{outline:none;}
+.plot-cell.filled:focus-visible .artist-name{
+  text-decoration:underline;
+  text-decoration-thickness:1px;
+  text-underline-offset:4px;
 }
-
-.plot-cell.filled:focus-visible,
-.plot-cell.filled:active{background:var(--ink);}
-.plot-cell.filled:focus-visible .artist-initial,
-.plot-cell.filled:focus-visible .artist-name,
-.plot-cell.filled:focus-visible .artist-coord,
-.plot-cell.filled:active .artist-initial,
-.plot-cell.filled:active .artist-name,
-.plot-cell.filled:active .artist-coord{color:var(--paper-warm);}
-@media (hover:hover){
-  .plot-cell.filled:hover{background:var(--ink);}
-  .plot-cell.filled:hover .artist-initial,
-  .plot-cell.filled:hover .artist-name,
-  .plot-cell.filled:hover .artist-coord{color:var(--paper-warm);}
-}
-.plot-cell.filled .artist-initial{
-  position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);
-  font-family:'Cormorant','Title CJK',serif;
-  font-style:italic;font-weight:300;
-  font-size:72px;line-height:1;
-  color:var(--ink);letter-spacing:-1px;
-  z-index:2;
-  transition:color 245ms;
-}
-.plot-cell.filled .artist-initial.numeric{font-size:80px;letter-spacing:-2px;}
 .plot-cell.filled .artist-name{
-  position:absolute;bottom:14px;left:14px;right:14px;
+  position:absolute;top:calc(50% + var(--name-drift,0px));left:24px;transform:translateY(-50%);
   font-family:'Cormorant','Title CJK',serif;
-  font-style:normal;font-weight:500;font-size:14px;
-  line-height:1.05;
-  color:var(--ink);letter-spacing:-0.1px;
+  font-style:italic;font-weight:500;font-size:1.3rem;
+  line-height:1;
+  color:color-mix(in srgb, var(--ink) 95%, #000);letter-spacing:-0.4px;
   font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
-  text-transform:uppercase;
   z-index:2;
-  transition:color 245ms;
 }
+.plot-cell.filled:not(:hover) .artist-name{transition:color 245ms;}
 .plot-cell.filled .artist-coord{
-  position:absolute;top:10px;right:12px;
+  position:absolute;top:6px;right:8px;
   font-family:'Barlow',sans-serif;
-  font-size:9px;letter-spacing:0.5px;
-  color:#7a756d;
+  font-weight:400;font-size:8px;letter-spacing:0.8px;
+  color:var(--ink-whisper);opacity:0.54;
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
   z-index:2;
-  transition:color 245ms;
 }
+.plot-cell.filled:not(:hover) .artist-coord{transition:color 245ms;}
 
-/* While the row is horizontally scrolling, the browser does not
-   always drop :active (the touch stays inside the scroll container).
-   Explicitly neutralize the invert so the cell never flashes.
-   This replaces the earlier :active-delay approach — taps now
-   invert immediately, scroll gestures never do. */
+/* Micro-drift: deterministic ±1–2px vertical nudge per row letter so
+   the names don't rigidly align to a spreadsheet baseline. Too small
+   to be noticed as an effect, strong enough to break the table feel.
+   The one concession to "garden" — growth rarely lands on grid. */
+.plot-cell.filled[data-row="A"] .artist-name,
+.plot-cell.filled[data-row="F"] .artist-name,
+.plot-cell.filled[data-row="M"] .artist-name,
+.plot-cell.filled[data-row="T"] .artist-name{--name-drift:-1px;}
+.plot-cell.filled[data-row="C"] .artist-name,
+.plot-cell.filled[data-row="H"] .artist-name,
+.plot-cell.filled[data-row="P"] .artist-name,
+.plot-cell.filled[data-row="W"] .artist-name{--name-drift:1px;}
+.plot-cell.filled[data-row="E"] .artist-name,
+.plot-cell.filled[data-row="L"] .artist-name,
+.plot-cell.filled[data-row="R"] .artist-name{--name-drift:-2px;}
+.plot-cell.filled[data-row="J"] .artist-name,
+.plot-cell.filled[data-row="S"] .artist-name{--name-drift:2px;}
+
+/* Suppress the press tint while a row is being scrolled — prevents
+   the cell from lighting up under a scroll gesture on touch. */
 .plot-row-cells[data-scrolling="true"] .plot-cell.filled:active{background:transparent;}
-.plot-row-cells[data-scrolling="true"] .plot-cell.filled:active .artist-initial,
-.plot-row-cells[data-scrolling="true"] .plot-cell.filled:active .artist-name{color:var(--ink);}
-.plot-row-cells[data-scrolling="true"] .plot-cell.filled:active .artist-coord{color:#7a756d;}
 
 @media (max-width:1280px){
-  .plot-top,.plot-row{--cols:6;}
+  .plot-top,.plot-row{--cols:5;}
 }
 @media (max-width:1100px){
-  .plot-top,.plot-row{--cols:5;}
+  .plot-top,.plot-row{--cols:4;}
 }
 @media (max-width:960px){
   .plot-wrap{--row-label-width:44px;}
   .plot-top,.plot-row{--cols:4;}
-  .plot-cell.filled .artist-initial{font-size:64px;}
-  .plot-cell.filled .artist-initial.numeric{font-size:72px;}
 }
 @media (max-width:720px){
   .plot-wrap{--row-label-width:36px;}
   .plot-top,.plot-row{--cols:3;}
-  .plot-cell.filled .artist-initial{font-size:52px;}
-  .plot-cell.filled .artist-initial.numeric{font-size:58px;}
-  .plot-cell.filled .artist-name{font-size:13px;}
+  .plot-cell{min-height:calc(1.1rem + 34px);}
+  .plot-cell.filled .artist-name{left:18px;font-size:1.1rem;}
 }
 @media (max-width:480px){
   .plot-wrap{--row-label-width:32px;}
   .plot-top,.plot-row{--cols:2;}
-  .plot-cell.filled .artist-initial{font-size:44px;}
-  .plot-cell.filled .artist-initial.numeric{font-size:50px;}
-  .plot-cell.filled .artist-name{font-size:12px;left:10px;right:10px;bottom:10px;}
+  .plot-cell{min-height:calc(1rem + 26px);}
+  .plot-cell.filled .artist-name{left:14px;font-size:1rem;}
 }
 
 
@@ -1729,10 +1737,10 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   max-width:100%;max-height:100%;
   width:auto;height:auto;
   object-fit:contain;
-  filter:drop-shadow(0 14px 32px rgba(40,35,25,0.10)) drop-shadow(0 2px 6px rgba(40,35,25,0.06));
+  filter:drop-shadow(0 11px 26px rgba(40,35,25,0.075)) drop-shadow(0 2px 5px rgba(40,35,25,0.045));
 }
 .ex-hero[data-theme="dark"] .ex-hero-plate img{
-  filter:drop-shadow(0 18px 48px rgba(0,0,0,0.55)) drop-shadow(0 2px 6px rgba(0,0,0,0.35));
+  filter:drop-shadow(0 14px 38px rgba(0,0,0,0.42)) drop-shadow(0 2px 5px rgba(0,0,0,0.26));
 }
 .ex-hero-plate .plate-fill{position:absolute;inset:0;}
 

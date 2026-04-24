@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-export const alt = "The Garden — a digital art gallery";
+export const alt = "The Garden — an online gallery for digital art";
 export const size = { width: 1200, height: 1200 };
 export const contentType = "image/png";
 

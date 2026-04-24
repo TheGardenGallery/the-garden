@@ -28,7 +28,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <h1 className="sr-only">The Garden — a digital art gallery</h1>
+      <h1 className="sr-only">The Garden — an online gallery for digital art</h1>
 
       <Hero
         slides={await Promise.all(
