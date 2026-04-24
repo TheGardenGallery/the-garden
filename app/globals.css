@@ -1022,6 +1022,17 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .principles-plant-svg svg > *:nth-child(11){animation-delay:calc(var(--plant-delay,0ms) + 950ms);}
 .principles-plant-svg svg > *:nth-child(12){animation-delay:calc(var(--plant-delay,0ms) + 1045ms);}
 
+/* Hollow node circles bloom in rather than stroke-trace — a continuous
+   stroke closes cleanly where the dashed version would leave a seam. */
+.principles-plant-svg svg > .principles-node{
+  stroke-dasharray:none;
+  animation-name:plant-bloom;
+}
+@keyframes plant-bloom{
+  from{opacity:0;}
+  to  {opacity:1;}
+}
+
 @keyframes plant-appear{
   from{opacity:0;}
   to{opacity:1;}

@@ -31,8 +31,12 @@ const Base = () => (
   <circle cx={AXIS_X} cy={BASE_Y} r={2.5} fill="currentColor" stroke="none" />
 );
 
+// Hollow node: fades in rather than stroke-tracing. A tiny circle traced
+// by stroke-dashoffset leaves a visible seam where the dash endpoints meet
+// (it's exposed — unlike leaves/petals which mask the seam against the
+// axis or flower centre). Fade-in with a continuous stroke stays seamless.
 const Node = ({ cx, cy }: { cx: number; cy: number }) => (
-  <circle cx={cx} cy={cy} r={2} pathLength={1} />
+  <circle cx={cx} cy={cy} r={2} className="principles-node" />
 );
 
 const Axis = ({ toY }: { toY: number }) => (
