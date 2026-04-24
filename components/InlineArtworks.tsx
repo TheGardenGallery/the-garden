@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import type { Exhibition } from "@/lib/types";
+import { useScrollReveal } from "@/lib/useScrollReveal";
 
 type Group = NonNullable<Exhibition["inlineArtworks"]>[number];
 type Item = Group["items"][number];
@@ -29,30 +30,7 @@ export function InlineArtworks({
   group: Group;
   fallbackUrl?: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (typeof IntersectionObserver === "undefined") {
-      setVisible(true);
-      return;
-    }
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisible(true);
-            io.unobserve(entry.target);
-          }
-        });
-      },
-      { rootMargin: "0px 0px -10% 0px", threshold: 0.1 }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+  const { ref, visible } = useScrollReveal<HTMLDivElement>();
 
   // Play/pause each video based on its own visibility. Videos don't
   // autoplay on mount — they only start when scrolled into view, then
