@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import type { Artist } from "@/lib/types";
 import { PlotCell } from "./PlotCell";
+import { EASE_SLOW } from "@/lib/motion";
 
 type PlotGridProps = {
   artists: Artist[];
@@ -86,7 +87,7 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
+      transition: { duration: 0.55, ease: EASE_SLOW },
     },
   };
 

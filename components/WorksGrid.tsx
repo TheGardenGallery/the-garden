@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import type { Exhibition } from "@/lib/types";
+import { EASE_SLOW } from "@/lib/motion";
 
 type WorksGridProps = { works: NonNullable<Exhibition["works"]> };
 
@@ -21,7 +22,7 @@ export function WorksGrid({ works }: WorksGridProps) {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.95, ease: [0.22, 1, 0.36, 1] as const },
+      transition: { duration: 0.95, ease: EASE_SLOW },
     },
   };
 

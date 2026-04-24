@@ -7,6 +7,7 @@ import type { Exhibition } from "@/lib/types";
 import type { Palette } from "@/lib/palette";
 import { HeroCardReveal } from "./HeroCardReveal";
 import { HeroArtwork } from "./HeroArtwork";
+import { EASE_SLOW } from "@/lib/motion";
 
 export type HeroSlide = {
   exhibition: Exhibition;
@@ -18,7 +19,7 @@ type HeroProps = { slides: HeroSlide[] };
 const DWELL_MS = 10000;
 const CROSSFADE_S = 2.6;
 const CARD_FADE_S = 1.4;
-const EASE = [0.22, 1, 0.36, 1] as const;
+const EASE = EASE_SLOW;
 
 export function Hero({ slides }: HeroProps) {
   const reduced = useReducedMotion();

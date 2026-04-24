@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
+import { EASE_SLOW } from "@/lib/motion";
 
 /**
  * Thin client wrapper that reveals the hero card on mount.
@@ -17,7 +18,7 @@ export function HeroCardReveal({ children }: { children: ReactNode }) {
       transition={{
         duration: 0.8,
         delay: 0.15,
-        ease: [0.22, 1, 0.36, 1],
+        ease: EASE_SLOW,
       }}
     >
       {children}
