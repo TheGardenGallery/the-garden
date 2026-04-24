@@ -896,6 +896,211 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 
 .plot-wrap{--row-label-width:56px;padding:var(--nav-height) 0 0 0;background:var(--paper-warm);}
 
+/* About — narrow reading column, Hufkens-tight editorial rhythm. No
+   display heading on the page; the nav + column width carry framing.
+   Curator section break is a single hairline rule with a small
+   uppercase label. Body copy matches the exhibition-overview type
+   so the About feels continuous with the rest of the editorial
+   surfaces. */
+.about-page{
+  position:relative;
+  min-height:100vh;
+  min-height:100dvh;
+  background:var(--paper-warm);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:var(--nav-height) var(--gutter) 0;
+}
+.about-col{
+  max-width:600px;width:100%;
+  margin-top:auto;margin-bottom:auto;
+  padding:56px 0;
+  display:flex;flex-direction:column;gap:20px;
+}
+.about-col p{
+  margin:0;
+  font-family:'Cormorant','Title CJK',serif;
+  font-weight:400;font-style:normal;
+  font-size:19px;line-height:1.7;letter-spacing:0;
+  color:#0d0b07;
+  font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
+}
+.about-col p + p{margin-top:8px;}
+.about-rule{
+  margin:50px auto 0;
+  width:100%;
+  border:0;border-top:1px solid rgba(22,20,16,0.12);
+}
+.about-curator-head{
+  margin:0 0 4px;
+  font-family:'Barlow',sans-serif;font-weight:500;
+  font-size:11px;letter-spacing:0.6px;text-transform:uppercase;
+  color:var(--ink-muted);
+}
+.about-curator-link{
+  color:inherit;text-decoration:none;
+  transition:color 200ms ease-out;
+}
+@media (hover:hover){
+  .about-curator-link:hover{color:#aeaeae;}
+}
+@media (max-width:720px){
+  .about-col{padding:40px 0;}
+  .about-col p{font-size:17px;line-height:1.65;}
+  .about-rule{margin:35px auto 0;}
+}
+
+/* Principles — interactive garden. Each plant is a minimal line-art
+   botanical; keyword sits below it always, a one-line explanation
+   fades in on hover (and shows by default on touch where there is no
+   hover). Layout is a 3-across botanical-plate grid, centered and
+   generously gapped so each plant reads as its own specimen. */
+.principles-page{
+  min-height:100vh;
+  background:var(--paper-warm);
+  padding:calc(var(--nav-height) + 96px) var(--gutter) 96px;
+  display:flex;align-items:center;justify-content:center;
+}
+.principles-garden{
+  width:100%;max-width:1040px;
+  display:grid;grid-template-columns:repeat(3, 1fr);
+  gap:72px 32px;
+}
+.principles-plant{
+  margin:0;
+  display:flex;flex-direction:column;align-items:center;gap:20px;
+}
+.principles-plant-svg{
+  width:120px;height:120px;
+  color:var(--ink-muted);
+  display:flex;align-items:center;justify-content:center;
+  animation:plant-color 1400ms ease-out both;
+  transform:translateZ(0);
+  backface-visibility:hidden;
+}
+/* Each stage fades in (form) and colours to Prussian blue (palette)
+   left-to-right. One accent colour across all six so the palette
+   remains a whisper, not a statement. Inside each plant every SVG
+   element draws itself in sequence — stroked elements trace their path
+   (pathLength=1 on primitives), filled dots fade in. */
+.principles-plant:nth-child(1){--plant-delay:260ms;}
+.principles-plant:nth-child(2){--plant-delay:400ms;}
+.principles-plant:nth-child(3){--plant-delay:540ms;}
+.principles-plant:nth-child(4){--plant-delay:680ms;}
+.principles-plant:nth-child(5){--plant-delay:820ms;}
+.principles-plant:nth-child(6){--plant-delay:960ms;}
+
+.principles-plant{opacity:0;animation:plant-appear 900ms ease-out var(--plant-delay,0ms) both;}
+.principles-plant-svg{animation-delay:var(--plant-delay,0ms);}
+
+/* Each direct child of the svg traces its own path via stroke-dashoffset.
+   pathLength=1 on every stroked primitive normalises the dash unit, so a
+   single keyframe works for stems, leaves, petals and node circles alike.
+   Filled dots (Base, flower centres) carry stroke="none", so the dash
+   properties are inert on them and they simply fade in.
+   Timing is Disney-style "fast zip, long settle": a strong ease-out
+   (cubic-bezier(.16,1,.3,1)) fires each stroke out quickly and lingers
+   hard on the tail so the detail lands, while tight staggers keep the
+   overall cascade brisk. */
+.principles-plant-svg svg > *{
+  opacity:0;
+  stroke-dasharray:1;
+  stroke-dashoffset:1;
+  animation:plant-draw 680ms cubic-bezier(.16,1,.3,1) both;
+}
+.principles-plant-svg svg > *:nth-child(1){animation-delay:calc(var(--plant-delay,0ms) + 0ms);}
+.principles-plant-svg svg > *:nth-child(2){animation-delay:calc(var(--plant-delay,0ms) + 95ms);}
+.principles-plant-svg svg > *:nth-child(3){animation-delay:calc(var(--plant-delay,0ms) + 190ms);}
+.principles-plant-svg svg > *:nth-child(4){animation-delay:calc(var(--plant-delay,0ms) + 285ms);}
+.principles-plant-svg svg > *:nth-child(5){animation-delay:calc(var(--plant-delay,0ms) + 380ms);}
+.principles-plant-svg svg > *:nth-child(6){animation-delay:calc(var(--plant-delay,0ms) + 475ms);}
+.principles-plant-svg svg > *:nth-child(7){animation-delay:calc(var(--plant-delay,0ms) + 570ms);}
+.principles-plant-svg svg > *:nth-child(8){animation-delay:calc(var(--plant-delay,0ms) + 665ms);}
+.principles-plant-svg svg > *:nth-child(9){animation-delay:calc(var(--plant-delay,0ms) + 760ms);}
+.principles-plant-svg svg > *:nth-child(10){animation-delay:calc(var(--plant-delay,0ms) + 855ms);}
+.principles-plant-svg svg > *:nth-child(11){animation-delay:calc(var(--plant-delay,0ms) + 950ms);}
+.principles-plant-svg svg > *:nth-child(12){animation-delay:calc(var(--plant-delay,0ms) + 1045ms);}
+
+@keyframes plant-appear{
+  from{opacity:0;}
+  to{opacity:1;}
+}
+@keyframes plant-color{
+  from{color:var(--ink-muted);}
+  to{color:var(--ink);}
+}
+@keyframes plant-draw{
+  0%   {opacity:0;stroke-dashoffset:1;}
+  12%  {opacity:1;}
+  100% {opacity:1;stroke-dashoffset:0;}
+}
+@media (prefers-reduced-motion:reduce){
+  .principles-plant{opacity:1;animation:none;transform:none;}
+  .principles-plant-svg{animation:none;color:var(--ink);}
+  .principles-plant-svg svg > *{animation:none;opacity:1;stroke-dashoffset:0;}
+}
+.principles-plant-svg svg{width:100%;height:100%;display:block;}
+.principles-plant-caption{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  text-align:center;min-height:60px;
+}
+.principles-plant-keyword{
+  font-family:'Barlow',sans-serif;font-weight:400;
+  font-size:11px;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--ink-muted);
+}
+.principles-plant-sentence{
+  font-family:'Cormorant','Title CJK',serif;
+  font-style:normal;font-weight:400;
+  font-size:18px;line-height:1.5;
+  color:var(--ink-soft);
+  opacity:0;transform:translateY(4px);
+  transition:opacity 300ms ease-out, transform 300ms ease-out;
+}
+@media (hover:hover){
+  .principles-plant:hover .principles-plant-sentence{
+    opacity:1;transform:translateY(0);
+  }
+}
+@media (hover:none){
+  .principles-plant-sentence{opacity:1;transform:translateY(0);}
+}
+@media (max-width:960px){
+  .principles-garden{grid-template-columns:repeat(2, 1fr);gap:72px 32px;}
+}
+@media (max-width:600px){
+  .principles-page{padding:calc(var(--nav-height) + 64px) var(--gutter) 96px;}
+  .principles-garden{grid-template-columns:1fr;gap:56px;}
+}
+
+/* Principles — meta-nav label on the About page, aligned to the same
+   left gutter as the site's "The Garden" logo (start of "T"). */
+.about-principles-link{
+  position:fixed;
+  top:calc(var(--nav-height) + 24px);
+  left:calc(100vw - var(--gutter) - 128px);
+  font-family:'Barlow',sans-serif;font-weight:500;
+  font-size:10px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--ink-muted);text-decoration:none;
+  transition:color 200ms ease-out;
+}
+@media (hover:hover){
+  .about-principles-link:hover{
+    color:#aeaeae;
+    text-decoration:underline;
+    text-underline-offset:4px;
+    text-decoration-thickness:1px;
+  }
+}
+@media (max-width:720px){
+  .about-principles-link{
+    top:calc(var(--nav-height) + 16px);
+    left:calc(100vw - var(--gutter) - 130px);
+  }
+}
+
+
 .plot-top,.plot-row{
   display:flex;
   align-items:stretch;
