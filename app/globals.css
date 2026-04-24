@@ -1160,13 +1160,13 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   padding:18px 0 16px;
   border-left:1px solid var(--rule);
   background:var(--paper-warm);
-  transition:background 190ms ease-in;
+  transition:background 180ms ease-out;
 }
-.plot-col-label.plot-col-label--active{transition:background 120ms ease-out;}
+.plot-col-label.plot-col-label--active{transition:background 100ms ease-out;}
 
 .plot-body{display:flex;flex-direction:column;background:var(--paper-warm);position:relative;}
-.plot-row{border-bottom:1px solid var(--rule);transition:background 190ms ease-in;}
-.plot-row.plot-row--active{transition:background 140ms ease-out;}
+.plot-row{border-bottom:1px solid var(--rule);transition:background 180ms ease-out;}
+.plot-row.plot-row--active{transition:background 150ms ease-out;}
 .plot-row:last-child{border-bottom:none;}
 /* Left axis (A–Z): infrastructural. Quiet enough to stay background
    structure; no hover interaction. Opacity reduces presence ~25%. */
@@ -1195,10 +1195,10 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   border-left:1px solid var(--rule);
   position:relative;overflow:hidden;
   background:transparent;
-  transition:background 190ms ease-in;
+  transition:background 180ms ease-out;
 }
-.plot-cell.plot-cell--col-active{background:var(--col-tint);transition:background 120ms ease-out;}
-.plot-cell.plot-cell--cell-active{background:var(--cell-tint);transition:background 160ms ease-out;}
+.plot-cell.plot-cell--col-active{background:var(--col-tint);transition:background 100ms ease-out;}
+.plot-cell.plot-cell--cell-active{background:var(--cell-tint);transition:background 180ms ease-out;}
 .plot-col-label.plot-col-label--active{background:var(--col-tint);}
 
 .plot-cell.filled{

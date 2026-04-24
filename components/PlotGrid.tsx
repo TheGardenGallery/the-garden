@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import type { Artist } from "@/lib/types";
 import { PlotCell } from "./PlotCell";
@@ -13,11 +13,10 @@ type PlotGridProps = {
 const defaultColumns = 6;
 const LETTER_ROWS = Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
-/* Staggered hover timing — column leads, row follows, cell settles
-   last. Delays run on enter; leave clears everything simultaneously
-   and CSS transitions handle the parallel fade-out. */
-const ROW_DELAY_MS = 85;
-const CELL_DELAY_MS = 140;
+/* Hover state fires all three layers on enter simultaneously — the
+   visual stagger comes from different CSS fade-in durations per layer
+   (col fastest, cell slowest), not setTimeout delays. This keeps the
+   interaction feeling immediate while preserving the layered read. */
 
 type DisplayRow = {
   label: string;
@@ -69,29 +68,14 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
   const [hoverCol, setHoverCol] = useState<number | null>(null);
   const [hoverRow, setHoverRow] = useState<string | null>(null);
   const [hoverCellKey, setHoverCellKey] = useState<string | null>(null);
-  const timersRef = useRef<{ row?: number; cell?: number }>({});
-
-  const clearTimers = () => {
-    if (timersRef.current.row) window.clearTimeout(timersRef.current.row);
-    if (timersRef.current.cell) window.clearTimeout(timersRef.current.cell);
-    timersRef.current = {};
-  };
-
-  // Cleanup timers on unmount
-  useEffect(() => clearTimers, []);
 
   const handleEnter = (row: string, col: number) => {
-    clearTimers();
     setHoverCol(col);
-    timersRef.current.row = window.setTimeout(() => setHoverRow(row), ROW_DELAY_MS);
-    timersRef.current.cell = window.setTimeout(
-      () => setHoverCellKey(`${row}-${col}`),
-      CELL_DELAY_MS,
-    );
+    setHoverRow(row);
+    setHoverCellKey(`${row}-${col}`);
   };
 
   const handleLeave = () => {
-    clearTimers();
     setHoverCol(null);
     setHoverRow(null);
     setHoverCellKey(null);
