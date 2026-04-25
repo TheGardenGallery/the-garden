@@ -1571,21 +1571,30 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
      invisible against the black ground anyway; kill it here. */
   filter:none;
 }
-/* With the GIF's black frame dissolved into the ground, the canonical
-   title-bar position (bottom:64px = GIF frame bottom) can read as
-   drift — the title feels unanchored from the floating ASCII figure.
-   Nudge it up so its baseline meets the figure's visible bottom row. */
-.ex-hero[data-slug="pictography"] .ex-title-bar{
-  bottom:calc(64px + 5.5vh);
+/* Pictography's lift offset is now defined as the slug's
+   --ex-title-bottom (see hero-frame block below) so the frame's
+   safe-zone padding tracks the lift automatically. */
+/* Canonical hero framing. The frame reserves a title safe-zone at
+   the bottom so the artwork's contain-fit can never extend into the
+   title-bar's territory at any viewport aspect ratio.
+     --ex-title-bottom: where the title-bar's bottom edge sits.
+     --ex-title-clearance: title height + breathing room above it.
+   Frame bottom padding = sum of the two, which guarantees the
+   artwork's bottom edge ends at least `clearance` above the title.
+   Pictography overrides --ex-title-bottom for its lifted title;
+   the frame padding tracks the override automatically. */
+.ex-hero{
+  --ex-title-bottom:64px;
+  --ex-title-clearance:96px;
 }
-/* Canonical hero framing: 64px top/bottom, 56px sides. Title-bar
-   sits at bottom:64px so its baseline meets the artwork's bottom
-   edge when the plate fills the frame vertically. Equinox and
-   haha-over-time override this for their specific compositions. */
 .ex-hero-frame{
   position:absolute;inset:var(--nav-height) 0 0 0;
   display:flex;align-items:center;justify-content:center;
-  padding:64px 56px;
+  padding:64px 56px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
+}
+.ex-title-bar{bottom:var(--ex-title-bottom);}
+.ex-hero[data-slug="pictography"]{
+  --ex-title-bottom:calc(64px + 5.5vh);
 }
 /* Aluan Wang / Equinox + cydr / New-life: shared hero framing —
    artwork capped at 85% of the frame for breathing room, title-bar
@@ -2264,6 +2273,10 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   background-repeat:no-repeat;
   image-rendering:auto;
   overflow:hidden;
+}
+.ex-detail-crop--image > img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:50% 22%;display:block;
 }
 .ex-detail-link{display:block;text-decoration:none;color:inherit;}
 .ex-detail-caption{

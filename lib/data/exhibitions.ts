@@ -864,9 +864,9 @@ export const exhibitions: Exhibition[] = [
       // viewport — below that, the image's rendered height falls
       // short of the container and gray bars show top/bottom.
       crops: [
-        { id: "red-starburst", x: 10, y: 25, zoom: 6 },
-        { id: "pink-fill",     x: 28, y: 72, zoom: 6 },
-        { id: "yellow-star",   x: 55, y: 42, zoom: 6 },
+        { id: "red-starburst",   x: 15, y: 30, zoom: 4, image: "/images/khwampa/simple-thoughts-detail-left.png" },
+        { id: "octopus",         x: 22, y: 42, zoom: 5.5 },
+        { id: "bullseye-tree",   x: 50, y: 23, zoom: 6.5 },
       ],
     },
     description: [

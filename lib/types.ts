@@ -104,6 +104,10 @@ export type Exhibition = {
       y: number;
       zoom: number;
       caption?: string;
+      /** When set, render this image directly (object-fit: cover into
+          the slot) instead of computing a CSS-zoom crop from the
+          shared sourceImage. x/y/zoom are ignored. */
+      image?: string;
     }[];
   };
   workCount?: number;            // total works (e.g. 96, even if only some shown)

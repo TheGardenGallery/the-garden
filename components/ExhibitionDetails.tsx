@@ -50,25 +50,43 @@ export function ExhibitionDetails({ details, title }: { details: Details; title:
         </header>
         <div className="ex-details-grid">
           {details.crops.map((c) => {
-            const { bgX, bgY } = resolveCrop(c, inset);
-            const style = {
-              aspectRatio: aspect,
-              backgroundImage: `url(${details.sourceImage})`,
-              backgroundSize: `${c.zoom * 100}%`,
-              backgroundPosition: `${bgX}% ${bgY}%`,
-            } as React.CSSProperties;
             const label = `${title}, detail${c.caption ? ` — ${c.caption}` : ""}`;
-            const figure = (
+            const baseStyle = { aspectRatio: aspect } as React.CSSProperties;
+            const figure = c.image ? (
               <figure
-                className="ex-detail-crop"
-                style={style}
+                className="ex-detail-crop ex-detail-crop--image"
+                style={baseStyle}
                 role="img"
                 aria-label={label}
               >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={c.image} alt={label} />
                 {c.caption && (
                   <figcaption className="ex-detail-caption">{c.caption}</figcaption>
                 )}
               </figure>
+            ) : (
+              (() => {
+                const { bgX, bgY } = resolveCrop(c, inset);
+                const style = {
+                  ...baseStyle,
+                  backgroundImage: `url(${details.sourceImage})`,
+                  backgroundSize: `${c.zoom * 100}%`,
+                  backgroundPosition: `${bgX}% ${bgY}%`,
+                } as React.CSSProperties;
+                return (
+                  <figure
+                    className="ex-detail-crop"
+                    style={style}
+                    role="img"
+                    aria-label={label}
+                  >
+                    {c.caption && (
+                      <figcaption className="ex-detail-caption">{c.caption}</figcaption>
+                    )}
+                  </figure>
+                );
+              })()
             );
             return details.verseUrl ? (
               <a
