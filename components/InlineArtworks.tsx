@@ -116,7 +116,11 @@ function InlineArtworkItem({
             width={1200}
             height={1500}
             sizes="(min-width: 900px) 40vw, 92vw"
-            unoptimized={/\.(gif|webp)$/i.test(item.image)}
+            quality={95}
+            // Per-item `unoptimized` escape hatch for high-fidelity
+            // pieces (grain/noise textures that Next.js's WebP pipeline
+            // softens even at q95). GIFs/WebPs always pass through raw.
+            unoptimized={item.unoptimized ?? /\.(gif|webp)$/i.test(item.image)}
           />
         </div>
       )}

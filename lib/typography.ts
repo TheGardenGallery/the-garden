@@ -8,6 +8,9 @@
  *   - The space after a colon or semicolon becomes U+00A0 so the
  *     punctuation can't be stranded at end of line — including when the
  *     next token is an HTML tag like <em> (matched via end-of-chunk $).
+ *   - Whitespace immediately before an em dash becomes U+00A0 so the
+ *     dash binds to the preceding word and never orphans to the start
+ *     of the next line.
  *   - Spaces inside <em>…</em> titles become U+00A0 (non-breaking space)
  *     so italic titles never break mid-phrase.
  *
@@ -22,7 +25,11 @@ export function preserveHyphens(html: string): string {
     t = t.replace(/(\p{L}|\d); (?=\p{L}|\d|$)/gu, "$1;\u00A0");
     return t;
   });
-  return hyphenated.replace(/<em>([^<]*)<\/em>/g, (_m, content) =>
+  const emNoBreak = hyphenated.replace(/<em>([^<]*)<\/em>/g, (_m, content) =>
     `<em>${(content as string).replace(/ /g, "\u00A0")}</em>`
   );
+  // Bind em dashes to whatever precedes them, even across tag boundaries
+  // (e.g. "</em> &mdash;" → "</em>\u00A0&mdash;"). Replaces the single
+  // whitespace immediately before an em dash entity or literal U+2014.
+  return emNoBreak.replace(/\s(&mdash;|\u2014)/g, "\u00A0$1");
 }

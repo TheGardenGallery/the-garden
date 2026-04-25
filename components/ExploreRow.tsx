@@ -1,0 +1,86 @@
+"use client";
+
+import Image from "next/image";
+import { useState } from "react";
+import type { FeaturedArtwork } from "@/lib/types";
+
+type ExploreRowProps = {
+  items: FeaturedArtwork[];
+  title?: string;
+};
+
+/**
+ * Horizontal row of "other works from this series" shown below the
+ * exhibition overview. Each thumbnail is a link out to the artwork's
+ * Verse page.
+ *
+ * Hover behavior: each cell renders as a static first-frame preview by
+ * default (via next/image optimization) and swaps to the raw animated
+ * GIF while hovered. On mouseleave the GIF unmounts and the static
+ * preview returns, so the next hover plays from frame 0 — consistent
+ * "beginning" each time rather than resuming from a mid-animation
+ * position.
+ */
+export function ExploreRow({ items, title = "Explore" }: ExploreRowProps) {
+  if (!items.length) return null;
+  return (
+    <section className="ex-explore" aria-labelledby="exploreHead">
+      <div className="ex-explore-inner">
+        <header className="ex-explore-head">
+          <h2 className="ex-explore-head-title" id="exploreHead">
+            {title}
+          </h2>
+        </header>
+        <div className="ex-explore-row">
+          {items.map((item) => (
+            <ExploreItem key={item.id} item={item} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ExploreItem({ item }: { item: FeaturedArtwork }) {
+  const [animating, setAnimating] = useState(false);
+  const isGif = /\.gif$/i.test(item.image);
+  const hasPoster = isGif && Boolean(item.poster);
+  const staticSrc = item.poster ?? item.image;
+
+  return (
+    <a
+      href={item.verseUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="ex-explore-item"
+      onMouseEnter={() => hasPoster && setAnimating(true)}
+      onMouseLeave={() => hasPoster && setAnimating(false)}
+    >
+      <figure className="ex-explore-figure">
+        <div className="ex-explore-image">
+          {animating ? (
+            // Raw <img> so the browser plays the GIF natively from
+            // frame 0. Re-mounts on each hover (unmounted on leave)
+            // to reset playback.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={item.image} alt={item.alt} />
+          ) : (
+            <Image
+              src={staticSrc}
+              alt={item.alt}
+              width={600}
+              height={600}
+              sizes="(min-width: 1200px) 18vw, (min-width: 720px) 30vw, 45vw"
+              // Pass GIFs through unoptimized (when no poster is set);
+              // static posters are JPGs, let Next.js optimize those.
+              unoptimized={isGif && !item.poster}
+            />
+          )}
+        </div>
+        <figcaption className="ex-explore-caption">
+          <em>{item.title}</em>
+        </figcaption>
+      </figure>
+    </a>
+  );
+}

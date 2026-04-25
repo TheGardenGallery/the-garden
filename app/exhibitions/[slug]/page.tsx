@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { fetchExhibition, fetchExhibitions } from "@/lib/verse-api";
 import { WorksGrid } from "@/components/WorksGrid";
 import { FeaturedArtworks } from "@/components/FeaturedArtworks";
+import { ExploreRow } from "@/components/ExploreRow";
+import { ArtistQuote } from "@/components/ArtistQuote";
 import { ExhibitionDetails } from "@/components/ExhibitionDetails";
 import { ExhibitionHero } from "@/components/ExhibitionHero";
 import { ExhibitionOverview } from "@/components/ExhibitionOverview";
@@ -54,6 +56,12 @@ export default async function ExhibitionDetailPage({
 
       <ExhibitionOverview exhibition={exhibition} />
 
+      {exhibition.exploreArtworks && exhibition.exploreArtworks.length > 0 && (
+        <Reveal>
+          <ExploreRow items={exhibition.exploreArtworks} />
+        </Reveal>
+      )}
+
       {exhibition.details && exhibition.details.crops.length > 0 && (
         <Reveal>
           <ExhibitionDetails
@@ -71,6 +79,13 @@ export default async function ExhibitionDetailPage({
 
       {exhibition.works && exhibition.works.length > 0 && (
         <WorksSection works={exhibition.works} />
+      )}
+
+      {/* Artist quote sits after the work study — gives the artist the
+          last word before colophon, lets the typewriter animation land
+          as the page's closing moment rather than a mid-scroll pause. */}
+      {exhibition.artistQuote && (
+        <ArtistQuote quote={exhibition.artistQuote} />
       )}
 
       <Reveal>
@@ -98,3 +113,4 @@ function WorksSection({ works }: { works: NonNullable<Exhibition["works"]> }) {
     </section>
   );
 }
+

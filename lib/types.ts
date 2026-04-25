@@ -22,6 +22,10 @@ export type FeaturedArtwork = {
   image: string;        // local path under /images
   alt: string;
   verseUrl: string;     // absolute URL to the artwork on Verse
+  /** Optional static poster frame. Used by the Explore row to show a
+      non-animating first frame by default; the GIF only plays while
+      the viewer is hovering. Extract via sharp(src, {animated:false}). */
+  poster?: string;
 };
 
 export type ExhibitionStatus = "current" | "upcoming" | "past";
@@ -58,6 +62,18 @@ export type Exhibition = {
   cardVideo?: string;            // if set, ExhibitionCard plays this muted-autoplay loop instead of cardImage
   works?: Work[];
   featuredArtworks?: FeaturedArtwork[];
+  /** Horizontal row of other works from the series, shown below the
+      editorial overview. Meant for "explore more from this series"
+      pieces; thumbnails link out to the work on Verse. */
+  exploreArtworks?: FeaturedArtwork[];
+  /** A direct quote from the artist about the work, rendered as a
+      typographic pull-quote below the editorial overview. Use when
+      Verse's exhibition page includes a standalone artist statement
+      separate from the main description. */
+  artistQuote?: {
+    paragraphs: string[];   // quote body, plain text (HTML <em> allowed)
+    attribution: string;    // just the artist name; the em-dash is added
+  };
   /** A pair (or more) of artworks inserted between description paragraphs.
       `afterParagraphIndex` is 0-based against `description`. If an item
       omits `verseUrl`, it falls back to the exhibition's `verseSeriesUrl`. */
@@ -66,7 +82,7 @@ export type Exhibition = {
       plates can break up long prose at different points. */
   inlineArtworks?: {
     afterParagraphIndex: number;
-    items: { image: string; alt: string; title?: string; verseUrl?: string; video?: string; iframe?: string; aspectRatio?: number }[];
+    items: { image: string; alt: string; title?: string; verseUrl?: string; video?: string; iframe?: string; aspectRatio?: number; unoptimized?: boolean }[];
   }[];
   /** Hi-fidelity detail crops of a single work, shown as a grid like
       "Selected works" but all derived from the same source image via

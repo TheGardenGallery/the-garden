@@ -22,7 +22,7 @@ export const artists: Artist[] = [
   { slug: "riiiis",            name: "Riiiis",            coord: { row: "R", col: 1 } },
   { slug: "rudxane",           name: "Rudxane",           coord: { row: "R", col: 2 } },
   { slug: "sp-gelsesmaskinen", name: "Spøgelsesmaskinen", coord: { row: "S", col: 1 } },
-  { slug: "t-k-z",             name: "Tù.Úk'z",           coord: { row: "T", col: 1 } },
+  { slug: "t-k-z",             name: "Tù.úk'z",           coord: { row: "T", col: 1 } },
   { slug: "yoshi-sodeoka",     name: "Yoshi Sodeoka",     coord: { row: "Y", col: 1 } },
 ];
 

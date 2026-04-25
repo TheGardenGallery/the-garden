@@ -181,6 +181,17 @@ a{color:inherit;text-decoration:none;}
 /* ---- FOCUS ---------------------------------------------------------- */
 a:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset:4px;}
 
+/* Lining-figure escape hatch for prose. Body text uses oldstyle-nums
+   (font-feature-settings: "onum") which sits digits at x-height with
+   descenders — readable in running text but visually short next to
+   uppercase neighbours (e.g. "2D" → the 2 looks smaller than the D).
+   Wrap the digit in <span class="num-lining">…</span> to opt that
+   figure into uppercase-height lining figures. */
+.num-lining{
+  font-variant-numeric:lining-nums;
+  font-feature-settings:"lnum" 1;
+}
+
 /* ---- LINKS: content-area vocabulary -------------------------------- */
 .link,
 .ex-overview-body .prose-link,
@@ -709,7 +720,10 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    flash in Safari/Chrome that we can't reliably suppress. */
 .exhibition-card-media:has(video){transform:none;will-change:auto;}
 @media (hover:hover){
-  .exhibition-card:hover{color:var(--ink-hover);}
+  .exhibition-card:hover,
+  .exhibition-card:hover .ds-display-name,
+  .exhibition-card:hover .ds-display-title,
+  .exhibition-card:hover .exhibition-card-meta{color:var(--ink-hover);}
   .exhibition-card:hover .exhibition-card-media{transform:translateZ(0) scale(1);}
   .exhibition-card:hover .exhibition-card-media:has(video){transform:none;}
 }
@@ -1542,6 +1556,28 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   background:#f1f4f6;
 }
 .ex-hero[data-theme="dark"]{background:#0c0c10;}
+/* 1mposter / Pictography: the GIF's ground is pure #000. Override the
+   dark theme's slightly warm #0c0c10 so the artwork's edges dissolve
+   into the hero background instead of showing a seam. ASCII-pixel art
+   also needs `image-rendering: pixelated` so character edges stay
+   crisp during the downscale instead of smooth-interpolating into
+   mush. */
+.ex-hero[data-slug="pictography"]{background:#000000;}
+.ex-hero[data-slug="pictography"] .ex-hero-plate img{
+  image-rendering:pixelated;
+  /* Chromium freezes animated GIFs when `image-rendering: pixelated`
+     is combined with `filter: drop-shadow` — the filter pipeline
+     rasterizes the first frame and never updates. The shadow is
+     invisible against the black ground anyway; kill it here. */
+  filter:none;
+}
+/* With the GIF's black frame dissolved into the ground, the canonical
+   title-bar position (bottom:64px = GIF frame bottom) can read as
+   drift — the title feels unanchored from the floating ASCII figure.
+   Nudge it up so its baseline meets the figure's visible bottom row. */
+.ex-hero[data-slug="pictography"] .ex-title-bar{
+  bottom:calc(64px + 5.5vh);
+}
 /* Canonical hero framing: 64px top/bottom, 56px sides. Title-bar
    sits at bottom:64px so its baseline meets the artwork's bottom
    edge when the plate fills the frame vertically. Equinox and
@@ -1551,19 +1587,71 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   display:flex;align-items:center;justify-content:center;
   padding:64px 56px;
 }
-/* Aluan Wang / Equinox: same hero framing as Paul's. Artwork is
-   capped at 85% of the frame for breathing room around a dense
-   edge-to-edge composition, leaving a 7.5%-of-frame gap below it.
-   The title-bar tracks that gap so its baseline meets the artwork's
-   bottom — it sits slightly higher than Paul/Yoshi's title, but the
-   artwork-title relationship reads tighter than forcing the title
-   to the shared viewport baseline. */
+/* Aluan Wang / Equinox + cydr / New-life: shared hero framing —
+   artwork capped at 85% of the frame for breathing room, title-bar
+   stays pinned at the canonical bottom-left corner (no lift) so the
+   title reads as the poster's anchor rather than the artwork's
+   caption. Keeps the gallery-poster feel and decouples the title
+   from the artwork's actual size as the viewport resizes. */
 .ex-hero[data-slug="equinox"] .ex-hero-plate img{
   max-width:85%;
   max-height:85%;
 }
-.ex-hero[data-slug="equinox"] .ex-title-bar{
-  bottom:calc(64px + (100vh - var(--nav-height) - 128px) * 0.075);
+/* loackme / SPACE\TIME: square 1:1 GIF with a baked-in white frame.
+   At full hero size the work feels oversized for the framing, and the
+   white frame already provides visual padding around the artwork —
+   so cap to ~80% of the hero frame for a breathable gallery-plate
+   read while still giving the work strong presence. */
+.ex-hero[data-slug="space-time"] .ex-hero-plate img{
+  max-width:80%;
+  max-height:80%;
+}
+/* cydr / New-life, to Still-life: bump the solo inline artwork ~21%
+   above the global :only-child cap (420px → 510px) so the square
+   works read at gallery scale within the prose flow. */
+.exhibition-detail[data-slug="new-life-to-still-life"] .ex-inline-artworks:has(> :only-child){
+  max-width:510px;
+}
+/* The shared <Image> declares width=1200 height=1500 (4:5 portrait) for
+   CLS reservation. cydr's works are 1:1 square, so the implicit 4:5
+   aspect was vertically stretching them into portrait boxes. Force
+   intrinsic so the square is honoured. */
+.exhibition-detail[data-slug="new-life-to-still-life"] .ex-inline-artworks:has(> :only-child) .ex-inline-image img{
+  aspect-ratio:auto;
+}
+/* Closing artist statement matches the description column width
+   (~720px / 68ch) so prose → inline → prose → quote reads as a single
+   coherent column with the inline plates as deliberate inset moments,
+   instead of three different widths drifting in and out of alignment.
+   Hairline rule above the quote marks the voice shift from third-
+   person curatorial to first-person artist statement — a small but
+   deliberate editorial pause. */
+.exhibition-detail[data-slug="new-life-to-still-life"] .ex-artist-quote-inner{
+  max-width:68ch;
+  border-top:1px solid var(--rule-thin);
+  padding-top:48px;
+}
+
+/* cydr / New-life, to Still-life: square work, same logic as Equinox.
+   Cap at 85% of the frame so the saturated composition has breathing
+   room, and pull the title-bar up so its baseline meets the artwork's
+   bottom edge instead of floating below at the viewport baseline. */
+.ex-hero[data-slug="new-life-to-still-life"] .ex-hero-plate img{
+  max-width:85%;
+  max-height:85%;
+}
+/* Title stays pinned at the canonical bottom-left corner regardless of
+   viewport aspect — independent of the centered artwork's actual size.
+   At any aspect, the artwork stays centered and the title sits firmly
+   in its corner; they share no geometric relationship, so the title
+   can't drift up to touch the artwork as the viewport resizes. */
+/* The titles (e.g. "SPACE\TIME #44") use uppercase letters, so the
+   default oldstyle figures sit too short next to the all-caps title.
+   Force lining figures on this exhibition's inline captions so the
+   "44" matches the "SPACE\TIME" cap height. */
+.exhibition-detail[data-slug="space-time"] .ex-inline-caption{
+  font-variant-numeric:lining-nums;
+  font-feature-settings:"lnum" 1;
 }
 /* Equinox's solo inline artwork is natively 5:4 landscape; the default
    420px :only-child cap reads ~10% small next to the square pair above.
@@ -1573,6 +1661,40 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .exhibition-detail[data-slug="equinox"] .ex-inline-artworks:has(> :only-child){
   max-width:812px;
   margin:56px auto;
+}
+
+/* loackme / SPACE\TIME: mirror Verse's exhibition layout. The trio
+   group renders 3-up (default grid is 2 cols, which would strand the
+   third item alone on the second row). On mobile, fall back to 1 col
+   so each gif gets full width to read at scale. */
+.exhibition-detail[data-slug="space-time"] .ex-inline-artworks:has(> :nth-child(3)){
+  grid-template-columns:repeat(3, 1fr);
+}
+@media (max-width:720px){
+  .exhibition-detail[data-slug="space-time"] .ex-inline-artworks:has(> :nth-child(3)){
+    grid-template-columns:1fr;
+  }
+}
+
+/* Khwampa / Simple Thoughts: lock the three mid-tier sections — inline
+   plate, Explore grid, Details inner — to the same width (1190px,
+   nudged ~8% up from the shared 1100 default for more presence on the
+   explore row). The page reads as a clean three-tier rhythm:
+   hero (~1328px) → mid (1190px) → prose (~720px). */
+.exhibition-detail[data-slug="simple-thoughts"] .ex-inline-artworks:has(> :only-child){
+  max-width:1190px;
+}
+/* The shared <Image> declares width=1200 height=1500 (4:5 portrait) for
+   CLS reservation. That implicit aspect squeezes the 3:1 panorama into
+   a portrait box. Force intrinsic so the file's true 3:1 is honoured. */
+.exhibition-detail[data-slug="simple-thoughts"] .ex-inline-artworks:has(> :only-child) .ex-inline-image img{
+  aspect-ratio:auto;
+}
+.exhibition-detail[data-slug="simple-thoughts"] .ex-explore-inner{
+  max-width:1190px;
+}
+.exhibition-detail[data-slug="simple-thoughts"] .ex-details-inner{
+  max-width:1190px;
 }
 /* The shared <Image> component declares width=1200 height=1500 (4:5
    portrait) for CLS reservation. That HTML-attr default aspect can
@@ -1731,18 +1853,28 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   color:var(--ink);
   max-width:72ch;
   font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
+  /* Browser-side widow avoidance: shifts breaks in the last few lines
+     so a paragraph doesn't end on a single stranded word. Hint not
+     guarantee — awkward viewport widths can still slip one through. */
+  text-wrap:pretty;
 }
 .ex-overview-body em,
 .ex-overview-body i{
   font-family:'Cormorant','Title CJK',serif;font-style:italic;font-weight:400;
   font-size:inherit;color:inherit;
 }
-.ex-description-byline{
+.ex-overview-body p.ex-description-byline{
   font-family:'Cormorant','Title CJK',serif;
   font-weight:400;font-style:italic;font-size:15px;
   letter-spacing:0;line-height:1.4;
   color:var(--ink-muted);
   margin-bottom:4px;
+  /* Override the prose oldstyle numerals (inherited from
+     `.ex-overview-body p`) so artist names starting with a digit —
+     e.g. "1mposter" — read as proper cap-height initials rather
+     than a descender-variant oldstyle "1". Higher specificity
+     here to beat the parent rule's `font-variant-numeric:onum`. */
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
 /* Exhibition facts live as a vertical sidenote in the right margin of
    the editorial column — museum wall-card treatment. Each fact is a
@@ -1934,6 +2066,164 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   .ex-featured-grid{grid-template-columns:1fr;gap:48px;}
 }
 
+/* Artist quote — optional typographic pull-quote between the editorial
+   overview and the rest of the page. Narrow column, Cormorant italic
+   one step larger than body, muted ink. Attribution in Barlow caps
+   with a long em-dash. No top padding — spacing is driven by the
+   preceding .ex-overview's 120px bottom padding. */
+.ex-artist-quote{
+  padding:0 var(--gutter) 120px;
+  background:var(--paper);
+}
+.ex-artist-quote-inner{
+  max-width:560px;margin:0 auto;
+  display:flex;flex-direction:column;gap:20px;
+}
+.ex-artist-quote-body{
+  margin:0;
+  display:flex;flex-direction:column;gap:14px;
+  font-family:'Cormorant','Title CJK',serif;
+  font-weight:400;font-style:italic;
+  font-size:19px;line-height:1.5;letter-spacing:0;
+  color:var(--ink-soft);
+  font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
+  text-wrap:pretty;
+}
+.ex-artist-quote-body p{margin:0;}
+.ex-artist-quote-body em{font-style:italic;font-weight:400;}
+.ex-artist-quote-attribution{
+  font-family:'Barlow',sans-serif;
+  font-weight:500;font-size:10px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--ink-muted);
+  line-height:1;margin:0;
+}
+.ex-artist-quote-attribution::before{content:"— ";}
+
+/* Typewriter-style word reveal — each word is a span that fades in
+   with a small upward nudge, staggered by its global index. Delay is
+   computed in JSX (component keeps a running counter across paragraphs
+   so the stagger doesn't reset at paragraph breaks). The `is-writing`
+   class is applied by the client component when the section enters the
+   viewport via useScrollReveal. */
+.ex-artist-quote-word{
+  display:inline-block;
+  opacity:0;
+  transform:translateY(2px);
+  will-change:opacity, transform;
+}
+.ex-artist-quote.is-writing .ex-artist-quote-word{
+  animation:ex-artist-quote-word-in 480ms ease-out both;
+  animation-delay:calc(var(--idx, 0) * 40ms);
+}
+@keyframes ex-artist-quote-word-in{
+  to{opacity:1;transform:translateY(0);}
+}
+/* Attribution lags just past the final word. JSX sets
+   --attribution-delay based on word count × stagger. */
+.ex-artist-quote-attribution{
+  opacity:0;
+  transition:opacity 560ms ease-out;
+  transition-delay:var(--attribution-delay, 2000ms);
+}
+.ex-artist-quote.is-writing .ex-artist-quote-attribution{opacity:1;}
+@media (prefers-reduced-motion:reduce){
+  .ex-artist-quote-word,
+  .ex-artist-quote-attribution{
+    opacity:1;transform:none;animation:none;transition:none;
+  }
+}
+
+@media (max-width:720px){
+  .ex-artist-quote{padding:0 var(--gutter) 80px;}
+  .ex-artist-quote-body{font-size:18px;line-height:1.5;}
+}
+
+/* Explore — 5 works from the series, structured to mirror the Details
+   section exactly: no top padding (spacing comes from .ex-overview's
+   bottom padding), 1040px inner, header with a hairline rule below.
+   Each cell is a static first-frame poster by default and swaps to the
+   raw animated GIF on hover, restarting from frame 0. */
+.ex-explore{
+  padding:0 var(--gutter) 120px;
+  background:var(--paper);
+}
+.ex-explore-inner{max-width:1100px;margin:0 auto;}
+.ex-explore-head{
+  margin-bottom:48px;
+  padding-bottom:20px;
+  border-bottom:1px solid var(--rule-thin);
+}
+.ex-explore-head-title{
+  font-family:'Barlow',sans-serif;
+  font-weight:500;font-size:11px;letter-spacing:1.5px;
+  line-height:1;text-transform:uppercase;color:var(--ink);
+  margin:0;
+}
+.ex-explore-row{
+  display:grid;grid-template-columns:repeat(5, 1fr);
+  gap:24px;width:100%;
+}
+.ex-explore-item{
+  display:flex;flex-direction:column;gap:14px;
+  color:inherit;text-decoration:none;
+  transition:color 245ms;
+}
+@media (hover:hover){
+  .ex-explore-item:hover{color:var(--ink-hover);}
+}
+.ex-explore-figure{margin:0;display:flex;flex-direction:column;gap:14px;}
+.ex-explore-image{
+  position:relative;aspect-ratio:1;overflow:hidden;
+  background:#000000;
+}
+.ex-explore-image img{
+  width:100%;height:100%;object-fit:contain;display:block;
+}
+/* Pixel-art GIFs: at hero scale we force image-rendering: pixelated so
+   ASCII stays crisp. At thumbnail scale (this row) `pixelated` reads
+   abrasive — full jaggy edges at 200px — while `auto` (bicubic) goes
+   too mushy. `crisp-edges` is the middle: preserves sharpness without
+   nearest-neighbor harshness. */
+.exhibition-detail[data-slug="pictography"] .ex-explore-image img{
+  image-rendering:crisp-edges;
+}
+/* Caption: matches the FeaturedArtworks / editorial register. */
+.ex-explore-caption{
+  font-family:'Cormorant','Title CJK',serif;
+  font-weight:400;font-style:italic;
+  font-size:19px;line-height:1.2;letter-spacing:-0.15px;
+  color:inherit;
+  font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
+}
+.ex-explore-caption em{font-style:italic;font-weight:400;}
+@media (max-width:1100px){
+  .ex-explore-row{grid-template-columns:repeat(3, 1fr);}
+}
+@media (max-width:720px){
+  .ex-explore{padding:0 var(--gutter) 80px;}
+  .ex-explore-head{margin-bottom:32px;}
+  .ex-explore-row{grid-template-columns:repeat(2, 1fr);gap:16px;}
+}
+
+/* Khwampa / Simple Thoughts: 8 non-hero works in a 3-col grid
+   (2 rows of 3 + last row of 2). The works are all 3:1 panoramas,
+   so the image cells use that aspect ratio rather than the default
+   square — prevents a huge letterbox of empty space per thumbnail. */
+.exhibition-detail[data-slug="simple-thoughts"] .ex-explore-row{
+  grid-template-columns:repeat(3, 1fr);
+}
+.exhibition-detail[data-slug="simple-thoughts"] .ex-explore-image{
+  aspect-ratio:3/1;
+}
+.exhibition-detail[data-slug="simple-thoughts"] .ex-explore-image{
+  background:#f5f3ee;
+}
+@media (max-width:720px){
+  .exhibition-detail[data-slug="simple-thoughts"] .ex-explore-row{
+    grid-template-columns:repeat(2, 1fr);
+  }
+}
+
 /* =======================================================================
    EXHIBITION DETAILS — hi-fidelity crops of a single work.
    ======================================================================= */
@@ -1976,10 +2266,6 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   overflow:hidden;
 }
 .ex-detail-link{display:block;text-decoration:none;color:inherit;}
-@media (hover:hover){
-  .ex-detail-link:hover .ex-detail-crop{opacity:0.92;}
-  .ex-detail-crop{transition:opacity 200ms var(--ease-slow);}
-}
 .ex-detail-caption{
   position:absolute;left:10px;bottom:10px;
   font-family:'Barlow',sans-serif;font-weight:400;font-size:10px;letter-spacing:0.5px;
