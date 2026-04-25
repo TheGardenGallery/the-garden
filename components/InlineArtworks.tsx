@@ -83,7 +83,10 @@ function InlineArtworkItem({
       {item.iframe ? (
         <div
           className="ex-inline-iframe"
-          style={{ aspectRatio: String(item.aspectRatio ?? 1) }}
+          style={{
+            aspectRatio: String(item.aspectRatio ?? 1),
+            ["--inline-iframe-aspect" as string]: String(item.aspectRatio ?? 1),
+          }}
         >
           <iframe
             src={item.iframe}

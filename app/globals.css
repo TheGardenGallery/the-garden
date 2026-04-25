@@ -1603,8 +1603,8 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    caption. Keeps the gallery-poster feel and decouples the title
    from the artwork's actual size as the viewport resizes. */
 .ex-hero[data-slug="equinox"] .ex-hero-plate img{
-  max-width:85%;
-  max-height:85%;
+  max-width:95%;
+  max-height:95%;
 }
 /* loackme / SPACE\TIME: square 1:1 GIF with a baked-in white frame.
    At full hero size the work feels oversized for the framing, and the
@@ -1612,8 +1612,8 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    so cap to ~80% of the hero frame for a breathable gallery-plate
    read while still giving the work strong presence. */
 .ex-hero[data-slug="space-time"] .ex-hero-plate img{
-  max-width:80%;
-  max-height:80%;
+  max-width:85%;
+  max-height:85%;
 }
 /* cydr / New-life, to Still-life: bump the solo inline artwork ~21%
    above the global :only-child cap (420px → 510px) so the square
@@ -1646,8 +1646,8 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    room, and pull the title-bar up so its baseline meets the artwork's
    bottom edge instead of floating below at the viewport baseline. */
 .ex-hero[data-slug="new-life-to-still-life"] .ex-hero-plate img{
-  max-width:85%;
-  max-height:85%;
+  max-width:92%;
+  max-height:92%;
 }
 /* Title stays pinned at the canonical bottom-left corner regardless of
    viewport aspect — independent of the centered artwork's actual size.
@@ -1678,6 +1678,13 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    so each gif gets full width to read at scale. */
 .exhibition-detail[data-slug="space-time"] .ex-inline-artworks:has(> :nth-child(3)){
   grid-template-columns:repeat(3, 1fr);
+  max-width:1000px;
+}
+/* loackme / SPACE\TIME: bump the first inline plate (solo #44) ~6%
+   above the global :only-child cap (420px → 445px) so the gif reads
+   slightly larger as the page's opening visual beat. */
+.exhibition-detail[data-slug="space-time"] .ex-inline-artworks:has(> :only-child){
+  max-width:445px;
 }
 @media (max-width:720px){
   .exhibition-detail[data-slug="space-time"] .ex-inline-artworks:has(> :nth-child(3)){
@@ -1828,10 +1835,15 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   display:flex;align-items:center;justify-content:center;
   background:transparent;line-height:0;
 }
-.ex-hero-plate:not(:has(img)):not(:has(video)){
+.ex-hero-plate:not(:has(img)):not(:has(video)):not(:has(iframe)){
   width:auto;height:auto;
   max-width:100%;max-height:100%;
   aspect-ratio:4/5;background:var(--placeholder);
+}
+.ex-hero-plate:has(iframe){
+  /* Establish a size container so the iframe can size against the
+     plate's actual dimensions via cqw/cqh. */
+  container-type:size;
 }
 .ex-hero-plate img,
 .ex-hero-plate .ex-hero-video{
@@ -1840,6 +1852,59 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   width:auto;height:auto;
   object-fit:contain;
   filter:drop-shadow(0 11px 26px rgba(40,35,25,0.075)) drop-shadow(0 2px 5px rgba(40,35,25,0.045));
+}
+/* Live generative artwork hero — pixel-rendered HTML/canvas piece.
+   Iframes have no intrinsic dimensions, so we size the box from the
+   parent plate's container query units: width = min(plate_w, plate_h
+   × aspect), height = min(plate_h, plate_w / aspect). That fits the
+   largest aspect-correct rectangle inside the plate without ever
+   overflowing in either axis. `--hero-iframe-aspect` is set inline
+   from the data; defaults to 1 (square). Background stays transparent
+   so the piece's ground reads against the hero theme color. */
+.ex-hero-plate .ex-hero-iframe{
+  display:block;border:0;background:transparent;
+  --hero-iframe-aspect:1;
+  width:min(100cqw, calc(100cqh * var(--hero-iframe-aspect)));
+  height:min(100cqh, calc(100cqw / var(--hero-iframe-aspect)));
+  filter:drop-shadow(0 11px 26px rgba(40,35,25,0.075)) drop-shadow(0 2px 5px rgba(40,35,25,0.045));
+}
+.ex-hero[data-theme="dark"] .ex-hero-plate .ex-hero-iframe{
+  filter:drop-shadow(0 14px 38px rgba(0,0,0,0.42)) drop-shadow(0 2px 5px rgba(0,0,0,0.26));
+}
+/* VES3L / Solve-Un-Solve: the genart bakes a margin around the puzzle,
+   so even at 100% plate-fill the structure reads a little small. Scale
+   the iframe 6% so the puzzle commands the frame; minor overflow is
+   safely clipped by the hero's `overflow:hidden`. */
+.ex-hero[data-slug="solve-un-solve"] .ex-hero-plate .ex-hero-iframe{
+  transform:scale(1.06);
+}
+/* Refresh affordance for live-iframe heroes. Sits centered under the
+   plate inside the title-clearance zone, so it never overlaps the
+   artwork or the title-bar. Subtle by default, picks up the standard
+   ink-hover token on hover for a quiet gallery-label read. */
+.ex-hero-plate .ex-hero-iframe-refresh{
+  position:absolute;left:50%;bottom:0;
+  transform:translate(-50%, calc(100% + 6px));
+  appearance:none;border:0;background:transparent;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;padding:0;color:var(--ink-whisper);
+  transition:color 0.3s ease-out, transform 0.5s ease-out;
+  transform-origin:center;
+}
+.ex-hero-plate .ex-hero-iframe-refresh svg{display:block;}
+@media (hover:hover){
+  .ex-hero-plate .ex-hero-iframe-refresh:hover{color:var(--ink-hover);}
+  /* Subtle quarter-turn on hover signals what the icon does without
+     spinning the whole thing — keeps the gallery-quiet feel. */
+  .ex-hero-plate .ex-hero-iframe-refresh:hover{
+    transform:translate(-50%, calc(100% + 6px)) rotate(-90deg);
+  }
+}
+/* VES3L inline artworks: bump the only-child plate width above the
+   global 420px cap (now 589px). Iframe aspect is set in the data so
+   the genart fills the canvas without letterboxing. */
+.exhibition-detail[data-slug="solve-un-solve"] .ex-inline-artworks:has(> :only-child){
+  max-width:589px;
 }
 .ex-hero[data-theme="dark"] .ex-hero-plate img{
   filter:drop-shadow(0 14px 38px rgba(0,0,0,0.42)) drop-shadow(0 2px 5px rgba(0,0,0,0.26));
@@ -1940,17 +2005,32 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   transition:color 0.3s ease-out;
 }
 .ex-inline-figure{margin:0;display:flex;flex-direction:column;gap:16px;}
-/* Live-rendered generative artwork (iframe) — aspect-ratio comes
-   from the item data so each cell matches its work's native shape.
-   Align row cells to start so mixed aspects don't stretch. */
+/* VES3L's inline iframes carry a cream margin at the bottom of each
+   plate, so the caption can sit right inside that empty zone instead
+   of stranding 16px below the iframe's edge. Scoped to the slug so
+   other exhibitions (haha-over-time iframes fill edge-to-edge) keep
+   the canonical 16px gap. */
+.exhibition-detail[data-slug="solve-un-solve"] .ex-inline-figure{gap:0;}
+.exhibition-detail[data-slug="solve-un-solve"] .ex-inline-figure .ex-inline-caption{margin-top:-48px;}
+/* Live-rendered generative artwork (iframe) — mirrors the hero's
+   container/canvas logic so inline editions sit on the same plate
+   structure as the lead piece: a size-container wrapper, an iframe
+   sized via cqw/cqh + aspect to fit the largest aspect-correct
+   rectangle inside it, transparent background so the page colour
+   shows through, and the same paper-theme drop-shadow stack used
+   on the hero plate. Aspect-ratio comes from the item data; defaults
+   to 1 (square). */
 .ex-inline-iframe{
   width:100%;
   line-height:0;
-  filter:drop-shadow(0 10px 24px rgba(40,35,25,0.08)) drop-shadow(0 1px 4px rgba(40,35,25,0.05));
+  container-type:size;
 }
 .ex-inline-iframe iframe{
-  width:100%;height:100%;
-  border:0;display:block;background:#fff;
+  --inline-iframe-aspect:1;
+  width:min(100cqw, calc(100cqh * var(--inline-iframe-aspect)));
+  height:min(100cqh, calc(100cqw / var(--inline-iframe-aspect)));
+  border:0;display:block;background:transparent;
+  filter:drop-shadow(0 11px 26px rgba(40,35,25,0.075)) drop-shadow(0 2px 5px rgba(40,35,25,0.045));
 }
 .exhibition-detail[data-slug="haha-over-time"] .ex-inline-artworks:has(iframe){
   align-items:start;

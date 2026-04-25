@@ -480,14 +480,75 @@ export const exhibitions: Exhibition[] = [
     location: "Verse",
     status: "past",
     hero: "/images/ves3l/solve-un-solve-hero.png",
-    heroTheme: "dark",
-    descriptionByArtist: true,
+    heroTheme: "paper",
+    // Live generative work — Verse's S3-hosted genart for edition #75,
+    // proxied through /api/genart/ves3l so we can inject a synthetic
+    // pointer event that kickstarts the puzzle's solve animation
+    // (the genart waits for a click by design, and cross-origin embeds
+    // can't dispatch events into the iframe).
+    heroIframe: "/api/genart/ves3l?payload=eyJoYXNoIjoiMHhhMTYxZTQ1NWVkYTg2YTc3OGM5NzY5YWU5MDNlNGRhOGNhZTBhYjk5ZjFiNGRlYmQxYWNkNTI3YThlZDhlMjdkIiwiZWRpdGlvbk51bWJlciI6NzUsInRvdGFsRWRpdGlvbnMiOjE4OSwiaW5wdXQiOnsiJHVzZXJuYW1lIjoiMHhQaGlpaWwifX0%3D",
+    // Re-roll the artwork's hash on every page load and on every
+    // refresh-button click. Edition #75 is the SSR seed; once the
+    // hero mounts in the browser the payload's hash is replaced with
+    // fresh random bytes so the visitor always sees a unique piece.
+    heroIframeRandomize: true,
     verseSeriesUrl: "https://verse.works/series/solve-un-solve-by-ves3l",
     description: [
-      `It&rsquo;s the toy you played with as a kid. You don&rsquo;t remember who gave it to you&mdash;maybe it was your dad&rsquo;s. You held the block in your hand, rotated the parts randomly and scrambled it into a mess of color. The game was built for logical reasoning but there was no logic in your motions&mdash;you were having fun. Then came the desire to solve it; with the absence of the internet or a guide, you didn&rsquo;t know the algorithm required and it was beyond you to derive it. You could solve one side, maybe two, but never the entire thing; for that you need to know the seemingly random motions&mdash;but actually a calculated algorithm. So the block was left on the shelf in the closet.`,
-      `Then you return to it one day, older and wiser. Now you have the internet and a computer science degree, you go through the motions and put the algorithm into practice. Sometimes you mess up, break the algorithm, and you get frustrated and start over. Suddenly you become like a robot making ever precise movements, and you finally solve it. You put the block down, satisfied and smug, you feel smart even though the solution is well known. You decide never to scramble it again since, to be fair, the solving process wasn&rsquo;t as fun as the un-solving. So it goes back onto the shelf in the closet.`,
-      `Then you return to it one day resolving to make a generative art collection that captures the feeling you had when you solved it and realized your childhood was over.`,
-      `<em>Solve-Un-Solve</em> mirrors the uncleanliness of life. It&rsquo;s a puzzle that creates problems for itself. It&rsquo;s a puzzle that tries to solve itself.`,
+      `We are thrilled to present VES3L&rsquo;s latest long-form series, <em>Solve-Un-Solve</em>. It is the infinite puzzle: an interactive, generative program which challenges the passivity of traditional art and the perfection of historical generative aesthetics. VES3L believes the pinnacle of generative art is a beautiful algorithm, and with <em>Solve-Un-Solve</em> he has created an algorithm that is both visually powerful and incredibly complex, creating structures that can be &lsquo;solved&rsquo; and &lsquo;un-solved&rsquo; in the manner of a Rubik&rsquo;s cube with indefinite variations.`,
+      `The structure of each <em>Solve-Un-Solve</em> artwork begins in a randomised configuration of blocks, which then further scramble before beginning to reconfigure, or &lsquo;solve,&rsquo; themselves into place. Every edition in the collection can be solved from any un-solved state. To achieve a solved state, each side of the structure must become a uniform colour through the rotation of its blocks. The process of configuring blocks is derived from node structures in computer programming. Each node contains a child node which depends on its parent node; any positional change to the parent affects the child. Child blocks can be nested deep within the structure and therefore depend on the states of all of their ancestors (e.g. if a block is translated and rotated, its child block and all other descendants will be translated and rotated as well). Therefore, ancestor blocks must be solved recursively and in the correct order to solve the entire structure.`,
+      `<em>Solve-Un-Solve</em> differs from &lsquo;traditional&rsquo; art in many ways. It is interactive, it presents a challenge rather than merely an object for appreciation and contemplation, and it introduces an extra dimension: time. It takes time to solve a puzzle; you can&rsquo;t appreciate it with a cursory glance, you must sit with it, become familiar with it. By creating a dual artwork-puzzle as his latest generative series, VES3L raises important questions about human psychology.`,
+      `When you explore a puzzle it can be fun, but when you set your mind to solving it, it often becomes frustrating. A Rubik&rsquo;s cube can be solved in more ways than one, but there&rsquo;s always a way to do it &mdash; and that can haunt the untrained novice. <em>Solve-Un-Solve</em> gives you the option to become either the puzzle&rsquo;s protagonist, or an observer. You can interact with each output and view it from different spatial dimensions as if you&rsquo;re holding the Rubik&rsquo;s cube in your hands &mdash; viewing it from all sides before trying to tackle it &mdash; or you can surrender agency to the artwork itself, allowing it to solve, and un-solve, itself before your eyes.`,
+      `Traditionally, art has been a consumptive pursuit for viewers. All it requires from us is our attention, our reaction. <em>Solve-Un-Solve</em> presents us with a choice: will we also give it our action, our effort, our time? And are we willing and ready to upset the perfection of its solved state?`,
+      `When you go to a museum you can view a painting or sculpture, but with generative artworks like <em>Solve-Un-Solve</em>, there is an element of control. The viewer can choose to retain or relinquish their agency. The risk is the loss of the mystery, but the reward is the satisfaction of the moment when the pieces fall into place.`,
+      `Antithetical to the pursuit of perfection found in Renaissance artworks such as da Vinci&rsquo;s <em>Vitruvian Man</em>, generative art is composed of perfect elements by default. A computer can draw a circle perfectly every time. Perfection is no longer the artistic apogee of the generative artist; rather, a great challenge in generative art is capturing the randomness that defines the aesthetic qualities of our physical reality. Humans inherently enjoy imperfection because we are imperfect (perfection in imperfection, if you ask VES3L). Generative art can be very geometric and polished, but VES3L was drawn to a more sketchy, expressionist aesthetic. The artworks have an almost stop-motion or flip-book quality &mdash; a self-described &lsquo;uncleanliness.&rsquo;`,
+      `The shifting of the corner vertices and the off-axis rotation of the blocks, the lines in the foreground, the fading opacity of the blocks &mdash; each of these factors contributes to a level of imperfection that adds a drawn-like warmth, creating a physical/digital visual duality reminiscent of pen plotters, dither patterns, and dot matrices the likes of which were used in the earliest iterations of generative art by artists such as Vera Moln&aacute;r and Harold Cohen.`,
+    ],
+    // Three locked editions punctuating the prose every two paragraphs.
+    // Each iframe goes through the same /api/genart/ves3l proxy as the
+    // hero, but with `lock=1` so Math.random is seeded from the payload's
+    // hash and the variation reads identically across reloads — these
+    // function as fixed "specimens" of the series, where the hero is
+    // the open-ended demonstrator that re-rolls on every visit.
+    inlineArtworks: [
+      {
+        afterParagraphIndex: 1,
+        items: [
+          {
+            image: "",
+            alt: "VES3L, Solve-Un-Solve #166",
+            title: "Solve-Un-Solve #166",
+            iframe: "/api/genart/ves3l?payload=eyJoYXNoIjoiMHg3ZWQ3Njk2NTY4N2RhMTc5MDU2MzM5MmFjZTI2OWI2N2NiM2EyYjc3MmM3MmQ4ZDRhYWE0NmY4ZDUzMjI1ODUxIiwiZWRpdGlvbk51bWJlciI6MTY2LCJ0b3RhbEVkaXRpb25zIjoxODksImlucHV0Ijp7IiR1c2VybmFtZSI6ImNoZW44ODEyIn19&lock=1",
+            verseUrl: "https://verse.works/items/ethereum/0x1cA2dc07129916F4dDB542bB6124CFa442f40Bb1/2258695220",
+            aspectRatio: 1,
+          },
+        ],
+      },
+      {
+        afterParagraphIndex: 3,
+        items: [
+          {
+            image: "",
+            alt: "VES3L, Solve-Un-Solve #165",
+            title: "Solve-Un-Solve #165",
+            iframe: "/api/genart/ves3l?payload=eyJoYXNoIjoiMHhkN2U5Y2JlMjI4YzM0YWE1NjdjYTIzZTAyMGJmYTc3MjgxNzNiOWY0MTNlYTZjNzU0OTZiYWE3NTYyMDFkMzc4IiwiZWRpdGlvbk51bWJlciI6MTY1LCJ0b3RhbEVkaXRpb25zIjoxODksImlucHV0Ijp7IiR1c2VybmFtZSI6ImNoZW44ODEyIn19&lock=1",
+            verseUrl: "https://verse.works/items/ethereum/0x1cA2dc07129916F4dDB542bB6124CFa442f40Bb1/2181900128",
+            aspectRatio: 1,
+          },
+        ],
+      },
+      {
+        afterParagraphIndex: 5,
+        items: [
+          {
+            image: "",
+            alt: "VES3L, Solve-Un-Solve #173",
+            title: "Solve-Un-Solve #173",
+            iframe: "/api/genart/ves3l?payload=eyJoYXNoIjoiMHhlMGM1YzUyZThmM2QyN2IxOTVhZmQ0ZDBmODc2YWQ0OWY4NzAxN2JiNmJhYzYzN2Y1YmEyNGU2ODM5N2YzNzdlIiwiZWRpdGlvbk51bWJlciI6MTczLCJ0b3RhbEVkaXRpb25zIjoxODksImlucHV0Ijp7IiR1c2VybmFtZSI6ImNoZW44ODEyIn19&lock=1",
+            verseUrl: "https://verse.works/items/ethereum/0x1cA2dc07129916F4dDB542bB6124CFa442f40Bb1/3438601325",
+            aspectRatio: 1,
+          },
+        ],
+      },
     ],
   },
   {
@@ -973,9 +1034,9 @@ export const exhibitions: Exhibition[] = [
         // left through this band: upper slash → branching edge →
         // figure's shoulder. Same edge quality, same scale, same
         // neighbourhood — three frames of one sustained mark.
-        { id: "upper-slash",     x: 62, y: 33, zoom: 2.6 },
-        { id: "branching-edge",  x: 78, y: 47, zoom: 2.6 },
-        { id: "figure-shoulder", x: 58, y: 61, zoom: 2.6 },
+        { id: "upper-slash",     x: 62, y: 33, zoom: 2.5 },
+        { id: "branching-edge",  x: 78, y: 47, zoom: 2.5 },
+        { id: "figure-shoulder", x: 58, y: 61, zoom: 2.5 },
       ],
     },
     description: [

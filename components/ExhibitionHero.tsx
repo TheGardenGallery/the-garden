@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { Exhibition } from "@/lib/types";
+import { HeroIframeMedia } from "./HeroIframeMedia";
 
 /**
  * Full-viewport exhibition hero. Mirrors the homepage hero so clicking a
@@ -42,7 +43,14 @@ function HeroMedia({ exhibition }: { exhibition: Exhibition }) {
   const transitionStyle = {
     viewTransitionName: `ex-hero-${exhibition.slug}`,
   };
-  const media = exhibition.heroVideo ? (
+  const media = exhibition.heroIframe ? (
+    <HeroIframeMedia
+      src={exhibition.heroIframe}
+      title={label}
+      aspect={exhibition.heroIframeAspect}
+      randomize={exhibition.heroIframeRandomize}
+    />
+  ) : exhibition.heroVideo ? (
     <video
       className="ex-hero-video"
       src={exhibition.heroVideo}
@@ -67,7 +75,9 @@ function HeroMedia({ exhibition }: { exhibition: Exhibition }) {
 
   if (!media) return <figure className="ex-hero-plate" style={transitionStyle} />;
 
-  if (exhibition.verseSeriesUrl) {
+  // Live iframes must stay interactive, so don't wrap them in an
+  // anchor — the artwork itself accepts mouse/keyboard input.
+  if (exhibition.verseSeriesUrl && !exhibition.heroIframe) {
     return (
       <a
         className="ex-hero-plate"
