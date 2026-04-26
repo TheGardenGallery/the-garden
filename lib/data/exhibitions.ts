@@ -461,7 +461,7 @@ export const exhibitions: Exhibition[] = [
     date: "March 2024",
     location: "Verse",
     status: "past",
-    hero: "/images/t-k-z/isle-of-alcina-hero.png",
+    hero: "/images/t-k-z/isle-of-alcina-hero.jpg",
     descriptionByArtist: true,
     description: [
       `In the labyrinthine corridors of imagination, the <em>Isle of Alcina</em> collection stands as a testament to the beguiling interplay between enchantment and peril. Each piece is a portal into the sorceress&rsquo;s dominion, where the verdant allure of eternal spring veils the capricious whims of its mistress.`,
@@ -472,12 +472,12 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 0,
         items: [
           {
-            image: "/images/t-k-z/isle-of-alcina-inline-1.png",
+            image: "/images/t-k-z/isle-of-alcina-inline-1.jpg",
             alt: "Tù.úk'z, Isle of Alcina",
             title: "Isle of Alcina",
           },
           {
-            image: "/images/t-k-z/isle-of-alcina-inline-2.png",
+            image: "/images/t-k-z/isle-of-alcina-inline-2.jpg",
             alt: "Tù.úk'z, Isle of Alcina",
             title: "Isle of Alcina",
           },
