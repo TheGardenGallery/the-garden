@@ -1,9 +1,15 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import type { Artist } from "@/lib/types";
 import { PlotCell } from "./PlotCell";
+import { ArtistHoverPreview } from "./ArtistHoverPreview";
+import {
+  getArtistPreviewImage,
+  getIframePreloadResources,
+  optimizeImageSrc,
+} from "@/lib/artist-preview";
 import { EASE_SLOW } from "@/lib/motion";
 
 type PlotGridProps = {
@@ -69,18 +75,106 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
   const [hoverCol, setHoverCol] = useState<number | null>(null);
   const [hoverRow, setHoverRow] = useState<string | null>(null);
   const [hoverCellKey, setHoverCellKey] = useState<string | null>(null);
+  const [hoverArtist, setHoverArtist] = useState<Artist | null>(null);
+  const [cursor, setCursor] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  const handleEnter = (row: string, col: number) => {
+  const handleEnter = (row: string, col: number, artist?: Artist) => {
     setHoverCol(col);
     setHoverRow(row);
     setHoverCellKey(`${row}-${col}`);
+    if (artist) setHoverArtist(artist);
   };
 
   const handleLeave = () => {
     setHoverCol(null);
     setHoverRow(null);
     setHoverCellKey(null);
+    setHoverArtist(null);
   };
+
+  const handleMove = (e: React.MouseEvent) => {
+    setCursor({ x: e.clientX, y: e.clientY });
+  };
+
+  const preview = hoverArtist ? getArtistPreviewImage(hoverArtist.slug) : null;
+  const previewSrc = preview
+    ? preview.type === "image"
+      ? optimizeImageSrc(preview.src)
+      : preview.src
+    : null;
+  const previewPoster = preview?.poster ? optimizeImageSrc(preview.poster) : undefined;
+  const previewType = preview?.type ?? "image";
+
+  // Preload every artist's preview image on mount so the first hover
+  // never has to wait for a network round-trip. Browser caches the
+  // bytes; the hover preview just reads from cache.
+  useEffect(() => {
+    const seen = new Set<string>();
+    const loaders: HTMLImageElement[] = [];
+    const videoLoaders: HTMLVideoElement[] = [];
+    const kick = () => {
+      for (const a of artists) {
+        const raw = getArtistPreviewImage(a.slug);
+        if (!raw) continue;
+        if (raw.type === "iframe") {
+          // Warm the proxy HTML response + each known sub-resource
+          // (script.js / style.css) so the first hover doesn't pay
+          // for the full fetch chain. `no-cors` returns an opaque
+          // body — fine, we only need the bytes in the HTTP cache.
+          if (!seen.has(raw.src)) {
+            seen.add(raw.src);
+            fetch(raw.src).catch(() => {});
+          }
+          for (const url of getIframePreloadResources(a.slug)) {
+            if (seen.has(url)) continue;
+            seen.add(url);
+            fetch(url, { mode: "no-cors" }).catch(() => {});
+          }
+          continue;
+        }
+        if (raw.type === "video") {
+          // Hint browser to start fetching the video bytes so first
+          // hover doesn't block on metadata.
+          if (seen.has(raw.src)) continue;
+          seen.add(raw.src);
+          const v = document.createElement("video");
+          v.src = raw.src;
+          v.preload = "auto";
+          v.muted = true;
+          videoLoaders.push(v);
+          // Also preload the poster so the slot doesn't flash black
+          // before video bytes arrive.
+          if (raw.poster && !seen.has(raw.poster)) {
+            seen.add(raw.poster);
+            const pi = new window.Image();
+            pi.decoding = "async";
+            pi.src = optimizeImageSrc(raw.poster);
+            loaders.push(pi);
+          }
+          continue;
+        }
+        // Image: preload the same optimised URL the preview will use.
+        const src = optimizeImageSrc(raw.src);
+        if (seen.has(src)) continue;
+        seen.add(src);
+        const img = new window.Image();
+        img.decoding = "async";
+        img.src = src;
+        loaders.push(img);
+      }
+    };
+    // Defer to idle so preloads don't compete with first-paint.
+    const ric = (window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback;
+    const cic = (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback;
+    let handle: number;
+    if (ric) handle = ric(kick, { timeout: 1500 });
+    else handle = window.setTimeout(kick, 400);
+    return () => {
+      if (ric && cic) cic(handle);
+      else window.clearTimeout(handle);
+      loaders.forEach((i) => (i.onload = null));
+    };
+  }, [artists]);
 
   const rowVariants = {
     hidden: reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 },
@@ -92,7 +186,16 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
   };
 
   return (
-    <section className="plot-wrap">
+    <section className="plot-wrap" onMouseMove={handleMove}>
+      <ArtistHoverPreview
+        src={previewSrc}
+        type={previewType}
+        poster={previewPoster}
+        aspectHint={preview?.aspect}
+        visible={Boolean(hoverArtist && previewSrc)}
+        cursorX={cursor.x}
+        cursorY={cursor.y}
+      />
       <div className="plot-top">
         <div className="plot-origin">x,y</div>
         <div className="plot-top-cells">

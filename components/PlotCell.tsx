@@ -7,7 +7,7 @@ type PlotCellProps = {
   artist?: Artist;
   isColActive?: boolean;
   isCellActive?: boolean;
-  onEnter?: (row: string, col: number) => void;
+  onEnter?: (row: string, col: number, artist?: Artist) => void;
   onLeave?: () => void;
 };
 
@@ -49,7 +49,7 @@ export function PlotCell({
       data-col={col}
       data-row={row}
       aria-label={artist.name}
-      onMouseEnter={() => onEnter?.(row, col)}
+      onMouseEnter={() => onEnter?.(row, col, artist)}
       onMouseLeave={onLeave}
     >
       <span className="artist-coord" aria-hidden="true">

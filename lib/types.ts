@@ -56,6 +56,7 @@ export type Exhibition = {
   heroIframe?: string;           // if set, the detail hero renders this live generative artwork iframe instead of the hero image/video. Use Verse's S3 genart URL.
   heroIframeAspect?: string;     // aspect ratio for the heroIframe slot, e.g. "1" (default), "4/5"
   heroIframeRandomize?: boolean; // when true, the client replaces the payload's `hash` field with a fresh 64-char hex value on every mount, so the genart re-rolls visibly on every page load (most generative bundles are hash-deterministic — bumping just a cache-buster won't visibly change the output).
+  heroVerseUrl?: string;         // override for the hero plate's outbound link; falls back to `verseSeriesUrl`. Use when the hero presents a single specific work distinct from the series page.
   homepageHero?: string;         // used on homepage hero — may differ from detail hero
   heroTheme?: "dark" | "paper";  // hero backdrop — cream for light-surface pieces, dark for digital
   frameColor?: string;           // background of the exhibitions-list image frame, matched to the artwork's palette

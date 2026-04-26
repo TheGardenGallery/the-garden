@@ -77,15 +77,19 @@ function HeroMedia({ exhibition }: { exhibition: Exhibition }) {
 
   // Live iframes must stay interactive, so don't wrap them in an
   // anchor — the artwork itself accepts mouse/keyboard input.
-  if (exhibition.verseSeriesUrl && !exhibition.heroIframe) {
+  const heroHref = exhibition.heroVerseUrl ?? exhibition.verseSeriesUrl;
+  if (heroHref && !exhibition.heroIframe) {
+    const heroLabel = exhibition.heroVerseUrl
+      ? `View this work on Verse`
+      : `View ${exhibition.title} series on Verse`;
     return (
       <a
         className="ex-hero-plate"
         style={transitionStyle}
-        href={exhibition.verseSeriesUrl}
+        href={heroHref}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`View ${exhibition.title} series on Verse`}
+        aria-label={heroLabel}
       >
         {media}
       </a>

@@ -111,7 +111,15 @@
 
 /* ---- RESET ---------------------------------------------------------- */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-html{font-size:16px;-webkit-font-smoothing:antialiased;scroll-behavior:smooth;}
+html{font-size:16px;-webkit-font-smoothing:antialiased;scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:gray transparent;}
+/* WebKit fallback for older Safari/Chrome that don't honour the
+   modern `scrollbar-width` / `scrollbar-color` properties. Matches the
+   thin gray-on-transparent look declared above. */
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background-color:gray;border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background-color:#555;}
+::-webkit-scrollbar-corner{background:transparent;}
 
 /* ---- TYPOGRAPHY POLISH ---------------------------------------------- */
 /* Editorial OpenType features applied broadly, with per-class overrides
@@ -1107,6 +1115,74 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   --col-tint:rgba(22,20,16,0.028);
   --row-tint:rgba(22,20,16,0.03);
   --cell-tint:rgba(22,20,16,0.043);
+  position:relative;
+}
+
+/* Floating preview beside the cursor while an artist name is hovered.
+   The OUTER `.artist-hover-preview` owns positioning (transform set
+   inline from JS, which already does the edge-aware clamping so the
+   image never clips outside the viewport). The INNER slider owns the
+   enter/exit fade + horizontal slide independently, so cursor tracking
+   never fights the FX timing. Pointer-events off on every descendant
+   so it can't intercept hovers from the cells underneath. */
+.artist-hover-preview{
+  position:fixed;
+  left:0;top:0;
+  z-index:60;
+  filter:drop-shadow(0 18px 38px rgba(40,35,25,0.116)) drop-shadow(0 4px 10px rgba(40,35,25,0.065));
+  /* No transition on the position — must follow the cursor instantly. */
+}
+.artist-hover-preview,
+.artist-hover-preview *{
+  pointer-events:none !important;
+}
+/* Dissolve — opacity + scale + blur ease together so the image
+   resolves out of soft focus into clean edges, rather than sliding.
+   Same easing on all three so they feel like a single motion. */
+.artist-hover-preview-slide{
+  opacity:0;
+  transform:scale(0.94);
+  filter:blur(10px);
+  /* Exit — quick exponential acceleration. */
+  transition:
+    opacity 0.32s cubic-bezier(0.7, 0, 0.84, 0),
+    transform 0.32s cubic-bezier(0.7, 0, 0.84, 0),
+    filter 0.32s cubic-bezier(0.7, 0, 0.84, 0);
+}
+.artist-hover-preview[data-visible] .artist-hover-preview-slide{
+  opacity:1;
+  transform:scale(1);
+  filter:blur(0);
+  /* Enter — exponential ease-out at 0.754s. */
+  transition:
+    opacity 0.754s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.754s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.754s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.artist-hover-preview img,
+.artist-hover-preview video{
+  display:block;
+  width:auto;height:auto;
+  /* `--preview-max-w` / `--preview-max-h` are set inline from React
+     based on the asset's natural aspect bucket (similar shapes read
+     at similar size). Both fall back to 440 if no bucket has been
+     resolved yet (image not loaded). */
+  max-width:var(--preview-max-w, 440px) !important;
+  max-height:var(--preview-max-h, 440px) !important;
+  object-fit:contain;
+  background:var(--paper, #fff);
+}
+/* Iframes have no intrinsic dims, so size them explicitly from the
+   same bucket variables. Square bucket by default (set in component
+   for iframe type). */
+.artist-hover-preview iframe{
+  display:block;border:0;
+  width:var(--preview-max-w, 440px);
+  height:var(--preview-max-h, 440px);
+  background:var(--paper, #fff);
+}
+@media (hover:none){
+  .artist-hover-preview{display:none;}
 }
 
 .plot-top-cells,.plot-row-cells{
@@ -1736,6 +1812,13 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .ex-hero[data-slug="constraint"] .ex-hero-plate img{
   max-height:75%;
 }
+/* Spøgelsesmaskinen / Glitch Garden: 1:1 GIF; cap at 88% so the
+   square palm composition reads at gallery scale without crowding
+   the title bar. */
+.ex-hero[data-slug="glitch-garden"] .ex-hero-plate img{
+  max-width:88%;
+  max-height:88%;
+}
 .ex-hero[data-slug="the-flood"] .ex-hero-plate .ex-hero-video{
   height:100%;width:auto;
   max-width:100%;
@@ -1888,16 +1971,43 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   appearance:none;border:0;background:transparent;cursor:pointer;
   display:inline-flex;align-items:center;justify-content:center;
   width:28px;height:28px;padding:0;color:var(--ink-whisper);
-  transition:color 0.3s ease-out, transform 0.5s ease-out;
-  transform-origin:center;
+  transition:color 0.3s ease-out;
 }
 .ex-hero-plate .ex-hero-iframe-refresh svg{display:block;}
 @media (hover:hover){
-  .ex-hero-plate .ex-hero-iframe-refresh:hover{color:var(--ink-hover);}
-  /* Subtle quarter-turn on hover signals what the icon does without
-     spinning the whole thing — keeps the gallery-quiet feel. */
-  .ex-hero-plate .ex-hero-iframe-refresh:hover{
-    transform:translate(-50%, calc(100% + 6px)) rotate(-90deg);
+  .ex-hero-plate .ex-hero-iframe-refresh:hover{color:var(--ink);}
+}
+/* VES3L: pillowy circular treatment for the refresh affordance —
+   translucent surface with a faint vertical gradient, soft outer
+   shadow, and a hairline top highlight so the button reads as a
+   subtle physical surface against the page. */
+.exhibition-detail[data-slug="solve-un-solve"] .ex-hero-plate .ex-hero-iframe-refresh{
+  width:34px;height:34px;
+  transform:translate(-50%, calc(100% - 4px));
+  background:linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.30) 100%);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  border-radius:50%;
+  color:var(--ink-soft);
+  box-shadow:
+    0 3px 8px rgba(0,0,0,0.06),
+    0 1px 2px rgba(0,0,0,0.04),
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    inset 0 -1px 1px rgba(0,0,0,0.03);
+  transition:color 0.3s ease-out, box-shadow 0.3s ease-out, background 0.3s ease-out;
+}
+.exhibition-detail[data-slug="solve-un-solve"] .ex-hero-plate .ex-hero-iframe-refresh svg{
+  width:14px;height:14px;
+}
+@media (hover:hover){
+  .exhibition-detail[data-slug="solve-un-solve"] .ex-hero-plate .ex-hero-iframe-refresh:hover{
+    color:var(--ink);
+    background:linear-gradient(180deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.45) 100%);
+    box-shadow:
+      0 4px 10px rgba(0,0,0,0.08),
+      0 1px 3px rgba(0,0,0,0.05),
+      inset 0 1px 0 rgba(255,255,255,0.85),
+      inset 0 -1px 1px rgba(0,0,0,0.03);
   }
 }
 /* VES3L inline artworks: bump the only-child plate width above the
@@ -1916,9 +2026,17 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 }
 .ex-overview-body{
   display:flex;flex-direction:column;gap:18px;
-  width:100%;max-width:68ch;margin:0 auto;
+  width:100%;
+  /* Cap the centered column so its right edge never reaches the
+     absolute facts sidenote. The 440px reserve keeps a clear gap on
+     either side of the body for the ~200px-wide facts column. */
+  max-width:min(68ch, calc(100% - 440px));
+  margin:0 auto;
   font-family:'Cormorant','Title CJK',serif;font-weight:400;
   font-size:19px;line-height:1.6;color:var(--ink-soft);
+}
+@media (max-width:1000px){
+  .ex-overview-body{max-width:68ch;}
 }
 .ex-overview-body p{
   font-family:'Cormorant','Title CJK',serif;
@@ -2059,6 +2177,34 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .ex-inline-media video{
   max-width:100%;max-height:100%;width:auto;height:auto;
   object-fit:contain;display:block;
+}
+/* Diakur / Making an Egg with Hands: 1920×1920 square videos. Mirror
+   Verse's presentation by dissolving the grey plate into the page and
+   giving the video its own soft drop-shadow so it reads as a print
+   resting on the page rather than stuck inside a matte. */
+.exhibition-detail[data-slug="making-an-egg"] .ex-inline-plate{
+  aspect-ratio:1;
+  background:transparent;
+  padding:0;
+}
+.exhibition-detail[data-slug="making-an-egg"] .ex-inline-media video{
+  /* Layer a tight ambient pass with a soft mid-falloff and a wide
+     ambient halo so the edges dissolve into the page instead of
+     reading as a hard-cut rectangle. Corners stay sharp. */
+  filter:drop-shadow(0 1px 2px rgba(40,35,25,0.05))
+         drop-shadow(0 8px 22px rgba(40,35,25,0.07))
+         drop-shadow(0 22px 44px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="making-an-egg"] .ex-inline-artworks:has(> :only-child){
+  max-width:448px;
+}
+/* The hero video has a thin black sliver baked into its bottom edge.
+   Slight overscale anchored to the top pushes that sliver below the
+   visible frame, where .ex-hero's overflow:hidden clips it. */
+.ex-hero[data-slug="making-an-egg"] .ex-hero-plate .ex-hero-video{
+  /* Clip the thin black slivers baked into the video's bottom and
+     right edges. */
+  clip-path:inset(0 0.2% 1.5% 0);
 }
 /* Yoshi / The Flood: size the inline Orchestrated block to match the
    hero video exactly. Hero frame height = 100vh - nav - 64px top - 64px
@@ -2524,14 +2670,19 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   .ex-colophon-inner{grid-template-columns:1fr;gap:48px;}
   .works-listing{grid-template-columns:repeat(2,1fr);gap:48px 24px;}
 }
-@media (max-width:720px){
-  .ex-title-bar{left:24px;bottom:24px;}
+/* Below 1000px the centered prose column has no headroom for the
+   absolute facts sidenote without overlap, so collapse facts to a
+   horizontal row above the prose. */
+@media (max-width:1000px){
   .ex-facts{
     position:static;
     flex-direction:row;flex-wrap:wrap;gap:20px;
     max-width:none;padding-left:0;border-left:0;
     margin:0 auto 32px;width:100%;max-width:68ch;
   }
+}
+@media (max-width:720px){
+  .ex-title-bar{left:24px;bottom:24px;}
   .ex-fact{flex-direction:row;gap:8px;align-items:baseline;}
   .ex-fact-label{font-size:9px;letter-spacing:1.4px;}
   .ex-fact-value{font-size:15px;}
