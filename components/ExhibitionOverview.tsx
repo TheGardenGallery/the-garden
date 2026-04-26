@@ -48,7 +48,7 @@ function OverviewSegments({ exhibition }: { exhibition: Exhibition }) {
   const breaks = (exhibition.inlineArtworks ?? [])
     .filter(
       (b) =>
-        b.afterParagraphIndex >= 0 && b.afterParagraphIndex < paragraphs.length - 1
+        b.afterParagraphIndex >= 0 && b.afterParagraphIndex < paragraphs.length
     )
     .sort((a, b) => a.afterParagraphIndex - b.afterParagraphIndex);
 

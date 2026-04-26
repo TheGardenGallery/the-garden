@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import type { Artist } from "@/lib/types";
 import { PlotCell } from "./PlotCell";
 import { ArtistHoverPreview } from "./ArtistHoverPreview";
+import { PersistentIframePreview } from "./PersistentIframePreview";
 import {
   getArtistPreviewImage,
   getIframePreloadResources,
@@ -97,13 +98,40 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
   };
 
   const preview = hoverArtist ? getArtistPreviewImage(hoverArtist.slug) : null;
-  const previewSrc = preview
-    ? preview.type === "image"
-      ? optimizeImageSrc(preview.src)
-      : preview.src
-    : null;
+  // Iframe-type previews are handled by PersistentIframePreview
+  // (mounted on page load, revealed on hover) — null out the src
+  // here so ArtistHoverPreview doesn't try to render its own iframe
+  // on top of the persistent one.
+  const isIframeHover = preview?.type === "iframe";
+  const previewSrc =
+    preview && !isIframeHover
+      ? preview.type === "image"
+        ? optimizeImageSrc(preview.src)
+        : preview.src
+      : null;
   const previewPoster = preview?.poster ? optimizeImageSrc(preview.poster) : undefined;
   const previewType = preview?.type ?? "image";
+
+  // List of all iframe-type previews. Computed once from the artists
+  // list and rendered as persistent (always-mounted) iframes — first
+  // paint happens within seconds of page load, so hovering the
+  // matching artist later just reveals an already-painted canvas
+  // instead of waiting on a fresh bundle parse.
+  const iframePreviews = useMemo(() => {
+    const out: {
+      slug: string;
+      src: string;
+      aspect?: number;
+      sizeScale?: number;
+    }[] = [];
+    for (const a of artists) {
+      const p = getArtistPreviewImage(a.slug);
+      if (p?.type === "iframe") {
+        out.push({ slug: a.slug, src: p.src, aspect: p.aspect, sizeScale: p.sizeScale });
+      }
+    }
+    return out;
+  }, [artists]);
 
   // Preload every artist's preview image on mount so the first hover
   // never has to wait for a network round-trip. Browser caches the
@@ -121,6 +149,9 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
           // (script.js / style.css) so the first hover doesn't pay
           // for the full fetch chain. `no-cors` returns an opaque
           // body — fine, we only need the bytes in the HTTP cache.
+          // The fetch handles HTTP cache; the offscreen <iframe>
+          // mounted below this effect handles V8 bytecode cache by
+          // actually executing the bundle once before any hover.
           if (!seen.has(raw.src)) {
             seen.add(raw.src);
             fetch(raw.src).catch(() => {});
@@ -187,11 +218,23 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
 
   return (
     <section className="plot-wrap" onMouseMove={handleMove}>
+      {iframePreviews.map((p) => (
+        <PersistentIframePreview
+          key={p.slug}
+          src={p.src}
+          aspectHint={p.aspect}
+          sizeScale={p.sizeScale}
+          visible={hoverArtist?.slug === p.slug}
+          cursorX={cursor.x}
+          cursorY={cursor.y}
+        />
+      ))}
       <ArtistHoverPreview
         src={previewSrc}
         type={previewType}
         poster={previewPoster}
         aspectHint={preview?.aspect}
+        sizeScale={preview?.sizeScale}
         visible={Boolean(hoverArtist && previewSrc)}
         cursorX={cursor.x}
         cursorY={cursor.y}

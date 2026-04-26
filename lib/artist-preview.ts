@@ -26,7 +26,17 @@ const PREVIEW_OVERRIDES: Record<string, string> = {
   // synthetic-pointer kickstart so it autoplays.
   itsgalo:
     "/api/genart/itsgalo?payload=eyJoYXNoIjoiMHg1ZTllYmY1Y2NlMDZlMWRiMmM4M2JiZmU1MDU4OTlhMjY4ODEzMjQwMmNhMWMxZmVlNDg5MTliMTEzMmU1ZjhjIiwiZWRpdGlvbk51bWJlciI6MzQsInRvdGFsRWRpdGlvbnMiOjY1LCJpbnB1dCI6eyIkdXNlcm5hbWUiOiJoYW5uYWgyMTA2In19",
-  // "ves3l": "/images/ves3l/solve-un-solve-hero.png",
+  // VES3L: locked iframe of Solve-Un-Solve #173 — same series as the
+  // exhibition hero, but a different edition so the preview reads as
+  // a distinct specimen instead of a duplicate of the hero artwork.
+  // `fit=1` zeros the bundle's body padding so the cream canvas fills
+  // the iframe edge-to-edge (otherwise white strips letterbox the art).
+  ves3l:
+    "/api/genart/ves3l?payload=eyJoYXNoIjoiMHhlMGM1YzUyZThmM2QyN2IxOTVhZmQ0ZDBmODc2YWQ0OWY4NzAxN2JiNmJhYzYzN2Y1YmEyNGU2ODM5N2YzNzdlIiwiZWRpdGlvbk51bWJlciI6MTczLCJ0b3RhbEVkaXRpb25zIjoxODksImlucHV0Ijp7IiR1c2VybmFtZSI6ImNoZW44ODEyIn19&lock=1&fit=1",
+  // Spøgelsesmaskinen: pin to "Betula lenta - Sweet Birch" from
+  // Glitch Garden so the hover surfaces a specific edition rather
+  // than the series hero.
+  "sp-gelsesmaskinen": "/images/sp-gelsesmaskinen/glitch-garden-sweet-birch.gif",
 };
 
 
@@ -56,6 +66,10 @@ export type ArtistPreview = {
       artwork's actual composition (no whitespace). Images and videos
       derive aspect from the loaded asset and ignore this. */
   aspect?: number;
+  /** Multiplier applied to the bucket's (w, h) dims so a specific
+      artist's preview can read larger or smaller than the global
+      sizing — preserves the bucket's relative shape. */
+  sizeScale?: number;
 };
 
 /**
@@ -68,6 +82,16 @@ export type ArtistPreview = {
  */
 const IFRAME_ASPECTS: Record<string, number> = {
   itsgalo: 0.7,
+  ves3l: 1.2,
+};
+
+/**
+ * Per-artist multiplier on the hover-preview's bucket dims. >1 makes
+ * the preview read bigger; <1 makes it smaller. Use sparingly — most
+ * previews should fall through to the default bucket sizing.
+ */
+const PREVIEW_SIZE_SCALES: Record<string, number> = {
+  khwampa: 1.2,
 };
 
 /**
@@ -124,6 +148,7 @@ export function optimizeImageSrc(
  * in the preview: cardVideo → heroVideo → cardImage → hero.
  */
 export function getArtistPreviewImage(artistSlug: string): ArtistPreview | null {
+  const sizeScale = PREVIEW_SIZE_SCALES[artistSlug];
   const override = PREVIEW_OVERRIDES[artistSlug];
   if (override) {
     const type = detectType(override);
@@ -131,6 +156,7 @@ export function getArtistPreviewImage(artistSlug: string): ArtistPreview | null 
       src: override,
       type,
       aspect: type === "iframe" ? IFRAME_ASPECTS[artistSlug] : undefined,
+      sizeScale,
     };
   }
 
@@ -146,16 +172,17 @@ export function getArtistPreviewImage(artistSlug: string): ArtistPreview | null 
   // Videos first so motion pieces play in the preview; corresponding
   // poster image (if any) carries through for the video tag.
   if (recent.cardVideo) {
-    return { src: recent.cardVideo, type: "video", poster: recent.cardImage ?? recent.hero };
+    return { src: recent.cardVideo, type: "video", poster: recent.cardImage ?? recent.hero, sizeScale };
   }
   if (recent.heroVideo) {
     return {
       src: recent.heroVideo,
       type: "video",
       poster: recent.heroVideoPoster ?? recent.hero,
+      sizeScale,
     };
   }
   const stillSrc = recent.cardImage ?? recent.hero;
   if (!stillSrc) return null;
-  return { src: stillSrc, type: "image" };
+  return { src: stillSrc, type: "image", sizeScale };
 }

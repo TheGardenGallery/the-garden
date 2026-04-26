@@ -364,13 +364,13 @@ export const exhibitions: Exhibition[] = [
     location: "Verse",
     status: "past",
     hero: "/images/erik-swahn/autoscope-hero.jpg",
-    heroTheme: "dark",
-    descriptionByArtist: true,
+    heroTheme: "paper",
     verseSeriesUrl: "https://verse.works/series/autoscope-by-erik-swahn",
     description: [
-      `In <em>Autoscope</em>, Erik Swahn returns to the theme of color as building material from previous series such as <em>Farbteiler</em> (2021), <em>Punktwelt</em> (2022) and <em>Funktor</em> (2023). His new series as a whole describes an abstract universe consisting only of color, with each piece depicting a different scene within that universe.`,
-      `Whereas many of Swahn&rsquo;s previous series have had objects as their motifs, <em>Autoscope</em> rather portrays places in the form of configurations of simple geometries. Mountains are implied through pyramids and cones, ocean swell through sine waves, and barren forests through arrays of cylinders. Some places are inhabited by primitive geometries moving through space.`,
-      `In a number of different tableaux, rendered in perspectiveless projection, the series evokes a very reduced sense of place, or perhaps recollection of place, sometimes with parts of the images blurred or distorted. In some scenes, even parts of the geometries are subject to erasure. In contrast to this barrenness, each scene is rich in saturation, movement and animated intensity, pulling the viewer into a chromatic world of its own peculiar logic.`,
+      `The Garden is proud to present <em>Autoscope</em>, by Swedish artist and architect Erik Swahn. In <em>Autoscope</em>, Swahn continues to explore the theme of colour as building material, a concept that runs throughout his practice, including in the series <em>Farbteiler</em> (2021) and <em>Punktwelt</em> (2022). However, in this new collection Swahn ventures into new configurations of space, creating atmospheric landscapes consisting of colour and shape. <em>Autoscope</em> is a new departure for Swahn. In many of his previous works, the artist generates a singular object as a central motif, whereas in this new series, immersive spaces are formulated using colour and configurations of geometric shapes.`,
+      `In <em>Autoscope</em>, Swahn has created new universes that suggest pastoral landscapes, modernist abstraction, and deeply coloured textiles. Swahn&rsquo;s background in architecture imbues his work with a deep spatial awareness and the ability to play with space and perspective. In <em>Autoscope</em>, pyramids, cones, cylinders, and waveforms create a shifting topography. Some parts of the image are blurred, distorted, or subjected to erasure, suggesting the recollection of a hazy memory. Each image presents a richly saturated, animated chromatic world.`,
+      `Previous bodies of work, such as <em>Punktwelt</em> and <em>Fields</em>, exemplify Swahn&rsquo;s fascination with colour theory and how colours interact to create atmosphere and structure space. His practice often involves an economy of means, for example, abstract objects in a reduced landscape in <em>Punktwelt</em> or irregular grids used to create light and reflections in <em>Fields</em>. This sense of clarity permeates the artist&rsquo;s approach to art. Swahn uses code and computational procedures as creative tools to build artworks characterised by precision and intelligibility. In <em>Funktor</em>, each piece is generated using a sequence of mathematical functions called signed distance functions. The result is a field of points that evolve unexpectedly to enclose space and create form. In <em>Punktwelt</em>, a single rectangular block is transformed using a method called Boolean subtraction, creating illusory or paradoxical abstract geometrical shapes.`,
+      `<em>Autoscope</em> builds on Swahn&rsquo;s previous body of work while exploring new possibilities in terms of colour and form. In <em>Autoscope</em> the artist invites you to experience what he terms a &ldquo;chromatopia.&rdquo;`,
     ],
   },
   {
@@ -384,14 +384,107 @@ export const exhibitions: Exhibition[] = [
     location: "Verse",
     status: "past",
     hero: "/images/earthsample/gwanak-gu-hero.gif",
-    heroTheme: "dark",
-    descriptionByArtist: true,
+    heroTheme: "paper",
     verseSeriesUrl: "https://verse.works/series/gwanak-gu-by-earthsample",
     description: [
-      `<em>A collection of digitally collaged pieces made during my multi month long stay in korea. combining photos of my environment, each piece threads memories and experiences held throughout the trip, reflecting the physical and mental landscape i found myself in.</em> &mdash; earthsample`,
+      `The Garden is proud to present <em>gwanak-gu</em>, a series of digital collages that articulate earthsample&rsquo;s experience of Seoul, Korea. The works are alchemical, transforming personal memories and everyday visual stimuli into surreal portraits of the city. Each GIF is distinguished by nuanced glitches that encourage viewers to pause and reflect, meditating on each work just as creating each work was a cathartic, reflective process for the artist. Having never before left the west, when he was 19 earthsample travelled to Hong Kong and felt supercharged by emotion and creativity upon experiencing this new corner of the world. He wanted to document the experience through his art, and ever since then he has been recording his travels by remixing the environments he finds himself in. His process begins with simple point-and-shoot documentation of his surroundings. He then manipulates the digital images, maximising on the high level of precision that is enabled by the digital medium, working pixel by pixel.`,
+      `He borrows elements from the everyday which are often overlooked, and positions them as the focal points in his work. This shift in focus creates abstracted scenery with surrealist aesthetics. The GIFs are intuitive. They tap into the texture of the sidewalk, the sounds of the trees, the rich environments that surround us.`,
+      `When we walk down a path, how much do we notice, how much do we absorb? When life is busy, we blast through without taking a moment to appreciate the details. In earthsample&rsquo;s GIFs, movements are often infinitesimal and easily overlooked. We are therefore forced to slow down and tune in, pore over the works in search of the glitches, visually digesting the works as we do so.`,
+      `Boiling his experience of a place &mdash; in this series&rsquo; case Seoul &mdash; down to its essence and transforming it into compelling visual montages is earthsample&rsquo;s way. The works in <em>gwanak-gu</em> reflect the physical and mental landscapes earthsample found himself in at the point of creation, and simultaneously encourage us to partake in a moment of reflection too.`,
+    ],
+    details: {
+      sourceImage: "/images/earthsample/kelp-detail-source.png",
+      title: "kelp",
+      verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/4137681301",
+      aspectRatio: "1",
+      crops: [
+        { id: "grasses",   x: 17, y: 20, zoom: 3 },
+        { id: "porthole",  x: 50, y: 20, zoom: 3 },
+        { id: "stippling", x: 83, y: 20, zoom: 3 },
+      ],
+    },
+    inlineArtworks: [
+      {
+        afterParagraphIndex: 0,
+        items: [
+          {
+            image: "/images/earthsample/gwanak-gu-a-trip-to-osaka.gif",
+            alt: "Earthsample, a trip to osaka",
+            title: "a trip to osaka",
+            verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/687353685",
+          },
+        ],
+      },
+      {
+        afterParagraphIndex: 1,
+        items: [
+          {
+            image: "/images/earthsample/gwanak-gu-worship.gif",
+            alt: "Earthsample, worship",
+            title: "worship",
+            verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/2499525185",
+          },
+          {
+            image: "/images/earthsample/gwanak-gu-gyeoul.gif",
+            alt: "Earthsample, gyeoul",
+            title: "gyeoul",
+            verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/2544299552",
+          },
+        ],
+      },
+      {
+        afterParagraphIndex: 2,
+        items: [
+          {
+            image: "/images/earthsample/gwanak-gu-may.gif",
+            alt: "Earthsample, may",
+            title: "may",
+            verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/2474689872",
+          },
+          {
+            image: "/images/earthsample/gwanak-gu-spirit.gif",
+            alt: "Earthsample, spirit",
+            title: "spirit",
+            verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/3089772769",
+          },
+        ],
+      },
     ],
   },
-  { slug: "isle-of-alcina",         artistSlug: "t-k-z",             artistName: "Tù.úk'z",           title: "Isle of Alcina",         year: 2024, month: "Mar", date: "March 2024",    location: "Verse", status: "past" },
+  {
+    slug: "isle-of-alcina",
+    artistSlug: "t-k-z",
+    artistName: "Tù.úk'z",
+    title: "Isle of Alcina",
+    year: 2024,
+    month: "Mar",
+    date: "March 2024",
+    location: "Verse",
+    status: "past",
+    hero: "/images/t-k-z/isle-of-alcina-hero.png",
+    descriptionByArtist: true,
+    description: [
+      `In the labyrinthine corridors of imagination, the <em>Isle of Alcina</em> collection stands as a testament to the beguiling interplay between enchantment and peril. Each piece is a portal into the sorceress&rsquo;s dominion, where the verdant allure of eternal spring veils the capricious whims of its mistress.`,
+      `The art captures the intoxicating fusion of flora and the arcane, a paradise woven with spells that ensnare the senses and bewitch the mind. Here, in this gallery of wonders, Alcina&rsquo;s sorcery breathes through the canvas, her island&rsquo;s deceptive beauty etched into each stroke and&nbsp;hue &mdash; a&nbsp;siren&rsquo;s call that beckons viewers to gaze deeper, and perhaps, to linger a little too long in the embrace of her creation.`,
+    ],
+    inlineArtworks: [
+      {
+        afterParagraphIndex: 0,
+        items: [
+          {
+            image: "/images/t-k-z/isle-of-alcina-inline-1.png",
+            alt: "Tù.úk'z, Isle of Alcina",
+            title: "Isle of Alcina",
+          },
+          {
+            image: "/images/t-k-z/isle-of-alcina-inline-2.png",
+            alt: "Tù.úk'z, Isle of Alcina",
+            title: "Isle of Alcina",
+          },
+        ],
+      },
+    ],
+  },
   {
     slug: "heuristics-of-emotion",
     artistSlug: "jeres",
@@ -402,19 +495,73 @@ export const exhibitions: Exhibition[] = [
     date: "February 2024",
     location: "Verse",
     status: "past",
-    hero: "/images/jeres/heuristics-of-emotion-hero.jpg",
-    heroTheme: "dark",
-    descriptionByArtist: true,
+    hero: "/images/jeres/heuristics-of-emotion-hero-new.png",
+    heroTheme: "paper",
     verseSeriesUrl: "https://verse.works/series/heuristics-of-emotion-artist-curated-by-jeres",
+    details: {
+      sourceImage: "/images/jeres/heuristics-detail-source.png",
+      title: "Heuristics of Emotion #105",
+      verseUrl: "https://verse.works/items/solana/A2s1pgifFGm7cgBvB72TAd5xL76GEXwwMHXkNp3ZEiDo/B8zo8LwthNq7pbtWHBExBUViBi7oBNBm4zRLEFLs8Svw",
+      aspectRatio: "2/3",
+      artworkInset: { top: 0, right: 0, bottom: 0, left: 0 },
+      crops: [
+        { id: "halftone-stipple", x: 55, y: 12, zoom: 3.2 },
+        { id: "scan-grid",        x: 50, y: 42, zoom: 3.2 },
+        { id: "pixel-barcode",    x: 58, y: 78, zoom: 3.2 },
+      ],
+    },
     description: [
-      `Viscerally digital in aesthetic, yet deliberately static and a fixed aspect ratio, highly blended and textured, embracing the imperfection of handmade physicals while analog static collides with digitally emotive outbursts.`,
-      `<em>Heuristics of Emotion</em> seeks to abstract an expression of what it looks like for a machine or AI to learn how to feel. An adolescent finding its emotional intelligence by emulating what it can pick up from humanity, and from what feedback it gets from it.`,
-      `Static and optical aberrations showing blind spots in what it means to feel, or to understand one&rsquo;s feelings, mimicking how a person may be learning how to parse and unpack their own feelings as they evolve. It hopes to create empathy between a biological entity and one that&rsquo;s digital.`,
-      `With minor variations when rendered across browsers and resolutions&mdash;yet still deterministic in context&mdash;it tries to pull the beauty and volatility of edge conditions in how software and hardware interpret a set of instructions to find unexpected expressions that can only exist by exploring the spaces where interpretations vary. Let&rsquo;s say it&rsquo;s emotional.`,
-      `It reflects how pre-digital generative instructions&mdash;like rulesets for how lines should be drawn on a wall&mdash;can be rendered and presented unpredictably because of who may have executed said instructions where. The beauty is in the tension of interpretation and execution, not the final rendering on a pixel level. Context changes how you feel.`,
-      `One machine may extract sentiment differently than another based on whatever biases have been programmed in or what their hardware allows. These discrepancies can be the most revealing.`,
-      `A snapshot of a machine&mdash;soft or hard&mdash;as it learns to feel by emulating emotion, as we do, in part. All of our becomings.`,
+      `For many, sentient machines are the ultimate fear, perhaps as they signify the true unknown, a world we can&rsquo;t quite comprehend yet. We fear these nascent technologies as their evolutionary projections are unknown to us, and we can&rsquo;t foresee how their emotional intelligence will progress. In his latest series of work, <em>Heuristics of Emotion</em>, Jeres has endeavoured to visualise the essence of sentient machines, what it would look like if our mechanical creations developed the ability to feel, to experience the emotional highs and lows that we as humans experience.`,
+      `Heuristics are strategies employed by humans, animals, and machines to shape judgements, problem solve, arrive at decisions and solutions, navigating through complexity. When considering sentient AI, heuristics could play a pivotal role in artificial intelligence&rsquo;s ability to navigate the world in a more emotionally evolved capacity. Jeres is interested in the dissonance between how we as people relate to each other, and how we relate to machines, as well as machines&rsquo; abilities to relate to us. Algorithms are being taught to extract sentiment from prompts and imitate, or simulate, compassion.`,
+      `The works in <em>Heuristics of Emotion</em> are visual representations of how Jeres imagines the predicted emotional intelligence of machines. Every AI carries within it the biases of their human creators. In the words of Jeres, &lsquo;If we think about humans training machines, the ghost of us is instilled in them&rsquo;. Currently, these machines are at an adolescent stage, which Jeres wanted to reflect within the works. He deliberately introduced elements of violence and chaos alongside structure, mirroring the turbulent emotions and experiences of adolescence as we understand it.`,
+      `The works portray dramatic spirals, extensions, and static, reflecting the struggle of navigating emotional terrain, experienced by humans and now too machines on their journey toward emotional intelligence. The jagged edges and waves within the works signify the fluidity of emotions over time, while the more static, almost blurry spaces represent unexplored emotions, creating an atmosphere of ambiguity and the unknown. For the machines, these are emotional blindspots, synonymous with their relative immaturity. Colours within the works act as emotional thermometers, representing various temperatures of sentiment. Each hue narrates a different emotional state, adding depth and richness to the abstract canvases, and speaking to the varied temperatures of human emotions.`,
     ],
+    inlineArtworks: [
+      {
+        afterParagraphIndex: 0,
+        items: [
+          {
+            image: "/images/jeres/heuristics-inline-1.jpg",
+            alt: "Jeres, Heuristics of Emotion #152",
+            title: "Heuristics of Emotion #152",
+            verseUrl: "https://verse.works/items/solana/A2s1pgifFGm7cgBvB72TAd5xL76GEXwwMHXkNp3ZEiDo/BwzE7M2LsuB6eVRAdCM7JwG4ZAXRdZMhwZcaCsxWg9K5",
+            unoptimized: true,
+          },
+          {
+            image: "/images/jeres/heuristics-inline-2.jpg",
+            alt: "Jeres, Heuristics of Emotion #50",
+            title: "Heuristics of Emotion #50",
+            verseUrl: "https://verse.works/items/solana/A2s1pgifFGm7cgBvB72TAd5xL76GEXwwMHXkNp3ZEiDo/7Q5UvTUJLFumFKAzmR84afDBH2saTztQwubuqrqhGvUs",
+            unoptimized: true,
+          },
+        ],
+      },
+      {
+        afterParagraphIndex: 1,
+        items: [
+          {
+            image: "/images/jeres/heuristics-inline-3.jpg",
+            alt: "Jeres, Heuristics of Emotion #25",
+            title: "Heuristics of Emotion #25",
+            verseUrl: "https://verse.works/items/solana/A2s1pgifFGm7cgBvB72TAd5xL76GEXwwMHXkNp3ZEiDo/W6z1q6AyeN3ceAZ727ZU1JotFwUAp3geYoUobSrMygX",
+            unoptimized: true,
+          },
+          {
+            image: "/images/jeres/heuristics-inline-4.png",
+            alt: "Jeres, Heuristics of Emotion #555",
+            title: "Heuristics of Emotion #555",
+            verseUrl: "https://verse.works/items/solana/A2s1pgifFGm7cgBvB72TAd5xL76GEXwwMHXkNp3ZEiDo/9AhKFY3MwewCHHNXLV2dDobtmd8LTJ2b2Uc5kfwwCZLT",
+            unoptimized: true,
+          },
+        ],
+      },
+    ],
+    artistQuote: {
+      paragraphs: [
+        `We are in a nascent time when machines are adolescent and have a young understanding of what human emotion is.`,
+      ],
+      attribution: "Jeres",
+    },
   },
   {
     slug: "glitch-garden",
@@ -427,12 +574,44 @@ export const exhibitions: Exhibition[] = [
     location: "Verse",
     status: "past",
     hero: "/images/sp-gelsesmaskinen/glitch-garden-hero.gif",
-    heroVerseUrl: "https://verse.works/items/ethereum/0x740067ff706c18e1b017e43e4b3b81be787e3d50/230336536",
+    verseSeriesUrl: "https://verse.works/series/glitch-garden-by-spogelsesmaskinen",
     descriptionByArtist: true,
     description: [
       `I always been very fascinated by water and flow patterns and how they are present in shaping nature. Ever since I read the classic <em>Sensitive Chaos</em> by Theodor Schwenk, flow patterns has been a recurring theme in my works beside working with technical heritage studies. The combination of the low res pixels and the mesmerising effects achieved by flow-motion are some of the most beautiful calming phenomenass and I just never get tired of playing around with them.`,
       `When I first discovered how pixels somehow emphasises the ticketing sensation when one emitting light diode takes over from the previous I knew I had to do a garden series.`,
       `<em>Glitch Garden</em> is my attempt to recreate this tickeling effect while studying a range of different plant types, grasses and leaves and their relation to the low resolution of 128x128 pixels.`,
+    ],
+    inlineArtworks: [
+      {
+        afterParagraphIndex: 0,
+        items: [
+          {
+            image: "/images/sp-gelsesmaskinen/glitch-garden-thuja.gif",
+            alt: "Spøgelsesmaskinen, Glitch Garden — Thuja occidentalis / Thuja",
+            title: "Thuja occidentalis / Thuja",
+          },
+        ],
+      },
+      {
+        afterParagraphIndex: 2,
+        items: [
+          {
+            image: "/images/sp-gelsesmaskinen/glitch-garden-common-broom.gif",
+            alt: "Spøgelsesmaskinen, Glitch Garden — Cytisus scoparius / Common Broom",
+            title: "Cytisus scoparius / Common Broom",
+          },
+          {
+            image: "/images/sp-gelsesmaskinen/glitch-garden-butterfly-bush.gif",
+            alt: "Spøgelsesmaskinen, Glitch Garden — Buddleia davidi / Butterfly Bush",
+            title: "Buddleia davidi / Butterfly Bush",
+          },
+          {
+            image: "/images/sp-gelsesmaskinen/glitch-garden-virginia-sweetspire.gif",
+            alt: "Spøgelsesmaskinen, Glitch Garden — Itea virginica / Virginia Sweetspire",
+            title: "Itea virginica / Virginia Sweetspire",
+          },
+        ],
+      },
     ],
   },
   {

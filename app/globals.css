@@ -1181,6 +1181,30 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   height:var(--preview-max-h, 440px);
   background:var(--paper, #fff);
 }
+/* Iframe previews skip the focus-pull blur entirely (entrance reads
+   as "still loading" over a live canvas; exit blur stalls the
+   compositor reblurring every new canvas frame). The exit duration
+   is also shorter than non-iframe (0.14s vs 0.32s) — compositor
+   frames for an active iframe layer lag the CSS clock, so a same-
+   duration iframe fade reads as longer to the eye. The shorter
+   wall-clock target lands the perceived duration in the same place.
+   `will-change` and `isolation` promote the slide to its own GPU
+   layer so the fade is a pure layer-opacity blend, decoupled from
+   whatever frame rate the iframe's canvas is currently producing. */
+.artist-hover-preview:has(iframe) .artist-hover-preview-slide{
+  filter:none;
+  transform:scale(0.94);
+  isolation:isolate;
+  will-change:opacity, transform;
+  transition:
+    opacity 0.14s cubic-bezier(0.7, 0, 0.84, 0),
+    transform 0.14s cubic-bezier(0.7, 0, 0.84, 0);
+}
+.artist-hover-preview:has(iframe)[data-visible] .artist-hover-preview-slide{
+  filter:none;
+  transform:scale(1);
+  transition:opacity 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+}
 @media (hover:none){
   .artist-hover-preview{display:none;}
 }
@@ -1768,6 +1792,20 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   }
 }
 
+/* Spøgelsesmaskinen / Glitch Garden: the trio of plant GIFs at the
+   foot of the description should sit three-up, matching the space-time
+   pattern. On mobile, single-column so each 128×128 gif reads at
+   full width. */
+.exhibition-detail[data-slug="glitch-garden"] .ex-inline-artworks:has(> :nth-child(3)){
+  grid-template-columns:repeat(3, 1fr);
+  max-width:1000px;
+}
+@media (max-width:720px){
+  .exhibition-detail[data-slug="glitch-garden"] .ex-inline-artworks:has(> :nth-child(3)){
+    grid-template-columns:1fr;
+  }
+}
+
 /* Khwampa / Simple Thoughts: lock the three mid-tier sections — inline
    plate, Explore grid, Details inner — to the same width (1190px,
    nudged ~8% up from the shared 1100 default for more presence on the
@@ -1936,6 +1974,26 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   object-fit:contain;
   filter:drop-shadow(0 11px 26px rgba(40,35,25,0.075)) drop-shadow(0 2px 5px rgba(40,35,25,0.045));
 }
+/* Jeres / Heuristics of Emotion: the hero source is a tall 2:3
+   portrait that gets squeezed by the default frame padding. Reduce
+   the frame's bottom safe-zone so the image fills more of the
+   viewport and reads as the dominant visual above the inline pairs. */
+.ex-hero[data-slug="heuristics-of-emotion"]{
+  --ex-title-clearance:24px;
+}
+.ex-hero[data-slug="heuristics-of-emotion"] .ex-hero-plate img{
+  max-width:95%;max-height:95%;
+}
+/* Jeres / Heuristics of Emotion: 10% tighter inline artworks. */
+.exhibition-detail[data-slug="heuristics-of-emotion"] .ex-inline-artworks{
+  max-width:520px;
+}
+.exhibition-detail[data-slug="heuristics-of-emotion"] .ex-inline-artworks:has(> :only-child){
+  max-width:240px;
+}
+.exhibition-detail[data-slug="heuristics-of-emotion"] .ex-details-inner{
+  max-width:840px;
+}
 /* Live generative artwork hero — pixel-rendered HTML/canvas piece.
    Iframes have no intrinsic dimensions, so we size the box from the
    parent plate's container query units: width = min(plate_w, plate_h
@@ -2015,6 +2073,32 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    the genart fills the canvas without letterboxing. */
 .exhibition-detail[data-slug="solve-un-solve"] .ex-inline-artworks:has(> :only-child){
   max-width:589px;
+}
+/* Earthsample / gwanak-gu: solo "a trip to osaka" plate scaled ~25%
+   above the global 420px cap (now 526px) so it carries enough weight
+   in the prose flow as the standalone breath between paragraphs. */
+.exhibition-detail[data-slug="gwanak-gu"] .ex-inline-artworks:has(> :only-child){
+  max-width:526px;
+}
+/* Erik Swahn / Autoscope: full-bleed installation hero — image fills
+   the entire hero edge-to-edge (no plate matte, no drop-shadow), with
+   the title overlaid dead-center on top. */
+.ex-hero[data-slug="autoscope"] .ex-hero-frame{
+  padding:0;
+}
+.ex-hero[data-slug="autoscope"] .ex-hero-plate img{
+  width:100%;height:100%;
+  max-width:none;max-height:none;
+  object-fit:cover;
+  filter:none;
+}
+.ex-hero[data-slug="autoscope"] .ex-title-bar{
+  left:50%;top:50%;bottom:auto;
+  transform:translate(-50%, -50%);
+  text-align:center;
+}
+.ex-hero[data-slug="autoscope"] .ex-title-headline{
+  align-items:center;
 }
 .ex-hero[data-theme="dark"] .ex-hero-plate img{
   filter:drop-shadow(0 14px 38px rgba(0,0,0,0.42)) drop-shadow(0 2px 5px rgba(0,0,0,0.26));

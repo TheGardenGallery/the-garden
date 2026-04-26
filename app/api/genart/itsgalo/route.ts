@@ -33,6 +33,16 @@ const FILL_RESET = `
 </style>
 `;
 
+/**
+ * No DPR cap. The persistent-iframe strategy in PlotGrid means the
+ * bundle is mounted once on page load and stays mounted, so the
+ * "first paint at hover time" cost that motivated the original cap
+ * is gone. Capping below native DPR was upscaling the canvas on
+ * retina and showing as visible pixelation. Sandbox isolates this
+ * iframe to its own process, so the higher-resolution shader work
+ * doesn't compete with the parent's main thread.
+ */
+
 const KICKSTART = `
 <script>
 (function(){

@@ -68,6 +68,7 @@ export function ArtistHoverPreview({
   type = "image",
   poster,
   aspectHint,
+  sizeScale,
   visible,
   cursorX,
   cursorY,
@@ -78,6 +79,10 @@ export function ArtistHoverPreview({
   /** Aspect ratio hint for iframes (which have no intrinsic dims).
       Falls back to 1 (square) if not provided. */
   aspectHint?: number;
+  /** Per-artist multiplier on bucket dims. Multiplies w and h
+      uniformly so the preview's shape (and clamp behaviour) is
+      preserved; only its size changes. */
+  sizeScale?: number;
   visible: boolean;
   cursorX: number;
   cursorY: number;
@@ -133,7 +138,11 @@ export function ArtistHoverPreview({
     let timer: number | undefined;
     const onLoad = () => {
       if (timer) window.clearTimeout(timer);
-      timer = window.setTimeout(() => setIframeReady(true), 150);
+      // 300ms grace gives the bundle's setup script time to size the
+      // canvas, run the kickstart click, and paint a stable first
+      // frame — the visible reveal then animates a settled image
+      // rather than catching mid-rasterization.
+      timer = window.setTimeout(() => setIframeReady(true), 300);
     };
     el.addEventListener("load", onLoad);
     return () => {
@@ -191,14 +200,27 @@ export function ArtistHoverPreview({
       (el as HTMLIFrameElement).addEventListener("load", measure);
     } else {
       const i = el as HTMLImageElement;
+      // For images, gate `display` on full decode rather than on the
+      // `load` event. Some browsers fire `load` once the bytes are
+      // in, but the bitmap may still be decoding asynchronously —
+      // revealing the preview at that point makes the fade-in
+      // animate over an incomplete raster (the user sees the decode
+      // complete mid-animation as "chop"). decode() resolves only
+      // when the bitmap is paint-ready.
+      const onReady = async () => {
+        captureNatural();
+        try {
+          await i.decode();
+        } catch {
+          // decode() rejects on broken images; fall through to
+          // measuring anyway so the slot doesn't get stuck hidden.
+        }
+        measure();
+      };
       if (i.complete && i.naturalWidth > 0) {
-        captureNatural();
-        measure();
+        onReady();
       }
-      i.addEventListener("load", () => {
-        captureNatural();
-        measure();
-      });
+      i.addEventListener("load", onReady);
     }
     const ro = typeof ResizeObserver !== "undefined"
       ? new ResizeObserver(measure)
@@ -267,11 +289,15 @@ export function ArtistHoverPreview({
       style={(() => {
         // Bucket-sized preview: natural aspect determines a fixed
         // (w, h) target so similar shapes always read at similar size.
+        // `sizeScale` multiplies the bucket dims uniformly for the
+        // few artists whose previews need to read bigger or smaller
+        // than the global default.
         const bucket = naturalAspect ? aspectBucket(naturalAspect) : null;
+        const scale = sizeScale ?? 1;
         return {
           transform: `translate(${placement.x}px, ${placement.y}px)`,
-          ["--preview-max-w" as string]: `${bucket?.w ?? MAX_DIMENSION}px`,
-          ["--preview-max-h" as string]: `${bucket?.h ?? MAX_DIMENSION}px`,
+          ["--preview-max-w" as string]: `${(bucket?.w ?? MAX_DIMENSION) * scale}px`,
+          ["--preview-max-h" as string]: `${(bucket?.h ?? MAX_DIMENSION) * scale}px`,
         };
       })()}
       aria-hidden="true"
@@ -283,6 +309,16 @@ export function ArtistHoverPreview({
             src={src}
             title="Artist preview"
             loading="eager"
+            // `allow-scripts` without `allow-same-origin` gives the
+            // iframe an opaque origin, which the browser treats as
+            // cross-origin and isolates into its own process/thread.
+            // Without this, our same-origin proxy iframes share the
+            // parent's main thread, so the bundle's parse + canvas
+            // setup blocks the parent's hover-state updates and the
+            // gray-on-hover transition lags. Bundle is self-contained
+            // (no parent storage/cookies needed) so the sandbox
+            // restrictions don't affect rendering.
+            sandbox="allow-scripts"
           />
         ) : src && type === "video" ? (
           <video

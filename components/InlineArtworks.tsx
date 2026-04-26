@@ -116,10 +116,10 @@ function InlineArtworkItem({
           <Image
             src={item.image}
             alt={item.alt}
-            width={1200}
-            height={1500}
-            sizes="(min-width: 900px) 40vw, 92vw"
-            quality={95}
+            width={1800}
+            height={2250}
+            sizes="(min-width: 900px) 48vw, 92vw"
+            quality={100}
             // Per-item `unoptimized` escape hatch for high-fidelity
             // pieces (grain/noise textures that Next.js's WebP pipeline
             // softens even at q95). GIFs/WebPs always pass through raw.
