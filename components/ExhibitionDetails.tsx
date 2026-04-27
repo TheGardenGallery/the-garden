@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import type { Exhibition } from "@/lib/types";
 
 type Details = NonNullable<Exhibition["details"]>;
@@ -14,6 +17,13 @@ type Crop = Details["crops"][number];
  * the data as "focal point in image coordinates" and convert to the
  * correct background-position, then clamp to an `artworkInset` so the
  * matte/bleed can never leak in.
+ *
+ * Lazy mount: the source URL is held back until the section enters
+ * the viewport (with a 200px lead so the swap is invisible to a
+ * scrolling reader). Heavy animated sources — especially large GIFs
+ * like Earthsample's kelp — would otherwise decode every frame on the
+ * page even while they're far below the fold, taxing the rest of the
+ * page's smoothness.
  */
 export function ExhibitionDetails({ details, title }: { details: Details; title: string }) {
   const aspect = details.aspectRatio ?? "1";
@@ -24,8 +34,31 @@ export function ExhibitionDetails({ details, title }: { details: Details; title:
     left: details.artworkInset?.left ?? 0,
   };
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const [activeSrc, setActiveSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setActiveSrc(details.sourceImage);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setActiveSrc(details.sourceImage);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "200px 0px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [details.sourceImage]);
+
   return (
-    <section className="ex-details" aria-labelledby="detailsHead">
+    <section ref={sectionRef} className="ex-details" aria-labelledby="detailsHead">
       <div className="ex-details-inner">
         <header className="ex-details-head">
           <h2 className="ex-details-head-title" id="detailsHead">
@@ -70,7 +103,7 @@ export function ExhibitionDetails({ details, title }: { details: Details; title:
                 const { bgX, bgY } = resolveCrop(c, inset);
                 const style = {
                   ...baseStyle,
-                  backgroundImage: `url(${details.sourceImage})`,
+                  backgroundImage: activeSrc ? `url(${activeSrc})` : undefined,
                   backgroundSize: `${c.zoom * 100}%`,
                   backgroundPosition: `${bgX}% ${bgY}%`,
                 } as React.CSSProperties;

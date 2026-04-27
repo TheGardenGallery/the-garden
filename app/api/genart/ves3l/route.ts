@@ -144,6 +144,33 @@ const SEED_LOCK = `
 </script>
 `;
 
+// Module-cached upstream HTML. The S3 index.html is identical for every
+// payload — the bundle reads its payload client-side from the iframe's
+// own location.search at runtime, so the upstream document doesn't vary.
+// Caching it once per server instance turns each refresh-button click
+// from "fetch 2MB from S3" into "serve from memory + stream to client",
+// which is the dominant cost when each unique hash mints a new URL the
+// CDN can't reuse.
+let cachedUpstreamHtml: string | null = null;
+let cachedUpstreamPromise: Promise<string> | null = null;
+
+async function getUpstreamHtml(): Promise<string> {
+  if (cachedUpstreamHtml) return cachedUpstreamHtml;
+  if (cachedUpstreamPromise) return cachedUpstreamPromise;
+  cachedUpstreamPromise = (async () => {
+    const upstream = await fetch(UPSTREAM_BASE, { cache: "force-cache" });
+    if (!upstream.ok) {
+      cachedUpstreamPromise = null;
+      throw new Error(`upstream ${upstream.status}`);
+    }
+    const text = await upstream.text();
+    cachedUpstreamHtml = text;
+    cachedUpstreamPromise = null;
+    return text;
+  })();
+  return cachedUpstreamPromise;
+}
+
 export async function GET(req: NextRequest) {
   const params = req.nextUrl.searchParams;
   const payload = params.get("payload");
@@ -152,14 +179,12 @@ export async function GET(req: NextRequest) {
   if (!payload) {
     return new NextResponse("missing payload", { status: 400 });
   }
-  const upstream = await fetch(
-    `${UPSTREAM_BASE}?payload=${encodeURIComponent(payload)}`,
-    { cache: "force-cache" }
-  );
-  if (!upstream.ok) {
+  let html: string;
+  try {
+    html = await getUpstreamHtml();
+  } catch {
     return new NextResponse("upstream fetch failed", { status: 502 });
   }
-  let html = await upstream.text();
   if (lock) {
     html = html.includes("</head>")
       ? html.replace("</head>", `${SEED_LOCK}</head>`)

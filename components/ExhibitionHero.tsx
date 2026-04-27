@@ -27,8 +27,36 @@ export function ExhibitionHero({ exhibition }: { exhibition: Exhibition }) {
         style={{ viewTransitionName: "ex-title-bar" }}
       >
         <div className="ex-title-headline" id="exTitle">
-          <div className="ex-title-artist">{exhibition.artistName}</div>
-          <h1 className="ex-title-title">{exhibition.title}</h1>
+          <div className="ex-title-artist">
+            {exhibition.verseSeriesUrl ? (
+              <a
+                href={exhibition.verseSeriesUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ex-title-title-link"
+                aria-label={`View ${exhibition.artistName} on Verse`}
+              >
+                {exhibition.artistName}
+              </a>
+            ) : (
+              exhibition.artistName
+            )}
+          </div>
+          <h1 className="ex-title-title">
+            {exhibition.verseSeriesUrl ? (
+              <a
+                href={exhibition.verseSeriesUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ex-title-title-link"
+                aria-label={`View ${exhibition.title} series on Verse`}
+              >
+                {exhibition.title}
+              </a>
+            ) : (
+              exhibition.title
+            )}
+          </h1>
         </div>
       </header>
     </section>

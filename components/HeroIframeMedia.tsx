@@ -14,6 +14,13 @@ import { useEffect, useState } from "react";
  * iframe. The piece's "DNA" changes, so colors, structure, and
  * scramble all roll new each visit. The refresh button does the same
  * thing on demand.
+ *
+ * The iframe is mounted only after hydration: rendering it on the
+ * server with a seed payload caused the browser to start fetching the
+ * ~2MB bundle, only for the post-mount randomize step to remount with
+ * a different URL and discard that work. Deferring to client mount
+ * collapses the first visit into a single load. A same-shape
+ * placeholder keeps layout stable during SSR.
  */
 export function HeroIframeMedia({
   src,
@@ -26,11 +33,7 @@ export function HeroIframeMedia({
   aspect?: string;
   randomize?: boolean;
 }) {
-  // SSR uses the original src + v=0 so server and client agree on the
-  // initial markup (no hydration mismatch). After mount we replace the
-  // payload's hash (when randomize) and bump the version, which
-  // triggers React to remount the iframe with the new src.
-  const [state, setState] = useState<{ src: string; v: number }>({ src, v: 0 });
+  const [state, setState] = useState<{ src: string; v: number } | null>(null);
 
   useEffect(() => {
     setState({
@@ -39,25 +42,34 @@ export function HeroIframeMedia({
     });
   }, [src, randomize]);
 
-  const sep = state.src.includes("?") ? "&" : "?";
-  const finalSrc = `${state.src}${sep}v=${state.v}`;
-
   function reroll() {
-    setState({
-      src: randomize ? withRandomHash(src) : state.src,
+    setState((prev) => ({
+      src: randomize ? withRandomHash(src) : (prev?.src ?? src),
       v: Date.now(),
-    });
+    }));
+  }
+
+  const aspectStyle = { ["--hero-iframe-aspect" as string]: aspect ?? "1" };
+
+  let finalSrc: string | null = null;
+  if (state) {
+    const sep = state.src.includes("?") ? "&" : "?";
+    finalSrc = `${state.src}${sep}v=${state.v}`;
   }
 
   return (
     <>
-      <iframe
-        key={state.v}
-        className="ex-hero-iframe"
-        src={finalSrc}
-        title={title}
-        style={{ ["--hero-iframe-aspect" as string]: aspect ?? "1" }}
-      />
+      {finalSrc && state ? (
+        <iframe
+          key={state.v}
+          className="ex-hero-iframe"
+          src={finalSrc}
+          title={title}
+          style={aspectStyle}
+        />
+      ) : (
+        <div className="ex-hero-iframe" style={aspectStyle} aria-hidden="true" />
+      )}
       <button
         type="button"
         className="ex-hero-iframe-refresh"

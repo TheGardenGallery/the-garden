@@ -96,6 +96,15 @@ function InlineArtworkItem({
             allow="autoplay; fullscreen"
             sandbox="allow-scripts allow-same-origin"
           />
+          {item.linkable && (item.verseUrl ?? fallbackUrl) && (
+            <a
+              className="ex-inline-iframe-link"
+              href={item.verseUrl ?? fallbackUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`View ${item.title ?? item.alt} on Verse`}
+            />
+          )}
         </div>
       ) : item.video ? (
         <div className="ex-inline-plate">

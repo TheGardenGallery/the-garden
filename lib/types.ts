@@ -90,7 +90,7 @@ export type Exhibition = {
       plates can break up long prose at different points. */
   inlineArtworks?: {
     afterParagraphIndex: number;
-    items: { image: string; alt: string; title?: string; verseUrl?: string; video?: string; iframe?: string; aspectRatio?: number; unoptimized?: boolean }[];
+    items: { image: string; alt: string; title?: string; verseUrl?: string; video?: string; iframe?: string; aspectRatio?: number; unoptimized?: boolean; linkable?: boolean }[];
   }[];
   /** Hi-fidelity detail crops of a single work, shown as a grid like
       "Selected works" but all derived from the same source image via

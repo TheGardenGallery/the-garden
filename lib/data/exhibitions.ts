@@ -204,6 +204,7 @@ export const exhibitions: Exhibition[] = [
     workCount: 24,
     hero: "/images/mark-webster/distrakted-hero.png",
     verseSeriesUrl: "https://verse.works/series/distrakted-by-mark-webster",
+    artistBio: "Mark Webster was born in Canada, raised in England and currently lives in France. After graduating in London with a modern languages degree in 1997, he moved to Paris and began to orientate his work towards the arts. This has involved an eclectic mix of activities in diverse areas such as animation, sound design, graphic design, teaching and even a stint as a journalist working in the field of motion design. In the last couple of years, his efforts have been devoted to developing a body of personal artistic work that is driven by curiosity to explore and experiment with code based media. He creates art and graphic work primarily using custom-made software tools along with computational and generative strategies as his main approach.",
     descriptionByArtist: true,
     description: [
       `A written language is a complex tissage of signs and symbols. A conventional system of coherent patterns with which one seeks to express meaningful actions, ideas, thoughts and feelings. What happens though when one loses the capacity to decipher these visual constructs?`,
@@ -246,6 +247,8 @@ export const exhibitions: Exhibition[] = [
     status: "past",
     hero: "/images/perfectl00p/trails-hero.gif",
     verseSeriesUrl: "https://verse.works/series/trails-by-perfect-l00p",
+    workCount: 10,
+    artistBio: "A multidisciplinary artist from Colorado in the United States. His art is high saturation, high contrast, looping works. With a retro-computing aesthetic, his work has a focus on human computer interactions and inescapable situations.",
     descriptionByArtist: true,
     description: [
       `<em>Trails</em> is a series born from a fascination with vintage Windows icons and the possibilities of visual feedback loops.`,
@@ -291,6 +294,7 @@ export const exhibitions: Exhibition[] = [
     status: "past",
     hero: "/images/mazin/phantasmagoria-hero.gif",
     verseSeriesUrl: "https://verse.works/series/phantasmagoria-by-mazin",
+    workCount: 8,
     description: [
       `<em>Phantasmagoria</em> invites you into a fictional universe where religion, technology, and distortion blend together. In this world, the faith revolves around living architecture &mdash; buildings that are alive and form the heart of a unique belief system. Symbols like roots, glyphs, and sigils fill the landscape, creating a mysterious atmosphere. The color palette, appearing nearly black&#8209;and&#8209;white at first glance, hides subtle RGB tones, reflecting the deeper layers of this universe where things aren&rsquo;t always what they seem.`,
       `At the center of this world are angelic figures called C.L.E.A.N.S.E., who control the flow of color, seeing anything other than grayscale as &ldquo;corruption.&rdquo; They act as protectors, erasing color to maintain balance, but others, known as &ldquo;Corruptors,&rdquo; challenge their rule, believing in a different truth. This conflict over color and control is a central theme, leaving viewers to question who is truly in the right.`,
@@ -350,6 +354,7 @@ export const exhibitions: Exhibition[] = [
     workCount: 12,
     hero: "/images/riiiis/bully-hero.jpg",
     verseSeriesUrl: "https://verse.works/series/bully-by-riiiis",
+    artistBio: "Ukrainian-Russian artist based in Buenos Aires. Their artistic practice is deeply rooted in nostalgia of the early internet, focusing on recreating memories with the help of code.",
     descriptionByArtist: true,
     description: [
       `<em>The nuns taught us there are two ways through life, the way of Nature and the way of Grace. You have to choose which one you&rsquo;ll follow. Grace doesn&rsquo;t try to please itself. Accepts being slighted, forgotten, disliked. Accepts insults and injuries. Nature only wants to please itself. Get others to please it too. Likes to lord it over them. To have its own way. It finds reasons to be unhappy when all the world is shining around it. And love is smiling through all things.</em> &mdash; Terrence Malick`,
@@ -530,6 +535,7 @@ export const exhibitions: Exhibition[] = [
     workCount: 128,
     hero: "/images/t-k-z/escapes-91.jpg",
     verseSeriesUrl: "https://verse.works/series/escapes-tuukz",
+    artistBio: "Arthur Machado, known as Tù.úk’z, is a Brazilian digital artist who has been working within the digital arts landscape since 2012. Tù.úk’z’s body of work spans a broad spectrum of digital forms, including glitch art, AI-generated pieces, collage, painting, image, video, and sound. His work explores themes of abstraction and psychedelia, reflecting his journey as a digital nomad and his involvement in the NFT space.",
     descriptionByArtist: true,
     description: [
       `<em>ESCAPES</em> is a collection of ethereal landscapes, crafted to transport viewers into realms where reality merges with the surreal. Each piece within this series acts as a portal to fantastical worlds, defined by enigmatic orbs.`,
@@ -570,6 +576,7 @@ export const exhibitions: Exhibition[] = [
     status: "past",
     hero: "/images/chepertom/mound-rad.png",
     verseSeriesUrl: "https://verse.works/series/deluge-by-chepertom",
+    workCount: 14,
     description: [
       `<em>Deluge</em> presents two distinct styles of work from Chepertom, <em>RAW</em>s and <em>RAD</em>s, which invite viewers to contemplate the chaos of daily life and data-driven overload via the metaphor of the ocean&rsquo;s patterns and behaviours. Inspired by the boundless and tumultuous energy of the ocean, Chepertom utilises this natural force as a metaphor to delve into the complexities of the wider world. His works reflect on themes of chaos and order, digitally reinterpreting natural elements to express global events and personal perceptions. The <em>RAW</em> pieces embody the unrefined, chaotic essence of the ocean and are derived from various sources including video footage. These works are more unpolished than the <em>RAD</em> pieces, natural landscapes that have not yet been tamed by digital tools, in which every pixel plays a crucial role in conveying the overwhelming data of daily life. They set the foundational stage for what evolves into the <em>RAD</em> artworks.`,
       `Transitioning from <em>RAW</em> to <em>RAD</em>, Chepertom engages a meticulous process of selection and compression. The <em>RAD</em> pieces, constructed from both personal and found footage, undergo repeated compressions, each layer distorting and displacing information to create curated snapshots of digital artefacts. These works focus on primary colours and emphasise movement and transformation, where the intense use of specific greens and blues resonate with the hues of the ocean, simultaneously suggesting the voids and spaces where data becomes corrupted yet visually compelling. There is a specific, intense green that recurs, which acts as a nod digital voids and green screens used in visual effects. This green represents areas where colour should exist but does not, instead signifying corruption and alteration, a frequent element in Chepertom&rsquo;s process of creation.`,
@@ -631,6 +638,7 @@ export const exhibitions: Exhibition[] = [
     workCount: 20,
     hero: "/images/itsgalo/basalt-15-hero.gif",
     verseSeriesUrl: "https://verse.works/series/basalt-by-itsgalo",
+    artistBio: "Itsgalo is the screen-name for Galo Canizares, a designer, writer, and educator working across various creative fields from architecture to digital art to experimental software. He is currently an assistant professor of architecture at the University of Kentucky’s College of Design where he teaches courses on visualization and representation. Galo’s work interrogates the emerging sociotechnical effects of code, screens, and software culture. He is fascinated by the strange behaviors and aesthetics unique to computing and digital media, an interest that emerged as a kid playing with Flash and other painting software. In 2019, Galo published a collection of essays on computation, art, and design titled Digital Fabrications: Designer Stories for a Software-Based Planet. Many of Galo’s artworks try to leverage computing to produce visually compelling and layered effects. They are often animated or use some kind of real-time motion like simulated physics. Other recurring themes are limited color palettes, dithering, and low-res graphics, concepts and techniques tied to the history of computer-based art.",
     descriptionByArtist: true,
     description: [
       `<em>BASALT GIFs</em> is a curated series of 20 animated digital paintings made with a custom real-time software built with Processing. Each piece is uniquely generated through a stochastic generative process involving simulated gestures, limited color palettes, video feedback, and graphics quantization algorithms.`,
@@ -686,6 +694,7 @@ export const exhibitions: Exhibition[] = [
     hero: "/images/erik-swahn/autoscope-hero.jpg",
     heroTheme: "paper",
     verseSeriesUrl: "https://verse.works/series/autoscope-by-erik-swahn",
+    workCount: 360,
     description: [
       `The Garden is proud to present <em>Autoscope</em>, by Swedish artist and architect Erik Swahn. In <em>Autoscope</em>, Swahn continues to explore the theme of colour as building material, a concept that runs throughout his practice, including in the series <em>Farbteiler</em> (2021) and <em>Punktwelt</em> (2022). However, in this new collection Swahn ventures into new configurations of space, creating atmospheric landscapes consisting of colour and shape. <em>Autoscope</em> is a new departure for Swahn. In many of his previous works, the artist generates a singular object as a central motif, whereas in this new series, immersive spaces are formulated using colour and configurations of geometric shapes.`,
       `In <em>Autoscope</em>, Swahn has created new universes that suggest pastoral landscapes, modernist abstraction, and deeply coloured textiles. Swahn&rsquo;s background in architecture imbues his work with a deep spatial awareness and the ability to play with space and perspective. In <em>Autoscope</em>, pyramids, cones, cylinders, and waveforms create a shifting topography. Some parts of the image are blurred, distorted, or subjected to erasure, suggesting the recollection of a hazy memory. Each image presents a richly saturated, animated chromatic world.`,
@@ -750,26 +759,28 @@ export const exhibitions: Exhibition[] = [
     hero: "/images/earthsample/gwanak-gu-hero.gif",
     heroTheme: "paper",
     verseSeriesUrl: "https://verse.works/series/gwanak-gu-by-earthsample",
+    workCount: 10,
     description: [
-      `The Garden is proud to present <em>gwanak-gu</em>, a series of digital collages that articulate earthsample&rsquo;s experience of Seoul, Korea. The works are alchemical, transforming personal memories and everyday visual stimuli into surreal portraits of the city. Each GIF is distinguished by nuanced glitches that encourage viewers to pause and reflect, meditating on each work just as creating each work was a cathartic, reflective process for the artist. Having never before left the west, when he was 19 earthsample travelled to Hong Kong and felt supercharged by emotion and creativity upon experiencing this new corner of the world. He wanted to document the experience through his art, and ever since then he has been recording his travels by remixing the environments he finds himself in. His process begins with simple point-and-shoot documentation of his surroundings. He then manipulates the digital images, maximising on the high level of precision that is enabled by the digital medium, working pixel by pixel.`,
+      `The Garden is proud to present <em>gwanak-gu</em>, a series of digital collages that articulate earthsample&rsquo;s experience of Seoul, Korea. The works are alchemical, transforming personal memories and everyday visual stimuli into surreal portraits of the city. Each GIF is distinguished by nuanced glitches that encourage viewers to pause and reflect, meditating on each work just as creating each work was a cathartic, reflective process for the artist.`,
+      `Having never before left the west, when he was 19 earthsample travelled to Hong Kong and felt supercharged by emotion and creativity upon experiencing this new corner of the world. He wanted to document the experience through his art, and ever since then he has been recording his travels by remixing the environments he finds himself in. His process begins with simple point-and-shoot documentation of his surroundings. He then manipulates the digital images, maximising on the high level of precision that is enabled by the digital medium, working pixel by pixel.`,
       `He borrows elements from the everyday which are often overlooked, and positions them as the focal points in his work. This shift in focus creates abstracted scenery with surrealist aesthetics. The GIFs are intuitive. They tap into the texture of the sidewalk, the sounds of the trees, the rich environments that surround us.`,
       `When we walk down a path, how much do we notice, how much do we absorb? When life is busy, we blast through without taking a moment to appreciate the details. In earthsample&rsquo;s GIFs, movements are often infinitesimal and easily overlooked. We are therefore forced to slow down and tune in, pore over the works in search of the glitches, visually digesting the works as we do so.`,
       `Boiling his experience of a place &mdash; in this series&rsquo; case Seoul &mdash; down to its essence and transforming it into compelling visual montages is earthsample&rsquo;s way. The works in <em>gwanak-gu</em> reflect the physical and mental landscapes earthsample found himself in at the point of creation, and simultaneously encourage us to partake in a moment of reflection too.`,
     ],
     details: {
-      sourceImage: "/images/earthsample/kelp-detail-source.png",
+      sourceImage: "/images/earthsample/gwanak-gu-kelp.gif",
       title: "kelp",
       verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/4137681301",
       aspectRatio: "1",
       crops: [
-        { id: "grasses",   x: 17, y: 20, zoom: 3 },
-        { id: "porthole",  x: 50, y: 20, zoom: 3 },
-        { id: "stippling", x: 83, y: 20, zoom: 3 },
+        { id: "grasses",   x: 17, y: 36, zoom: 3 },
+        { id: "porthole",  x: 50, y: 36, zoom: 3 },
+        { id: "stippling", x: 83, y: 36, zoom: 3 },
       ],
     },
     inlineArtworks: [
       {
-        afterParagraphIndex: 0,
+        afterParagraphIndex: 1,
         items: [
           {
             image: "/images/earthsample/gwanak-gu-a-trip-to-osaka.gif",
@@ -780,7 +791,7 @@ export const exhibitions: Exhibition[] = [
         ],
       },
       {
-        afterParagraphIndex: 1,
+        afterParagraphIndex: 2,
         items: [
           {
             image: "/images/earthsample/gwanak-gu-worship.gif",
@@ -797,7 +808,7 @@ export const exhibitions: Exhibition[] = [
         ],
       },
       {
-        afterParagraphIndex: 2,
+        afterParagraphIndex: 3,
         items: [
           {
             image: "/images/earthsample/gwanak-gu-may.gif",
@@ -827,6 +838,8 @@ export const exhibitions: Exhibition[] = [
     status: "past",
     hero: "/images/t-k-z/isle-of-alcina-hero.jpg",
     verseSeriesUrl: "https://verse.works/series/isle-of-alcina-by-tuukz",
+    workCount: 44,
+    artistBio: "Arthur Machado, known as Tù.úk’z, is a Brazilian digital artist who has been working within the digital arts landscape since 2012. Tù.úk’z’s body of work spans a broad spectrum of digital forms, including glitch art, AI-generated pieces, collage, painting, image, video, and sound. His work explores themes of abstraction and psychedelia, reflecting his journey as a digital nomad and his involvement in the NFT space.",
     descriptionByArtist: true,
     description: [
       `In the labyrinthine corridors of imagination, the <em>Isle of Alcina</em> collection stands as a testament to the beguiling interplay between enchantment and peril. Each piece is a portal into the sorceress&rsquo;s dominion, where the verdant allure of eternal spring veils the capricious whims of its mistress.`,
@@ -865,6 +878,7 @@ export const exhibitions: Exhibition[] = [
     hero: "/images/jeres/heuristics-of-emotion-hero-new.png",
     heroTheme: "paper",
     verseSeriesUrl: "https://verse.works/series/heuristics-of-emotion-artist-curated-by-jeres",
+    workCount: 1000,
     details: {
       sourceImage: "/images/jeres/heuristics-detail-source.png",
       title: "Heuristics of Emotion #105",
@@ -888,14 +902,14 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 0,
         items: [
           {
-            image: "/images/jeres/heuristics-inline-1.jpg",
+            image: "/images/jeres/heuristics-inline-1.png",
             alt: "Jeres, Heuristics of Emotion #152",
             title: "Heuristics of Emotion #152",
             verseUrl: "https://verse.works/items/solana/A2s1pgifFGm7cgBvB72TAd5xL76GEXwwMHXkNp3ZEiDo/BwzE7M2LsuB6eVRAdCM7JwG4ZAXRdZMhwZcaCsxWg9K5",
             unoptimized: true,
           },
           {
-            image: "/images/jeres/heuristics-inline-2.jpg",
+            image: "/images/jeres/heuristics-inline-2.png",
             alt: "Jeres, Heuristics of Emotion #50",
             title: "Heuristics of Emotion #50",
             verseUrl: "https://verse.works/items/solana/A2s1pgifFGm7cgBvB72TAd5xL76GEXwwMHXkNp3ZEiDo/7Q5UvTUJLFumFKAzmR84afDBH2saTztQwubuqrqhGvUs",
@@ -907,7 +921,7 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 1,
         items: [
           {
-            image: "/images/jeres/heuristics-inline-3.jpg",
+            image: "/images/jeres/heuristics-inline-3.png",
             alt: "Jeres, Heuristics of Emotion #25",
             title: "Heuristics of Emotion #25",
             verseUrl: "https://verse.works/items/solana/A2s1pgifFGm7cgBvB72TAd5xL76GEXwwMHXkNp3ZEiDo/W6z1q6AyeN3ceAZ727ZU1JotFwUAp3geYoUobSrMygX",
@@ -942,6 +956,8 @@ export const exhibitions: Exhibition[] = [
     status: "past",
     hero: "/images/sp-gelsesmaskinen/glitch-garden-hero.gif",
     verseSeriesUrl: "https://verse.works/series/glitch-garden-by-spogelsesmaskinen",
+    workCount: 25,
+    artistBio: "Rune Brink Hansen (b. 1979, Odense, Denmark) is a self taught multidisciplinary artist who lives and works in Copenhagen, Denmark. He started working with digital interfaces during the early internet days. Since then he has crafted digital visuals for festivals, designed spaces for museums, and exhibited large scale light installations at various institutions and galleries. In 2021, he adopted the Spøgelsesmaskinen artist name for his 3D and NFT artwork. In the global online art community, he is known simply as “Spogel”.",
     descriptionByArtist: true,
     description: [
       `I always been very fascinated by water and flow patterns and how they are present in shaping nature. Ever since I read the classic <em>Sensitive Chaos</em> by Theodor Schwenk, flow patterns has been a recurring theme in my works beside working with technical heritage studies. The combination of the low res pixels and the mesmerising effects achieved by flow-motion are some of the most beautiful calming phenomenass and I just never get tired of playing around with them.`,
@@ -956,6 +972,7 @@ export const exhibitions: Exhibition[] = [
             image: "/images/sp-gelsesmaskinen/glitch-garden-thuja.gif",
             alt: "Spøgelsesmaskinen, Glitch Garden — Thuja occidentalis / Thuja",
             title: "Thuja occidentalis / Thuja",
+            verseUrl: "https://verse.works/items/ethereum/0x740067ff706c18e1b017e43e4b3b81be787e3d50/1882203025",
           },
         ],
       },
@@ -966,16 +983,19 @@ export const exhibitions: Exhibition[] = [
             image: "/images/sp-gelsesmaskinen/glitch-garden-common-broom.gif",
             alt: "Spøgelsesmaskinen, Glitch Garden — Cytisus scoparius / Common Broom",
             title: "Cytisus scoparius / Common Broom",
+            verseUrl: "https://verse.works/items/ethereum/0x740067ff706c18e1b017e43e4b3b81be787e3d50/2144032293",
           },
           {
             image: "/images/sp-gelsesmaskinen/glitch-garden-butterfly-bush.gif",
             alt: "Spøgelsesmaskinen, Glitch Garden — Buddleia davidi / Butterfly Bush",
             title: "Buddleia davidi / Butterfly Bush",
+            verseUrl: "https://verse.works/items/ethereum/0x740067ff706c18e1b017e43e4b3b81be787e3d50/4168578279",
           },
           {
             image: "/images/sp-gelsesmaskinen/glitch-garden-virginia-sweetspire.gif",
             alt: "Spøgelsesmaskinen, Glitch Garden — Itea virginica / Virginia Sweetspire",
             title: "Itea virginica / Virginia Sweetspire",
+            verseUrl: "https://verse.works/items/ethereum/0x740067ff706c18e1b017e43e4b3b81be787e3d50/2429716807",
           },
         ],
       },
@@ -1153,6 +1173,7 @@ export const exhibitions: Exhibition[] = [
             iframe: "/api/genart/ves3l?payload=eyJoYXNoIjoiMHg3ZWQ3Njk2NTY4N2RhMTc5MDU2MzM5MmFjZTI2OWI2N2NiM2EyYjc3MmM3MmQ4ZDRhYWE0NmY4ZDUzMjI1ODUxIiwiZWRpdGlvbk51bWJlciI6MTY2LCJ0b3RhbEVkaXRpb25zIjoxODksImlucHV0Ijp7IiR1c2VybmFtZSI6ImNoZW44ODEyIn19&lock=1",
             verseUrl: "https://verse.works/items/ethereum/0x1cA2dc07129916F4dDB542bB6124CFa442f40Bb1/2258695220",
             aspectRatio: 1,
+            linkable: true,
           },
         ],
       },
@@ -1166,6 +1187,7 @@ export const exhibitions: Exhibition[] = [
             iframe: "/api/genart/ves3l?payload=eyJoYXNoIjoiMHhkN2U5Y2JlMjI4YzM0YWE1NjdjYTIzZTAyMGJmYTc3MjgxNzNiOWY0MTNlYTZjNzU0OTZiYWE3NTYyMDFkMzc4IiwiZWRpdGlvbk51bWJlciI6MTY1LCJ0b3RhbEVkaXRpb25zIjoxODksImlucHV0Ijp7IiR1c2VybmFtZSI6ImNoZW44ODEyIn19&lock=1",
             verseUrl: "https://verse.works/items/ethereum/0x1cA2dc07129916F4dDB542bB6124CFa442f40Bb1/2181900128",
             aspectRatio: 1,
+            linkable: true,
           },
         ],
       },
@@ -1179,6 +1201,7 @@ export const exhibitions: Exhibition[] = [
             iframe: "/api/genart/ves3l?payload=eyJoYXNoIjoiMHhlMGM1YzUyZThmM2QyN2IxOTVhZmQ0ZDBmODc2YWQ0OWY4NzAxN2JiNmJhYzYzN2Y1YmEyNGU2ODM5N2YzNzdlIiwiZWRpdGlvbk51bWJlciI6MTczLCJ0b3RhbEVkaXRpb25zIjoxODksImlucHV0Ijp7IiR1c2VybmFtZSI6ImNoZW44ODEyIn19&lock=1",
             verseUrl: "https://verse.works/items/ethereum/0x1cA2dc07129916F4dDB542bB6124CFa442f40Bb1/3438601325",
             aspectRatio: 1,
+            linkable: true,
           },
         ],
       },
@@ -1305,6 +1328,7 @@ export const exhibitions: Exhibition[] = [
             image: "/images/john-provencher/haha-artwork.jpg",
             alt: "HAHA artwork detail — lissajous composed of 'h's and 'a's",
             title: "HAHA",
+            verseUrl: "https://verse.works/series/ha-ha-by-john-provencher",
           },
         ],
       },
@@ -1352,6 +1376,7 @@ export const exhibitions: Exhibition[] = [
     hero: "/images/cydr/new-life-to-still-life-hero.jpg",
     heroTheme: "paper",
     verseSeriesUrl: "https://verse.works/series/new-life-to-still-life-by-cydr",
+    workCount: 11,
     description: [
       `The Garden is thrilled to bring you <em>New-life, to Still-life</em>, a series by Brazilian artist cydr. Like a tapestry, it weaves together his personal history, inspirations, and experiences, from his background in video games to his unique form of synesthesia.`,
       `<em>New-life, to Still-life</em> exudes a nostalgic charm reminiscent of old video games, capturing the essence of a bygone era while embracing modern digital techniques. Using fruit as his focal point, these works provide a commentary on the juxtaposition of natural forms and digital aesthetics. With each pixel, cydr invites us to reconsider our perceptions and embrace the beauty that exists within distortion.`,
@@ -1444,7 +1469,7 @@ export const exhibitions: Exhibition[] = [
     verseSeriesUrl: "https://verse.works/series/space-time-by-loackme",
     workCount: 100,
     description: [
-      `The Garden was pleased to present <em>SPACE\\TIME</em>, a culminating series in loackme&rsquo;s decade-long engagement with motion-based dithering, <span class="num-lining">2</span>D signed distance functions, Voronoï diagrams, and code.`,
+      `The Garden is pleased to present <em>SPACE\\TIME</em>, a culminating series in loackme&rsquo;s decade-long engagement with motion-based dithering, <span class="num-lining">2</span>D signed distance functions, Voronoï diagrams, and code.`,
       `Where loackme typically works in short impulsive bursts, <em>SPACE\\TIME</em> unfolded over three months beginning on 10 May 2023 &mdash; the longest-running project of his practice to date. Pixelated, monochromatic, and looped, the works distill his longstanding preoccupations with geometry and animation. Dithering opens an illusory tonal range within the strict black-and-white palette, summoning shades of grey from binary inputs.`,
       `<em>SPACE\\TIME</em> sits between two paradigms in generative art: it neither produces an open algorithmic edition nor relies on the post-hoc curation of mass-generated outputs. The series began as a response to the work of François Vogel, refracted through dithering.`,
       `Looping is central to loackme&rsquo;s practice &mdash; a fixation he frames as both obsessive and meditative. Each work returns precisely to its starting position, the seam invisible; for the artist, achieving that seamlessness was the work&rsquo;s principal reward.`,
@@ -1542,6 +1567,7 @@ export const exhibitions: Exhibition[] = [
     hero: "/images/khwampa/simple-thoughts-hero.jpg",
     heroTheme: "paper",
     verseSeriesUrl: "https://verse.works/series/simple-thoughts-by-khwampa",
+    workCount: 10,
     details: {
       sourceImage: "/images/khwampa/simple-thoughts-01-elements-of-a-tree-near-prayag.png",
       title: "Elements of a Tree Near Prayag",
@@ -1653,6 +1679,7 @@ export const exhibitions: Exhibition[] = [
     hero: "/images/paolo-eri/drift-hero.jpg",
     heroTheme: "paper",
     verseSeriesUrl: "https://verse.works/series/drift-by-paolo-ceric-1",
+    workCount: 938,
     details: {
       sourceImage: "/images/paolo-eri/drift-detail-source.jpg",
       title: "Drift #346",
