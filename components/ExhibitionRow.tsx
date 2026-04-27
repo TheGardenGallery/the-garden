@@ -10,7 +10,8 @@ type ExhibitionRowProps = {
 
 export function ExhibitionRow({ exhibition, variant = "card" }: ExhibitionRowProps) {
   const href = `/exhibitions/${exhibition.slug}`;
-  const image = exhibition.hero ?? exhibition.works?.[0]?.image;
+  const image =
+    exhibition.cardImage ?? exhibition.hero ?? exhibition.works?.[0]?.image;
   const imageStyle: CSSProperties = {
     // Shared-element transition: pairs this card image with the
     // exhibition detail page's hero under the same name, so

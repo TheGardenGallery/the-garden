@@ -91,7 +91,7 @@ function InlineArtworkItem({
           <iframe
             src={item.iframe}
             title={item.alt}
-            loading="eager"
+            loading="lazy"
             referrerPolicy="no-referrer"
             allow="autoplay; fullscreen"
             sandbox="allow-scripts allow-same-origin"

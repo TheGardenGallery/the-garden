@@ -26,6 +26,10 @@ export type FeaturedArtwork = {
       non-animating first frame by default; the GIF only plays while
       the viewer is hovering. Extract via sharp(src, {animated:false}). */
   poster?: string;
+  /** Optional video URL (mp4). If set, the Explore row autoplays the
+      video on loop in place of the static image — used when per-item
+      animated GIFs aren't available but a transcoded video is. */
+  video?: string;
 };
 
 export type ExhibitionStatus = "current" | "upcoming" | "past";

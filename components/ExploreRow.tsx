@@ -58,7 +58,22 @@ function ExploreItem({ item }: { item: FeaturedArtwork }) {
     >
       <figure className="ex-explore-figure">
         <div className="ex-explore-image">
-          {animating ? (
+          {item.video ? (
+            // Autoplay loop — used when per-item animated GIFs aren't
+            // available but a transcoded video is. The static image
+            // doubles as the poster frame so the cell isn't empty
+            // before the video buffers.
+            <video
+              src={item.video}
+              poster={item.image}
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              aria-label={item.alt}
+            />
+          ) : animating ? (
             // Raw <img> so the browser plays the GIF natively from
             // frame 0. Re-mounts on each hover (unmounted on leave)
             // to reset playback.

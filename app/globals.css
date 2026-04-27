@@ -1981,6 +1981,38 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .ex-hero[data-slug="heuristics-of-emotion"]{
   --ex-title-clearance:24px;
 }
+/* RIIIIS / Bully: source is only 640×529, so the default
+   width:auto / max-width:100% rule renders it at intrinsic size and it
+   reads tiny. Scale the image up to ~65% of the plate (a meaningful
+   bump above intrinsic without dominating the hero) and keep
+   crisp-edges so the dither stays sharp. */
+.ex-hero[data-slug="bully"] .ex-hero-plate img{
+  width:65%;height:65%;
+  max-width:65%;max-height:65%;
+  object-fit:contain;
+  image-rendering:crisp-edges;
+}
+/* Mazin / Phantasmagoria: hero scaled 12% smaller than the default. */
+.ex-hero[data-slug="phantasmagoria"] .ex-hero-plate img{
+  max-width:88%;max-height:88%;
+}
+/* Paul Prudence / ISO/IEC 10646: drop the title-clearance bottom
+   padding so the exhibition hero plate matches the homepage `.slide`'s
+   exact 64/56 framing — the artwork now fills the same area at the
+   same scale as the homepage hero. */
+.ex-hero[data-slug="iso-iec-10646"] .ex-hero-frame{
+  padding:64px 56px;
+}
+/* PERFECTL00P / Trails: balance the top padding to match the bottom
+   title-clearance so Window Dysmorphia is vertically centered on the
+   plate (default frame padding is asymmetric — 64 top vs. 160 bottom —
+   which pulls images upward). 86% caps keep it ~14% smaller. */
+.ex-hero[data-slug="trails"] .ex-hero-frame{
+  padding:calc(var(--ex-title-bottom) + var(--ex-title-clearance)) 56px;
+}
+.ex-hero[data-slug="trails"] .ex-hero-plate img{
+  max-width:95%;max-height:95%;
+}
 .ex-hero[data-slug="heuristics-of-emotion"] .ex-hero-plate img{
   max-width:95%;max-height:95%;
 }
@@ -2080,6 +2112,78 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .exhibition-detail[data-slug="gwanak-gu"] .ex-inline-artworks:has(> :only-child){
   max-width:526px;
 }
+/* Mazin / Phantasmagoria: solo Ruinscape Isometrica scaled 10% above
+   the global 420px cap, with extra vertical breathing room so the
+   single inline beat feels deliberate rather than crammed between
+   paragraphs. */
+.exhibition-detail[data-slug="phantasmagoria"] .ex-inline-artworks:has(> :only-child){
+  max-width:462px;
+  margin-block:72px;
+}
+/* Rudxane / Piezo: solo installation-view photo scaled 25% above the
+   global 420px cap (now 525px) and given a softer drop-shadow than the
+   default — the doc photo is already a "framed photo" by nature, so a
+   pronounced lift reads as redundant. */
+.exhibition-detail[data-slug="piezo"] .ex-inline-artworks:has(> :only-child){
+  max-width:1040px;
+}
+.exhibition-detail[data-slug="piezo"] .ex-inline-image img{
+  filter:drop-shadow(0 6px 16px rgba(40,35,25,0.04)) drop-shadow(0 1px 3px rgba(40,35,25,0.03));
+}
+/* Chepertom / Deluge: solo Aftermath/Dispersion plates scaled up so
+   the wide 16:9 frames carry the weight of the prose flow. */
+.exhibition-detail[data-slug="deluge"] .ex-inline-artworks:has(> :only-child){
+  max-width:555px;
+}
+/* Paired bottom row (Breaker / Undertow): source files differ in aspect
+   by ~4%, so Undertow renders visibly taller than Breaker. Pin both
+   cells to a shared 4:5 frame and cover-crop the image inside, with
+   !important to beat the width/height attributes that Next/Image
+   stamps onto the <img>. */
+.exhibition-detail[data-slug="deluge"] .ex-inline-artworks:has(> :nth-child(2)) .ex-inline-image{
+  aspect-ratio:4/5;
+  overflow:hidden;
+}
+.exhibition-detail[data-slug="deluge"] .ex-inline-artworks:has(> :nth-child(2)) .ex-inline-image img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover !important;
+}
+/* Erik Swahn / Autoscope: solo iframes scaled above the global 420px
+   cap and nudged right to sit on the visible page center line
+   (margin:auto centers within the .ex-overview content area, but
+   visually the absolute facts sidenote on the right pulls the perceived
+   center, so we offset to compensate). Vertical margin bumped above the
+   global 56px so the stack gets enough air for each work to resolve
+   before the next. The middle and closing pieces step up 5% / 10% so
+   the sequence builds rather than reading flat. */
+.exhibition-detail[data-slug="autoscope"] .ex-inline-artworks:has(> :only-child){
+  max-width:707px;
+  transform:translateX(115px);
+  margin-block:40px;
+}
+.exhibition-detail[data-slug="autoscope"] .ex-inline-figure{gap:5px;}
+.exhibition-detail[data-slug="autoscope"] .ex-inline-artworks:has(iframe[title$="#121"]){
+  max-width:742px;
+}
+.exhibition-detail[data-slug="autoscope"] .ex-inline-artworks:has(iframe[title$="#83"]){
+  max-width:848px;
+}
+/* #83 is 20% larger, so the bundle's internal bottom cream margin scales
+   up too — pull the caption back up to match the visual title-to-art
+   distance of the smaller pieces. */
+.exhibition-detail[data-slug="autoscope"] .ex-inline-artworks:has(iframe[title$="#83"]) .ex-inline-caption{
+  margin-top:-12px;
+}
+/* Erik Swahn's bundle paints onto a cream plate that is ~the same value
+   as the page background, so the iframes visually melt into the page.
+   Slight drop-shadow bump so each work reads as a discrete object lifted
+   off the wall — kept restrained, no hairline edge. */
+.exhibition-detail[data-slug="autoscope"] .ex-inline-iframe iframe{
+  filter:
+    drop-shadow(0 13px 28px rgba(40,35,25,0.10))
+    drop-shadow(0 3px 6px rgba(40,35,25,0.06));
+}
 /* Erik Swahn / Autoscope: full-bleed installation hero — image fills
    the entire hero edge-to-edge (no plate matte, no drop-shadow), with
    the title overlaid dead-center on top. */
@@ -2112,9 +2216,11 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   display:flex;flex-direction:column;gap:18px;
   width:100%;
   /* Cap the centered column so its right edge never reaches the
-     absolute facts sidenote. The 440px reserve keeps a clear gap on
-     either side of the body for the ~200px-wide facts column. */
-  max-width:min(68ch, calc(100% - 440px));
+     absolute facts sidenote. Hard pixel cap with a wider calc
+     reservation than the sidebar's actual width so even on
+     in-between viewports the prose can never wrap under the facts
+     column. */
+  max-width:min(680px, calc(100% - 560px));
   margin:0 auto;
   font-family:'Cormorant','Title CJK',serif;font-weight:400;
   font-size:19px;line-height:1.6;color:var(--ink-soft);
@@ -2127,7 +2233,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-weight:400;font-style:normal;
   font-size:19px;line-height:1.55;letter-spacing:0;
   color:var(--ink);
-  max-width:72ch;
+  max-width:100%;
   font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
   /* Browser-side widow avoidance: shifts breaks in the last few lines
      so a paragraph doesn't end on a single stranded word. Hint not
@@ -2495,7 +2601,8 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   position:relative;aspect-ratio:1;overflow:hidden;
   background:#000000;
 }
-.ex-explore-image img{
+.ex-explore-image img,
+.ex-explore-image video{
   width:100%;height:100%;object-fit:contain;display:block;
 }
 /* Pixel-art GIFs: at hero scale we force image-rendering: pixelated so
@@ -2505,6 +2612,38 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    nearest-neighbor harshness. */
 .exhibition-detail[data-slug="pictography"] .ex-explore-image img{
   image-rendering:crisp-edges;
+}
+/* Itsgalo / Basalt GIFs: three 720×960 portrait works in a row. Override
+   the default 5-up grid + square cell aspect so the cells match the
+   source 3:4 and the GIFs fill cleanly. */
+.exhibition-detail[data-slug="basalt-gifs"] .ex-explore-row{
+  grid-template-columns:repeat(3, 1fr);
+}
+.exhibition-detail[data-slug="basalt-gifs"] .ex-explore-image{
+  aspect-ratio:3/4;
+}
+/* Tù.úk'z / Escapes: three works fill the full explore row, three equal
+   columns. */
+.exhibition-detail[data-slug="escapes"] .ex-explore-row{
+  grid-template-columns:repeat(3, 1fr);
+}
+/* Mazin / Phantasmagoria: explore reduced to three works, fill the row
+   in three equal columns. */
+.exhibition-detail[data-slug="phantasmagoria"] .ex-explore-row{
+  grid-template-columns:repeat(3, 1fr);
+}
+/* PERFECTL00P / Trails: three 1:1 explore works fill the row. */
+.exhibition-detail[data-slug="trails"] .ex-explore-row{
+  grid-template-columns:repeat(3, 1fr);
+}
+/* Mark Webster / distraKted: three portrait works in a row; cell aspect
+   matches the source ~3:4 so the works fill cleanly without letterbox. */
+.exhibition-detail[data-slug="distrakted"] .ex-explore-row{
+  grid-template-columns:repeat(3, 1fr);
+}
+.exhibition-detail[data-slug="distrakted"] .ex-explore-image{
+  aspect-ratio:3/4;
+  background:transparent;
 }
 /* Caption: matches the FeaturedArtworks / editorial register. */
 .ex-explore-caption{
