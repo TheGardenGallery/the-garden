@@ -3,6 +3,10 @@ export type Artist = {
   name: string;
   coord: { row: string; col: number };
   bio?: string;
+  /** Verse profile slug. Use only when it differs from the local
+      `slug` (e.g. our `sp-gelsesmaskinen` vs Verse's `spogelsesmaskinen`).
+      Defaults to `slug` at the call site when unset. */
+  verseSlug?: string;
 };
 
 export type Work = {
@@ -30,6 +34,11 @@ export type FeaturedArtwork = {
       video on loop in place of the static image — used when per-item
       animated GIFs aren't available but a transcoded video is. */
   video?: string;
+  /** Optional iframe URL — used for live generative artwork pieces
+      (e.g. Verse-hosted JS bundles). When set, the Explore row embeds
+      the iframe and overlays a transparent anchor for the click-through
+      so the link still routes to verseUrl. */
+  iframe?: string;
 };
 
 export type ExhibitionStatus = "current" | "upcoming" | "past";

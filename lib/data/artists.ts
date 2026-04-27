@@ -18,13 +18,13 @@ export const artists: Artist[] = [
   { slug: "nikita-diakur",     name: "Nikita Diakur",     coord: { row: "N", col: 1 } },
   { slug: "paul-prudence",     name: "Paul Prudence",     coord: { row: "P", col: 1 } },
   { slug: "perfectl00p",       name: "Perfectl00p",       coord: { row: "P", col: 2 } },
-  { slug: "paolo-eri",         name: "Paolo Čerić",       coord: { row: "P", col: 3 } },
+  { slug: "paolo-eri",         name: "Paolo Čerić",       coord: { row: "P", col: 3 }, verseSlug: "paolo-ceric" },
   { slug: "riiiis",            name: "Riiiis",            coord: { row: "R", col: 1 } },
   { slug: "rudxane",           name: "Rudxane",           coord: { row: "R", col: 2 } },
-  { slug: "sp-gelsesmaskinen", name: "Spøgelsesmaskinen", coord: { row: "S", col: 1 } },
-  { slug: "t-k-z",             name: "Tù.úk'z",           coord: { row: "T", col: 1 } },
-  { slug: "ves3l",             name: "Ves3l",             coord: { row: "V", col: 1 } },
-  { slug: "yoshi-sodeoka",     name: "Yoshi Sodeoka",     coord: { row: "Y", col: 1 } },
+  { slug: "sp-gelsesmaskinen", name: "Spøgelsesmaskinen", coord: { row: "S", col: 1 }, verseSlug: "spogelsesmaskinen" },
+  { slug: "t-k-z",             name: "Tù.úk'z",           coord: { row: "T", col: 1 }, verseSlug: "tkz" },
+  { slug: "ves3l",             name: "Ves3l",             coord: { row: "V", col: 1 }, verseSlug: "VES3L" },
+  { slug: "yoshi-sodeoka",     name: "Yoshi Sodeoka",     coord: { row: "Y", col: 1 }, verseSlug: "yoshi-sodeoka-" },
 ];
 
 // Distinct row labels in the order they should appear

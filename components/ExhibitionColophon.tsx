@@ -3,6 +3,7 @@ import type { Exhibition } from "@/lib/types";
 import { preserveHyphens } from "@/lib/typography";
 import { ArrowRight, ArrowDown, ArrowNE } from "@/components/Arrows";
 import { ClampedBody } from "@/components/ClampedBody";
+import { artists } from "@/lib/data/artists";
 
 /**
  * Museum-style colophon at the foot of each exhibition page. Up to
@@ -10,6 +11,14 @@ import { ClampedBody } from "@/components/ClampedBody";
  * `exhibition.documents`), and enquiries / Verse link.
  */
 export function ExhibitionColophon({ exhibition }: { exhibition: Exhibition }) {
+  // Resolve the artist's Verse profile slug. Most artists' local slug
+  // matches Verse's, but a few diverge (e.g. our `sp-gelsesmaskinen`
+  // vs Verse's `spogelsesmaskinen`) — those carry an explicit
+  // `verseSlug` on their Artist record.
+  const artist = artists.find((a) => a.slug === exhibition.artistSlug);
+  const verseProfileSlug = artist?.verseSlug ?? exhibition.artistSlug;
+  const verseProfileUrl = `https://verse.works/${verseProfileSlug}`;
+
   return (
     <section className="ex-colophon">
       <div className="ex-colophon-inner">
@@ -24,8 +33,9 @@ export function ExhibitionColophon({ exhibition }: { exhibition: Exhibition }) {
           links={[
             {
               label: "Artist profile",
-              href: `/artists/${exhibition.artistSlug}`,
-              icon: <ArrowRight />,
+              href: verseProfileUrl,
+              icon: <ArrowNE />,
+              external: true,
             },
           ]}
         />

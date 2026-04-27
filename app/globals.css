@@ -2613,6 +2613,25 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .ex-explore-image video{
   width:100%;height:100%;object-fit:contain;display:block;
 }
+/* Live iframe explore items (e.g. BASALT RT). The iframe fills the
+   square cell, and a transparent anchor sits on top so clicks route
+   to verseUrl instead of being captured by the iframe's own controls. */
+.ex-explore-iframe{
+  width:100%;height:100%;border:0;display:block;background:transparent;
+}
+.ex-explore-iframe-link{
+  position:absolute;inset:0;z-index:2;display:block;
+}
+.ex-explore-caption-link{color:inherit;text-decoration:none;}
+/* Itsgalo / BASALT RT: three live iframes in a row, no black letterbox
+   (the genart paints onto a cream plate that should sit flush with
+   the page background). */
+.exhibition-detail[data-slug="basalt-rt"] .ex-explore-row{
+  grid-template-columns:repeat(3, 1fr);
+}
+.exhibition-detail[data-slug="basalt-rt"] .ex-explore-image{
+  background:transparent;
+}
 /* Pixel-art GIFs: at hero scale we force image-rendering: pixelated so
    ASCII stays crisp. At thumbnail scale (this row) `pixelated` reads
    abrasive — full jaggy edges at 200px — while `auto` (bicubic) goes

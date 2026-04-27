@@ -140,6 +140,8 @@ export const exhibitions: Exhibition[] = [
     disableListHoverZoom: true,
     descriptionByArtist: true,
     verseSeriesUrl: "https://verse.works/series/pictography-by-1mposter",
+    workCount: 6,
+    artistBio: "1mposter is a Brazilian digital media artist with over 15 years of experience in motion design and 3D. Drawing from influences in science and mythology, 1mposter explores the intersection of narrative and technology. Their practice focuses on creating contemplative visual experiences that invite repeated viewing, revealing new details over time.",
     description: [
       `Even though these animated pictograms are fairly high resolution (1575x1575px), they are all rendered in a 45x45 character grid as ASCII art.`,
       `In a way, they are very low resolution depictions of ideas and feelings.`,
@@ -561,6 +563,58 @@ export const exhibitions: Exhibition[] = [
         image: "/images/t-k-z/escapes-81.jpg",
         alt: "Tù.úk'z, ESCAPES #81",
         verseUrl: "https://verse.works/items/ethereum/0x18e0e4c10c6158295a7be03f57712f8667e65dcb/80",
+      },
+    ],
+  },
+  {
+    slug: "basalt-rt",
+    artistSlug: "itsgalo",
+    artistName: "Itsgalo",
+    title: "BASALT RT",
+    year: 2024,
+    month: "Jun",
+    date: "June 2024",
+    location: "Verse",
+    status: "past",
+    workCount: 96,
+    hero: "/images/itsgalo/basalt-rt-hero.jpg",
+    // Live real-time JS artwork. Edition #28 (token #27 on the
+    // Ethereum contract) seeded as the hero specimen — viewers see the
+    // BASALT algorithm running in the browser. Click-through is
+    // suppressed by the hero plate when heroIframe is set so the
+    // iframe stays interactive; the verseSeriesUrl below is what the
+    // hero title-bar links use.
+    heroIframe: "https://ipfs.verse.works/ipfs/QmcorKQ1nT5c9QTrY4tMAafVQ3uC1VwQpQ4zJhz1fcb8PA/?payload=eyJoYXNoIjoiMHhlYzAwMmQ3YWJjYTgwMzQ0MjcwNmNkNjI5YWQzNTEwNTM5Yjk4ZTQzNjAzNzJhNWI2OWZjNTgzZTcxMDhjYTRhIiwiZWRpdGlvbk51bWJlciI6MjgsInRvdGFsRWRpdGlvbnMiOjY1LCJpbnB1dCI6eyIkdXNlcm5hbWUiOiJkaWdpdGFsY29sZW1hbiJ9fQ%3D%3D",
+    verseSeriesUrl: "https://verse.works/series/basalt-rt-itsgalo",
+    artistBio: "Itsgalo is the screen-name for Galo Canizares, a designer, writer, and educator working across various creative fields from architecture to digital art to experimental software. He is currently an assistant professor of architecture at the University of Kentucky’s College of Design where he teaches courses on visualization and representation. Galo’s work interrogates the emerging sociotechnical effects of code, screens, and software culture. He is fascinated by the strange behaviors and aesthetics unique to computing and digital media, an interest that emerged as a kid playing with Flash and other painting software. In 2019, Galo published a collection of essays on computation, art, and design titled Digital Fabrications: Designer Stories for a Software-Based Planet. Many of Galo’s artworks try to leverage computing to produce visually compelling and layered effects. They are often animated or use some kind of real-time motion like simulated physics. Other recurring themes are limited color palettes, dithering, and low-res graphics, concepts and techniques tied to the history of computer-based art.",
+    descriptionByArtist: true,
+    description: [
+      `<em>BASALT RT</em> is a real-time Javascript software artwork that explores the <em>BASALT</em> algorithm in a long-form generative format. It leverages the interactivity of the web browser and provides an interface for walking through the parameter space of the algorithm. Each iteration generates unique gestures and color combinations based on a set of constraints, resulting in a range of abstract <span class="num-lining">2</span>D figures that flow, blend, and dissipate through the canvas forever.`,
+    ],
+    exploreArtworks: [
+      {
+        id: "basalt-rt-53",
+        title: "BASALT RT #53",
+        image: "/images/itsgalo/basalt-rt-53.jpg",
+        alt: "Itsgalo, BASALT RT #53",
+        verseUrl: "https://verse.works/items/ethereum/0xfcfcf1547b5ef44ac35e260f7c0bba5e307a94c8/52",
+        iframe: "https://ipfs.verse.works/ipfs/QmcorKQ1nT5c9QTrY4tMAafVQ3uC1VwQpQ4zJhz1fcb8PA/?payload=eyJoYXNoIjoiMHgwYTg0MGE1ZjY5OWI5OWFlMWQ1MGE1OWZkZWJhNDg4N2Y4ZmEwNmQ2YzkxZDM0MjA4ZmNiNDEzMzk5OGE2YjJhIiwiZWRpdGlvbk51bWJlciI6NTMsInRvdGFsRWRpdGlvbnMiOjY1LCJpbnB1dCI6eyIkdXNlcm5hbWUiOiJyYWdzbWF0YWdzIn19",
+      },
+      {
+        id: "basalt-rt-34",
+        title: "BASALT RT #34",
+        image: "/images/itsgalo/basalt-rt-34.jpg",
+        alt: "Itsgalo, BASALT RT #34",
+        verseUrl: "https://verse.works/items/ethereum/0xfcfcf1547b5ef44ac35e260f7c0bba5e307a94c8/33",
+        iframe: "https://ipfs.verse.works/ipfs/QmcorKQ1nT5c9QTrY4tMAafVQ3uC1VwQpQ4zJhz1fcb8PA/?payload=eyJoYXNoIjoiMHg1ZTllYmY1Y2NlMDZlMWRiMmM4M2JiZmU1MDU4OTlhMjY4ODEzMjQwMmNhMWMxZmVlNDg5MTliMTEzMmU1ZjhjIiwiZWRpdGlvbk51bWJlciI6MzQsInRvdGFsRWRpdGlvbnMiOjY1LCJpbnB1dCI6eyIkdXNlcm5hbWUiOiJoYW5uYWgyMTA2In19",
+      },
+      {
+        id: "basalt-rt-85",
+        title: "BASALT RT #85",
+        image: "/images/itsgalo/basalt-rt-85.jpg",
+        alt: "Itsgalo, BASALT RT #85",
+        verseUrl: "https://verse.works/items/ethereum/0xfcfcf1547b5ef44ac35e260f7c0bba5e307a94c8/84",
+        iframe: "https://ipfs.verse.works/ipfs/QmcorKQ1nT5c9QTrY4tMAafVQ3uC1VwQpQ4zJhz1fcb8PA/?payload=eyJoYXNoIjoiMHhmMWEyODdiNWRkMjk5NDg2MTk4NGIwMjY4ODQ4NmExNzJkYzZkODBkZDFmMDQwNmNiMmY0ODE1NTI3NzM4NjI5IiwiZWRpdGlvbk51bWJlciI6ODUsInRvdGFsRWRpdGlvbnMiOjY1LCJpbnB1dCI6eyIkdXNlcm5hbWUiOiJyYWdzbWF0YWdzIn19",
       },
     ],
   },

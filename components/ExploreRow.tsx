@@ -47,6 +47,49 @@ function ExploreItem({ item }: { item: FeaturedArtwork }) {
   const hasPoster = isGif && Boolean(item.poster);
   const staticSrc = item.poster ?? item.image;
 
+  // Live iframes (e.g. BASALT RT) are interactive, so wrapping the
+  // whole figure in a single <a> doesn't get the click-through —
+  // iframes consume their own clicks. Render the iframe inside the
+  // image cell and overlay a transparent anchor on top so the link
+  // still routes to verseUrl. The figcaption below stays a normal
+  // link via a separate wrapper.
+  if (item.iframe) {
+    return (
+      <div className="ex-explore-item">
+        <figure className="ex-explore-figure">
+          <div className="ex-explore-image">
+            <iframe
+              className="ex-explore-iframe"
+              src={item.iframe}
+              title={item.alt}
+              loading="lazy"
+              referrerPolicy="no-referrer"
+              allow="autoplay; fullscreen"
+              sandbox="allow-scripts allow-same-origin"
+            />
+            <a
+              className="ex-explore-iframe-link"
+              href={item.verseUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`View ${item.title} on Verse`}
+            />
+          </div>
+          <figcaption className="ex-explore-caption">
+            <a
+              className="ex-explore-caption-link"
+              href={item.verseUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <em>{item.title}</em>
+            </a>
+          </figcaption>
+        </figure>
+      </div>
+    );
+  }
+
   return (
     <a
       href={item.verseUrl}

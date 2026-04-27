@@ -70,30 +70,32 @@ export function HeroIframeMedia({
       ) : (
         <div className="ex-hero-iframe" style={aspectStyle} aria-hidden="true" />
       )}
-      <button
-        type="button"
-        className="ex-hero-iframe-refresh"
-        onClick={reroll}
-        aria-label="Roll a new variation of the artwork"
-      >
-        <svg
-          aria-hidden="true"
-          focusable="false"
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+      {randomize && (
+        <button
+          type="button"
+          className="ex-hero-iframe-refresh"
+          onClick={reroll}
+          aria-label="Roll a new variation of the artwork"
         >
-          <path d="M16.023 9.348h4.992v-4.992" />
-          <path d="M21.015 9.348a8.252 8.252 0 0 0-14.97-1.226" />
-          <path d="M7.977 14.652H2.985v4.992" />
-          <path d="M2.985 14.652a8.252 8.252 0 0 0 14.97 1.226" />
-        </svg>
-      </button>
+          <svg
+            aria-hidden="true"
+            focusable="false"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M16.023 9.348h4.992v-4.992" />
+            <path d="M21.015 9.348a8.252 8.252 0 0 0-14.97-1.226" />
+            <path d="M7.977 14.652H2.985v4.992" />
+            <path d="M2.985 14.652a8.252 8.252 0 0 0 14.97 1.226" />
+          </svg>
+        </button>
+      )}
     </>
   );
 }

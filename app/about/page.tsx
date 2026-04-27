@@ -15,7 +15,7 @@ export default function AboutPage() {
         <div className="about-col">
           <p>The Garden is a gallery for digital art.</p>
           <p>
-            The conditions of encounter shape the work. Each exhibition is
+            The conditions of encounter follow the work. Each exhibition is
             developed with attention to structure, duration, and form.
           </p>
           <p>
