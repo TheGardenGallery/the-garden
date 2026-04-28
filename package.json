@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "measure-iframes": "tsx scripts/measure-iframes.ts"
   },
   "dependencies": {
     "motion": "^12.38.0",
@@ -16,9 +17,13 @@
     "react-markdown": "^10.1.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "better-sqlite3": "^12.9.0",
+    "playwright": "^1.59.1",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   },
   "optionalDependencies": {

@@ -41,6 +41,21 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;1,400&family=Barlow:wght@400;500;600&family=Inter:wght@700&display=swap"
         />
+        {/* Warm up DNS/TCP for the IPFS / S3 gateways our genart
+            iframes load resources from via <base href>. Cheap network
+            hint that meaningfully cuts first-paint time on exhibition
+            pages with live iframes (BASALT RT, Autoscope, ves3l). */}
+        <link rel="preconnect" href="https://ipfs.verse.works" crossOrigin="" />
+        <link
+          rel="preconnect"
+          href="https://verse-public-gateway.myfilebase.com"
+          crossOrigin=""
+        />
+        <link
+          rel="preconnect"
+          href="https://public-bucket-verse-dev.s3.eu-west-1.amazonaws.com"
+          crossOrigin=""
+        />
       </head>
       <body>
         <Nav />

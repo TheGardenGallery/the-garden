@@ -85,6 +85,8 @@ function OverviewSegments({ exhibition }: { exhibition: Exhibition }) {
             <InlineArtworks
               group={seg.breakAt}
               fallbackUrl={exhibition.verseSeriesUrl}
+              fallbackYear={exhibition.year}
+              fallbackWorkCount={exhibition.workCount}
             />
           )}
         </React.Fragment>

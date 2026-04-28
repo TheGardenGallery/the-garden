@@ -58,7 +58,11 @@ export default async function ExhibitionDetailPage({
 
       {exhibition.exploreArtworks && exhibition.exploreArtworks.length > 0 && (
         <Reveal>
-          <ExploreRow items={exhibition.exploreArtworks} />
+          <ExploreRow
+            items={exhibition.exploreArtworks}
+            fallbackYear={exhibition.year}
+            fallbackWorkCount={exhibition.workCount}
+          />
         </Reveal>
       )}
 

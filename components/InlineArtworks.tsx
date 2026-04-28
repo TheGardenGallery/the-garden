@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect } from "react";
 import type { Exhibition } from "@/lib/types";
 import { useScrollReveal } from "@/lib/useScrollReveal";
+import { iframeMeasurementCssVars } from "@/lib/iframe-measurements";
 
 type Group = NonNullable<Exhibition["inlineArtworks"]>[number];
 type Item = Group["items"][number];
@@ -26,9 +27,13 @@ type Item = Group["items"][number];
 export function InlineArtworks({
   group,
   fallbackUrl,
+  fallbackYear,
+  fallbackWorkCount,
 }: {
   group: Group;
   fallbackUrl?: string;
+  fallbackYear?: number;
+  fallbackWorkCount?: number;
 }) {
   const { ref, visible } = useScrollReveal<HTMLDivElement>();
 
@@ -65,7 +70,13 @@ export function InlineArtworks({
   return (
     <div ref={ref} className={cls}>
       {group.items.map((item, j) => (
-        <InlineArtworkItem key={j} item={item} fallbackUrl={fallbackUrl} />
+        <InlineArtworkItem
+          key={j}
+          item={item}
+          fallbackUrl={fallbackUrl}
+          fallbackYear={fallbackYear}
+          fallbackWorkCount={fallbackWorkCount}
+        />
       ))}
     </div>
   );
@@ -74,12 +85,38 @@ export function InlineArtworks({
 function InlineArtworkItem({
   item,
   fallbackUrl,
+  fallbackYear,
+  fallbackWorkCount,
 }: {
   item: Item;
   fallbackUrl?: string;
+  fallbackYear?: number;
+  fallbackWorkCount?: number;
 }) {
+  // Figure exposes the full measurement vocabulary as CSS variables so
+  // any per-piece CSS can use them:
+  //  - measurement vars from `npm run measure-iframes` (viewport, px
+  //    insets, % insets, art W/H) — the cached visible-artwork bounding
+  //    box from the pixel-scan pipeline
+  //  - `--art-aspect` auto-derived from `item.aspectRatio`
+  //  - per-item `cssVars` overrides (the 3-knob tuning system:
+  //    `--art-scale`, `--cap-x`, `--cap-y`) — applied last so they win
+  const measurementVars = item.iframe
+    ? iframeMeasurementCssVars(item.iframe)
+    : undefined;
+  const figureStyle = {
+    ...measurementVars,
+    ...(item.aspectRatio !== undefined
+      ? { ["--art-aspect" as string]: String(item.aspectRatio) }
+      : undefined),
+    ...item.cssVars,
+  } as React.CSSProperties;
+
   const figure = (
-    <figure className="ex-inline-figure">
+    <figure
+      className="ex-inline-figure"
+      style={figureStyle}
+    >
       {item.iframe ? (
         <div
           className="ex-inline-iframe"
@@ -150,6 +187,31 @@ function InlineArtworkItem({
           ) : (
             <em>{item.title}</em>
           )}
+          {(() => {
+            // Optional second line: year · edition. Year falls back to
+            // the exhibition's year so every captioned work carries at
+            // least one piece of metadata "for free". The edition
+            // string is derived automatically from a "#N" suffix in
+            // the title (e.g. "Piezo #18") combined with the
+            // exhibition's `workCount` (e.g. → "ed. 18 of 20"), unless
+            // the item provides its own explicit `edition`.
+            const year = item.year ?? fallbackYear;
+            let edition: string | null = item.edition ?? null;
+            if (!edition && item.title && fallbackWorkCount) {
+              const m = item.title.match(/#(\d+)\s*$/);
+              if (m) edition = `ed. ${m[1]} of ${fallbackWorkCount}`;
+            }
+            const parts = [
+              year != null ? String(year) : null,
+              edition,
+            ].filter((p): p is string => Boolean(p));
+            if (parts.length === 0) return null;
+            return (
+              <span className="ex-inline-caption-meta">
+                {parts.join(" · ")}
+              </span>
+            );
+          })()}
         </figcaption>
       )}
     </figure>

@@ -7,6 +7,10 @@ import type { FeaturedArtwork } from "@/lib/types";
 type ExploreRowProps = {
   items: FeaturedArtwork[];
   title?: string;
+  /** Year fallback for the caption meta line — typically `exhibition.year`. */
+  fallbackYear?: number;
+  /** Edition denominator for auto-derived "ed. N of M" — typically `exhibition.workCount`. */
+  fallbackWorkCount?: number;
 };
 
 /**
@@ -21,7 +25,12 @@ type ExploreRowProps = {
  * "beginning" each time rather than resuming from a mid-animation
  * position.
  */
-export function ExploreRow({ items, title = "Explore" }: ExploreRowProps) {
+export function ExploreRow({
+  items,
+  title = "Explore",
+  fallbackYear,
+  fallbackWorkCount,
+}: ExploreRowProps) {
   if (!items.length) return null;
   return (
     <section className="ex-explore" aria-labelledby="exploreHead">
@@ -33,7 +42,12 @@ export function ExploreRow({ items, title = "Explore" }: ExploreRowProps) {
         </header>
         <div className="ex-explore-row">
           {items.map((item) => (
-            <ExploreItem key={item.id} item={item} />
+            <ExploreItem
+              key={item.id}
+              item={item}
+              fallbackYear={fallbackYear}
+              fallbackWorkCount={fallbackWorkCount}
+            />
           ))}
         </div>
       </div>
@@ -41,11 +55,45 @@ export function ExploreRow({ items, title = "Explore" }: ExploreRowProps) {
   );
 }
 
-function ExploreItem({ item }: { item: FeaturedArtwork }) {
+/**
+ * Build the optional "year · ed. N of M" meta line shown under each
+ * explore-row caption. Same auto-derivation rules as InlineArtworks:
+ * year falls back to the exhibition year, edition is parsed from a
+ * `#N` suffix in the title combined with workCount, and the explicit
+ * `edition` field overrides if set.
+ */
+function buildMetaLine(
+  item: FeaturedArtwork,
+  fallbackYear?: number,
+  fallbackWorkCount?: number
+): string | null {
+  const year = item.year ?? fallbackYear;
+  let edition: string | null = item.edition ?? null;
+  if (!edition && fallbackWorkCount) {
+    const m = item.title.match(/#(\d+)\s*$/);
+    if (m) edition = `ed. ${m[1]} of ${fallbackWorkCount}`;
+  }
+  const parts = [
+    year != null ? String(year) : null,
+    edition,
+  ].filter((p): p is string => Boolean(p));
+  return parts.length > 0 ? parts.join(" · ") : null;
+}
+
+function ExploreItem({
+  item,
+  fallbackYear,
+  fallbackWorkCount,
+}: {
+  item: FeaturedArtwork;
+  fallbackYear?: number;
+  fallbackWorkCount?: number;
+}) {
   const [animating, setAnimating] = useState(false);
   const isGif = /\.gif$/i.test(item.image);
   const hasPoster = isGif && Boolean(item.poster);
   const staticSrc = item.poster ?? item.image;
+  const meta = buildMetaLine(item, fallbackYear, fallbackWorkCount);
 
   // Live iframes (e.g. BASALT RT) are interactive, so wrapping the
   // whole figure in a single <a> doesn't get the click-through —
@@ -84,6 +132,7 @@ function ExploreItem({ item }: { item: FeaturedArtwork }) {
             >
               <em>{item.title}</em>
             </a>
+            {meta && <span className="ex-inline-caption-meta">{meta}</span>}
           </figcaption>
         </figure>
       </div>
@@ -137,6 +186,7 @@ function ExploreItem({ item }: { item: FeaturedArtwork }) {
         </div>
         <figcaption className="ex-explore-caption">
           <em>{item.title}</em>
+          {meta && <span className="ex-inline-caption-meta">{meta}</span>}
         </figcaption>
       </figure>
     </a>

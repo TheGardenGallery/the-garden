@@ -39,6 +39,12 @@ export type FeaturedArtwork = {
       the iframe and overlays a transparent anchor for the click-through
       so the link still routes to verseUrl. */
   iframe?: string;
+  /** Catalogue metadata for the explore-row caption's second line.
+      Year falls back to `exhibition.year`; edition is auto-derived
+      from a `#N` suffix in the title combined with `exhibition.workCount`
+      (or set explicitly here to override). */
+  year?: number;
+  edition?: string;
 };
 
 export type ExhibitionStatus = "current" | "upcoming" | "past";
@@ -63,6 +69,7 @@ export type Exhibition = {
   descriptionMarkdown?: string;  // markdown from Verse — takes priority when present
   descriptionByArtist?: boolean; // when true, render a "Text by the artist" byline under the description
   artistBio?: string;            // plain-text bio from Verse (colophon)
+  artistBioOverride?: boolean;   // when true, prefer local artistBio over the Verse-fetched one
   hero?: string;                 // used on exhibition detail page
   heroVideo?: string;            // if set, the detail hero renders this muted autoplay loop instead of the hero image
   heroVideoPoster?: string;      // poster frame for heroVideo, if different from `hero`. Prevents a visible frame-jump when the video starts playing from a still that isn't its first frame.
@@ -99,7 +106,7 @@ export type Exhibition = {
       plates can break up long prose at different points. */
   inlineArtworks?: {
     afterParagraphIndex: number;
-    items: { image: string; alt: string; title?: string; verseUrl?: string; video?: string; iframe?: string; aspectRatio?: number; unoptimized?: boolean; linkable?: boolean }[];
+    items: { image: string; alt: string; title?: string; verseUrl?: string; video?: string; iframe?: string; aspectRatio?: number; unoptimized?: boolean; linkable?: boolean; cssVars?: Record<string, string | number>; year?: number; edition?: string }[];
   }[];
   /** Hi-fidelity detail crops of a single work, shown as a grid like
       "Selected works" but all derived from the same source image via
@@ -136,6 +143,18 @@ export type Exhibition = {
   documents?: {
     pressPdfUrl?: string;
     interviewUrl?: string;
+  };
+  /** Physical exhibition metadata. If set, renders an "Exhibited at"
+      colophon block with venue, address, and run dates. Used for shows
+      that ran (or run) in a brick-and-mortar gallery alongside the
+      Verse-hosted online exhibition. Past shows show just the run
+      range — opening event details are intentionally omitted as
+      ephemeral metadata. */
+  physicalExhibition?: {
+    venue: string;
+    venueUrl?: string;
+    address: string;
+    dates: string;       // e.g. "17 – 27 July 2024"
   };
   prev?: ExhibitionLink;
   next?: ExhibitionLink;

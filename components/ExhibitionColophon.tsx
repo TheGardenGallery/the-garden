@@ -42,7 +42,7 @@ export function ExhibitionColophon({ exhibition }: { exhibition: Exhibition }) {
         {exhibition.documents && (
           <ColBlock
             label="Documents"
-            title="Press & reading"
+            title="Press & Reading"
             body="A press release and curator's note accompany the exhibition, including technical notes on the generative process and a conversation with the artist."
             links={[
               ...(exhibition.documents.pressPdfUrl
@@ -54,9 +54,33 @@ export function ExhibitionColophon({ exhibition }: { exhibition: Exhibition }) {
             ]}
           />
         )}
+        {exhibition.physicalExhibition && (
+          <div className="col-block">
+            <span className="col-label">Exhibited at</span>
+            <h3 className="col-title">{exhibition.physicalExhibition.venue}</h3>
+            <p className="col-body">
+              {exhibition.physicalExhibition.address}
+              <br />
+              {exhibition.physicalExhibition.dates}
+            </p>
+            {exhibition.physicalExhibition.venueUrl && (
+              <div className="col-links">
+                <Link
+                  href={exhibition.physicalExhibition.venueUrl}
+                  target="_blank"
+                  rel="noopener"
+                  className="col-link"
+                >
+                  <span className="col-link-txt">Visit gallery</span>
+                  <span className="arrow" aria-hidden="true"><ArrowNE /></span>
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
         <ColBlock
           label="Enquiries"
-          title="Works available"
+          title="Works Available"
           body={`All ${exhibition.workCount ?? "available"} works remain viewable and collectable on Verse, with full provenance and trading history. For press and private enquiries, contact the curator directly.`}
           links={[
             {

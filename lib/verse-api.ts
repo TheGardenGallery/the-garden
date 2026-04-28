@@ -88,10 +88,17 @@ function mergeExhibitionWithVerse(
   verse: VerseExhibition | undefined
 ): Exhibition {
   if (!verse) return ex;
+  // Local `artistBio` wins over Verse when the exhibition opts into an
+  // override (`artistBioOverride: true`). Without that flag, Verse is
+  // canonical and the hardcoded value acts as an offline fallback.
+  const verseBio = verse.artists[0]?.bio ?? undefined;
+  const artistBio = ex.artistBioOverride
+    ? ex.artistBio ?? verseBio
+    : verseBio ?? ex.artistBio;
   return {
     ...ex,
     descriptionMarkdown: verse.about ?? ex.descriptionMarkdown,
-    artistBio: verse.artists[0]?.bio ?? ex.artistBio,
+    artistBio,
   };
 }
 

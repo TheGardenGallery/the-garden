@@ -189,12 +189,10 @@ a{color:inherit;text-decoration:none;}
 /* ---- FOCUS ---------------------------------------------------------- */
 a:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset:4px;}
 
-/* Lining-figure escape hatch for prose. Body text uses oldstyle-nums
-   (font-feature-settings: "onum") which sits digits at x-height with
-   descenders — readable in running text but visually short next to
-   uppercase neighbours (e.g. "2D" → the 2 looks smaller than the D).
-   Wrap the digit in <span class="num-lining">…</span> to opt that
-   figure into uppercase-height lining figures. */
+/* Lining-figure escape hatch for prose. The site now uses lining
+   figures everywhere, so this class is a no-op against the global
+   default — kept because some legacy markup still references it.
+   Safe to remove once those references are cleaned up. */
 .num-lining{
   font-variant-numeric:lining-nums;
   font-feature-settings:"lnum" 1;
@@ -468,13 +466,15 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 
 /* ---- TYPOGRAPHY ATOMS ---------------------------------------------- */
 
-/* Display name — Cormorant 500, uppercase, lining numerals.
-   Used for artist names across contexts (cards, rows, title bars). */
+/* Display name — Cormorant 500, lining numerals. Renders artist
+   names verbatim (no auto-uppercase) so each artist's stylization
+   is preserved. Used for artist names across contexts (cards, rows,
+   title bars). */
 .ds-display-name{
   font-family:'Cormorant','Title CJK',serif;
   font-weight:500;font-style:normal;
   color:var(--ink);
-  text-transform:uppercase;line-height:1;
+  line-height:1;
   font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
   letter-spacing:-0.2px;
 }
@@ -534,7 +534,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-weight:400;font-style:normal;
   font-size:19px;line-height:1.55;color:var(--ink);
   max-width:72ch;
-  font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
 .ds-prose em,.ds-prose i{font-style:italic;font-weight:400;color:inherit;}
 
@@ -650,7 +650,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 }
 .hero-nav-btn:focus-visible{opacity:1;pointer-events:auto;outline:1px solid var(--hero-foreground);outline-offset:6px;}
 .hero-headline{display:flex;flex-direction:column;gap:4px;}
-.hero-artist{font-family:'Cormorant','Title CJK',serif;font-weight:500;font-style:normal;font-size:clamp(24px, calc(0.9vw + 16px), 32px);letter-spacing:-0.25px;line-height:1;color:var(--on-dark-fg);text-transform:uppercase;font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;}
+.hero-artist{font-family:'Cormorant','Title CJK',serif;font-weight:500;font-style:normal;font-size:clamp(24px, calc(0.9vw + 16px), 32px);letter-spacing:-0.25px;line-height:1;color:var(--on-dark-fg);font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;}
 .hero-title{font-family:'Cormorant','Title CJK',serif;font-weight:400;font-style:italic;font-size:clamp(24px, calc(0.9vw + 16px), 32px);letter-spacing:-0.25px;line-height:1.05;color:var(--on-dark-fg);text-transform:none;}
 .hero-meta{font-size:10px;letter-spacing:0.5px;color:rgba(245,243,239,0.6);font-weight:400;line-height:1;text-transform:uppercase;margin-top:12px;}
 .hero-link{display:inline-flex;align-items:baseline;gap:8px;font-family:'Cormorant','Title CJK',serif;font-style:italic;font-size:14px;line-height:1;color:rgba(245,243,239,0.85);text-decoration:none;margin-top:16px;}
@@ -918,7 +918,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-weight:400;font-style:normal;
   font-size:19px;line-height:1.7;letter-spacing:0;
   color:var(--ink);
-  font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
 .about-col p + p{margin-top:8px;}
 .about-rule{
@@ -1141,7 +1141,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    Same easing on all three so they feel like a single motion. */
 .artist-hover-preview-slide{
   opacity:0;
-  transform:scale(0.94);
+  transform:scale(1.05);
   filter:blur(10px);
   /* Exit — quick exponential acceleration. */
   transition:
@@ -1433,7 +1433,6 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-family:'Cormorant','Title CJK',serif;
   font-weight:500;font-size:24px;letter-spacing:-0.2px;line-height:1;
   color:inherit;
-  text-transform:uppercase;
   font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
 .row-title{
@@ -1539,7 +1538,6 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-family:'Cormorant','Title CJK',serif;
   font-weight:500;font-size:20px;letter-spacing:-0.15px;line-height:1.25;
   color:inherit;
-  text-transform:uppercase;
   font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
 .past-card .past-title{
@@ -1638,7 +1636,6 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-family:'Cormorant','Title CJK',serif;font-weight:500;font-style:normal;
   font-size:clamp(24px, calc(0.9vw + 16px), 32px);
   letter-spacing:-0.25px;line-height:1;color:var(--ink);
-  text-transform:uppercase;
   font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
 .ex-title-title{
@@ -1672,18 +1669,13 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
      invisible against the black ground anyway; kill it here. */
   filter:none;
 }
-/* Pictography's lift offset is now defined as the slug's
-   --ex-title-bottom (see hero-frame block below) so the frame's
-   safe-zone padding tracks the lift automatically. */
 /* Canonical hero framing. The frame reserves a title safe-zone at
    the bottom so the artwork's contain-fit can never extend into the
    title-bar's territory at any viewport aspect ratio.
      --ex-title-bottom: where the title-bar's bottom edge sits.
      --ex-title-clearance: title height + breathing room above it.
    Frame bottom padding = sum of the two, which guarantees the
-   artwork's bottom edge ends at least `clearance` above the title.
-   Pictography overrides --ex-title-bottom for its lifted title;
-   the frame padding tracks the override automatically. */
+   artwork's bottom edge ends at least `clearance` above the title. */
 .ex-hero{
   --ex-title-bottom:64px;
   --ex-title-clearance:96px;
@@ -1694,9 +1686,6 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   padding:64px 56px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
 }
 .ex-title-bar{bottom:var(--ex-title-bottom);}
-.ex-hero[data-slug="pictography"]{
-  --ex-title-bottom:calc(64px + 5.5vh);
-}
 /* Aluan Wang / Equinox + cydr / New-life: shared hero framing —
    artwork capped at 85% of the frame for breathing room, title-bar
    stays pinned at the canonical bottom-left corner (no lift) so the
@@ -1742,6 +1731,12 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   max-width:68ch;
   border-top:1px solid var(--rule-thin);
   padding-top:48px;
+}
+/* cydr styles his name lowercase, so opt this attribution out of the
+   default uppercase treatment. Letter-spacing stays so it still reads
+   as small-caps-flavored attribution rather than body copy. */
+.exhibition-detail[data-slug="new-life-to-still-life"] .ex-artist-quote-attribution{
+  text-transform:none;
 }
 
 /* cydr / New-life, to Still-life: square work, same logic as Equinox.
@@ -1984,27 +1979,55 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .ex-hero[data-slug="heuristics-of-emotion"]{
   --ex-title-clearance:24px;
 }
-/* RIIIIS / Bully: source is only 640×529, so the default
+/* riiiis / bully: source is only 640×529, so the default
    width:auto / max-width:100% rule renders it at intrinsic size and it
    reads tiny. Scale the image up to ~65% of the plate (a meaningful
    bump above intrinsic without dominating the hero) and keep
    crisp-edges so the dither stays sharp. */
 .ex-hero[data-slug="bully"] .ex-hero-plate img{
-  width:65%;height:65%;
-  max-width:65%;max-height:65%;
+  width:69%;height:69%;
+  max-width:69%;max-height:69%;
   object-fit:contain;
   image-rendering:crisp-edges;
+}
+/* Lock the haven/portent pair to their intrinsic 3:4 aspect so both
+   cells render at identical dimensions regardless of the width/height
+   attributes Next/Image stamps onto the <img>. Targets each cell
+   directly via :has() on the image's alt — the apocalypse/genesis row
+   above is naturally 1:1 and unaffected. */
+.exhibition-detail[data-slug="bully"] .ex-inline-image:has(img[alt$="haven"]),
+.exhibition-detail[data-slug="bully"] .ex-inline-image:has(img[alt$="portent"]){
+  width:100%;
+  aspect-ratio:3/4;
+  overflow:hidden;
+}
+.exhibition-detail[data-slug="bully"] .ex-inline-image:has(img[alt$="haven"]) img,
+.exhibition-detail[data-slug="bully"] .ex-inline-image:has(img[alt$="portent"]) img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover;
 }
 /* Mazin / Phantasmagoria: hero scaled 12% smaller than the default. */
 .ex-hero[data-slug="phantasmagoria"] .ex-hero-plate img{
   max-width:88%;max-height:88%;
 }
-/* Paul Prudence / ISO/IEC 10646: drop the title-clearance bottom
-   padding so the exhibition hero plate matches the homepage `.slide`'s
-   exact 64/56 framing — the artwork now fills the same area at the
-   same scale as the homepage hero. */
-.ex-hero[data-slug="iso-iec-10646"] .ex-hero-frame{
-  padding:64px 56px;
+/* Nikita Diakur / Making an Egg with Hands: hero video scaled 6%
+   smaller than the default. */
+.ex-hero[data-slug="making-an-egg"] .ex-hero-plate .ex-hero-video{
+  max-width:94%;max-height:94%;
+}
+/* Paul Prudence / ISO/IEC 10646: match the homepage hero's resizing
+   logic. The default `.ex-hero-plate img` rule is `width:auto; height:auto;
+   max-width:100%; max-height:100%` — fine for sub-intrinsic viewports
+   but caps the artwork at its source dimensions on large screens, which
+   is why the exhibition hero felt smaller than the homepage hero on
+   resize. Switch to `width:100%; height:100%; object-fit:contain` so it
+   keeps growing to fill the frame, matching the homepage's `<Image fill>`.
+   Frame padding stays at the default (with bottom title-clearance) so
+   the artwork never crowds the title bar. */
+.ex-hero[data-slug="iso-iec-10646"] .ex-hero-plate img{
+  width:100%;height:100%;
+  object-fit:contain;
 }
 /* PERFECTL00P / Trails: balance the top padding to match the bottom
    title-clearance so Window Dysmorphia is vertically centered on the
@@ -2020,7 +2043,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   max-width:95%;max-height:95%;
 }
 .exhibition-detail[data-slug="heuristics-of-emotion"] .ex-details-inner{
-  max-width:840px;
+  max-width:890px;
 }
 /* Live generative artwork hero — pixel-rendered HTML/canvas piece.
    Iframes have no intrinsic dimensions, so we size the box from the
@@ -2046,6 +2069,16 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    safely clipped by the hero's `overflow:hidden`. */
 .ex-hero[data-slug="solve-un-solve"] .ex-hero-plate .ex-hero-iframe{
   transform:scale(1.06);
+}
+/* Itsgalo / BASALT RT: opposite of ves3l — the explore-row cells show
+   the bundle's painted canvas with comfortable colored breathing room
+   around the active artwork, but at full hero-plate size the same
+   piece reads as filling almost edge-to-edge (the bundle's small
+   margin gets visually swallowed). Scale the hero iframe down ~15%
+   so the cream/colored canvas around the artwork has the same
+   proportional presence the explore cells have. */
+.ex-hero[data-slug="basalt-rt"] .ex-hero-plate .ex-hero-iframe{
+  transform:scale(0.85);
 }
 /* Refresh affordance for live-iframe heroes. Sits centered under the
    plate inside the title-clearance zone, so it never overlaps the
@@ -2121,7 +2154,21 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    default — the doc photo is already a "framed photo" by nature, so a
    pronounced lift reads as redundant. */
 .exhibition-detail[data-slug="piezo"] .ex-inline-artworks:has(> :only-child){
-  max-width:1040px;
+  max-width:894px;
+}
+/* Lock every Piezo single-child installation photo into the same 3:2
+   box so all three render at identical dimensions regardless of the
+   width/height attributes Next/Image stamps onto the <img>. !important
+   beats the stamped intrinsic dims; cover-fits so any future photo
+   that isn't exactly 3:2 still fills the box without letterboxing. */
+.exhibition-detail[data-slug="piezo"] .ex-inline-artworks:has(> :only-child) .ex-inline-image{
+  aspect-ratio:3/2;
+  overflow:hidden;
+}
+.exhibition-detail[data-slug="piezo"] .ex-inline-artworks:has(> :only-child) .ex-inline-image img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:cover;
 }
 .exhibition-detail[data-slug="piezo"] .ex-inline-image img{
   filter:drop-shadow(0 6px 16px rgba(40,35,25,0.04)) drop-shadow(0 1px 3px rgba(40,35,25,0.03));
@@ -2154,27 +2201,23 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   max-width:707px;
   margin-block:40px;
 }
-.exhibition-detail[data-slug="autoscope"] .ex-inline-artworks:has(iframe[title$="#121"]){
-  max-width:742px;
-}
 .exhibition-detail[data-slug="autoscope"] .ex-inline-artworks:has(iframe[title$="#83"]){
-  max-width:848px;
-}
-/* Caption sits at the left edge of the artwork box (matches Equinox).
-   `align-self: flex-start` overrides the figure's default flex-stretch
-   so the caption hugs the artwork's left edge instead of being pulled
-   wherever the iframe's flex centering ended up. */
-.exhibition-detail[data-slug="autoscope"] .ex-inline-caption{
-  align-self:flex-start;
+  max-width:967px;
 }
 /* Erik Swahn's bundle paints onto a cream plate that is ~the same value
    as the page background, so the iframes visually melt into the page.
    Slight drop-shadow bump so each work reads as a discrete object lifted
-   off the wall — kept restrained, no hairline edge. */
+   off the wall — kept restrained, no hairline edge. Lining numerals on
+   the captions sidestep any font-feature glitches with the edition
+   numbers, which collide with onum + italic em. */
 .exhibition-detail[data-slug="autoscope"] .ex-inline-iframe iframe{
   filter:
     drop-shadow(0 13px 28px rgba(40,35,25,0.10))
     drop-shadow(0 3px 6px rgba(40,35,25,0.06));
+}
+.exhibition-detail[data-slug="autoscope"] .ex-inline-caption{
+  font-variant-numeric:lining-nums;
+  font-feature-settings:"lnum" 1;
 }
 /* Erik Swahn / Autoscope: full-bleed installation hero — image fills
    the entire hero edge-to-edge (no plate matte, no drop-shadow), with
@@ -2226,7 +2269,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-size:19px;line-height:1.55;letter-spacing:0;
   color:var(--ink);
   max-width:100%;
-  font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
   /* Browser-side widow avoidance: shifts breaks in the last few lines
      so a paragraph doesn't end on a single stranded word. Hint not
      guarantee — awkward viewport widths can still slip one through. */
@@ -2274,7 +2317,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-weight:400;font-style:italic;
   font-size:17px;letter-spacing:-0.1px;line-height:1.15;
   color:var(--ink);
-  font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
 .ex-footnote{
   display:block;
@@ -2321,7 +2364,15 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    on the hero plate. Aspect-ratio comes from the item data; defaults
    to 1 (square). */
 .ex-inline-iframe{
-  width:100%;
+  /* Wrapper width is multiplied by --art-scale so the artwork can be
+     shrunk or grown per piece (default 1 = full figure width). Auto
+     margins keep the wrapper centered horizontally for any scale —
+     scale<1 leaves equal padding on both sides, scale>1 overflows
+     symmetrically (negative margins absorb the extra space). The
+     caption math compensates with the matching `(1-scale)/2 * 100%`
+     term so the caption tracks the wrapper's left edge regardless. */
+  width:calc(100% * var(--art-scale, 1));
+  margin-inline:auto;
   line-height:0;
   container-type:size;
   display:flex;
@@ -2329,9 +2380,8 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   justify-content:center;
 }
 .ex-inline-iframe iframe{
-  --inline-iframe-aspect:1;
-  width:min(100cqw, calc(100cqh * var(--inline-iframe-aspect)));
-  height:min(100cqh, calc(100cqw / var(--inline-iframe-aspect)));
+  width:min(100cqw, calc(100cqh * var(--inline-iframe-aspect, 1)));
+  height:min(100cqh, calc(100cqw / var(--inline-iframe-aspect, 1)));
   border:0;display:block;background:transparent;
   filter:drop-shadow(0 11px 26px rgba(40,35,25,0.075)) drop-shadow(0 2px 5px rgba(40,35,25,0.045));
 }
@@ -2450,12 +2500,52 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-weight:400;font-style:italic;
   font-size:19px;line-height:1.2;letter-spacing:-0.15px;
   color:inherit;
-  font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
+  /* Caption auto-snaps flush to the visible artwork's bottom-left
+     using the cached measurement insets (`--art-inset-bottom` and
+     `--art-inset-left`, both stored as % of iframe WIDTH so they
+     compose uniformly via margin which is also width-relative).
+     Three per-piece knobs sit on top of the measurement default:
+       - `--art-scale` (default 1): scales the iframe wrapper itself
+         (see `.ex-inline-iframe` width), and the same multiplier
+         applies here so the caption tracks the now-smaller artwork's
+         bottom-left edge. The first term in `margin-left` accounts
+         for the wrapper being centered when scaled down.
+       - `--cap-x`, `--cap-y` (default 0px): pure nudges layered on
+         top of the scaled measurement.
+     With no measurement vars set, the insets fall back to 0% and the
+     caption sits at the iframe's bottom-left in normal flow. */
+  align-self:flex-start;
+  margin-top:calc(
+    -1 * var(--art-inset-bottom, 0%) * var(--art-scale, 1)
+    + var(--cap-y, 0px)
+  );
+  margin-left:calc(
+    (1 - var(--art-scale, 1)) / 2 * 100%
+    + var(--art-inset-left, 0%) * var(--art-scale, 1)
+    + var(--cap-x, 0px)
+  );
+  position:relative;
+  z-index:1;
 }
 .ex-inline-caption em{font-style:italic;font-weight:400;color:inherit;}
 .ex-inline-caption-link{
   color:inherit;text-decoration:none;
   transition:color 0.3s ease-out;
+}
+/* Optional second-line metadata under the italic title — year ·
+   medium · edition. Smaller, muted, lining figures, no italic; reads
+   as catalogue data rather than continuation of the title. Renders as
+   a block so it sits on its own line beneath the italic title. */
+.ex-inline-caption-meta{
+  display:block;
+  margin-top:4px;
+  font-style:normal;
+  font-size:14px;
+  letter-spacing:0;
+  color:var(--ink-soft, var(--ink));
+  font-variant-numeric:lining-nums;
+  font-feature-settings:"lnum" 1;
 }
 @media (hover:hover){
   a.ex-inline-artwork:hover{color:var(--ink-hover);}
@@ -2491,7 +2581,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-weight:400;font-style:italic;
   font-size:19px;line-height:1.2;letter-spacing:-0.15px;
   color:var(--ink);
-  font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
 .ex-featured-caption em{font-style:italic;font-weight:400;}
 @media (max-width:720px){
@@ -2519,7 +2609,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-weight:400;font-style:italic;
   font-size:19px;line-height:1.5;letter-spacing:0;
   color:var(--ink-soft);
-  font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
   text-wrap:pretty;
 }
 .ex-artist-quote-body p{margin:0;}
@@ -2640,6 +2730,11 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .exhibition-detail[data-slug="pictography"] .ex-explore-image img{
   image-rendering:crisp-edges;
 }
+/* 3 explore artworks instead of the default 5 — collapse the grid so
+   they fill the row at 1/3 width each. */
+.exhibition-detail[data-slug="pictography"] .ex-explore-row{
+  grid-template-columns:repeat(3, 1fr);
+}
 /* Itsgalo / Basalt GIFs: three 720×960 portrait works in a row. Override
    the default 5-up grid + square cell aspect so the cells match the
    source 3:4 and the GIFs fill cleanly. */
@@ -2678,7 +2773,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-weight:400;font-style:italic;
   font-size:19px;line-height:1.2;letter-spacing:-0.15px;
   color:inherit;
-  font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
 .ex-explore-caption em{font-style:italic;font-weight:400;}
 @media (max-width:1100px){
@@ -2813,7 +2908,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .work-item-title{
   font-family:'Cormorant','Title CJK',serif;font-style:italic;font-weight:400;
   font-size:19px;letter-spacing:-0.15px;line-height:1.2;color:var(--ink);
-  font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
 .work-item-title .year{
   font-style:italic;font-weight:400;color:var(--ink-soft);
@@ -2843,7 +2938,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 }
 .col-title{
   font-family:'Cormorant','Title CJK',serif;font-weight:500;font-style:normal;
-  font-size:22px;letter-spacing:-0.15px;line-height:1.1;text-transform:uppercase;
+  font-size:22px;letter-spacing:-0.15px;line-height:1.1;
   color:var(--ink);
   font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
@@ -2851,7 +2946,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-family:'Cormorant','Title CJK',serif;font-weight:400;font-style:normal;
   font-size:16px;line-height:1.5;color:var(--ink);
   max-width:38ch;
-  font-variant-numeric:oldstyle-nums;font-feature-settings:"onum" 1;
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
 .col-body em,.col-body i{
   font-family:'Cormorant','Title CJK',serif;font-style:italic;font-weight:400;font-size:inherit;
@@ -2899,18 +2994,18 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .ex-nav-line{
   display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
   font-family:'Cormorant','Title CJK',serif;font-weight:500;font-style:normal;
-  font-size:22px;letter-spacing:-0.15px;line-height:1.1;text-transform:uppercase;
+  font-size:22px;letter-spacing:-0.15px;line-height:1.1;
   color:var(--ink);
   font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
 .ex-nav-line em{
   font-family:'Cormorant','Title CJK',serif;font-style:italic;font-weight:400;
-  text-transform:none;letter-spacing:-0.15px;
+  letter-spacing:-0.15px;
   font-size:22px;
 }
 .ex-nav-line .slash{
   font-weight:400;font-style:italic;color:var(--ink-whisper);letter-spacing:0;
-  text-transform:none;font-size:0.82em;
+  font-size:0.82em;
 }
 
 @media (max-width:1100px){

@@ -114,13 +114,13 @@ export const exhibitions: Exhibition[] = [
       },
     ],
     description: [
-      `The Garden is pleased to present <em>Imagined Wreckage</em>, a series of photo collage and generative AI works by Chicago-based artist Chuck Anderson. Known for his multidisciplinary approach, Anderson's work is characterised by his distinctive use of colour, light, and foregrounding of digital technology.`,
-      `Described by the artist as a collection &ldquo;about amalgamation,&rdquo; the series dissects the boundaries between an artist's life and work in a post-internet, AI-focused era. The use of generative AI echoes across the works not simply in the output of the models, but through the way their processes parallel Anderson's own assembly of aggregated experience.`,
+      `The Garden is pleased to present <em>Imagined Wreckage</em>, a series of photo collage and generative AI works by Chicago-based artist Chuck Anderson. Known for his multidisciplinary approach, Anderson&rsquo;s work is characterised by his distinctive use of colour, light, and foregrounding of digital technology.`,
+      `Described by the artist as a collection &ldquo;about amalgamation,&rdquo; the series dissects the boundaries between an artist&rsquo;s life and work in a post-internet, AI-focused era. The use of generative AI echoes across the works not simply in the output of the models, but through the way their processes parallel Anderson&rsquo;s own assembly of aggregated experience.`,
       `Elements of the digital process lie embedded in the pieces. Wires, circuit boards, screens, and viewfinders are scattered throughout, eroding the line between the work and the working practice. The inclusion of photography gives the series an almost autobiographical quality, humanising the use of AI and embedding Anderson directly into the fabric of the collection.`,
-      `Engine parts alongside nods to hardcore and punk tropes are bathed in iridescence, balanced against flowers and butterflies, breaking down traditional aesthetic associations. Hard edges become surprisingly softened; crystalline textures feel malleable; opaque fogs settle into almost structural components. The pieces resist easy categorisation &mdash; equal parts virtual, sculptural, and photographic &mdash; giving <em>Imagined Wreckage</em> a dream-like quality that speaks to the AI hallucinations and latent dreaming informing so much of contemporary digital art.`,
+      `Engine parts, alongside nods to hardcore and punk tropes, are bathed in iridescence, balanced against flowers and butterflies, breaking down traditional aesthetic associations. Hard edges become surprisingly softened; crystalline textures feel malleable; opaque fogs settle into almost structural components. The pieces resist easy categorisation &mdash; equal parts virtual, sculptural, and photographic &mdash; giving <em>Imagined Wreckage</em> a dream-like quality that speaks to the AI hallucinations and latent dreaming informing so much of contemporary digital art.`,
     ],
-    prev: { slug: "deluge", artistName: "CHEPERTOM", title: "Deluge" },
-    next: { slug: "new-life-to-still-life", artistName: "Cydr", title: "New-Life, to Still-Life" },
+    prev: { slug: "deluge", artistName: "Chepertom", title: "Deluge" },
+    next: { slug: "new-life-to-still-life", artistName: "cydr", title: "New-life, to Still-life" },
   },
 
   // === PAST — 2025 ===
@@ -143,20 +143,10 @@ export const exhibitions: Exhibition[] = [
     workCount: 6,
     artistBio: "1mposter is a Brazilian digital media artist with over 15 years of experience in motion design and 3D. Drawing from influences in science and mythology, 1mposter explores the intersection of narrative and technology. Their practice focuses on creating contemplative visual experiences that invite repeated viewing, revealing new details over time.",
     description: [
-      `Even though these animated pictograms are fairly high resolution (1575x1575px), they are all rendered in a 45x45 character grid as ASCII art.`,
-      `In a way, they are very low resolution depictions of ideas and feelings.`,
+      `Even though these animated pictograms are fairly high resolution (1575 × 1575 px), they are all rendered in a 45 × 45 character grid as ASCII art.`,
+      `In a way, they are very low-resolution depictions of ideas and feelings.`,
     ],
-    // Order is significant: index 2 sits in the center of the quincunx
-    // layout, with indices 0/1/3/4 anchoring the four corners.
     exploreArtworks: [
-      {
-        id: "pictography-home",
-        title: "Home",
-        image: "/images/1mposter/pictography-home.gif",
-        poster: "/images/1mposter/pictography-home-poster.png",
-        alt: "1mposter, Pictography — Home",
-        verseUrl: "https://verse.works/items/ethereum/0xb9d36b839fac842d90d2857102ce1c1bedd59695/1",
-      },
       {
         id: "pictography-work",
         title: "Work",
@@ -171,15 +161,7 @@ export const exhibitions: Exhibition[] = [
         image: "/images/1mposter/pictography-power.gif",
         poster: "/images/1mposter/pictography-power-poster.png",
         alt: "1mposter, Pictography — Power",
-        verseUrl: "https://verse.works/items/ethereum/0xb9d36b839fac842d90d2857102ce1c1bedd59695/3",
-      },
-      {
-        id: "pictography-social-climbers",
-        title: "Social Climbers",
-        image: "/images/1mposter/pictography-social-climbers.gif",
-        poster: "/images/1mposter/pictography-social-climbers-poster.png",
-        alt: "1mposter, Pictography — Social Climbers",
-        verseUrl: "https://verse.works/items/ethereum/0xb9d36b839fac842d90d2857102ce1c1bedd59695/4",
+        verseUrl: "https://verse.works/items/ethereum/0xb9d36b839fac842d90d2857102ce1c1bedd59695/1",
       },
       {
         id: "pictography-flit",
@@ -187,7 +169,7 @@ export const exhibitions: Exhibition[] = [
         image: "/images/1mposter/pictography-flit.gif",
         poster: "/images/1mposter/pictography-flit-poster.png",
         alt: "1mposter, Pictography — Flit",
-        verseUrl: "https://verse.works/items/ethereum/0xb9d36b839fac842d90d2857102ce1c1bedd59695/5",
+        verseUrl: "https://verse.works/items/ethereum/0xb9d36b839fac842d90d2857102ce1c1bedd59695/3",
       },
     ],
   },
@@ -197,7 +179,7 @@ export const exhibitions: Exhibition[] = [
     slug: "distrakted",
     artistSlug: "mark-webster",
     artistName: "Mark Webster",
-    title: "DistraKted",
+    title: "distraKted",
     year: 2024,
     month: "Dec",
     date: "December 2024",
@@ -211,7 +193,7 @@ export const exhibitions: Exhibition[] = [
     description: [
       `A written language is a complex tissage of signs and symbols. A conventional system of coherent patterns with which one seeks to express meaningful actions, ideas, thoughts and feelings. What happens though when one loses the capacity to decipher these visual constructs?`,
       `My present experience of text has become increasingly fragmentary. Words become a fragile material, at times liquid and forever from my grasp, at other times brittle and disintegrating before my eyes. <em>distraKted</em> takes my work with language to a more radical level. In distorting, displacing and at times pulverising textual elements, the work is an attempt to express the rhapsodic patchwork of these linguistic fragments and their fragility.`,
-      `The work is presented as an artist curation of 24 unique digital pieces and will be available at verse works. These works have been made using custom-made software written in Processing. Each piece has evolved from textual elements for which a special font was also developed in part for some of the iterations.`,
+      `The work is presented as an artist curation of 24 unique digital pieces. These works have been made using custom-made software written in Processing. Each piece has evolved from textual elements for which a special font was also developed in part for some of the iterations.`,
     ],
     exploreArtworks: [
       {
@@ -255,7 +237,7 @@ export const exhibitions: Exhibition[] = [
     description: [
       `<em>Trails</em> is a series born from a fascination with vintage Windows icons and the possibilities of visual feedback loops.`,
       `<em>Trails</em> is designed to be visually overstimulating, yet oddly satisfying.`,
-      `<em>Trails</em> was lovingly crafted through a series of experiments on an old MacBook, while sitting in a shed nestled in the mountains of Colorado, USA.`,
+      `<em>Trails</em> was lovingly crafted through a series of experiments on an old MacBook while sitting in a shed nestled in the mountains of Colorado, USA.`,
     ],
     exploreArtworks: [
       {
@@ -298,8 +280,8 @@ export const exhibitions: Exhibition[] = [
     verseSeriesUrl: "https://verse.works/series/phantasmagoria-by-mazin",
     workCount: 8,
     description: [
-      `<em>Phantasmagoria</em> invites you into a fictional universe where religion, technology, and distortion blend together. In this world, the faith revolves around living architecture &mdash; buildings that are alive and form the heart of a unique belief system. Symbols like roots, glyphs, and sigils fill the landscape, creating a mysterious atmosphere. The color palette, appearing nearly black&#8209;and&#8209;white at first glance, hides subtle RGB tones, reflecting the deeper layers of this universe where things aren&rsquo;t always what they seem.`,
-      `At the center of this world are angelic figures called C.L.E.A.N.S.E., who control the flow of color, seeing anything other than grayscale as &ldquo;corruption.&rdquo; They act as protectors, erasing color to maintain balance, but others, known as &ldquo;Corruptors,&rdquo; challenge their rule, believing in a different truth. This conflict over color and control is a central theme, leaving viewers to question who is truly in the right.`,
+      `<em>Phantasmagoria</em> invites you into a fictional universe where religion, technology, and distortion blend together. In this world, the faith revolves around living architecture &mdash; buildings that are alive and form the heart of a unique belief system. Symbols like roots, glyphs, and sigils fill the landscape, creating a mysterious atmosphere. The colour palette, appearing nearly black-and-white at first glance, hides subtle RGB tones, reflecting the deeper layers of this universe where things aren&rsquo;t always what they seem.`,
+      `At the center of this world are angelic figures called C.L.E.A.N.S.E, who control the flow of colour, seeing anything other than grayscale as &ldquo;corruption.&rdquo; They act as protectors, erasing colour to maintain balance, but others, known as &ldquo;Corruptors,&rdquo; challenge their rule, believing in a different truth. This conflict over colour and control is a central theme, leaving viewers to question who is truly in the right.`,
       `Inspired by artists like H.R. Giger and filmmakers such as Alex Proyas, <em>Phantasmagoria</em> combines large, surreal landscapes with intricate pixelated details. Glitch art and digital techniques are key to the artist&rsquo;s process, creating distorted, otherworldly visuals that feel both futuristic and ancient. Each piece is layered with meaning, using digital glitches and distortions to explore the tension between control and chaos.`,
       `In this series, the glitch is more than a technique &mdash; it&rsquo;s a way to embrace imperfection and reveal hidden beauty in error. <em>Phantasmagoria</em> challenges viewers to look deeper, uncovering new details with each glance and reflecting on the fine line between order and disruption in both art and life.`,
     ],
@@ -346,8 +328,8 @@ export const exhibitions: Exhibition[] = [
   {
     slug: "bully",
     artistSlug: "riiiis",
-    artistName: "RIIIIS",
-    title: "Bully",
+    artistName: "riiiis",
+    title: "bully",
     year: 2024,
     month: "Oct",
     date: "October 2024",
@@ -373,13 +355,13 @@ export const exhibitions: Exhibition[] = [
         items: [
           {
             image: "/images/riiiis/bully-apocalypse.jpg",
-            alt: "RIIIIS, apocalypse",
+            alt: "riiiis, apocalypse",
             title: "apocalypse",
             verseUrl: "https://verse.works/items/ethereum/0x9833291665ac13b5291c693ab417b20e81a55cdb/6",
           },
           {
             image: "/images/riiiis/bully-genesis.jpg",
-            alt: "RIIIIS, genesis",
+            alt: "riiiis, genesis",
             title: "genesis",
             verseUrl: "https://verse.works/items/ethereum/0x9833291665ac13b5291c693ab417b20e81a55cdb/2",
           },
@@ -390,9 +372,15 @@ export const exhibitions: Exhibition[] = [
         items: [
           {
             image: "/images/riiiis/bully-haven.jpg",
-            alt: "RIIIIS, haven",
+            alt: "riiiis, haven",
             title: "haven",
             verseUrl: "https://verse.works/items/ethereum/0x9833291665ac13b5291c693ab417b20e81a55cdb/5",
+          },
+          {
+            image: "/images/riiiis/bully-portent.jpg",
+            alt: "riiiis, portent",
+            title: "portent",
+            verseUrl: "https://verse.works/items/ethereum/0x9833291665ac13b5291c693ab417b20e81a55cdb/11",
           },
         ],
       },
@@ -401,7 +389,7 @@ export const exhibitions: Exhibition[] = [
   {
     slug: "piezo",
     artistSlug: "rudxane",
-    artistName: "Rudxane",
+    artistName: "rudxane",
     title: "Piezo",
     year: 2024,
     month: "Jul",
@@ -410,6 +398,13 @@ export const exhibitions: Exhibition[] = [
     status: "past",
     hero: "/images/rudxane/piezo-10.jpg",
     verseSeriesUrl: "https://verse.works/series/Piezo-by-rudxane",
+    workCount: 20,
+    physicalExhibition: {
+      venue: "Galerie Met",
+      venueUrl: "https://galeriemet.com/past-exhibitions/rudxane-piezo",
+      address: "Mariannenstrasse 33, 10999 Berlin",
+      dates: "17.07 – 27.07.2024",
+    },
     description: [
       `For the last year, rudxane has spent countless hours watching printer&rsquo;s draw his work line-by-line, the act of applying ink, constantly resisting the urge to pull the paper and change the spacing between each line drawn.`,
       `<em>Piezo</em> is inspired by this urge: what if we draw line-by-line (like a printer), but change the spacing between each drawn line? All works within the series were curated to exude their own energy, recognizable from each other, while also adding a new particular perspective to the series as a whole.`,
@@ -428,13 +423,13 @@ export const exhibitions: Exhibition[] = [
         items: [
           {
             image: "/images/rudxane/piezo-18.jpg",
-            alt: "Rudxane, Piezo #18",
+            alt: "rudxane, Piezo #18",
             title: "Piezo #18",
             verseUrl: "https://verse.works/items/ethereum/0x457cf39082f586aa29f7f148e1ff036b6d029ff3/17",
           },
           {
             image: "/images/rudxane/piezo-5.jpg",
-            alt: "Rudxane, Piezo #5",
+            alt: "rudxane, Piezo #5",
             title: "Piezo #5",
             verseUrl: "https://verse.works/items/ethereum/0x457cf39082f586aa29f7f148e1ff036b6d029ff3/4",
           },
@@ -445,15 +440,35 @@ export const exhibitions: Exhibition[] = [
         items: [
           {
             image: "/images/rudxane/piezo-1.jpg",
-            alt: "Rudxane, Piezo #1",
+            alt: "rudxane, Piezo #1",
             title: "Piezo #1",
             verseUrl: "https://verse.works/items/ethereum/0x457cf39082f586aa29f7f148e1ff036b6d029ff3/0",
           },
           {
             image: "/images/rudxane/piezo-7.jpg",
-            alt: "Rudxane, Piezo #7",
+            alt: "rudxane, Piezo #7",
             title: "Piezo #7",
             verseUrl: "https://verse.works/items/ethereum/0x457cf39082f586aa29f7f148e1ff036b6d029ff3/6",
+          },
+        ],
+      },
+      {
+        afterParagraphIndex: 4,
+        items: [
+          {
+            image: "/images/rudxane/piezo-installation.jpg",
+            alt: "rudxane, Piezo — installation view at Galerie Met",
+            verseUrl: "https://galeriemet.com/past-exhibitions/rudxane-piezo",
+          },
+        ],
+      },
+      {
+        afterParagraphIndex: 6,
+        items: [
+          {
+            image: "/images/rudxane/piezo-installation-2.jpg",
+            alt: "rudxane, Piezo — installation view at Galerie Met",
+            verseUrl: "https://galeriemet.com/past-exhibitions/rudxane-piezo",
           },
         ],
       },
@@ -462,7 +477,8 @@ export const exhibitions: Exhibition[] = [
         items: [
           {
             image: "/images/rudxane/piezo-hero.jpg",
-            alt: "Rudxane, Piezo — installation view",
+            alt: "rudxane, Piezo — installation view",
+            verseUrl: "https://galeriemet.com/past-exhibitions/rudxane-piezo",
           },
         ],
       },
@@ -528,7 +544,7 @@ export const exhibitions: Exhibition[] = [
     slug: "escapes",
     artistSlug: "t-k-z",
     artistName: "Tù.úk'z",
-    title: "Escapes",
+    title: "ESCAPES",
     year: 2024,
     month: "Jun",
     date: "June 2024",
@@ -584,7 +600,7 @@ export const exhibitions: Exhibition[] = [
     // suppressed by the hero plate when heroIframe is set so the
     // iframe stays interactive; the verseSeriesUrl below is what the
     // hero title-bar links use.
-    heroIframe: "https://ipfs.verse.works/ipfs/QmcorKQ1nT5c9QTrY4tMAafVQ3uC1VwQpQ4zJhz1fcb8PA/?payload=eyJoYXNoIjoiMHhlYzAwMmQ3YWJjYTgwMzQ0MjcwNmNkNjI5YWQzNTEwNTM5Yjk4ZTQzNjAzNzJhNWI2OWZjNTgzZTcxMDhjYTRhIiwiZWRpdGlvbk51bWJlciI6MjgsInRvdGFsRWRpdGlvbnMiOjY1LCJpbnB1dCI6eyIkdXNlcm5hbWUiOiJkaWdpdGFsY29sZW1hbiJ9fQ%3D%3D",
+    heroIframe: "/api/genart/basalt-rt?payload=eyJoYXNoIjoiMHhlYzAwMmQ3YWJjYTgwMzQ0MjcwNmNkNjI5YWQzNTEwNTM5Yjk4ZTQzNjAzNzJhNWI2OWZjNTgzZTcxMDhjYTRhIiwiZWRpdGlvbk51bWJlciI6MjgsInRvdGFsRWRpdGlvbnMiOjY1LCJpbnB1dCI6eyIkdXNlcm5hbWUiOiJkaWdpdGFsY29sZW1hbiJ9fQ%3D%3D",
     verseSeriesUrl: "https://verse.works/series/basalt-rt-itsgalo",
     artistBio: "Itsgalo is the screen-name for Galo Canizares, a designer, writer, and educator working across various creative fields from architecture to digital art to experimental software. He is currently an assistant professor of architecture at the University of Kentucky’s College of Design where he teaches courses on visualization and representation. Galo’s work interrogates the emerging sociotechnical effects of code, screens, and software culture. He is fascinated by the strange behaviors and aesthetics unique to computing and digital media, an interest that emerged as a kid playing with Flash and other painting software. In 2019, Galo published a collection of essays on computation, art, and design titled Digital Fabrications: Designer Stories for a Software-Based Planet. Many of Galo’s artworks try to leverage computing to produce visually compelling and layered effects. They are often animated or use some kind of real-time motion like simulated physics. Other recurring themes are limited color palettes, dithering, and low-res graphics, concepts and techniques tied to the history of computer-based art.",
     descriptionByArtist: true,
@@ -598,7 +614,7 @@ export const exhibitions: Exhibition[] = [
         image: "/images/itsgalo/basalt-rt-53.jpg",
         alt: "Itsgalo, BASALT RT #53",
         verseUrl: "https://verse.works/items/ethereum/0xfcfcf1547b5ef44ac35e260f7c0bba5e307a94c8/52",
-        iframe: "https://ipfs.verse.works/ipfs/QmcorKQ1nT5c9QTrY4tMAafVQ3uC1VwQpQ4zJhz1fcb8PA/?payload=eyJoYXNoIjoiMHgwYTg0MGE1ZjY5OWI5OWFlMWQ1MGE1OWZkZWJhNDg4N2Y4ZmEwNmQ2YzkxZDM0MjA4ZmNiNDEzMzk5OGE2YjJhIiwiZWRpdGlvbk51bWJlciI6NTMsInRvdGFsRWRpdGlvbnMiOjY1LCJpbnB1dCI6eyIkdXNlcm5hbWUiOiJyYWdzbWF0YWdzIn19",
+        iframe: "/api/genart/basalt-rt?payload=eyJoYXNoIjoiMHgwYTg0MGE1ZjY5OWI5OWFlMWQ1MGE1OWZkZWJhNDg4N2Y4ZmEwNmQ2YzkxZDM0MjA4ZmNiNDEzMzk5OGE2YjJhIiwiZWRpdGlvbk51bWJlciI6NTMsInRvdGFsRWRpdGlvbnMiOjY1LCJpbnB1dCI6eyIkdXNlcm5hbWUiOiJyYWdzbWF0YWdzIn19",
       },
       {
         id: "basalt-rt-34",
@@ -606,7 +622,7 @@ export const exhibitions: Exhibition[] = [
         image: "/images/itsgalo/basalt-rt-34.jpg",
         alt: "Itsgalo, BASALT RT #34",
         verseUrl: "https://verse.works/items/ethereum/0xfcfcf1547b5ef44ac35e260f7c0bba5e307a94c8/33",
-        iframe: "https://ipfs.verse.works/ipfs/QmcorKQ1nT5c9QTrY4tMAafVQ3uC1VwQpQ4zJhz1fcb8PA/?payload=eyJoYXNoIjoiMHg1ZTllYmY1Y2NlMDZlMWRiMmM4M2JiZmU1MDU4OTlhMjY4ODEzMjQwMmNhMWMxZmVlNDg5MTliMTEzMmU1ZjhjIiwiZWRpdGlvbk51bWJlciI6MzQsInRvdGFsRWRpdGlvbnMiOjY1LCJpbnB1dCI6eyIkdXNlcm5hbWUiOiJoYW5uYWgyMTA2In19",
+        iframe: "/api/genart/basalt-rt?payload=eyJoYXNoIjoiMHg1ZTllYmY1Y2NlMDZlMWRiMmM4M2JiZmU1MDU4OTlhMjY4ODEzMjQwMmNhMWMxZmVlNDg5MTliMTEzMmU1ZjhjIiwiZWRpdGlvbk51bWJlciI6MzQsInRvdGFsRWRpdGlvbnMiOjY1LCJpbnB1dCI6eyIkdXNlcm5hbWUiOiJoYW5uYWgyMTA2In19",
       },
       {
         id: "basalt-rt-85",
@@ -614,14 +630,14 @@ export const exhibitions: Exhibition[] = [
         image: "/images/itsgalo/basalt-rt-85.jpg",
         alt: "Itsgalo, BASALT RT #85",
         verseUrl: "https://verse.works/items/ethereum/0xfcfcf1547b5ef44ac35e260f7c0bba5e307a94c8/84",
-        iframe: "https://ipfs.verse.works/ipfs/QmcorKQ1nT5c9QTrY4tMAafVQ3uC1VwQpQ4zJhz1fcb8PA/?payload=eyJoYXNoIjoiMHhmMWEyODdiNWRkMjk5NDg2MTk4NGIwMjY4ODQ4NmExNzJkYzZkODBkZDFmMDQwNmNiMmY0ODE1NTI3NzM4NjI5IiwiZWRpdGlvbk51bWJlciI6ODUsInRvdGFsRWRpdGlvbnMiOjY1LCJpbnB1dCI6eyIkdXNlcm5hbWUiOiJyYWdzbWF0YWdzIn19",
+        iframe: "/api/genart/basalt-rt?payload=eyJoYXNoIjoiMHhmMWEyODdiNWRkMjk5NDg2MTk4NGIwMjY4ODQ4NmExNzJkYzZkODBkZDFmMDQwNmNiMmY0ODE1NTI3NzM4NjI5IiwiZWRpdGlvbk51bWJlciI6ODUsInRvdGFsRWRpdGlvbnMiOjY1LCJpbnB1dCI6eyIkdXNlcm5hbWUiOiJyYWdzbWF0YWdzIn19",
       },
     ],
   },
   {
     slug: "deluge",
     artistSlug: "chepertom",
-    artistName: "CHEPERTOM",
+    artistName: "Chepertom",
     title: "Deluge",
     year: 2024,
     month: "May",
@@ -764,9 +780,10 @@ export const exhibitions: Exhibition[] = [
             alt: "Erik Swahn, Autoscope #111",
             title: "Autoscope #111",
             iframe:
-              "https://verse-public-gateway.myfilebase.com/ipfs/Qma2KocxztncRkFiSKS1PUE47xZ4bP8fHd4FzEKW9z4xaZ/?payload=eyJoYXNoIjoiMHgyODhiMTZjNzNiY2JmNDBkNDIxNTkwYTE1ZjQyMmRjMWFhNjYwYTQ3Nzc2NWJiZDc3YTMyOWFkNjc3ZDBlNjc5IiwiZWRpdGlvbk51bWJlciI6MTExLCJ0b3RhbEVkaXRpb25zIjoyNjAsImlucHV0Ijp7IiR1c2VybmFtZSI6InJpY2hsZWVjaCJ9fQ==",
+              "/api/genart/autoscope?payload=eyJoYXNoIjoiMHgyODhiMTZjNzNiY2JmNDBkNDIxNTkwYTE1ZjQyMmRjMWFhNjYwYTQ3Nzc2NWJiZDc3YTMyOWFkNjc3ZDBlNjc5IiwiZWRpdGlvbk51bWJlciI6MTExLCJ0b3RhbEVkaXRpb25zIjoyNjAsImlucHV0Ijp7IiR1c2VybmFtZSI6InJpY2hsZWVjaCJ9fQ==",
             verseUrl: "https://verse.works/items/ethereum/0xe7ed54673455193f1d4448c88c6544fd93a237c0/1177487004",
             aspectRatio: 1.5,
+            cssVars: { "--art-scale": 1, "--cap-x": "0px", "--cap-y": "0px" },
           },
         ],
       },
@@ -778,9 +795,10 @@ export const exhibitions: Exhibition[] = [
             alt: "Erik Swahn, Autoscope #121",
             title: "Autoscope #121",
             iframe:
-              "https://verse-public-gateway.myfilebase.com/ipfs/Qma2KocxztncRkFiSKS1PUE47xZ4bP8fHd4FzEKW9z4xaZ/?payload=eyJoYXNoIjoiMHg5Yjk0ODlkMDNlYTdkMjEwMDMwNDljOWI1OGIwNmU3MTE1OWY3MDk5ZDE1MTFkMzQ5NzExMGU3NGI0YmU2N2E2IiwiZWRpdGlvbk51bWJlciI6MTIxLCJ0b3RhbEVkaXRpb25zIjoyNjAsImlucHV0Ijp7IiR1c2VybmFtZSI6ImpheTA2MDUifX0=",
+              "/api/genart/autoscope?payload=eyJoYXNoIjoiMHg5Yjk0ODlkMDNlYTdkMjEwMDMwNDljOWI1OGIwNmU3MTE1OWY3MDk5ZDE1MTFkMzQ5NzExMGU3NGI0YmU2N2E2IiwiZWRpdGlvbk51bWJlciI6MTIxLCJ0b3RhbEVkaXRpb25zIjoyNjAsImlucHV0Ijp7IiR1c2VybmFtZSI6ImpheTA2MDUifX0=",
             verseUrl: "https://verse.works/items/ethereum/0xe7ed54673455193f1d4448c88c6544fd93a237c0/832000321",
             aspectRatio: 1.5,
+            cssVars: { "--art-scale": 1, "--cap-x": "0px", "--cap-y": "0px" },
           },
         ],
       },
@@ -792,9 +810,10 @@ export const exhibitions: Exhibition[] = [
             alt: "Erik Swahn, Autoscope #83",
             title: "Autoscope #83",
             iframe:
-              "https://verse-public-gateway.myfilebase.com/ipfs/Qma2KocxztncRkFiSKS1PUE47xZ4bP8fHd4FzEKW9z4xaZ/?payload=eyJoYXNoIjoiMHhhNzE3Mjg0NDFjM2Q4YWM5ZjZiMGI5MWEzMWM3MWJlMGUxOGYwODk4ZmJkMjQzYTdkOGQwZjRkMjYyMTAzZGZlIiwiZWRpdGlvbk51bWJlciI6ODMsInRvdGFsRWRpdGlvbnMiOjI2MCwiaW5wdXQiOnsiJHVzZXJuYW1lIjoic2FmZWQifX0=",
+              "/api/genart/autoscope?payload=eyJoYXNoIjoiMHhhNzE3Mjg0NDFjM2Q4YWM5ZjZiMGI5MWEzMWM3MWJlMGUxOGYwODk4ZmJkMjQzYTdkOGQwZjRkMjYyMTAzZGZlIiwiZWRpdGlvbk51bWJlciI6ODMsInRvdGFsRWRpdGlvbnMiOjI2MCwiaW5wdXQiOnsiJHVzZXJuYW1lIjoic2FmZWQifX0=",
             verseUrl: "https://verse.works/items/ethereum/0xe7ed54673455193f1d4448c88c6544fd93a237c0/263500477",
             aspectRatio: 1.5,
+            cssVars: { "--art-scale": 1, "--cap-x": "0px", "--cap-y": "0px" },
           },
         ],
       },
@@ -803,7 +822,7 @@ export const exhibitions: Exhibition[] = [
   {
     slug: "gwanak-gu",
     artistSlug: "earthsample",
-    artistName: "Earthsample",
+    artistName: "earthsample",
     title: "gwanak-gu",
     year: 2024,
     month: "Mar",
@@ -814,6 +833,8 @@ export const exhibitions: Exhibition[] = [
     heroTheme: "paper",
     verseSeriesUrl: "https://verse.works/series/gwanak-gu-by-earthsample",
     workCount: 10,
+    artistBio: "earthsample (b. 1998) is a lens-based artist residing in Canada, taking pieces of the world and making them anew. A digital native who ventures out into the world to collect structures, forms and shapes to be manipulated with and make his own. He creates expressions of an internal makeup using pieces of our shared world.",
+    artistBioOverride: true,
     description: [
       `The Garden is proud to present <em>gwanak-gu</em>, a series of digital collages that articulate earthsample&rsquo;s experience of Seoul, Korea. The works are alchemical, transforming personal memories and everyday visual stimuli into surreal portraits of the city. Each GIF is distinguished by nuanced glitches that encourage viewers to pause and reflect, meditating on each work just as creating each work was a cathartic, reflective process for the artist.`,
       `Having never before left the west, when he was 19 earthsample travelled to Hong Kong and felt supercharged by emotion and creativity upon experiencing this new corner of the world. He wanted to document the experience through his art, and ever since then he has been recording his travels by remixing the environments he finds himself in. His process begins with simple point-and-shoot documentation of his surroundings. He then manipulates the digital images, maximising on the high level of precision that is enabled by the digital medium, working pixel by pixel.`,
@@ -838,7 +859,7 @@ export const exhibitions: Exhibition[] = [
         items: [
           {
             image: "/images/earthsample/gwanak-gu-a-trip-to-osaka.gif",
-            alt: "Earthsample, a trip to osaka",
+            alt: "earthsample, a trip to osaka",
             title: "a trip to osaka",
             verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/687353685",
           },
@@ -849,13 +870,13 @@ export const exhibitions: Exhibition[] = [
         items: [
           {
             image: "/images/earthsample/gwanak-gu-worship.gif",
-            alt: "Earthsample, worship",
+            alt: "earthsample, worship",
             title: "worship",
             verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/2499525185",
           },
           {
             image: "/images/earthsample/gwanak-gu-gyeoul.gif",
-            alt: "Earthsample, gyeoul",
+            alt: "earthsample, gyeoul",
             title: "gyeoul",
             verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/2544299552",
           },
@@ -866,13 +887,13 @@ export const exhibitions: Exhibition[] = [
         items: [
           {
             image: "/images/earthsample/gwanak-gu-may.gif",
-            alt: "Earthsample, may",
+            alt: "earthsample, may",
             title: "may",
             verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/2474689872",
           },
           {
             image: "/images/earthsample/gwanak-gu-spirit.gif",
-            alt: "Earthsample, spirit",
+            alt: "earthsample, spirit",
             title: "spirit",
             verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/3089772769",
           },
@@ -946,9 +967,9 @@ export const exhibitions: Exhibition[] = [
       ],
     },
     description: [
-      `For many, sentient machines are the ultimate fear, perhaps as they signify the true unknown, a world we can&rsquo;t quite comprehend yet. We fear these nascent technologies as their evolutionary projections are unknown to us, and we can&rsquo;t foresee how their emotional intelligence will progress. In his latest series of work, <em>Heuristics of Emotion</em>, Jeres has endeavoured to visualise the essence of sentient machines, what it would look like if our mechanical creations developed the ability to feel, to experience the emotional highs and lows that we as humans experience.`,
+      `For many, sentient machines are the ultimate fear, perhaps as they signify the true unknown, a world we can&rsquo;t quite comprehend yet. We fear these nascent technologies as their evolutionary projections are unknown to us, and we can&rsquo;t foresee how their emotional intelligence will progress. In their latest series of work, <em>Heuristics of Emotion</em>, Jeres has endeavoured to visualise the essence of sentient machines, what it would look like if our mechanical creations developed the ability to feel, to experience the emotional highs and lows that we as humans experience.`,
       `Heuristics are strategies employed by humans, animals, and machines to shape judgements, problem solve, arrive at decisions and solutions, navigating through complexity. When considering sentient AI, heuristics could play a pivotal role in artificial intelligence&rsquo;s ability to navigate the world in a more emotionally evolved capacity. Jeres is interested in the dissonance between how we as people relate to each other, and how we relate to machines, as well as machines&rsquo; abilities to relate to us. Algorithms are being taught to extract sentiment from prompts and imitate, or simulate, compassion.`,
-      `The works in <em>Heuristics of Emotion</em> are visual representations of how Jeres imagines the predicted emotional intelligence of machines. Every AI carries within it the biases of their human creators. In the words of Jeres, &lsquo;If we think about humans training machines, the ghost of us is instilled in them&rsquo;. Currently, these machines are at an adolescent stage, which Jeres wanted to reflect within the works. He deliberately introduced elements of violence and chaos alongside structure, mirroring the turbulent emotions and experiences of adolescence as we understand it.`,
+      `The works in <em>Heuristics of Emotion</em> are visual representations of how Jeres imagines the predicted emotional intelligence of machines. Every AI carries within it the biases of their human creators. In the words of Jeres, &lsquo;If we think about humans training machines, the ghost of us is instilled in them&rsquo;. Currently, these machines are at an adolescent stage, which Jeres wanted to reflect within the works. They deliberately introduced elements of violence and chaos alongside structure, mirroring the turbulent emotions and experiences of adolescence as we understand it.`,
       `The works portray dramatic spirals, extensions, and static, reflecting the struggle of navigating emotional terrain, experienced by humans and now too machines on their journey toward emotional intelligence. The jagged edges and waves within the works signify the fluidity of emotions over time, while the more static, almost blurry spaces represent unexplored emotions, creating an atmosphere of ambiguity and the unknown. For the machines, these are emotional blindspots, synonymous with their relative immaturity. Colours within the works act as emotional thermometers, representing various temperatures of sentiment. Each hue narrates a different emotional state, adding depth and richness to the abstract canvases, and speaking to the varied temperatures of human emotions.`,
     ],
     inlineArtworks: [
@@ -1420,7 +1441,7 @@ export const exhibitions: Exhibition[] = [
   {
     slug: "new-life-to-still-life",
     artistSlug: "cydr",
-    artistName: "Cydr",
+    artistName: "cydr",
     title: "New-life, to Still-life",
     year: 2023,
     month: "Sep",
@@ -1431,17 +1452,19 @@ export const exhibitions: Exhibition[] = [
     heroTheme: "paper",
     verseSeriesUrl: "https://verse.works/series/new-life-to-still-life-by-cydr",
     workCount: 11,
+    artistBio: "cydr is based in Curitiba, Brazil. He works with mixed media and illustrations as a way to express his distorted mind. Although always creating as a child, he only caught up with his passion as he got older and his vision formed — he finally felt ready to put what was learnt…",
+    artistBioOverride: true,
     description: [
       `The Garden is thrilled to bring you <em>New-life, to Still-life</em>, a series by Brazilian artist cydr. Like a tapestry, it weaves together his personal history, inspirations, and experiences, from his background in video games to his unique form of synesthesia.`,
       `<em>New-life, to Still-life</em> exudes a nostalgic charm reminiscent of old video games, capturing the essence of a bygone era while embracing modern digital techniques. Using fruit as his focal point, these works provide a commentary on the juxtaposition of natural forms and digital aesthetics. With each pixel, cydr invites us to reconsider our perceptions and embrace the beauty that exists within distortion.`,
-      `Cydr first began making digital art when he was encouraged by artist Omentejovem in 2020. Until then, his work had always been experimental, typically blending elements of photographic manipulation and collage, but this was a pivotal moment in cydr&rsquo;s artistic practice. He had previously been a physical creator and digital admirer, but beyond early experiments in Photoshop, this marked the beginning of his path to digital creation.`,
-      `Cydr&rsquo;s work playfully teeters on the boundary of low-poly, an art form originating from early gaming designs when processing capabilities reduced the level of detail and texture that could be achieved visually. It is nostalgic and reminiscent of <span class="num-lining">2</span>D pixel art, but has remained popular over time. Cydr incorporated these elements into this series of work, which blends organic elements with a pixelated aesthetic and low-resolution textures. However, in contrast to the muted colour palette of many old video games such as Call of Duty (COD) which cydr grew up playing, the works in <em>New-life, to Still-life</em> are hyper saturated &mdash; he&rsquo;s flipped the script.`,
+      `cydr first began making digital art when he was encouraged by artist Omentejovem in 2020. Until then, his work had always been experimental, typically blending elements of photographic manipulation and collage, but this was a pivotal moment in cydr&rsquo;s artistic practice. He had previously been a physical creator and digital admirer, but beyond early experiments in Photoshop, this marked the beginning of his path to digital creation.`,
+      `cydr&rsquo;s work playfully teeters on the boundary of low-poly, an art form originating from early gaming designs when processing capabilities reduced the level of detail and texture that could be achieved visually. It is nostalgic and reminiscent of <span class="num-lining">2</span>D pixel art, but has remained popular over time. cydr incorporated these elements into this series of work, which blends organic elements with a pixelated aesthetic and low-resolution textures. However, in contrast to the muted colour palette of many old video games such as Call of Duty (COD) which cydr grew up playing, the works in <em>New-life, to Still-life</em> are hyper saturated &mdash; he&rsquo;s flipped the script.`,
       `The use of colour in these works is striking, and absolutely fascinating given that cydr is colour blind. If cydr puts a green next to an orange, and they are the exact same tone, he can&rsquo;t tell which one is which. He says, &lsquo;Both of them are orange, both of them are green&rsquo;.`,
-      `Cydr&rsquo;s unique relationship with colour has another element too: he has a form of synesthesia where he feels certain colours and emotions when he eats. He&rsquo;s compared this to a scene from <em>Ratatouille</em> when Remy sees bursts of bright colours when eating a strawberry. Just as eating is a multi-sensory experience for cydr, he has tried to create one for viewers of his work using an interplay of colours and textures.`,
-      `Cydr&rsquo;s art is characterized by its deliberate distortion and pixelation, a nod to his digital roots and a somewhat philosophical questioning of personal perspectives. &lsquo;I see distortion as a way to portray how people may view the world; sometimes they don&rsquo;t quite remember certain aspects of things, sometimes they may have been told something looks like a certain thing, but in reality it may be something else&hellip;the distortion may often represent how people see themselves and their surroundings; perceive flaws or imperfections that others might not notice.&rsquo;`,
+      `cydr&rsquo;s unique relationship with colour has another element too: he has a form of synesthesia where he feels certain colours and emotions when he eats. He&rsquo;s compared this to a scene from <em>Ratatouille</em> when Remy sees bursts of bright colours when eating a strawberry. Just as eating is a multi-sensory experience for cydr, he has tried to create one for viewers of his work using an interplay of colours and textures.`,
+      `cydr&rsquo;s art is characterized by its deliberate distortion and pixelation, a nod to his digital roots and a somewhat philosophical questioning of personal perspectives. &lsquo;I see distortion as a way to portray how people may view the world; sometimes they don&rsquo;t quite remember certain aspects of things, sometimes they may have been told something looks like a certain thing, but in reality it may be something else&hellip;the distortion may often represent how people see themselves and their surroundings; perceive flaws or imperfections that others might not notice.&rsquo;`,
       `The use of organic forms is a new element in cydr&rsquo;s practice, inspired by the work of Scratch Williams who introduced him to the still-life genre. Where the tradition is concerned with organic subjects, cydr has historically focused on digital ones, and in this series he has brought them together in a harmonious fusion that reflects contemporary life. Some of the fruits depicted in these works (such as the grapes, the watermelon, the pitaya) seem painterly despite their digital distortion &mdash; it is almost as if you can see brush strokes. This painterly essence is only present in the foreground of the works, creating the textures of the fruits, whereas the backgrounds are flatter, more overtly pixelated.`,
       `Some of the backgrounds almost have a horizon line, yet despite the fruits being placed within interior environments (they are not outside), the backgrounds read as flat planes in contrast to the fruits, which have more prominent shadows. Each work also has scratches on the surface, which adds further texture and once more recalls traditional paintings, playfully blending the physical with the digital.`,
-      `Cydr believes in the freedom of interpretation and the necessity of play in artistic practice; it is important to him to create work that is both fun and pushes boundaries.`,
+      `cydr believes in the freedom of interpretation and the necessity of play in artistic practice; it is important to him to create work that is both fun and pushes boundaries.`,
     ],
     // One artwork from the series at the end of every second paragraph
     // (after ¶1, ¶3, ¶5, ¶7). Each links to its specific Verse item URL
@@ -1511,7 +1534,7 @@ export const exhibitions: Exhibition[] = [
   {
     slug: "space-time",
     artistSlug: "loackme",
-    artistName: "Loackme",
+    artistName: "loackme",
     title: "SPACE\\TIME",
     year: 2023,
     month: "Aug",
