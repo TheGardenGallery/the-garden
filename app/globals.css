@@ -2261,7 +2261,10 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-size:19px;line-height:1.6;color:var(--ink-soft);
 }
 @media (max-width:1000px){
-  .ex-overview-body{max-width:68ch;}
+  /* Pixel value (not `ch`) so this column matches `.ex-facts` exactly —
+     both share the same width regardless of inherited font, since `ch`
+     resolves differently on Cormorant vs Barlow. */
+  .ex-overview-body{max-width:680px;}
 }
 .ex-overview-body p{
   font-family:'Cormorant','Title CJK',serif;
@@ -3017,18 +3020,22 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 }
 /* Below 1000px the centered prose column has no headroom for the
    absolute facts sidenote without overlap, so collapse facts to a
-   horizontal row above the prose. */
+   horizontal row above the prose. After this transition the layout is
+   locked — facts stay as stacked label/value pairs at every narrower
+   width, never collapsing further into inline pairs. Width matches
+   `.ex-overview-body` exactly (fixed 680px, not `ch`, since the two
+   elements inherit different fonts and `ch` would resolve differently
+   on each). */
 @media (max-width:1000px){
   .ex-facts{
     position:static;
     flex-direction:row;flex-wrap:wrap;gap:20px;
-    max-width:none;padding-left:0;border-left:0;
-    margin:0 auto 32px;width:100%;max-width:68ch;
+    padding-left:0;border-left:0;
+    margin:0 auto 32px;width:100%;max-width:680px;
   }
 }
 @media (max-width:720px){
   .ex-title-bar{left:24px;bottom:24px;}
-  .ex-fact{flex-direction:row;gap:8px;align-items:baseline;}
   .ex-fact-label{font-size:9px;letter-spacing:1.4px;}
   .ex-fact-value{font-size:15px;}
   .ex-hero-frame{padding:32px 24px 140px;}
