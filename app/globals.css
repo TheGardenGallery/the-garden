@@ -565,7 +565,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   letter-spacing:-0.2px;
 }
 .ds-display-name--sm{font-size:20px;letter-spacing:-0.15px;line-height:1.25;}
-.ds-display-name--md{font-size:24px;letter-spacing:-0.2px;}
+.ds-display-name--md{font-size:22px;letter-spacing:-0.2px;}
 .ds-display-name--lg{font-size:26px;letter-spacing:-0.1px;line-height:1.15;}
 .ds-display-name--xl{font-size:32px;letter-spacing:-0.3px;}
 .ds-display-name--2xl{font-size:40px;letter-spacing:-0.25px;}
@@ -578,7 +578,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   text-transform:none;
 }
 .ds-display-title--sm{font-size:20px;letter-spacing:-0.15px;line-height:1.25;}
-.ds-display-title--md{font-size:24px;letter-spacing:-0.2px;line-height:1.05;}
+.ds-display-title--md{font-size:22px;letter-spacing:-0.2px;line-height:1.05;}
 .ds-display-title--lg{font-size:26px;letter-spacing:-0.2px;line-height:1.15;}
 .ds-display-title--xl{font-size:32px;letter-spacing:-0.3px;line-height:1.05;}
 .ds-display-title--2xl{font-size:38px;letter-spacing:-0.3px;line-height:1.15;}
@@ -1575,13 +1575,13 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .row-headline{display:flex;flex-direction:column;gap:4px;}
 .row-artist{
   font-family:'Cormorant','Title CJK',serif;
-  font-weight:500;font-size:24px;letter-spacing:-0.2px;line-height:1;
+  font-weight:500;font-size:22px;letter-spacing:-0.2px;line-height:1;
   color:inherit;
   font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
 .row-title{
   font-family:'Cormorant','Title CJK',serif;
-  font-weight:400;font-style:italic;font-size:24px;letter-spacing:-0.2px;line-height:1.05;
+  font-weight:400;font-style:italic;font-size:22px;letter-spacing:-0.2px;line-height:1.05;
   color:inherit;
 }
 .row-meta{
@@ -1684,36 +1684,26 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
    the "everything blends" problem. */
 .past-year{
   font-family:'Cormorant','Title CJK',serif;
-  font-weight:400;font-style:italic;
-  font-size:20px;letter-spacing:-0.2px;
+  font-weight:400;font-style:normal;
+  font-size:clamp(20px, 1.9vw, 26px);letter-spacing:-0.2px;
   color:var(--ink);
-  margin:0 0 -.78em;
+  margin:0;
   line-height:1;
-  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
+  /* Old-style figures — descending 4 / 9, lower-rising 0 — reads as
+     hand-set editorial rather than tabular. */
+  font-variant-numeric:oldstyle-nums;
   position:sticky;
   top:var(--nav-height);
   background:var(--paper-warm);
   z-index:5;
-  padding:10px 0 0;
+  padding:18px 0 1.75rem;
   /* Bottom hairline only — the rule above the year is already provided
      by the previous card's border-top. Border lives on the parent <h3>
      so it stays put while the inner label animates. The bordered row
-     sticks as one unit (border + year text) under the nav. */
-  border-bottom:1px solid var(--rule-warm);
-}
-/* Soft fade below the sticky year — paper-warm gradient bleeds into
-   nothing so cards passing under the border don't collide hard. */
-.past-year::after{
-  content:'';
-  position:absolute;
-  top:100%;left:0;right:0;
-  height:24px;
-  background:linear-gradient(
-    to bottom,
-    rgba(250,250,248,0.85) 0%,
-    rgba(250,250,248,0) 100%
-  );
-  pointer-events:none;
+     sticks as one unit (border + year text) under the nav. Year rule
+     sits at half the weight of the inter-card rule so the year band
+     reads as a softer divider than the row borders below. */
+  border-bottom:1px solid rgba(224,221,212,0.5);
 }
 /* First card under each year has no top border — the year's
    border-bottom serves as that rule. */
@@ -1766,13 +1756,13 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .past-card.is-visible{opacity:1;transform:translateY(0);}
 .past-card .past-artist{
   font-family:'Cormorant','Title CJK',serif;
-  font-weight:500;font-size:20px;letter-spacing:-0.15px;line-height:1.25;
+  font-weight:500;font-size:22px;letter-spacing:-0.15px;line-height:1.25;
   color:inherit;
   font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
 .past-card .past-title{
   font-family:'Cormorant','Title CJK',serif;
-  font-weight:400;font-style:italic;font-size:20px;letter-spacing:-0.15px;line-height:1.25;
+  font-weight:400;font-style:italic;font-size:22px;letter-spacing:-0.15px;line-height:1.25;
   color:inherit;
 }
 .past-month{
@@ -1815,7 +1805,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 @media (max-width:720px){
   .ex-section{padding:56px var(--gutter) 56px;}
   .ex-section-inner{gap:18px;}
-  .past-year{font-size:18px;padding:8px 0 0;}
+  .past-year{padding:12px 0 1.25rem;}
   .exhibitions-list.past-grid > div + div{margin-top:8px;}
   .past-card{padding:16px 0;column-gap:24px;}
   .past-card .past-artist,.past-card .past-title{font-size:18px;}
@@ -1827,7 +1817,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   .ex-section-inner{gap:36px;}
   .exhibitions-list{grid-template-columns:1fr;gap:40px;}
   .row-artist,.row-title{font-size:22px;}
-  .past-year{padding-top:52px;padding-bottom:0;}
+  .past-year{padding-top:32px;padding-bottom:1rem;}
   .past-card{
     grid-template-columns:1fr auto;
     grid-template-areas:"artist month" "title title";
