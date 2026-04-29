@@ -10,6 +10,7 @@
     "measure-iframes": "tsx scripts/measure-iframes.ts"
   },
   "dependencies": {
+    "@chenglou/pretext": "^0.0.6",
     "motion": "^12.38.0",
     "next": "^15.5.15",
     "react": "19.0.0",

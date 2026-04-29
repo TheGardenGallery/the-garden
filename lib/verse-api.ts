@@ -105,16 +105,33 @@ function mergeExhibitionWithVerse(
 export async function fetchArtists(): Promise<Artist[]> {
   const nodes = await fetchVerseExhibitions();
   const bioByArtistName = new Map<string, string>();
+  // Verse-slug index is the more reliable join key for artists whose
+  // display name doesn't normalize cleanly (e.g. Tù.úk'z, where
+  // diacritic + apostrophe handling can diverge between our normalize
+  // and Verse's stored name). Fall back to name match when no
+  // verseSlug is set on our record.
+  const bioByVerseSlug = new Map<string, string>();
   for (const node of nodes) {
     for (const a of node.artists) {
-      if (a.bio && !bioByArtistName.has(normalize(a.name))) {
+      if (!a.bio) continue;
+      if (!bioByArtistName.has(normalize(a.name))) {
         bioByArtistName.set(normalize(a.name), a.bio);
+      }
+      if (a.slug && !bioByVerseSlug.has(a.slug)) {
+        bioByVerseSlug.set(a.slug, a.bio);
       }
     }
   }
+  // Local bio (set on the artist record) is canonical when present —
+  // lets us hand-author copy that we want to keep stable. Verse is the
+  // fallback for artists without a local bio so we still get
+  // something for newcomers.
   return artists.map((a) => ({
     ...a,
-    bio: bioByArtistName.get(normalize(a.name)) ?? a.bio,
+    bio:
+      a.bio ??
+      (a.verseSlug && bioByVerseSlug.get(a.verseSlug)) ??
+      bioByArtistName.get(normalize(a.name)),
   }));
 }
 

@@ -21,19 +21,29 @@ const DWELL_MS = 10000;
 // commands the homepage when a viewer first lands, before the
 // rotation moves on to other works.
 const VIDEO_DWELL_MS = 120000;
-const CROSSFADE_S = 2.0;
-// Card uses AnimatePresence mode="wait" — old fully exits before new
-// enters — so each phase is half the total. With CARD_FADE_S = 1.0
-// per phase, the full out+in cycle takes 2.0s, matching the slide's
-// parallel crossfade. The "pure-bg moment" between the old card
-// leaving and the new arriving reads as a deliberate beat rather than
-// a half-faded mash of two artists' names.
+// Slide glide duration. The artwork no longer fades — outgoing
+// translates off one side as incoming translates in from the other,
+// so the work itself is always solid on screen. A slow ease keeps
+// the gesture editorial rather than slideshow-y.
+const SLIDE_S = 1.4;
 const CARD_FADE_S = 1.0;
 const EASE = EASE_SLOW;
 
+const slideVariants = {
+  enter: (dir: number) => ({ x: dir > 0 ? "100%" : "-100%" }),
+  center: { x: "0%" },
+  exit: (dir: number) => ({ x: dir > 0 ? "-100%" : "100%" }),
+};
+
 export function Hero({ slides }: HeroProps) {
   const reduced = useReducedMotion();
-  const [index, setIndex] = useState(0);
+  // Direction is tracked alongside index so the slide animation
+  // knows which side to enter / exit from. +1 = forward (next), -1 =
+  // backward (prev). Auto-rotation always moves forward.
+  const [[index, direction], setIndexState] = useState<[number, number]>([
+    0,
+    1,
+  ]);
   const [paused, setPaused] = useState(false);
   const [arrowZone, setArrowZone] = useState<null | "left" | "right">(null);
 
@@ -44,7 +54,7 @@ export function Hero({ slides }: HeroProps) {
       ? VIDEO_DWELL_MS
       : DWELL_MS;
     const id = window.setTimeout(
-      () => setIndex((n) => (n + 1) % slides.length),
+      () => setIndexState(([n]) => [(n + 1) % slides.length, 1]),
       dwell
     );
     return () => window.clearTimeout(id);
@@ -56,8 +66,9 @@ export function Hero({ slides }: HeroProps) {
   const theme = ex.heroTheme ?? (current.palette.isDark ? "dark" : "paper");
 
   const prev = () =>
-    setIndex((n) => (n - 1 + slides.length) % slides.length);
-  const next = () => setIndex((n) => (n + 1) % slides.length);
+    setIndexState(([n]) => [(n - 1 + slides.length) % slides.length, -1]);
+  const next = () =>
+    setIndexState(([n]) => [(n + 1) % slides.length, 1]);
 
   return (
     <section
@@ -78,45 +89,43 @@ export function Hero({ slides }: HeroProps) {
       }}
     >
       <div className="hero-slides">
-        {slides.map((s, i) => {
-          const video = s.exhibition.homepageHeroVideo;
-          const img = s.exhibition.homepageHero ?? s.exhibition.hero;
-          return (
-            <motion.div
-              key={s.exhibition.slug}
-              className="slide"
-              initial={false}
-              animate={{ opacity: i === index ? 1 : 0 }}
-              transition={{ duration: CROSSFADE_S, ease: EASE }}
+        <AnimatePresence initial={false} custom={direction} mode="sync">
+          <motion.div
+            key={ex.slug}
+            className="slide"
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: SLIDE_S, ease: EASE }}
+          >
+            <Link
+              href={`/exhibitions/${ex.slug}`}
+              className="slide-link"
+              aria-label={`View ${ex.artistName}, ${ex.title}`}
             >
-              <Link
-                href={`/exhibitions/${s.exhibition.slug}`}
-                className="slide-link"
-                tabIndex={i === index ? 0 : -1}
-                aria-label={`View ${s.exhibition.artistName}, ${s.exhibition.title}`}
-              >
-                {video ? (
-                  <video
-                    className="slide-video"
-                    src={video}
-                    poster={s.exhibition.homepageHeroVideoPoster}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="auto"
-                    aria-label={`${s.exhibition.artistName}, ${s.exhibition.title}`}
-                  />
-                ) : (
-                  <HeroArtwork
-                    src={img!}
-                    alt={`${s.exhibition.artistName}, ${s.exhibition.title}`}
-                  />
-                )}
-              </Link>
-            </motion.div>
-          );
-        })}
+              {ex.homepageHeroVideo ? (
+                <video
+                  className="slide-video"
+                  src={ex.homepageHeroVideo}
+                  poster={ex.homepageHeroVideoPoster}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  aria-label={`${ex.artistName}, ${ex.title}`}
+                />
+              ) : (
+                <HeroArtwork
+                  src={(ex.homepageHero ?? ex.hero)!}
+                  alt={`${ex.artistName}, ${ex.title}`}
+                />
+              )}
+            </Link>
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       <div className="hero-card">

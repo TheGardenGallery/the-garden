@@ -15,6 +15,23 @@ export type Artist = {
       the artist name on the bio page. Order matters — listed left
       to right with middle-dot separators. */
   socials?: { label: string; href: string }[];
+  /** Override for the half-clipped artwork shown on the artist page.
+      Defaults to the showcase exhibition's hero. Useful when the
+      exhibition's hero is correct for its detail page but a different
+      piece reads better as the artist's signature work — e.g. John
+      Provencher, whose exhibition leads with HAHA but whose artist
+      page should display *over-time* running. Animated formats
+      (WebP/GIF) work for "live"-feeling renders. */
+  showcaseImage?: string;
+  /** Override for the live iframe shown on the artist page. Takes
+      precedence over `showcaseImage` when set. Use when the artist's
+      signature work runs as a JavaScript canvas (e.g. John Provencher's
+      *over-time* — same iframe URL as the exhibition's inline artwork
+      cells, so both surfaces render at full WebGL/canvas resolution
+      instead of via a low-res webp capture). */
+  showcaseIframe?: string;
+  /** Aspect ratio (w/h) of the iframe canvas, e.g. "1" for square. */
+  showcaseIframeAspect?: string;
 };
 
 export type Work = {

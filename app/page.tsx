@@ -11,17 +11,26 @@ export default async function HomePage() {
   const exhibitions = await fetchExhibitions();
   const journal = await fetchJournalEntries();
 
+  // Homepage hero rotation: current + upcoming exhibitions, plus a
+  // small set of recent-past releases pinned by slug. iso-iec-10646
+  // is editorially "past" (sold out) but still warrants a spot in
+  // the rotation alongside the upcoming work — keeps the homepage
+  // alive while only one upcoming is queued.
+  const HERO_PAST_PINS = ["iso-iec-10646"];
+  const liveOrUpcoming = exhibitions.filter(
+    (e) =>
+      (e.status === "current" || e.status === "upcoming") &&
+      (e.hero || e.homepageHeroVideo)
+  );
+  const pinnedPast = HERO_PAST_PINS
+    .map((slug) => exhibitions.find((e) => e.slug === slug))
+    .filter(
+      (e): e is NonNullable<typeof e> =>
+        Boolean(e && (e.hero || e.homepageHeroVideo))
+    );
   const heroExhibitions =
-    exhibitions.filter(
-      (e) =>
-        (e.status === "current" || e.status === "upcoming") &&
-        (e.hero || e.homepageHeroVideo)
-    ).length > 0
-      ? exhibitions.filter(
-          (e) =>
-            (e.status === "current" || e.status === "upcoming") &&
-            (e.hero || e.homepageHeroVideo)
-        )
+    liveOrUpcoming.length + pinnedPast.length > 0
+      ? [...liveOrUpcoming, ...pinnedPast]
       : [
           exhibitions.find((e) => e.status === "current") ?? exhibitions[0],
         ].filter(Boolean);
