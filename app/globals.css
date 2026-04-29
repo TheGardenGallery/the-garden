@@ -864,13 +864,13 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   .exhibition-card-image{padding:14% 16%;}
   /* Yoshi / The Flood — artwork has a wide white halo that reads larger
      than the network at its core, so add vertical room. */
-  .exhibition-card[data-slug="the-flood"] .exhibition-card-image{padding:20% 16%;}
+  .exhibition-card[data-slug="the-flood"] .exhibition-card-image{padding:26% 20%;}
   /* Aluan / Equinox — composition is dense and sits visually small at
      the shared padding; tighten so it reads at scale. */
-  .exhibition-card[data-slug="equinox"] .exhibition-card-image{padding:9% 11%;}
+  .exhibition-card[data-slug="equinox"] .exhibition-card-image{padding:5% 7%;}
   /* John / haha over time — same, the piece's own internal margins
      leave it looking small inside the plate. */
-  .exhibition-card[data-slug="haha-over-time"] .exhibition-card-image{padding:9% 11%;}
+  .exhibition-card[data-slug="haha-over-time"] .exhibition-card-image{padding:4% 6%;}
   .exhibition-card .ds-display-name,
   .exhibition-card .ds-display-title{font-size:22px;letter-spacing:-0.1px;}
 }
