@@ -3730,6 +3730,18 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .artist-reveal[data-slug="paul-prudence"] .artist-reveal-artwork{
   width:430px;
 }
+/* Yoshi Sodeoka: The Flood's network reads small inside the default
+   510 frame — the piece's white halo eats interior space — so widen
+   it a touch to give the network more presence. */
+.artist-reveal[data-slug="yoshi-sodeoka"] .artist-reveal-artwork{
+  width:600px;
+}
+/* rudxane: Piezo's woven-block composition is dense and visually
+   heavy at the default 510 — a tighter frame keeps the artwork from
+   overpowering the bio block. */
+.artist-reveal[data-slug="rudxane"] .artist-reveal-artwork{
+  width:420px;
+}
 @media (max-width:720px){
   .artist-reveal[data-slug="john-provencher"] .artist-reveal-artwork{
     /* Wider cap for John's landscape installation, but the same inset
