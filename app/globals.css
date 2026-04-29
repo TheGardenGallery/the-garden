@@ -14,6 +14,12 @@
   --content-max: 1440px;
   --gutter: 40px;
 
+  /* Viewport-square unit. Half a dvh + half a dvw = a viewport-
+     average that scales with both axes. Useful for aspect-ratio
+     sensitive sizing (artwork frames, card pad-around values) where
+     pure vw or vh over-emphasises one axis on tall-vs-wide screens. */
+  --vsq: calc(0.5dvh + 0.5dvw);
+
   /* Colors — foreground */
   --ink: #161410;             /* primary text / chrome */
   --ink-soft: #3a3631;        /* body copy on light */
@@ -279,13 +285,22 @@ body:has(.artist-reveal:not([data-theme="paper"])){
    reads as part of the dark surface rather than a bright slab on
    top of it. Body bg is independent (only dark artist-reveal flips).
    Paper-themed artist-reveal pages use the standard cream nav. */
-body:has(.artist-reveal:not([data-theme="paper"])),
-body:has(.hero[data-theme="dark"]),
-body:has(.ex-hero[data-theme="dark"]){
+body:where(:has(.artist-reveal:not([data-theme="paper"])), :has(.hero[data-theme="dark"]), :has(.ex-hero[data-theme="dark"])){
   --nav-bg:#000;
   --nav-fg:var(--on-dark-fg);
   --nav-fg-muted:var(--on-dark-fg-muted);
   --nav-rule:rgba(245,243,239,0.08);
+}
+
+/* Once the dark canvas scrolls past the nav (set by Nav.tsx via an
+   IntersectionObserver-equivalent scroll listener), revert the nav to
+   paper so it reads against the editorial sections below. The body
+   class wins over the :has() rule above by source order. */
+body.nav-on-paper{
+  --nav-bg:var(--paper);
+  --nav-fg:var(--ink);
+  --nav-fg-muted:var(--ink-muted);
+  --nav-rule:var(--rule);
 }
 
 .logo{
@@ -315,6 +330,10 @@ body:has(.ex-hero[data-theme="dark"]){
   width:44px;height:44px;
   background:transparent;border:0;padding:0;
   cursor:pointer;position:relative;
+  /* Buttons don't always inherit `color` from parent in user-agent
+     stylesheets — force it here so the nav-fg token (which already
+     adapts to dark vs paper grounds) reaches the dot matrix below. */
+  color:var(--nav-fg, var(--ink));
   -webkit-tap-highlight-color:transparent;
 }
 .nav-toggle-dots{
@@ -324,7 +343,12 @@ body:has(.ex-hero[data-theme="dark"]){
 }
 .nav-toggle-dots span{
   width:3px;height:3px;
-  background:var(--ink);border-radius:50%;
+  /* `currentColor` so the dots track the toggle's color, which the
+     toggle inherits from the nav's --nav-fg token (cream on dark
+     surfaces, ink on paper surfaces). Was hardcoded var(--ink),
+     so on dark grounds the dots disappeared. */
+  background:currentColor;
+  border-radius:50%;
   transition:transform 240ms var(--ease-slow),
              opacity 180ms var(--ease-slow);
 }
@@ -342,7 +366,7 @@ body:has(.ex-hero[data-theme="dark"]){
 .nav-panel{
   position:fixed;top:var(--nav-height);left:0;right:0;
   background:var(--on-dark-bg);color:var(--on-dark-fg);
-  padding:56px 32px 48px;
+  padding:56px var(--gutter) 48px;
   border-top:1px solid rgba(245,243,239,0.08);
   z-index:199;
   transform:translateY(-12px);opacity:0;pointer-events:none;
@@ -391,7 +415,7 @@ body:has(.ex-hero[data-theme="dark"]){
 body.nav-open{overflow:hidden;}
 
 /* ---- FOOTER --------------------------------------------------------- */
-footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
+footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .footer-main{
   display:grid;
   grid-template-columns:minmax(200px, 1.2fr) 1fr 1fr 1fr;
@@ -471,7 +495,18 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 }
 @media (max-width:720px){
   .nav-links{display:none;}
-  .nav-toggle{display:inline-flex;align-items:center;justify-content:center;}
+  .nav-toggle{
+    display:inline-flex;align-items:center;justify-content:center;
+    /* The 44×44 tap target centers a 10×10 dot grid, which leaves the
+       visible glyph sitting 17px right of the button's left edge. The
+       button itself sits at the gutter, so without compensation the
+       dots optically read as offset from the gutter line that the
+       Logo's right edge, footer, and body content all align to. The
+       negative inline-start margin shifts the whole button left by
+       half-button-minus-half-glyph so the dots' left edge lands flush
+       on the gutter while the tap target stays full size. */
+    margin-left:calc((10px - 44px) / 2);
+  }
   :root{--nav-height:60px;--gutter:28px;}
   nav,.site-nav{padding:20px var(--gutter);}
   footer{padding:56px var(--gutter) 32px;}
@@ -480,7 +515,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   :root{--nav-height:56px;--gutter:24px;}
   nav,.site-nav{padding:18px var(--gutter);}
   .logo{font-size:19px;letter-spacing:-0.3px;}
-  .nav-panel{padding:40px 24px 40px;}
+  .nav-panel{padding:40px var(--gutter) 40px;}
   .nav-panel a{font-size:32px;}
   footer{padding:48px var(--gutter) 32px;}
   .footer-main{grid-template-columns:1fr;gap:36px;padding-bottom:40px;}
@@ -638,10 +673,9 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   position:relative;padding-top:var(--nav-height);
   height:100vh;height:100dvh;overflow:hidden;
   background:#0c0c10;
-  /* Bg color completes earlier than the slide crossfade (1.4s vs 2.0s)
-     so by the time the two slides are at 50/50, the new theme bg is
-     already fully in place — the blend happens over a unified surface
-     instead of a transitional grey. */
+  /* Bg color completes alongside the slide glide (1.4s) so the new
+     theme bg is already in place as the new artwork slides in — no
+     transitional grey behind the slide. */
   transition:background-color 1400ms var(--ease-slow);
   --hero-foreground:var(--on-dark-fg);
 }
@@ -656,6 +690,11 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .hero[data-hero-treatment="full-bleed-video"]{background:#000000;}
 .hero[data-hero-treatment="full-bleed-video"]::after{display:none;}
 .hero[data-hero-treatment="full-bleed-video"] .slide-video{filter:none;}
+/* Slightly larger hero card lockup for dense featured homepage works. */
+.hero[data-hero-copy-treatment="featured-lockup"] .hero-artist,
+.hero[data-hero-copy-treatment="featured-lockup"] .hero-title{font-size:clamp(28px, calc(1vw + 19px), 38px);}
+.hero[data-hero-copy-treatment="featured-lockup"] .hero-link{font-size:16px;}
+.hero[data-hero-copy-treatment="featured-lockup"] .hero-link-arrow{font-size:15px;}
 .hero[data-theme="paper"] .hero-artist,
 .hero[data-theme="paper"] .hero-title{color:var(--ink);}
 .hero[data-theme="paper"] .hero-meta{color:rgba(35,35,38,0.6);}
@@ -1278,13 +1317,20 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .plot-top-cells,.plot-row-cells{
   flex:1 1 0;
   min-width:0;
-  overflow-x:auto;
+  /* Default to `clip` so a row whose cells exactly fill the grid
+     width can't be scrolled by sub-pixel rounding. Rows that
+     legitimately overflow (an artist coord beyond the default
+     column count) opt back into `auto` via [data-scrollable]. */
+  overflow-x:clip;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
   display:grid;
   grid-auto-flow:column;
   grid-auto-columns:calc(100% / var(--cols, 6));
   border-left:1px solid var(--rule);
+}
+.plot-row-cells[data-scrollable]{
+  overflow-x:auto;
 }
 .plot-top-cells::-webkit-scrollbar,
 .plot-row-cells::-webkit-scrollbar{display:none;}
@@ -3432,12 +3478,16 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 }
 
 /* Bio + cue centered both axes. The cue sits centered beneath the
-   bio paragraphs (gap:32px). */
+   bio paragraphs (gap:32px). Padding-top is 96 (not 48) to reserve
+   vertical space for the absolutely-positioned header (artist name +
+   socials) so the vertically-centered bio never lands within the
+   header's row — applies universally so static-branch artists like
+   Chuck don't overlap their headers either. */
 .artist-reveal-content{
   position:absolute;inset:0;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:32px;
-  padding:48px var(--gutter);
+  gap:2rem;
+  padding:6rem var(--gutter) 3rem;
   pointer-events:none;
 }
 .artist-reveal-content > *{pointer-events:auto;}
@@ -3452,29 +3502,41 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   transform:translateX(calc(var(--x-push) * -60px));
   will-change:transform, opacity;
 }
-/* Monograph/wall-text treatment for long bios. Two narrow columns
-   halve the bio's height so 400+ word bios sit inside the viewport
-   without internal scrollbars or font-size shrinkage. `column-fill:
-   balance` keeps the columns equal-height; `break-inside: avoid` on
-   paragraphs prevents a paragraph from snapping across columns. The
-   max-width is sized so the bio's right edge has clear gap from the
-   half-clipped artwork at the viewport's right edge on standard
-   desktop widths; below 1240px we collapse back to single column. */
-.artist-reveal-bio[data-long]{
+/* Monograph/wall-text treatment for long bios. Column-width driven
+   (not column-count) so the layout is naturally responsive: two
+   narrow columns when the bio block has room for them, one column
+   when it doesn't, no hard breakpoint required. `column-fill:
+   balance` keeps the columns equal-height; `break-inside: avoid`
+   on paragraphs prevents a paragraph from snapping across columns.
+   Font-size scales with viewport height so a 320–400 word bio fits
+   inside the 100vh stage at common laptop heights — at ~800vh the
+   type lands around 15px (still readable Cormorant body), clamping
+   to 17px on tall viewports and 14px on short ones. Tighter
+   line-height than the default 1.6 because magazine columns run
+   leaner than wall text. */
+/* CSS-columns long-bio path applies only when shaping is OFF (e.g.
+   static-branch artists with no showcase artwork). Shaped long bios
+   stay in single column — pretext does the shape variance against
+   the artwork — and just borrow the smaller-font scaling via the
+   selector below. */
+.artist-reveal-bio[data-long]:not(.artist-reveal-bio-shaped){
   max-width:88ch;
-  column-count:2;
-  column-gap:48px;
+  columns:36ch;
+  column-gap:40px;
   column-fill:balance;
 }
-.artist-reveal-bio[data-long] p{
+.artist-reveal-bio[data-long]:not(.artist-reveal-bio-shaped) p{
   break-inside:avoid;
 }
-@media (max-width:1240px){
-  .artist-reveal-bio[data-long]{
-    max-width:54ch;
-    column-count:1;
-    column-gap:0;
-  }
+/* Long-bio typography (shared between CSS-columns and shaped paths)
+   — Cormorant body scales down with viewport height so a 320–500
+   word bio fits inside the 100vh stage. ~15px at typical laptop
+   heights, clamps to 17px tall / 14px short. Tighter line-height
+   than the default 1.6 because long-form columns run leaner. */
+.artist-reveal-bio[data-long] p{
+  font-size:clamp(14px, 1.9vh, 17px);
+  line-height:1.45;
+  margin-bottom:1.1em;
 }
 .artist-reveal-bio p{
   margin:0 0 1.4em;
@@ -3488,6 +3550,44 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   font-feature-settings:"lnum" 1;
 }
 .artist-reveal-bio p:last-child{margin-bottom:0;}
+
+/* Shape-aware bio. Block stays horizontally centered + vertically
+   centered (standard artist-page layout). Pretext shapes the
+   *contents*: each line renders as its own `display: block` span,
+   so individual lines can render at narrower widths when they fall
+   beside the half-clipped artwork. Block width is 70ch so lines
+   clear of the artwork have generous reach toward the artwork's
+   left edge — fills the otherwise-empty middle column when the
+   bio is short. Lines beside the artwork are pretext-shaped to
+   `shapedWidth` (= artwork.left − bio.left − GAP) so they always
+   stop short of the work. Explicit width (not max-width) keeps the
+   block's centered position stable as inner line widths change. */
+.artist-reveal-bio-shaped{
+  width:70ch;
+  max-width:100%;
+}
+.artist-reveal-bio-shaped p span{
+  display:block;
+  /* `white-space: pre` keeps each pretext-laid-out line as one
+     render unit; `overflow: hidden` swallows sub-pixel italic
+     overshoot so a line never browser-rewraps. */
+  white-space:pre;
+  overflow:hidden;
+}
+/* Magazine variant — two columns of pretext-laid-out spans, with
+   the right column shape-aware against the half-clipped artwork.
+   Width 88ch matches the existing `data-long` two-column treatment
+   for visual continuity; flex with `gap: 32px` lets each column
+   take half the remaining space. */
+.artist-reveal-bio-shaped[data-long]{
+  width:88ch;
+  display:flex;
+  gap:2rem;
+}
+.artist-reveal-bio-shaped[data-long] .magazine-col{
+  flex:1;
+  min-width:0;
+}
 
 /* Social links — small italic line beneath the artist name. Sit in
    the same fade-with-name behavior since they're part of the header
@@ -3590,6 +3690,20 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .artist-reveal-artwork img{
   width:100%;height:auto;display:block;
 }
+/* John Provencher: wider frame than the default 510 because his
+   showcase is a landscape gallery installation (1.5:1) — at the
+   default width the half-clipped peek reads as a postage stamp. */
+.artist-reveal[data-slug="john-provencher"] .artist-reveal-artwork{
+  width:760px;
+}
+@media (max-width:720px){
+  .artist-reveal[data-slug="john-provencher"] .artist-reveal-artwork{
+    /* Wider cap for John's landscape installation, but the same inset
+       expression so there's still whitespace on both sides at every
+       phone width (the calc clamp wins below 540px viewports). */
+    max-width:min(33.75rem, calc(100% - 2rem));
+  }
+}
 /* Live-iframe variant — the iframe IS the artwork (genart accepts
    mouse input). HeroIframeMedia renders an iframe with a per-aspect
    CSS variable; we read that here. The reroll button shipped with
@@ -3620,10 +3734,87 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .artist-reveal-artwork-iframe .ex-hero-iframe-refresh{display:none;}
 
 @media (max-width:720px){
-  .artist-reveal-header{top:24px;}
-  .artist-reveal-title{font-size:24px;}
-  .artist-reveal-bio p{font-size:17px;}
-  .artist-reveal-artwork{width:383px;}
+  .artist-reveal-title{font-size:1.5rem;}
+  .artist-reveal-bio p{font-size:1.0625rem;}
+
+  /* On mobile the deck's horizontal-scroll choreography fights touch
+     gestures and the viewport-locked stage clips long bios. Drop the
+     deck and lay everything out in normal block flow: header at the
+     top (in document flow, not absolute-positioned over the bio),
+     bio next, artwork stacked below. Page scrolls naturally so any
+     bio length fits. */
+  .artist-reveal{
+    height:auto;
+    min-height:0;
+    overflow:visible;
+    /* Keep margin-top: var(--nav-height) from desktop so the deck
+       starts below the sticky main nav — without it the artist
+       name slides under the nav at the top of the page. */
+  }
+  .artist-reveal-track{
+    width:100%;
+    height:auto;
+  }
+  .artist-reveal-stage{
+    position:static;
+    width:100%;
+    height:auto;
+    pointer-events:auto;
+  }
+  .artist-reveal-header{
+    position:static;
+    padding:1.5rem var(--gutter) 0.75rem;
+    top:auto;left:auto;
+    /* Cancel the desktop --x-driven parallax/fade since there's no
+       horizontal scroll on mobile. */
+    opacity:1;
+    transform:none;
+  }
+  .artist-reveal-content{
+    position:static;
+    inset:auto;
+    padding:0.5rem var(--gutter) 2rem;
+    /* Drop vertical centering — content flows from header. Cross-axis
+       aligns to the start so the bio's left edge lands on the same
+       gutter line as the header above; without this override the
+       desktop's `align-items: center` would horizontally center the
+       bio inside wider 600–720px viewports, leaving it visibly offset
+       from the header. */
+    justify-content:flex-start;
+    align-items:flex-start;
+  }
+  .artist-reveal-bio,
+  .artist-reveal-bio-shaped{
+    width:auto;
+    max-width:54ch;
+    /* Reset desktop --x-driven parallax/fade — no horizontal scroll
+       on mobile, so the bio should just sit and read normally. */
+    opacity:1;
+    transform:none;
+  }
+  .artist-reveal-cue{
+    /* Same reset as bio: drop --x-driven motion, sit beneath the bio. */
+    opacity:1;
+    transform:none;
+  }
+  .artist-reveal-artwork{
+    position:relative;
+    top:auto;right:auto;
+    transform:none;
+    /* Width is explicit (not auto) so the artwork doesn't shrink to
+       its intrinsic content size in the flex-column container — without
+       this, the wrapper's width depends on its child img/iframe sizing
+       and the result is unstable. */
+    width:100%;
+    /* Inset 1rem inside the content gutter on each side so the artwork
+       always shows visible whitespace to its left and right rather than
+       butting against the gutter — gives the work editorial breathing
+       room at every phone width. Caps at the desktop frame size on
+       wider viewports. The generous bottom margin keeps the artwork
+       from butting against the footer in the stacked mobile layout. */
+    max-width:min(23.9375rem, calc(100% - 2rem));
+    margin:2rem auto 5rem;
+  }
 }
 
 /* 404 — branded not-found page.

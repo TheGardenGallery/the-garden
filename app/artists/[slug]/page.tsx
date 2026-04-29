@@ -70,13 +70,21 @@ export default async function ArtistDetailPage({
   const theme = showcase?.heroTheme === "dark" ? "dark" : "paper";
 
   // Showcase media priority: live iframe > video > still image. Live
-  // generative pieces (e.g. VES3L's Solve-Un-Solve) take precedence
-  // over a static rendering since the live work IS the artwork.
+  // generative pieces (e.g. VES3L's Solve-Un-Solve, John Provencher's
+  // over-time) take precedence over a static rendering since the
+  // live work IS the artwork. The artist record's `showcaseIframe`
+  // wins outright; `showcaseImage` overrides the exhibition hero
+  // when no iframe is configured.
+  const showcaseIframe =
+    artist.showcaseIframe ?? showcase?.heroIframe;
   const showcaseImage =
-    showcase?.heroIframe || showcase?.heroVideo ? undefined : showcase?.hero;
+    showcaseIframe || showcase?.heroVideo
+      ? undefined
+      : artist.showcaseImage ?? showcase?.hero;
 
   return (
     <ArtistReveal
+      artistSlug={artist.slug}
       artistName={artist.name}
       paragraphs={paragraphs}
       socials={artist.socials}
@@ -87,8 +95,10 @@ export default async function ArtistDetailPage({
       showcaseVideo={showcase?.heroIframe ? undefined : showcase?.heroVideo}
       showcaseImage={showcaseImage}
       showcasePoster={showcase?.heroVideoPoster}
-      showcaseIframe={showcase?.heroIframe}
-      showcaseIframeAspect={showcase?.heroIframeAspect}
+      showcaseIframe={showcaseIframe}
+      showcaseIframeAspect={
+        artist.showcaseIframeAspect ?? showcase?.heroIframeAspect
+      }
       // No randomize on the artist page — keeps the iframe SSR-rendered
       // so the browser starts fetching the bundle during HTML parse
       // instead of after hydration. Saves ~200-500ms on first paint.

@@ -58,6 +58,39 @@ export function Nav() {
     setOpen(false);
   }, [pathname]);
 
+  // Dark-canvas pages (homepage hero, dark ex-hero, dark artist reveal)
+  // start with the nav inverted to read against the dark surface. Once
+  // that surface scrolls past the nav, the section behind the nav is
+  // paper-themed — flip back to the cream/ink treatment so the nav
+  // doesn't slab black across light editorial below.
+  useEffect(() => {
+    const target = document.querySelector<HTMLElement>(
+      '.hero[data-theme="dark"], .ex-hero[data-theme="dark"], .artist-reveal:not([data-theme="paper"])'
+    );
+    if (!target) {
+      document.body.classList.remove("nav-on-paper");
+      return;
+    }
+    const update = () => {
+      const navHeight =
+        parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue(
+            "--nav-height"
+          )
+        ) || 70;
+      const past = target.getBoundingClientRect().bottom <= navHeight;
+      document.body.classList.toggle("nav-on-paper", past);
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+      document.body.classList.remove("nav-on-paper");
+    };
+  }, [pathname]);
+
   return (
     <>
       <nav>

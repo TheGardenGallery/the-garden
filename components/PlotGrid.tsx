@@ -294,7 +294,7 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
               variants={rowVariants}
             >
               <div className="plot-row-label">{label}</div>
-              <PlotRowCells>
+              <PlotRowCells scrollable={maxCol > columns}>
                 {cells.map(({ col, artist }) => (
                   <PlotCell
                     key={col}
@@ -318,8 +318,18 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
 
 /** Horizontally-scrollable cell container that flags itself while
     scrolling so :active invert styles can be suppressed (prevents a
-    tap flash when the user is actually scrolling). */
-function PlotRowCells({ children }: { children: React.ReactNode }) {
+    tap flash when the user is actually scrolling). When `scrollable`
+    is false the row's cells fit exactly inside the viewport's grid
+    width — sub-pixel rounding could otherwise let `overflow-x:auto`
+    permit a few-px scroll past empty trailing cells, so the CSS
+    drops to `clip` in that case. */
+function PlotRowCells({
+  children,
+  scrollable,
+}: {
+  children: React.ReactNode;
+  scrollable?: boolean;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<number | null>(null);
 
@@ -334,7 +344,12 @@ function PlotRowCells({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div ref={ref} className="plot-row-cells" onScroll={onScroll}>
+    <div
+      ref={ref}
+      className="plot-row-cells"
+      data-scrollable={scrollable || undefined}
+      onScroll={onScroll}
+    >
       {children}
     </div>
   );

@@ -22,6 +22,19 @@ export function getHeroTreatment(slug: string): HeroTreatment | undefined {
   return heroTreatments[slug];
 }
 
+export type HeroCopyTreatment = "featured-lockup";
+
+export const heroCopyTreatments: Record<string, HeroCopyTreatment> = {
+  "split-logic": "featured-lockup",
+  "iso-iec-10646": "featured-lockup",
+};
+
+export function getHeroCopyTreatment(
+  slug: string
+): HeroCopyTreatment | undefined {
+  return heroCopyTreatments[slug];
+}
+
 export type ArtistPreviewOverride = {
   src: string;
   /** Aspect-ratio hint for iframe previews, which have no intrinsic size. */
