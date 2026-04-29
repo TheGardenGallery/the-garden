@@ -64,6 +64,39 @@ export function Hero({ slides }: HeroProps) {
     return () => window.clearTimeout(id);
   }, [reduced, slides, paused, index]);
 
+  // Pre-fetch every slide's media into the HTTP cache so the first
+  // cycle's slide-from-side animation isn't fighting a fresh network
+  // request + decode. Mounted hidden `<video>` / `<img>` elements
+  // below force decode too. Without this, the FIRST switch is choppy
+  // (asset fetched + decoded as it animates in); subsequent switches
+  // are smooth because everything's cached.
+  useEffect(() => {
+    const links: HTMLLinkElement[] = [];
+    for (const s of slides) {
+      const ex = s.exhibition;
+      const video = ex.homepageHeroVideo;
+      const image = ex.homepageHero ?? ex.hero;
+      if (video) {
+        const link = document.createElement("link");
+        link.rel = "preload";
+        link.as = "video";
+        link.href = video;
+        document.head.appendChild(link);
+        links.push(link);
+      } else if (image) {
+        const link = document.createElement("link");
+        link.rel = "preload";
+        link.as = "image";
+        link.href = image;
+        document.head.appendChild(link);
+        links.push(link);
+      }
+    }
+    return () => {
+      for (const l of links) l.remove();
+    };
+  }, [slides]);
+
   if (slides.length === 0) return null;
   const current = slides[index % slides.length];
   const { exhibition: ex } = current;
@@ -94,6 +127,37 @@ export function Hero({ slides }: HeroProps) {
         else setArrowZone(null);
       }}
     >
+      {/* Off-screen pre-warm: each non-current slide's media is mounted
+          hidden so the browser fetches + decodes ahead of time. When
+          AnimatePresence mounts the visible slide on cycle, the video
+          / image is already in cache and decoded — the very first
+          slide-from-side animation is as smooth as later ones. */}
+      <div className="hero-prewarm" aria-hidden="true">
+        {slides.map((s) => {
+          if (s.exhibition.slug === ex.slug) return null;
+          const v = s.exhibition.homepageHeroVideo;
+          const img = s.exhibition.homepageHero ?? s.exhibition.hero;
+          if (v) {
+            return (
+              <video
+                key={s.exhibition.slug}
+                src={v}
+                muted
+                playsInline
+                preload="auto"
+              />
+            );
+          }
+          if (img) {
+            return (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img key={s.exhibition.slug} src={img} alt="" />
+            );
+          }
+          return null;
+        })}
+      </div>
+
       <div className="hero-slides">
         <AnimatePresence initial={false} custom={direction} mode="sync">
           <motion.div

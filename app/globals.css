@@ -683,6 +683,23 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   background:#f1f4f6;
   --hero-foreground:var(--ink);
 }
+/* Pre-warm container: must remain in the DOM and rendered (visibility
+   only) — `display:none` causes some browsers to skip preload/decode
+   for video elements, defeating the warm. Tiny, invisible, off the
+   interaction tree. */
+.hero-prewarm{
+  position:absolute;
+  width:1px;height:1px;
+  opacity:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:-1;
+}
+.hero-prewarm video,
+.hero-prewarm img{
+  width:100%;height:100%;
+  object-fit:cover;
+}
 /* Ricky Retouch / Split Logic: pure black hero so the artwork's dark
    ground dissolves seamlessly into the backdrop and the work reads as
    stark light against negative space. The default dark theme's #0c0c10
