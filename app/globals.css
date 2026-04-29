@@ -285,13 +285,22 @@ body:has(.artist-reveal:not([data-theme="paper"])){
    reads as part of the dark surface rather than a bright slab on
    top of it. Body bg is independent (only dark artist-reveal flips).
    Paper-themed artist-reveal pages use the standard cream nav. */
-body:has(.artist-reveal:not([data-theme="paper"])),
-body:has(.hero[data-theme="dark"]),
-body:has(.ex-hero[data-theme="dark"]){
+body:where(:has(.artist-reveal:not([data-theme="paper"])), :has(.hero[data-theme="dark"]), :has(.ex-hero[data-theme="dark"])){
   --nav-bg:#000;
   --nav-fg:var(--on-dark-fg);
   --nav-fg-muted:var(--on-dark-fg-muted);
   --nav-rule:rgba(245,243,239,0.08);
+}
+
+/* Once the dark canvas scrolls past the nav (set by Nav.tsx via an
+   IntersectionObserver-equivalent scroll listener), revert the nav to
+   paper so it reads against the editorial sections below. The body
+   class wins over the :has() rule above by source order. */
+body.nav-on-paper{
+  --nav-bg:var(--paper);
+  --nav-fg:var(--ink);
+  --nav-fg-muted:var(--ink-muted);
+  --nav-rule:var(--rule);
 }
 
 .logo{
@@ -681,6 +690,16 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .hero[data-slug="split-logic"]{background:#000000;}
 .hero[data-slug="split-logic"]::after{display:none;}
 .hero[data-slug="split-logic"] .slide-video{filter:none;}
+/* Slightly larger hero card lockup for Split Logic — the dark, dense
+   video calls for a touch more weight on the artist + title pairing. */
+.hero[data-slug="split-logic"] .hero-artist,
+.hero[data-slug="split-logic"] .hero-title,
+.hero[data-slug="iso-iec-10646"] .hero-artist,
+.hero[data-slug="iso-iec-10646"] .hero-title{font-size:clamp(28px, calc(1vw + 19px), 38px);}
+.hero[data-slug="split-logic"] .hero-link,
+.hero[data-slug="iso-iec-10646"] .hero-link{font-size:16px;}
+.hero[data-slug="split-logic"] .hero-link-arrow,
+.hero[data-slug="iso-iec-10646"] .hero-link-arrow{font-size:15px;}
 .hero[data-theme="paper"] .hero-artist,
 .hero[data-theme="paper"] .hero-title{color:var(--ink);}
 .hero[data-theme="paper"] .hero-meta{color:rgba(35,35,38,0.6);}

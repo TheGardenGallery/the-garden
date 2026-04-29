@@ -101,15 +101,15 @@ export function ArtistReveal({
   // Long bios get the monograph/wall-text treatment: two narrow
   // columns instead of one centered column. Threshold is purely
   // word-count based — paragraph count alone doesn't tell us whether
-  // a bio fills the viewport. 220 words is roughly where single
+  // a bio fills the viewport. 200 words is roughly where single
   // column at the data-long font scaling starts feeling tall against
   // the 100vh stage; below that, single column reads cleaner. Today
-  // only Yoshi crosses it (Paolo Eri is the next-longest at 193).
+  // only Yoshi crosses it (Paolo Čerić is the next-longest at 164).
   const wordCount = paragraphs.reduce(
     (n, p) => n + p.trim().split(/\s+/).filter(Boolean).length,
     0
   );
-  const isLongBio = wordCount >= 220;
+  const isLongBio = wordCount >= 200;
 
   // Pretext-driven shape-aware bio applies to every artist that has
   // a showcase artwork half-clipped on the right edge — including
