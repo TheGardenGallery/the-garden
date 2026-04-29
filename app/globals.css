@@ -1817,7 +1817,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   .ex-section-inner{gap:36px;}
   .exhibitions-list{grid-template-columns:1fr;gap:40px;}
   .row-artist,.row-title{font-size:22px;}
-  .past-year{padding-top:32px;padding-bottom:1rem;}
+  .past-year{padding-top:14px;padding-bottom:1rem;}
   .past-card{
     grid-template-columns:1fr auto;
     grid-template-areas:"artist month" "title title";
