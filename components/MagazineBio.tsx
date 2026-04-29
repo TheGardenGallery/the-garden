@@ -2,8 +2,10 @@
 
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -97,6 +99,20 @@ export const MagazineBio = forwardRef<HTMLDivElement, MagazineBioProps>(
       return () => mq.removeEventListener("change", update);
     }, []);
 
+    // Internal ref used to read the bio's actual computed font-size
+    // for staleness detection (see useMemo). Forwarded ref still
+    // points at the same element via the callback below.
+    const innerRef = useRef<HTMLDivElement | null>(null);
+    const setRefs = useCallback(
+      (node: HTMLDivElement | null) => {
+        innerRef.current = node;
+        if (typeof ref === "function") ref(node);
+        else if (ref)
+          (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      },
+      [ref]
+    );
+
     const layout = useMemo<{
       leftPara: string[];
       rightPara: string[];
@@ -104,6 +120,26 @@ export const MagazineBio = forwardRef<HTMLDivElement, MagazineBioProps>(
       rightLines: string[][];
     } | null>(() => {
       if (!hydrated) return null;
+      // CSS @media breakpoints change the bio's typography ahead of
+      // ArtistReveal's RO committing fresh metrics. Skip shaping for
+      // the ~1 frame between a breakpoint crossing and the next
+      // metrics commit so pretext doesn't lay out at the prior size
+      // while the DOM renders the new one. See ShapedBio for the
+      // rationale.
+      const el = innerRef.current;
+      if (el && typeof window !== "undefined") {
+        const p = el.querySelector("p") ?? el;
+        const actual = parseFloat(window.getComputedStyle(p).fontSize);
+        const m = font.match(/(\d+(?:\.\d+)?)px/);
+        const expected = m ? parseFloat(m[1]) : NaN;
+        if (
+          Number.isFinite(actual) &&
+          Number.isFinite(expected) &&
+          Math.abs(actual - expected) > 0.5
+        ) {
+          return null;
+        }
+      }
 
       const [leftPara, rightPara] = splitParagraphsByChars(paragraphs);
 
@@ -158,7 +194,7 @@ export const MagazineBio = forwardRef<HTMLDivElement, MagazineBioProps>(
     ]);
 
     return (
-      <div ref={ref} className={className} data-long>
+      <div ref={setRefs} className={className} data-long>
         {layout ? (
           <>
             <div className="magazine-col">

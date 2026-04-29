@@ -2,8 +2,10 @@
 
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -107,8 +109,45 @@ export const ShapedBio = forwardRef<HTMLDivElement, ShapedBioProps>(
       return () => mq.removeEventListener("change", update);
     }, []);
 
+    // Internal ref used to read the bio's actual computed font-size
+    // for staleness detection (see useMemo). Forwarded ref still
+    // points at the same element via the callback below.
+    const innerRef = useRef<HTMLDivElement | null>(null);
+    const setRefs = useCallback(
+      (node: HTMLDivElement | null) => {
+        innerRef.current = node;
+        if (typeof ref === "function") ref(node);
+        else if (ref)
+          (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      },
+      [ref]
+    );
+
     const layout = useMemo<string[][] | null>(() => {
       if (!hydrated) return null;
+      // CSS @media breakpoints (e.g. font-size shrinks at ≤720px)
+      // change the bio's typography ahead of ArtistReveal's RO
+      // committing fresh metrics. For ~1 frame after a breakpoint
+      // crossing, prop `font` would be stale and pretext would lay
+      // out at the previous size while the DOM renders the new
+      // size — visible as "everything breaks for a second" during
+      // a fast resize-back. Compare prop font-size to the DOM's
+      // actual computed font-size; if they disagree, fall back to
+      // plain paragraphs until parent commits matching metrics.
+      const el = innerRef.current;
+      if (el && typeof window !== "undefined") {
+        const p = el.querySelector("p") ?? el;
+        const actual = parseFloat(window.getComputedStyle(p).fontSize);
+        const m = font.match(/(\d+(?:\.\d+)?)px/);
+        const expected = m ? parseFloat(m[1]) : NaN;
+        if (
+          Number.isFinite(actual) &&
+          Number.isFinite(expected) &&
+          Math.abs(actual - expected) > 0.5
+        ) {
+          return null;
+        }
+      }
       const { lines } = refineColumn(
         (bioTop) =>
           layoutColumnShaped(
@@ -142,7 +181,7 @@ export const ShapedBio = forwardRef<HTMLDivElement, ShapedBioProps>(
 
     return (
       <div
-        ref={ref}
+        ref={setRefs}
         className={className}
         data-long={long || undefined}
       >

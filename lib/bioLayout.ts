@@ -52,6 +52,13 @@ export function layoutColumnUniform(
  * of it render at `fullWidth`. `bioTop` is the column's top in
  * parent border-box-relative coords (caller supplies, since it
  * depends on flex centering math).
+ *
+ * Geometry is pixel-snapped and the boundary check carries a 0.5px
+ * EPS so sub-pixel jitter in metrics during a resize can't flip a
+ * line's in-exclusion classification — without this, a line landing
+ * within ~0.1px of the artwork's edge ping-pongs between shaped and
+ * full-width as `getBoundingClientRect()` returns slightly different
+ * sub-pixel values each frame.
  */
 export function layoutColumnShaped(
   paragraphs: string[],
@@ -64,6 +71,10 @@ export function layoutColumnShaped(
   artworkTop: number,
   artworkBottom: number
 ): LayoutResult {
+  const top = Math.round(bioTop);
+  const aTop = Math.round(artworkTop);
+  const aBot = Math.round(artworkBottom);
+  const EPS = 0.5;
   const result: string[][] = [];
   let yInBio = 0;
   for (const para of paragraphs) {
@@ -71,10 +82,10 @@ export function layoutColumnShaped(
     const lines: string[] = [];
     let cursor: LayoutCursor = { segmentIndex: 0, graphemeIndex: 0 };
     for (let i = 0; i < 1000; i++) {
-      const lineTop = bioTop + yInBio;
+      const lineTop = top + yInBio;
       const lineBottom = lineTop + lineHeight;
       const inExclusion =
-        lineBottom > artworkTop && lineTop < artworkBottom;
+        lineBottom > aTop + EPS && lineTop < aBot - EPS;
       const w = inExclusion ? shapedWidth : fullWidth;
       const next = layoutNextLine(prepared, cursor, w);
       if (!next) break;
@@ -98,6 +109,17 @@ export function layoutColumnShaped(
  * `baseHeight` floors the group height — used by magazine layouts
  * where the right column should center against the *taller* of the
  * two columns, not its own height.
+ *
+ * Oscillation guard: when a line straddles the exclusion boundary,
+ * each pass can flip its classification, sending height into a
+ * 2-cycle (H1 → H2 → H1 → H2 …) that never converges. Without this
+ * guard the loop exits at `maxPasses` with whichever phase pass 8
+ * happened to land on — and since slight differences in input
+ * metrics (resize-back vs. forward) can land you on the *other*
+ * phase, the user sees the layout suddenly snap. We detect the
+ * 2-cycle by comparing the new height against the pass-before-last,
+ * and when detected, return the taller (more shape-conformant) of
+ * the two stable phases deterministically.
  */
 export function refineColumn(
   layoutFn: (bioTop: number) => LayoutResult,
@@ -108,11 +130,18 @@ export function refineColumn(
 ): LayoutResult {
   let height = 0;
   let last: LayoutResult = { lines: [], height: 0 };
+  let prev: LayoutResult | null = null;
+  let prevPrev: LayoutResult | null = null;
   for (let pass = 0; pass < maxPasses; pass++) {
     const groupHeight = Math.max(height, baseHeight) + siblingExtent;
     const bioTop = flexAreaCenter - groupHeight / 2;
     last = layoutFn(bioTop);
     if (Math.abs(last.height - height) < 0.5) break;
+    if (prevPrev && Math.abs(last.height - prevPrev.height) < 0.5) {
+      return last.height >= (prev?.height ?? 0) ? last : prev!;
+    }
+    prevPrev = prev;
+    prev = last;
     height = last.height;
   }
   return last;

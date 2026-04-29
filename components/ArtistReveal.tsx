@@ -172,11 +172,34 @@ export function ArtistReveal({
     const sample = (): Metrics => {
       const parentRect = parent.getBoundingClientRect();
       const aRect = art.getBoundingClientRect();
+      // The deck translates the artwork left as the user scrolls
+      // horizontally (via --x); `getBoundingClientRect()` returns
+      // the post-transform position, which is wrong for shaping.
+      // The bio's layout should always be based on the artwork's
+      // resting anchor (at --x=0), since the bio's line breaks are
+      // baked once and don't reflow during scroll. Read --x from
+      // the scroller and undo the X translation so shaping is
+      // consistent regardless of scroll position when a resize
+      // happens to fire.
+      const scroller = scrollerRef.current;
+      let xCorrection = 0;
+      if (scroller) {
+        const scs = getComputedStyle(scroller);
+        const xRaw = parseFloat(scs.getPropertyValue("--x"));
+        const x = Number.isFinite(xRaw)
+          ? Math.max(0, Math.min(1, xRaw))
+          : 0;
+        const xEase = x * x * (3 - 2 * x);
+        const canvasW =
+          parseFloat(scs.getPropertyValue("--canvas-w")) ||
+          scroller.clientWidth;
+        xCorrection = (xEase * canvasW) / 2;
+      }
       // Bio block's rendered width — set by CSS (70ch single, 88ch
       // magazine). Stable; doesn't depend on bio.height.
       const bioWidthPx = bio.clientWidth;
       const bioLeftInParent = (parentRect.width - bioWidthPx) / 2;
-      const artLeftInParent = aRect.left - parentRect.left;
+      const artLeftInParent = aRect.left + xCorrection - parentRect.left;
       // For magazine layout (isLongBio) the shaped target is the
       // RIGHT column, not the whole bio block. fullWidth becomes
       // per-column width and shapedWidth is measured from the right
