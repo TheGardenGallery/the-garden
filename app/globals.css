@@ -855,6 +855,11 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 }
 @media (max-width:600px){
   .exhibitions-grid-hybrid{grid-template-columns:1fr;gap:40px;}
+  /* Match the desktop card's interior breathing room — the percentage
+     padding renders smaller relative to the artwork at full-bleed
+     widths, so the plate looked padding-less. Bumped to keep the
+     artwork inset from the plate edges on mobile. */
+  .exhibition-card-image{padding:14% 16%;}
   .exhibition-card .ds-display-name,
   .exhibition-card .ds-display-title{font-size:22px;letter-spacing:-0.1px;}
 }
