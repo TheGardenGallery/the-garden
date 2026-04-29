@@ -1184,8 +1184,15 @@ export const exhibitions: Exhibition[] = [
           {
             image: "/images/yoshi-sodeoka/the-flood-orchestrated-artwork-poster.jpg",
             video: "/images/yoshi-sodeoka/the-flood-orchestrated-artwork.mp4",
-            alt: "Yoshi Sodeoka, The Flood: Orchestrated",
-            title: "The Flood: Orchestrated",
+            alt: "Yoshi Sodeoka, The Flood: Orchestrated #14",
+            title: "The Flood: Orchestrated #14",
+            verseUrl: "https://verse.works/artworks/9468ee6a-3421-42d4-bcd7-d4ae58a961f5",
+          },
+          {
+            image: "/images/yoshi-sodeoka/the-flood-orchestrated-poster.jpg",
+            video: "/images/yoshi-sodeoka/the-flood-orchestrated-11.mp4",
+            alt: "Yoshi Sodeoka, The Flood: Orchestrated #11",
+            title: "The Flood: Orchestrated #11",
             verseUrl: "https://verse.works/artworks/9468ee6a-3421-42d4-bcd7-d4ae58a961f5",
           },
         ],

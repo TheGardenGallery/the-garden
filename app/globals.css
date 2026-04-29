@@ -365,7 +365,7 @@ body.nav-on-paper{
 /* ---- MOBILE NAV PANEL ---------------------------------------------- */
 .nav-panel{
   position:fixed;top:var(--nav-height);left:0;right:0;
-  background:var(--on-dark-bg);color:var(--on-dark-fg);
+  background:#000;color:var(--on-dark-fg);
   padding:56px var(--gutter) 48px;
   border-top:1px solid rgba(245,243,239,0.08);
   z-index:199;
@@ -2097,6 +2097,11 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .exhibition-detail[data-slug="simple-thoughts"] .ex-details-inner{
   max-width:1190px;
 }
+/* Paolo / Drift — narrow the details inner well below the default
+   1040 so the three 3:4 crops sit at a more intimate scale. */
+.exhibition-detail[data-slug="drift"] .ex-details-inner{
+  max-width:760px;
+}
 /* The shared <Image> component declares width=1200 height=1500 (4:5
    portrait) for CLS reservation. That HTML-attr default aspect can
    letterbox/squeeze the 5:4 landscape file. Force intrinsic on the
@@ -2784,15 +2789,24 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   max-width:calc((100vh - var(--nav-height) - 128px) * 9 / 16);
 }
 /* The second inline-artworks block is Chaos, whose video is natively
-   square. Override just that plate to a square aspect so the content
-   isn't dwarfed by top/bottom matte. */
+   square. The sibling combinator (~) reliably targets the second
+   `.ex-inline-artworks` regardless of how many `.ex-overview-body`
+   divs sit between them — `:nth-of-type` would mis-count because
+   it includes those prose divs in its ordinal. */
 .exhibition-detail[data-slug="the-flood"] .ex-inline-artworks
   ~ .ex-inline-artworks:has(> :only-child){
-  max-width:462px;
+  max-width:500px;
 }
 .exhibition-detail[data-slug="the-flood"] .ex-inline-artworks
   ~ .ex-inline-artworks .ex-inline-plate{
   aspect-ratio:1;
+}
+/* Orchestrated pair at the first inline slot — the canonical
+   *Orchestrated* alongside edition xi. 840 keeps each plate
+   ~404w × ~720h at 9:16. */
+.exhibition-detail[data-slug="the-flood"]
+  .ex-inline-artworks:has(> :nth-child(2)){
+  max-width:840px;
 }
 /* Dissolve the grey plate into the page for Yoshi — the videos are pure
    white, so a grey matte creates a hard seam. Remove the plate bg and
@@ -2807,8 +2821,22 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   aspect-ratio:9 / 16;
 }
 .exhibition-detail[data-slug="the-flood"] .ex-inline-media video{
-  filter:drop-shadow(0 14px 32px rgba(40,35,25,0.08))
-         drop-shadow(0 2px 6px rgba(40,35,25,0.05));
+  /* Whisper of a drop-shadow — the videos are pure white, so even a
+     light shadow reads strongly. Halved from the previous values
+     because the pair amplified the perceived weight. */
+  filter:drop-shadow(0 8px 20px rgba(40,35,25,0.04))
+         drop-shadow(0 1px 3px rgba(40,35,25,0.025));
+}
+/* Override the iframe-measurement-driven caption nudge for The
+   Flood — the captions should sit flush at the video's left edge
+   in normal flow. Default behaviour shifts the caption rightward
+   based on `--art-inset-left` for measured iframes; with no
+   measurement vars set on a video item, the calc still composes
+   non-zero offsets in some flow conditions, so we pin it. */
+.exhibition-detail[data-slug="the-flood"] .ex-inline-caption{
+  align-self:stretch;
+  text-align:left;
+  margin-left:0;
 }
 /* Yoshi prose links (series titles) drop the shared underline — the
    italic <em> already flags them as titles, and the underline reads too
@@ -2938,9 +2966,9 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .ex-artist-quote-body p{margin:0;}
 .ex-artist-quote-body em{font-style:italic;font-weight:400;}
 .ex-artist-quote-attribution{
-  font-family:'Barlow',sans-serif;
-  font-weight:500;font-size:10px;letter-spacing:1.5px;
-  text-transform:uppercase;color:var(--ink-muted);
+  font-family:'Cormorant','Title CJK',serif;
+  font-weight:400;font-style:italic;font-size:15px;letter-spacing:0;
+  color:var(--ink-muted);
   line-height:1;margin:0;
 }
 .ex-artist-quote-attribution::before{content:"— ";}
@@ -3186,7 +3214,27 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 @media (max-width:720px){
   .ex-details{padding:0 var(--gutter) 80px;}
   .ex-details-head{margin-bottom:32px;}
-  .ex-details-grid{grid-template-columns:1fr;gap:16px;}
+  /* On mobile the crops scroll horizontally instead of stacking — the
+     next crop peeks past the right edge as a swipe affordance. The
+     grid bleeds to the viewport edges so the first crop sits flush
+     with the page gutter and the last crop has equal padding on its
+     right. */
+  .ex-details-grid{
+    display:flex;
+    gap:12px;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    margin:0 calc(var(--gutter) * -1);
+    padding:0 var(--gutter);
+    scroll-padding-left:var(--gutter);
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .ex-details-grid::-webkit-scrollbar{display:none;}
+  .ex-details-grid > *{
+    flex:0 0 82%;
+    scroll-snap-align:start;
+  }
 }
 
 .ex-works{
