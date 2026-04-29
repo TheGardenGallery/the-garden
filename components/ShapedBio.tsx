@@ -95,7 +95,16 @@ export const ShapedBio = forwardRef<HTMLDivElement, ShapedBioProps>(
   ) {
     const [hydrated, setHydrated] = useState(false);
     useEffect(() => {
-      setHydrated(true);
+      // Pretext shaping is desktop-only — at narrow widths the metric
+      // pass measures a column too small for sensible line lengths,
+      // and the resulting display:block spans tile a vertical run of
+      // 1–2 character fragments. Track the viewport and disable
+      // shaping on mobile so the bio falls back to native text flow.
+      const mq = window.matchMedia("(max-width:720px)");
+      const update = () => setHydrated(!mq.matches);
+      update();
+      mq.addEventListener("change", update);
+      return () => mq.removeEventListener("change", update);
     }, []);
 
     const layout = useMemo<string[][] | null>(() => {

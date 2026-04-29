@@ -85,7 +85,16 @@ export const MagazineBio = forwardRef<HTMLDivElement, MagazineBioProps>(
   ) {
     const [hydrated, setHydrated] = useState(false);
     useEffect(() => {
-      setHydrated(true);
+      // Pretext shaping is desktop-only — at narrow widths the metric
+      // pass measures a column too small for sensible line lengths,
+      // collapsing the layout to one or two characters per line.
+      // Track the viewport and disable shaping on mobile so the
+      // bio falls back to native text flow.
+      const mq = window.matchMedia("(max-width:720px)");
+      const update = () => setHydrated(!mq.matches);
+      update();
+      mq.addEventListener("change", update);
+      return () => mq.removeEventListener("change", update);
     }, []);
 
     const layout = useMemo<{
