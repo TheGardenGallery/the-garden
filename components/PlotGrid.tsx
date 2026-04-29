@@ -73,6 +73,26 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
   const occupied = new Set(artists.map((a) => a.coord.row));
   const displayRows = buildDisplayRows(occupied);
 
+  // Responsive visible-column count, mirroring the CSS --cols breakpoints.
+  // Used to size each row's cell count: trailing empty cells past the
+  // last artist are dropped on narrow widths so empty / sparse rows
+  // don't manufacture phantom horizontal scroll. SSR defaults to the
+  // desktop count; the matchMedia effect updates on mount.
+  const [visibleCols, setVisibleCols] = useState(columns);
+  useEffect(() => {
+    const compute = () => {
+      if (window.matchMedia("(max-width:480px)").matches) return 2;
+      if (window.matchMedia("(max-width:720px)").matches) return 3;
+      if (window.matchMedia("(max-width:1100px)").matches) return 4;
+      if (window.matchMedia("(max-width:1280px)").matches) return 5;
+      return columns;
+    };
+    setVisibleCols(compute());
+    const handler = () => setVisibleCols(compute());
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, [columns]);
+
   const [hoverCol, setHoverCol] = useState<number | null>(null);
   const [hoverRow, setHoverRow] = useState<string | null>(null);
   const [hoverCellKey, setHoverCellKey] = useState<string | null>(null);
@@ -272,10 +292,16 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
           const rowArtists = artists.filter((a) =>
             letters.includes(a.coord.row),
           );
-          const maxCol = Math.max(
-            columns,
-            ...rowArtists.map((a) => a.coord.col),
-          );
+          const lastArtistCol = rowArtists.length
+            ? Math.max(...rowArtists.map((a) => a.coord.col))
+            : 0;
+          // Cell count per row: at least the visible column count (so
+          // sparse rows still fill the viewport width and look uniform),
+          // plus any artist coordinate that extends beyond. Trailing
+          // empty cells past the last artist are dropped — they were
+          // manufacturing horizontal scroll on narrow viewports for
+          // rows whose actual content already fit on-screen.
+          const maxCol = Math.max(visibleCols, lastArtistCol);
           // Numeric row uses "1" for the coord readout instead of "#"
           const coordRow = letters[0] === "#" ? "1" : letters[0];
           const cells = Array.from({ length: maxCol }, (_, i) => {
@@ -294,7 +320,7 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
               variants={rowVariants}
             >
               <div className="plot-row-label">{label}</div>
-              <PlotRowCells scrollable={maxCol > columns}>
+              <PlotRowCells scrollable={maxCol > visibleCols}>
                 {cells.map(({ col, artist }) => (
                   <PlotCell
                     key={col}

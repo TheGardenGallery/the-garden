@@ -1513,11 +1513,6 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   .plot-top,.plot-row{--cols:3;}
   .plot-cell{min-height:calc(1.1rem + 34px);}
   .plot-cell.filled .artist-name{left:18px;font-size:1.1rem;}
-  /* At narrow widths the visible column count drops below 6, so a
-     row with 4+ artists overflows even though the JS threshold
-     (`maxCol > 6`) hasn't flagged it scrollable. Allow overflow:auto
-     here so the row can be panned horizontally on touch. */
-  .plot-row-cells,.plot-top-cells{overflow-x:auto;}
 }
 @media (max-width:480px){
   .plot-wrap{--row-label-width:32px;}
