@@ -1481,6 +1481,23 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
    the cell from lighting up under a scroll gesture on touch. */
 .plot-row-cells[data-scrolling="true"] .plot-cell.filled:active{background:transparent;}
 
+/* Touch devices: invert the pressed cell (black ground, paper text)
+   so the tap registers as a clear "intent" mark. Pointer/hover
+   capability is the right gate here — width media queries would
+   miss tablets and trigger on resized desktop windows. The existing
+   data-scrolling guard still blocks inversion mid-pan. */
+@media (hover:none) and (pointer:coarse){
+  .plot-row-cells:not([data-scrolling="true"]) .plot-cell.filled:active{
+    background:#000;
+  }
+  .plot-row-cells:not([data-scrolling="true"]) .plot-cell.filled:active .artist-name{
+    color:var(--on-dark-fg);
+  }
+  .plot-row-cells:not([data-scrolling="true"]) .plot-cell.filled:active .artist-coord{
+    color:rgba(245,243,239,0.7);opacity:1;
+  }
+}
+
 @media (max-width:1280px){
   .plot-top,.plot-row{--cols:5;}
 }
@@ -1496,6 +1513,11 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   .plot-top,.plot-row{--cols:3;}
   .plot-cell{min-height:calc(1.1rem + 34px);}
   .plot-cell.filled .artist-name{left:18px;font-size:1.1rem;}
+  /* At narrow widths the visible column count drops below 6, so a
+     row with 4+ artists overflows even though the JS threshold
+     (`maxCol > 6`) hasn't flagged it scrollable. Allow overflow:auto
+     here so the row can be panned horizontally on touch. */
+  .plot-row-cells,.plot-top-cells{overflow-x:auto;}
 }
 @media (max-width:480px){
   .plot-wrap{--row-label-width:32px;}
