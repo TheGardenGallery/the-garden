@@ -858,8 +858,19 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   /* Match the desktop card's interior breathing room — the percentage
      padding renders smaller relative to the artwork at full-bleed
      widths, so the plate looked padding-less. Bumped to keep the
-     artwork inset from the plate edges on mobile. */
+     artwork inset from the plate edges on mobile. Per-artwork
+     overrides handle pieces whose own composition pushes the rendered
+     image bigger or smaller than the others at the same padding. */
   .exhibition-card-image{padding:14% 16%;}
+  /* Yoshi / The Flood — artwork has a wide white halo that reads larger
+     than the network at its core, so add vertical room. */
+  .exhibition-card[data-slug="the-flood"] .exhibition-card-image{padding:20% 16%;}
+  /* Aluan / Equinox — composition is dense and sits visually small at
+     the shared padding; tighten so it reads at scale. */
+  .exhibition-card[data-slug="equinox"] .exhibition-card-image{padding:9% 11%;}
+  /* John / haha over time — same, the piece's own internal margins
+     leave it looking small inside the plate. */
+  .exhibition-card[data-slug="haha-over-time"] .exhibition-card-image{padding:9% 11%;}
   .exhibition-card .ds-display-name,
   .exhibition-card .ds-display-title{font-size:22px;letter-spacing:-0.1px;}
 }

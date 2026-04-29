@@ -16,7 +16,7 @@ export function ExhibitionCard({ exhibition }: { exhibition: Exhibition }) {
     exhibition.cardImage ?? exhibition.hero ?? exhibition.works?.[0]?.image;
 
   return (
-    <Link href={href} className="exhibition-card">
+    <Link href={href} className="exhibition-card" data-slug={exhibition.slug}>
       <div className="exhibition-card-image">
         <div className="exhibition-card-media">
           {exhibition.cardVideo ? (
