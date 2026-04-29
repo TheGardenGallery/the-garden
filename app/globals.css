@@ -3742,6 +3742,12 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .artist-reveal[data-slug="rudxane"] .artist-reveal-artwork{
   width:420px;
 }
+/* Khwampa: Simple Thoughts is a wide landscape work — at the default
+   510 portrait-tuned width it renders thin and underpowered. Bump the
+   frame up so the landscape composition has visual weight. */
+.artist-reveal[data-slug="khwampa"] .artist-reveal-artwork{
+  width:720px;
+}
 @media (max-width:720px){
   .artist-reveal[data-slug="john-provencher"] .artist-reveal-artwork{
     /* Wider cap for John's landscape installation, but the same inset
