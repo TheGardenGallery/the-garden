@@ -252,6 +252,12 @@ export const artists: Artist[] = [
     name: "Yoshi Sodeoka",
     coord: { row: "Y", col: 1 },
     verseSlug: "yoshi-sodeoka-",
+    // Specific clip from *The Flood: Orchestrated* — the simulation's
+    // motion is the work, so the artist page features the video rather
+    // than the still hero from his exhibition.
+    showcaseVideo: "/images/yoshi-sodeoka/the-flood-orchestrated.mp4",
+    showcaseVideoPoster:
+      "/images/yoshi-sodeoka/the-flood-orchestrated-poster.jpg",
     bio: `Yoshi Sodeoka is a Japanese-American artist based in New York whose neo-psychedelic visual practice is rooted in a lifelong relationship with music. Drawing from noise, punk, and metal, he has developed a singular vocabulary of immersive, mind-altering imagery that pulls on the same nerve as the sounds he grew up beside.\n\nOriginally from Yokohama, Sodeoka moved to New York in the 1990s to study at Pratt Institute and has remained there since. His practice combines digital video feedback, footage sampling, online imagery, and collaborative audio soundscapes into layered sensory works that move between fine art, music, and editorial.\n\nHis music collaborators include Metallica, Psychic TV, Tame Impala, Oneohtrix Point Never, Beck, The Presets, and Max Cooper. As an editorial illustrator, he has contributed to The New York Times, Wired, The Atlantic, and MIT Technology Review, alongside campaigns for Adidas, Nike, Apple, and Samsung.\n\nSodeoka's work has been exhibited at the Centre Pompidou, Museum of Modern Art, and Tate Britain, and is held in the permanent collections of the Whitney Museum of American Art and the Museum of the Moving Image. Over more than two decades, his practice has helped move digital video art from the margins of subculture into the institutional canon.`,
     socials: [
       { label: "Instagram", href: "https://www.instagram.com/yoshisodeoka/" },

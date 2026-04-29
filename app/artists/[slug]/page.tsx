@@ -72,13 +72,16 @@ export default async function ArtistDetailPage({
   // Showcase media priority: live iframe > video > still image. Live
   // generative pieces (e.g. VES3L's Solve-Un-Solve, John Provencher's
   // over-time) take precedence over a static rendering since the
-  // live work IS the artwork. The artist record's `showcaseIframe`
-  // wins outright; `showcaseImage` overrides the exhibition hero
-  // when no iframe is configured.
+  // live work IS the artwork. Artist-record overrides win over the
+  // showcase exhibition's defaults — lets us pick a different work
+  // for the artist page (e.g. Yoshi's *The Flood: Orchestrated*
+  // video, distinct from his exhibition hero).
   const showcaseIframe =
     artist.showcaseIframe ?? showcase?.heroIframe;
+  const showcaseVideo =
+    showcaseIframe ? undefined : artist.showcaseVideo ?? showcase?.heroVideo;
   const showcaseImage =
-    showcaseIframe || showcase?.heroVideo
+    showcaseIframe || showcaseVideo
       ? undefined
       : artist.showcaseImage ?? showcase?.hero;
 
@@ -92,9 +95,11 @@ export default async function ArtistDetailPage({
       showcaseTitle={showcase?.title}
       showcaseYear={showcase?.year}
       showcaseAriaLabel={showcase ? `View ${showcase.title}` : undefined}
-      showcaseVideo={showcase?.heroIframe ? undefined : showcase?.heroVideo}
+      showcaseVideo={showcaseVideo}
       showcaseImage={showcaseImage}
-      showcasePoster={showcase?.heroVideoPoster}
+      showcasePoster={
+        artist.showcaseVideoPoster ?? showcase?.heroVideoPoster
+      }
       showcaseIframe={showcaseIframe}
       showcaseIframeAspect={
         artist.showcaseIframeAspect ?? showcase?.heroIframeAspect

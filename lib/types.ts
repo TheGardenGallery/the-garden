@@ -32,6 +32,13 @@ export type Artist = {
   showcaseIframe?: string;
   /** Aspect ratio (w/h) of the iframe canvas, e.g. "1" for square. */
   showcaseIframeAspect?: string;
+  /** Override for a showcase video on the artist page. Takes precedence
+      over `showcaseImage`. Use when the work's motion is essential
+      (e.g. Yoshi's *The Flood: Orchestrated* — the simulation IS the
+      piece). Plays auto/muted/looped like the exhibition heroes. */
+  showcaseVideo?: string;
+  /** Optional poster frame for the video. */
+  showcaseVideoPoster?: string;
 };
 
 export type Work = {
