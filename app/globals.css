@@ -687,19 +687,14 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
    ground dissolves seamlessly into the backdrop and the work reads as
    stark light against negative space. The default dark theme's #0c0c10
    would show a visible seam against the black video. */
-.hero[data-slug="split-logic"]{background:#000000;}
-.hero[data-slug="split-logic"]::after{display:none;}
-.hero[data-slug="split-logic"] .slide-video{filter:none;}
-/* Slightly larger hero card lockup for Split Logic — the dark, dense
-   video calls for a touch more weight on the artist + title pairing. */
-.hero[data-slug="split-logic"] .hero-artist,
-.hero[data-slug="split-logic"] .hero-title,
-.hero[data-slug="iso-iec-10646"] .hero-artist,
-.hero[data-slug="iso-iec-10646"] .hero-title{font-size:clamp(28px, calc(1vw + 19px), 38px);}
-.hero[data-slug="split-logic"] .hero-link,
-.hero[data-slug="iso-iec-10646"] .hero-link{font-size:16px;}
-.hero[data-slug="split-logic"] .hero-link-arrow,
-.hero[data-slug="iso-iec-10646"] .hero-link-arrow{font-size:15px;}
+.hero[data-hero-treatment="full-bleed-video"]{background:#000000;}
+.hero[data-hero-treatment="full-bleed-video"]::after{display:none;}
+.hero[data-hero-treatment="full-bleed-video"] .slide-video{filter:none;}
+/* Slightly larger hero card lockup for dense featured homepage works. */
+.hero[data-hero-copy-treatment="featured-lockup"] .hero-artist,
+.hero[data-hero-copy-treatment="featured-lockup"] .hero-title{font-size:clamp(28px, calc(1vw + 19px), 38px);}
+.hero[data-hero-copy-treatment="featured-lockup"] .hero-link{font-size:16px;}
+.hero[data-hero-copy-treatment="featured-lockup"] .hero-link-arrow{font-size:15px;}
 .hero[data-theme="paper"] .hero-artist,
 .hero[data-theme="paper"] .hero-title{color:var(--ink);}
 .hero[data-theme="paper"] .hero-meta{color:rgba(35,35,38,0.6);}

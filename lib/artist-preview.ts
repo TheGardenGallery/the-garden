@@ -1,44 +1,8 @@
 import { exhibitions } from "@/lib/data/exhibitions";
-
-/**
- * Manual overrides for the floating preview shown when hovering an
- * artist's name in the plot grid. Drop a `slug → /images/...` line
- * here to pin a specific work; otherwise the helper falls back to
- * the most recent exhibition's `cardVideo`, `heroVideo`, `cardImage`,
- * or `hero` (in that order — videos preferred so motion-pieces
- * animate in the preview).
- *
- * Edit this map directly to swap previews — keys are the same artist
- * slugs used everywhere else (matches `Artist["slug"]`). Either
- * image or video paths work; the type is detected from the file
- * extension.
- */
-const PREVIEW_OVERRIDES: Record<string, string> = {
-  chepertom: "/images/chepertom/deluge-undertow-preview.png",
-  // John's HAHA card has a Verse-style metadata band baked into the
-  // top of the original — this preview asset has that band cropped
-  // off so the artwork sits clean.
-  "john-provencher": "/images/john-provencher/haha-preview.jpg",
-  // Itsgalo: live generative artwork — Verse S3 bundle for edition
-  // #34, proxied through /api/genart/itsgalo so we can inject CSS to
-  // strip the bundle's white body padding (it'd otherwise leave a
-  // thick white border around the artwork at preview scale) plus the
-  // synthetic-pointer kickstart so it autoplays.
-  itsgalo:
-    "/api/genart/itsgalo?payload=eyJoYXNoIjoiMHg1ZTllYmY1Y2NlMDZlMWRiMmM4M2JiZmU1MDU4OTlhMjY4ODEzMjQwMmNhMWMxZmVlNDg5MTliMTEzMmU1ZjhjIiwiZWRpdGlvbk51bWJlciI6MzQsInRvdGFsRWRpdGlvbnMiOjY1LCJpbnB1dCI6eyIkdXNlcm5hbWUiOiJoYW5uYWgyMTA2In19",
-  // VES3L: locked iframe of Solve-Un-Solve #173 — same series as the
-  // exhibition hero, but a different edition so the preview reads as
-  // a distinct specimen instead of a duplicate of the hero artwork.
-  // `fit=1` zeros the bundle's body padding so the cream canvas fills
-  // the iframe edge-to-edge (otherwise white strips letterbox the art).
-  ves3l:
-    "/api/genart/ves3l?payload=eyJoYXNoIjoiMHhlMGM1YzUyZThmM2QyN2IxOTVhZmQ0ZDBmODc2YWQ0OWY4NzAxN2JiNmJhYzYzN2Y1YmEyNGU2ODM5N2YzNzdlIiwiZWRpdGlvbk51bWJlciI6MTczLCJ0b3RhbEVkaXRpb25zIjoxODksImlucHV0Ijp7IiR1c2VybmFtZSI6ImNoZW44ODEyIn19&lock=1&fit=1",
-  // Spøgelsesmaskinen: pin to "Betula lenta - Sweet Birch" from
-  // Glitch Garden so the hover surfaces a specific edition rather
-  // than the series hero.
-  "sp-gelsesmaskinen": "/images/sp-gelsesmaskinen/glitch-garden-sweet-birch.gif",
-};
-
+import {
+  artistPreviewOverrides,
+  artistPreviewSizeScales,
+} from "@/lib/data/display-rules";
 
 const MONTHS = [
   "Jan",
@@ -72,44 +36,8 @@ export type ArtistPreview = {
   sizeScale?: number;
 };
 
-/**
- * Aspect-ratio overrides for iframe previews. Genart bundles render
- * inside an iframe whose dimensions WE choose — the bundle then
- * centers its artwork inside that frame, which leaves whitespace
- * around portrait or wide compositions when the iframe is square.
- * Pin a per-artist aspect here so the iframe bucket matches the
- * artwork's natural shape and the whitespace disappears.
- */
-const IFRAME_ASPECTS: Record<string, number> = {
-  itsgalo: 0.7,
-  ves3l: 1.2,
-};
-
-/**
- * Per-artist multiplier on the hover-preview's bucket dims. >1 makes
- * the preview read bigger; <1 makes it smaller. Use sparingly — most
- * previews should fall through to the default bucket sizing.
- */
-const PREVIEW_SIZE_SCALES: Record<string, number> = {
-  khwampa: 1.2,
-};
-
-/**
- * Cross-origin upstream sub-resources that an iframe preview pulls
- * in beyond the HTML loader itself. Listed here so PlotGrid can
- * warm the browser's HTTP cache for them at idle time, before the
- * first hover — otherwise the user pays for a full
- * proxy+style+script chain on first reveal.
- */
-const IFRAME_PRELOAD_RESOURCES: Record<string, string[]> = {
-  itsgalo: [
-    "https://public-bucket-verse-dev.s3.eu-west-1.amazonaws.com/genart/itsgalo-jun-2024-v4/style.css",
-    "https://public-bucket-verse-dev.s3.eu-west-1.amazonaws.com/genart/itsgalo-jun-2024-v4/script.js",
-  ],
-};
-
 export function getIframePreloadResources(artistSlug: string): string[] {
-  return IFRAME_PRELOAD_RESOURCES[artistSlug] ?? [];
+  return artistPreviewOverrides[artistSlug]?.preloadResources ?? [];
 }
 
 function detectType(src: string): "image" | "video" | "iframe" {
@@ -148,14 +76,15 @@ export function optimizeImageSrc(
  * in the preview: cardVideo → heroVideo → cardImage → hero.
  */
 export function getArtistPreviewImage(artistSlug: string): ArtistPreview | null {
-  const sizeScale = PREVIEW_SIZE_SCALES[artistSlug];
-  const override = PREVIEW_OVERRIDES[artistSlug];
+  const override = artistPreviewOverrides[artistSlug];
+  const sizeScale =
+    override?.sizeScale ?? artistPreviewSizeScales[artistSlug];
   if (override) {
-    const type = detectType(override);
+    const type = detectType(override.src);
     return {
-      src: override,
+      src: override.src,
       type,
-      aspect: type === "iframe" ? IFRAME_ASPECTS[artistSlug] : undefined,
+      aspect: type === "iframe" ? override.aspect : undefined,
       sizeScale,
     };
   }
