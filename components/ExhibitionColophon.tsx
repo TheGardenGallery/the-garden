@@ -11,13 +11,18 @@ import { artists } from "@/lib/data/artists";
  * `exhibition.documents`), and enquiries / Verse link.
  */
 export function ExhibitionColophon({ exhibition }: { exhibition: Exhibition }) {
-  // Resolve the artist's Verse profile slug. Most artists' local slug
-  // matches Verse's, but a few diverge (e.g. our `sp-gelsesmaskinen`
-  // vs Verse's `spogelsesmaskinen`) — those carry an explicit
-  // `verseSlug` on their Artist record.
+  // Look up the artist record so we can prefer our authored bio over
+  // anything Verse provides — and link the "Artist profile" CTA to
+  // our own artist page rather than offsite to Verse.
   const artist = artists.find((a) => a.slug === exhibition.artistSlug);
-  const verseProfileSlug = artist?.verseSlug ?? exhibition.artistSlug;
-  const verseProfileUrl = `https://verse.works/${verseProfileSlug}`;
+  // The local bio is paragraph-separated (\n\n). The colophon body is
+  // a single <p> (with line-clamp), so collapse paragraph breaks to
+  // single spaces for inline rendering.
+  const localBio = artist?.bio?.replace(/\n+/g, " ");
+  const colophonBio =
+    localBio ??
+    exhibition.artistBio ??
+    "Multidisciplinary artist working across digital and generative systems.";
 
   return (
     <section className="ex-colophon">
@@ -25,17 +30,13 @@ export function ExhibitionColophon({ exhibition }: { exhibition: Exhibition }) {
         <ColBlock
           label="About the artist"
           title={exhibition.artistName}
-          body={
-            exhibition.artistBio ??
-            "Multidisciplinary artist working across digital and generative systems."
-          }
+          body={colophonBio}
           clampLines={6}
           links={[
             {
               label: "Artist profile",
-              href: verseProfileUrl,
-              icon: <ArrowNE />,
-              external: true,
+              href: `/artists/${exhibition.artistSlug}`,
+              icon: <ArrowRight />,
             },
           ]}
         />
@@ -78,26 +79,28 @@ export function ExhibitionColophon({ exhibition }: { exhibition: Exhibition }) {
             )}
           </div>
         )}
-        <ColBlock
-          label="Enquiries"
-          title="Works Available"
-          body={`All ${exhibition.workCount ?? "available"} works remain viewable and collectable on Verse, with full provenance and trading history. For press and private enquiries, contact the curator directly.`}
-          links={[
-            {
-              label: "View on Verse",
-              href: exhibition.verseSeriesUrl ?? "https://verse.works",
-              icon: <ArrowNE />,
-              external: true,
-            },
-            {
-              label: "Enquire",
-              href: `mailto:chilltulpa@gmail.com?subject=${encodeURIComponent(
-                `Enquiry: ${exhibition.artistName}, ${exhibition.title}`
-              )}`,
-              icon: <ArrowRight />,
-            },
-          ]}
-        />
+        {exhibition.status !== "upcoming" && (
+          <ColBlock
+            label="Enquiries"
+            title="Works Available"
+            body={`All ${exhibition.workCount ?? "available"} works remain viewable and collectable on Verse, with full provenance and trading history. For press and private enquiries, contact the curator directly.`}
+            links={[
+              {
+                label: "View on Verse",
+                href: exhibition.verseSeriesUrl ?? "https://verse.works",
+                icon: <ArrowNE />,
+                external: true,
+              },
+              {
+                label: "Enquire",
+                href: `mailto:chilltulpa@gmail.com?subject=${encodeURIComponent(
+                  `Enquiry: ${exhibition.artistName}, ${exhibition.title}`
+                )}`,
+                icon: <ArrowRight />,
+              },
+            ]}
+          />
+        )}
       </div>
     </section>
   );

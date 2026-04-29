@@ -33,11 +33,21 @@ export function HeroIframeMedia({
   aspect?: string;
   randomize?: boolean;
 }) {
-  const [state, setState] = useState<{ src: string; v: number } | null>(null);
+  // When `randomize` is on, we must defer iframe mount to client so
+  // the SSR-fetched bundle isn't immediately discarded by a re-mount
+  // with a fresh hash (would double the network cost on first visit).
+  // When `randomize` is off, we can render the iframe immediately on
+  // SSR — the browser begins fetching the ~2MB bundle during HTML
+  // parse instead of waiting for hydration, which trims a noticeable
+  // amount off the first-paint-to-artwork-visible delay.
+  const [state, setState] = useState<{ src: string; v: number } | null>(
+    randomize ? null : { src, v: 1 }
+  );
 
   useEffect(() => {
+    if (!randomize) return;
     setState({
-      src: randomize ? withRandomHash(src) : src,
+      src: withRandomHash(src),
       v: Date.now(),
     });
   }, [src, randomize]);

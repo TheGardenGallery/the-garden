@@ -101,7 +101,7 @@
 /* ---- SCROLL REVEAL --------------------------------------------------- */
 .reveal{
   opacity:0;
-  transform:translateY(28px);
+  transform:translateY(0.4em);
   transition:opacity 0.8s ease-out, transform 0.8s ease-out;
 }
 .reveal.is-visible{opacity:1;transform:translateY(0);}
@@ -111,7 +111,17 @@
 
 /* ---- RESET ---------------------------------------------------------- */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-html{font-size:16px;-webkit-font-smoothing:antialiased;scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:gray transparent;}
+html{font-size:16px;-webkit-font-smoothing:antialiased;scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:gray transparent;background:var(--paper);}
+/* Match the html background to whichever surface the current page
+   is presenting, so the native rubber-band overscroll always
+   reveals a coherent color rather than a mismatched white slab on
+   a dark page (or vice versa). Gallery-standard: don't disable the
+   OS gesture — just give it the right backdrop. */
+html:has(.artist-reveal:not([data-theme="paper"])),
+html:has(.hero[data-theme="dark"]),
+html:has(.ex-hero[data-theme="dark"]){
+  background:#000;
+}
 /* WebKit fallback for older Safari/Chrome that don't honour the
    modern `scrollbar-width` / `scrollbar-color` properties. Matches the
    thin gray-on-transparent look declared above. */
@@ -164,6 +174,8 @@ figcaption em{font-feature-settings:"kern" 1, "liga" 1, "dlig" 1;}
    blue that clashes with the palette. */
 ::selection{background-color:rgba(22,20,16,0.10);color:var(--ink);}
 .hero[data-theme="dark"] ::selection,
+.ex-hero[data-theme="dark"] ::selection,
+.artist-reveal:not([data-theme="paper"]) ::selection,
 footer ::selection{background-color:rgba(245,243,239,0.12);color:var(--on-dark-fg);}
 
 /* ---- NO-SELECT: images + grid interactives ------------------------- */
@@ -220,29 +232,60 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset
 }
 
 /* ---- NAV ------------------------------------------------------------ */
+/* Nav adapts to the page's theme via `--nav-bg` / `--nav-fg` /
+   `--nav-rule` custom properties — defaults to paper/ink, but pages
+   with a dark hero (e.g. the artist reveal) override these on body
+   so the chrome at the top matches the canvas underneath. */
 nav,.site-nav{
   position:fixed;top:0;left:0;right:0;z-index:200;
   display:flex;align-items:center;justify-content:space-between;
   padding:24px var(--gutter);
-  background:var(--paper);
-  border-bottom:1px solid var(--rule);
+  background:var(--nav-bg, var(--paper));
+  border-bottom:1px solid var(--nav-rule, var(--rule));
   height:var(--nav-height);
+  transition:background-color 0.3s ease-out, border-color 0.3s ease-out;
 }
 .nav-links{display:flex;gap:44px;list-style:none;}
 .nav-links a{
   font-family:'Barlow',sans-serif;
   font-weight:600;font-size:13px;letter-spacing:0.5px;
   text-transform:uppercase;
-  color:#000;
+  color:var(--nav-fg, #000);
   line-height:1;
   padding-bottom:2px;
   position:relative;
   transition:color 245ms;
 }
-.nav-links a[aria-current="page"]{color:var(--ink-muted);}
+.nav-links a[aria-current="page"]{color:var(--nav-fg-muted, var(--ink-muted));}
 @media (hover:hover){
-  .nav-links a:hover{color:var(--ink-muted);}
-  .nav-links a[aria-current="page"]:hover{color:#000;}
+  .nav-links a:hover{color:var(--nav-fg-muted, var(--ink-muted));}
+  .nav-links a[aria-current="page"]:hover{color:var(--nav-fg, #000);}
+}
+
+/* Body bg flips to black ONLY on the artist-reveal page, where the
+   deck uses `margin-top: var(--nav-height)` (which exposes body bg
+   between the fixed nav and the deck during overscroll bounce) AND
+   the entire page below the nav is one dark surface.
+   Hero / ex-hero pages use `padding-top: var(--nav-height)` so the
+   section's own bg covers under the nav — no body bg change needed,
+   AND the sections below the hero are paper-themed with dark text
+   that wouldn't read against a black body. */
+body:has(.artist-reveal:not([data-theme="paper"])){
+  background:#000;
+}
+
+/* Nav theme adaptation applies to any page with a dark canvas at
+   the fold (dark artist reveal, dark hero, dark ex-hero) — the header
+   reads as part of the dark surface rather than a bright slab on
+   top of it. Body bg is independent (only dark artist-reveal flips).
+   Paper-themed artist-reveal pages use the standard cream nav. */
+body:has(.artist-reveal:not([data-theme="paper"])),
+body:has(.hero[data-theme="dark"]),
+body:has(.ex-hero[data-theme="dark"]){
+  --nav-bg:#000;
+  --nav-fg:var(--on-dark-fg);
+  --nav-fg-muted:var(--on-dark-fg-muted);
+  --nav-rule:rgba(245,243,239,0.08);
 }
 
 .logo{
@@ -252,11 +295,19 @@ nav,.site-nav{
   text-transform:uppercase;
   display:inline-block;
   line-height:1;
-  color:#000;
+  color:var(--nav-fg, #000);
+  transition:color 245ms;
 }
 .logo .the,.logo .grd{color:inherit;}
 .logo .triangle{display:inline-block;width:0.73em;height:0.73em;vertical-align:baseline;line-height:1;margin:0 0.02em 0 -0.05em;position:relative;top:0;}
 .logo .triangle svg{display:block;width:100%;height:100%;overflow:visible;color:inherit;}
+/* Same workaround as `.nav-toggle`: browsers (esp. iOS Safari) can
+   trigger `:focus-visible` on tap/click and leave it sticky, painting
+   the global 2px outline around the brand mark long after the user
+   intended to interact. The logo's aria-label keeps it identifiable
+   for keyboard users, so suppressing the outline here is a safe trade. */
+.logo:focus,
+.logo:focus-visible{outline:none;}
 
 /* ---- MOBILE NAV TRIGGER (2×2 dot matrix → X) ----------------------- */
 .nav-toggle{
@@ -587,25 +638,38 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   position:relative;padding-top:var(--nav-height);
   height:100vh;height:100dvh;overflow:hidden;
   background:#0c0c10;
-  transition:background-color 1200ms var(--ease-slow);
+  /* Bg color completes earlier than the slide crossfade (1.4s vs 2.0s)
+     so by the time the two slides are at 50/50, the new theme bg is
+     already fully in place — the blend happens over a unified surface
+     instead of a transitional grey. */
+  transition:background-color 1400ms var(--ease-slow);
   --hero-foreground:var(--on-dark-fg);
 }
 .hero[data-theme="paper"]{
   background:#f1f4f6;
   --hero-foreground:var(--ink);
 }
+/* Ricky Retouch / Split Logic: pure black hero so the artwork's dark
+   ground dissolves seamlessly into the backdrop and the work reads as
+   stark light against negative space. The default dark theme's #0c0c10
+   would show a visible seam against the black video. */
+.hero[data-slug="split-logic"]{background:#000000;}
+.hero[data-slug="split-logic"]::after{display:none;}
+.hero[data-slug="split-logic"] .slide-video{filter:none;}
 .hero[data-theme="paper"] .hero-artist,
 .hero[data-theme="paper"] .hero-title{color:var(--ink);}
 .hero[data-theme="paper"] .hero-meta{color:rgba(35,35,38,0.6);}
 .hero[data-theme="paper"] .hero-link{color:rgba(35,35,38,0.78);}
-.hero[data-theme="paper"] .slide img{
+.hero[data-theme="paper"] .slide img,
+.hero[data-theme="paper"] .slide-video{
   filter:drop-shadow(0 6px 16px rgba(40,35,25,0.06)) drop-shadow(0 1px 3px rgba(40,35,25,0.045));
 }
-.slide-link{display:block;width:100%;height:100%;position:relative;z-index:1;text-decoration:none;color:inherit;cursor:pointer;}
+.slide-link{display:flex;align-items:center;justify-content:center;width:100%;height:100%;position:relative;z-index:1;text-decoration:none;color:inherit;cursor:pointer;}
 .slide-link:focus-visible{outline:none;}
 .hero-slides{position:absolute;inset:var(--nav-height) 0 0 0;display:flex;align-items:center;justify-content:center;}
 .slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:64px 56px;}
 .slide img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;image-rendering:auto;color:transparent;font-size:0;filter:drop-shadow(0 14px 38px rgba(0,0,0,0.42)) drop-shadow(0 2px 5px rgba(0,0,0,0.26));position:relative;z-index:1;transform:translateZ(0);backface-visibility:hidden;}
+.slide-video{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;filter:drop-shadow(0 14px 38px rgba(0,0,0,0.42)) drop-shadow(0 2px 5px rgba(0,0,0,0.26));position:relative;z-index:1;transform:translateZ(0);backface-visibility:hidden;}
 /* Wrapper inside .slide that participates in flex layout so the artwork
    respects .slide's padding (next/image fill otherwise ignores it by
    positioning absolutely to the padding edge). */
@@ -630,25 +694,27 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 .hero-nav{position:absolute;inset:0;pointer-events:none;z-index:3;}
 .hero-nav-btn{
   position:absolute;top:50%;
-  background:transparent;border:0;padding:14px;cursor:pointer;
+  background:transparent;border:0;padding:18px;cursor:pointer;
   color:var(--hero-foreground);
-  opacity:0;pointer-events:none;
-  transition:opacity 900ms var(--ease-slow), transform 900ms var(--ease-slow);
+  opacity:0.32;pointer-events:auto;
+  transition:opacity 600ms var(--ease-slow), transform 600ms var(--ease-slow);
 }
-.hero-nav-btn svg{display:block;width:14px;height:14px;}
-.hero-nav-prev{left:24px;transform:translate(-10px, -50%);}
-.hero-nav-next{right:24px;transform:translate(10px, -50%);}
+.hero-nav-btn svg{display:block;width:18px;height:18px;}
+.hero-nav-prev{left:32px;transform:translateY(-50%);}
+.hero-nav-next{right:32px;transform:translateY(-50%);}
 @media (hover:hover){
-  .hero-nav-prev[data-visible="true"]{opacity:0.8;pointer-events:auto;transform:translate(0, -50%);}
-  .hero-nav-next[data-visible="true"]{opacity:0.8;pointer-events:auto;transform:translate(0, -50%);}
-  .hero-nav-btn[data-visible="true"]:hover{opacity:1;}
-  .hero-nav-prev[data-visible="true"]:hover{transform:translate(-3px, -50%);}
-  .hero-nav-next[data-visible="true"]:hover{transform:translate(3px, -50%);}
+  /* In-zone (when pointer is in the outer 22% on that side) — stronger
+     visibility cue, slight inward nudge. */
+  .hero-nav-prev[data-visible="true"]{opacity:0.7;}
+  .hero-nav-next[data-visible="true"]{opacity:0.7;}
+  /* Direct hover — full opacity, more pronounced inward nudge. */
+  .hero-nav-prev:hover{opacity:1;transform:translate(-3px, -50%);}
+  .hero-nav-next:hover{opacity:1;transform:translate(3px, -50%);}
 }
 @media (hover:none){
-  .hero-nav-prev,.hero-nav-next{opacity:0.5;pointer-events:auto;transform:translate(0, -50%);}
+  .hero-nav-prev,.hero-nav-next{opacity:0.5;}
 }
-.hero-nav-btn:focus-visible{opacity:1;pointer-events:auto;outline:1px solid var(--hero-foreground);outline-offset:6px;}
+.hero-nav-btn:focus-visible{opacity:1;outline:1px solid var(--hero-foreground);outline-offset:6px;}
 .hero-headline{display:flex;flex-direction:column;gap:4px;}
 .hero-artist{font-family:'Cormorant','Title CJK',serif;font-weight:500;font-style:normal;font-size:clamp(24px, calc(0.9vw + 16px), 32px);letter-spacing:-0.25px;line-height:1;color:var(--on-dark-fg);font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;}
 .hero-title{font-family:'Cormorant','Title CJK',serif;font-weight:400;font-style:italic;font-size:clamp(24px, calc(0.9vw + 16px), 32px);letter-spacing:-0.25px;line-height:1.05;color:var(--on-dark-fg);text-transform:none;}
@@ -1379,19 +1445,46 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 
 .exhibitions-page{background:var(--paper-warm);color:var(--ink);min-height:100dvh;padding-top:var(--nav-height);}
 
-.ex-section{padding:64px var(--gutter) 64px;}
+/* Coordinated rhythm: 80px section breath, 24px title-to-content gap,
+   first section pulled tighter to nav. Each step calibrated to a
+   refined gallery catalogue's pacing rather than typical-web
+   "spacious". */
+.ex-section{padding:80px var(--gutter) 80px;}
 .ex-section-inner{
   max-width:var(--content-max);
   margin:0 auto;
-  display:flex;flex-direction:column;gap:28px;
+  display:flex;flex-direction:column;gap:24px;
 }
 .ex-section + .ex-section{padding-top:0;}
+.ex-section:first-of-type{padding-top:40px;}
+/* Section title: italic Cormorant with a hairline rule beneath. Reads
+   as a curatorial section marker — like the headers in a printed
+   gallery catalogue — instead of a tracked-out UI label.
+   Title text fades in subtly on load (0.2em) — same gesture as the
+   year-block label. The wrapper holds the border statically; only
+   the inline text animates. */
 .ex-section-title{
-  font-family:'Barlow',sans-serif;
-  font-weight:500;font-size:11px;letter-spacing:1.5px;
-  text-transform:uppercase;
+  font-family:'Cormorant','Title CJK',serif;
+  font-weight:400;font-style:italic;
+  font-size:18px;letter-spacing:-0.15px;
   color:var(--ink);
   line-height:1;
+  margin:0;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--rule-warm);
+  overflow:hidden;
+}
+.ex-section-title > *,
+.ex-section-title{display:block;}
+.ex-section-title{
+  animation:ex-section-title-in 0.8s ease-out both;
+}
+@keyframes ex-section-title-in{
+  from{opacity:0;transform:translateY(-0.2em);}
+  to  {opacity:1;transform:translateY(0);}
+}
+@media (prefers-reduced-motion:reduce){
+  .ex-section-title{animation:none;}
 }
 
 .exhibitions-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:64px 40px;width:100%;}
@@ -1465,6 +1558,19 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   transform:scale(calc(var(--img-scale) * 1.02));
   transition:transform 1s ease-out;
 }
+/* Video sources (e.g. upcoming exhibitions with heroVideo). Same
+   contain + scale treatment as images, so letterbox bands match
+   row-image bg cleanly. */
+.exhibition-row .row-image video{
+  display:block;
+  max-width:100%;max-height:100%;
+  width:auto;height:auto;
+  object-fit:contain;
+}
+.exhibition-row.featured .row-image video{
+  transform:scale(calc(var(--img-scale) * 1.02));
+  transition:transform 1s ease-out;
+}
 @media (hover:hover){
   .exhibition-row.featured:hover .row-image img{transform:scale(var(--img-scale));}
 }
@@ -1508,32 +1614,105 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 }
 
 .exhibitions-list.past-grid{display:block;max-width:none;}
+/* Year heading sits between section-title and the past-cards table.
+   Roman Cormorant 16px (not italic) — keeps the editorial Cormorant
+   voice but differentiates the year from the *italic* section title
+   above it via style rather than size alone, so the hierarchy reads
+   as Past (italic) → 2024 (roman) → entries.
+   `padding-bottom: 12px` couples the year heading visually to the
+   first card's hairline below — the year sits "on" the table top
+   instead of floating between two distant rules. */
+/* Year heading — italic Cormorant 24px in full --ink, with
+   `position: sticky` anchoring it just below the fixed nav. As you
+   scroll through a year's cards, the year heading stays at the top
+   of the viewport (paper-warm bg occludes the cards sliding under
+   it). The eye always knows what year it's reading. When the year-
+   group's bottom passes the sticky line, the next year's heading
+   takes over. This is what gallery archives at Zwirner / Gagosian /
+   White Cube do — and it's the only treatment that genuinely solves
+   the "everything blends" problem. */
 .past-year{
-  font-family:'Barlow',sans-serif;
-  font-weight:500;font-size:11px;letter-spacing:1.5px;
+  font-family:'Cormorant','Title CJK',serif;
+  font-weight:400;font-style:italic;
+  font-size:20px;letter-spacing:-0.2px;
   color:var(--ink);
-  padding-top:64px;padding-bottom:24px;margin:0;
-  line-height:1;text-transform:uppercase;
+  margin:0 0 -.78em;
+  line-height:1;
   font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
+  position:sticky;
+  top:var(--nav-height);
+  background:var(--paper-warm);
+  z-index:5;
+  padding:10px 0 0;
+  /* Bottom hairline only — the rule above the year is already provided
+     by the previous card's border-top. Border lives on the parent <h3>
+     so it stays put while the inner label animates. The bordered row
+     sticks as one unit (border + year text) under the nav. */
+  border-bottom:1px solid var(--rule-warm);
 }
-.past-year:first-of-type{padding-top:16px;}
-.past-year-group{display:block;border-top:1.5px solid #c8c5bc;}
+/* Soft fade below the sticky year — paper-warm gradient bleeds into
+   nothing so cards passing under the border don't collide hard. */
+.past-year::after{
+  content:'';
+  position:absolute;
+  top:100%;left:0;right:0;
+  height:24px;
+  background:linear-gradient(
+    to bottom,
+    rgba(250,250,248,0.85) 0%,
+    rgba(250,250,248,0) 100%
+  );
+  pointer-events:none;
+}
+/* First card under each year has no top border — the year's
+   border-bottom serves as that rule. */
+.past-year-group > .past-card:first-child{border-top:none;}
+/* The inner span carries the scroll-reveal entrance: starts 28px
+   ABOVE its rest position and falls down into place — the inverse
+   of cards, which rise from below. Border stays static on the h3. */
+.past-year-label{
+  display:inline-block;
+  opacity:0;
+  transform:translateY(-0.2em);
+  transition:opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.past-year.is-visible .past-year-label{
+  opacity:1;
+  transform:translateY(0);
+}
+@media (prefers-reduced-motion:reduce){
+  .past-year-label{opacity:1;transform:none;transition:none;}
+}
+
+/* Margin between year-group wrapper divs creates the gap between
+   year blocks. Doesn't apply to first wrapper, so the first year
+   sits at the section's top per the existing rhythm. */
+.exhibitions-list.past-grid > div + div{
+  margin-top:12px;
+}
+/* No year-group top rule — the per-card hairlines do the work, and
+   the year heading itself marks the section break. One rule treatment
+   for interior rhythm instead of three. */
+.past-year-group{display:block;}
+/* Three-column grid: artist | title | month. Each column has a
+   consistent x-position regardless of the artist-name's length, so
+   the title's left edge is always the same down the column — reads
+   as a tabular catalogue page. */
 .past-card{
   display:grid;
   grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) auto;
-  column-gap:48px;
+  column-gap:40px;
   align-items:baseline;
-  padding:22px 0;
-  border-top:1px solid #ece9df;
+  padding:24px 0;
+  border-top:1px solid var(--rule-warm);
   cursor:pointer;
   color:var(--ink);
   text-decoration:none;
   opacity:0;
-  transform:translateY(28px);
+  transform:translateY(0.2em);
   transition:opacity 0.8s ease-out, transform 0.8s ease-out, color 0.3s ease-out;
 }
 .past-card.is-visible{opacity:1;transform:translateY(0);}
-.past-card:first-child{border-top:none;}
 .past-card .past-artist{
   font-family:'Cormorant','Title CJK',serif;
   font-weight:500;font-size:20px;letter-spacing:-0.15px;line-height:1.25;
@@ -1583,12 +1762,13 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   .row-artist,.row-title{font-size:22px;}
 }
 @media (max-width:720px){
-  .ex-section{padding:64px var(--gutter) 64px;}
-  .ex-section-inner{gap:40px;}
-  .past-year{padding-top:60px;}
-  .past-card{padding:20px 0;column-gap:32px;}
+  .ex-section{padding:56px var(--gutter) 56px;}
+  .ex-section-inner{gap:18px;}
+  .past-year{font-size:18px;padding:8px 0 0;}
+  .exhibitions-list.past-grid > div + div{margin-top:8px;}
+  .past-card{padding:16px 0;column-gap:24px;}
   .past-card .past-artist,.past-card .past-title{font-size:18px;}
-  .exhibitions-empty{padding:112px 0 96px;gap:14px;}
+  .exhibitions-empty{padding:96px 0 80px;gap:14px;}
   .exhibitions-empty-title{font-size:28px;}
 }
 @media (max-width:600px){
@@ -1596,7 +1776,7 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   .ex-section-inner{gap:36px;}
   .exhibitions-list{grid-template-columns:1fr;gap:40px;}
   .row-artist,.row-title{font-size:22px;}
-  .past-year{padding-top:52px;padding-bottom:20px;}
+  .past-year{padding-top:52px;padding-bottom:0;}
   .past-card{
     grid-template-columns:1fr auto;
     grid-template-areas:"artist month" "title title";
@@ -1667,6 +1847,13 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
      is combined with `filter: drop-shadow` — the filter pipeline
      rasterizes the first frame and never updates. The shadow is
      invisible against the black ground anyway; kill it here. */
+  filter:none;
+}
+/* Ricky Retouch / Split Logic: the video's ground is pure #000. Match
+   the homepage hero's pure-black backdrop and kill the drop-shadow on
+   the video so its edges dissolve into the page seamlessly. */
+.ex-hero[data-slug="split-logic"]{background:#000000;}
+.ex-hero[data-slug="split-logic"] .ex-hero-plate .ex-hero-video{
   filter:none;
 }
 /* Canonical hero framing. The frame reserves a title safe-zone at
@@ -2017,17 +2204,64 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   max-width:94%;max-height:94%;
 }
 /* Paul Prudence / ISO/IEC 10646: match the homepage hero's resizing
-   logic. The default `.ex-hero-plate img` rule is `width:auto; height:auto;
-   max-width:100%; max-height:100%` — fine for sub-intrinsic viewports
-   but caps the artwork at its source dimensions on large screens, which
-   is why the exhibition hero felt smaller than the homepage hero on
-   resize. Switch to `width:100%; height:100%; object-fit:contain` so it
-   keeps growing to fill the frame, matching the homepage's `<Image fill>`.
-   Frame padding stays at the default (with bottom title-clearance) so
-   the artwork never crowds the title bar. */
+   logic exactly. Two pieces:
+   1. Image sizing: the default `.ex-hero-plate img` rule is `width:auto;
+      height:auto; max-width:100%; max-height:100%` — fine for sub-intrinsic
+      viewports but caps the artwork at its source dimensions on large
+      screens. Switch to `width:100%; height:100%; object-fit:contain` so
+      it keeps growing to fill the frame, matching the homepage's
+      `<Image fill>`.
+   2. Frame padding: the default exhibition frame reserves ~96px of
+      bottom title-clearance, leaving the artwork ~10% shorter than the
+      homepage hero. Mirror the homepage `.slide` padding rules
+      (lines 614, 698, 702, 708) so the artwork box matches at every
+      viewport. At ≤1100px the homepage already adds heavy bottom-padding
+      to keep its hero-card clear; we inherit the same — which also
+      keeps the title-bar safe from the artwork at narrow widths. */
+.ex-hero[data-slug="iso-iec-10646"] .ex-hero-frame{
+  padding:64px 56px;
+}
 .ex-hero[data-slug="iso-iec-10646"] .ex-hero-plate img{
   width:100%;height:100%;
   object-fit:contain;
+}
+@media (max-width:1100px){
+  .ex-hero[data-slug="iso-iec-10646"] .ex-hero-frame{
+    padding:16px 16px 176px 16px;
+  }
+}
+@media (max-width:600px){
+  .ex-hero[data-slug="iso-iec-10646"] .ex-hero-frame{
+    padding:12px 12px 168px 12px;
+  }
+}
+@media (max-height:600px) and (orientation:landscape){
+  .ex-hero[data-slug="iso-iec-10646"] .ex-hero-frame{
+    padding:16px 80px;
+  }
+}
+/* Ricky Retouch / Split Logic: match the homepage hero's frame padding
+   so the exhibition hero video occupies the same viewport box as the
+   homepage hero. Same pattern as iso-iec-10646 above — symmetric
+   padding at wide desktop, heavy bottom-clearance at narrow widths
+   (mirrors the homepage breakpoints exactly). */
+.ex-hero[data-slug="split-logic"] .ex-hero-frame{
+  padding:64px 56px;
+}
+@media (max-width:1100px){
+  .ex-hero[data-slug="split-logic"] .ex-hero-frame{
+    padding:16px 16px 176px 16px;
+  }
+}
+@media (max-width:600px){
+  .ex-hero[data-slug="split-logic"] .ex-hero-frame{
+    padding:12px 12px 168px 12px;
+  }
+}
+@media (max-height:600px) and (orientation:landscape){
+  .ex-hero[data-slug="split-logic"] .ex-hero-frame{
+    padding:16px 80px;
+  }
 }
 /* PERFECTL00P / Trails: balance the top padding to match the bottom
    title-clearance so Window Dysmorphia is vertically centered on the
@@ -3076,6 +3310,322 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
   color:var(--ink-whisper);text-transform:uppercase;
 }
 
+/* =======================================================================
+   ARTIST REVEAL — single horizontally-scrollable container driven by
+   one CSS variable, `--x` (0 → 1). The variable is set by the React
+   client component (`ArtistReveal`) via `useScroll` + `useSpring` on
+   motion.dev — the spring smooths fast scrolls into a refined,
+   slightly-elastic transition.
+     - --x = 0 → pure paper-warm bg, bio + cue + half-clipped artwork
+       preview centered on viewport's right edge.
+     - --x = 1 → pure black bg, the artwork centered and scaled up,
+       all bio chrome faded out.
+   Background, opacities, and the artwork's transform all read from
+   --x, so the entire transition is governed by one number.
+   ======================================================================= */
+.artist-reveal{
+  --x:0;
+  /* Smoothstep eased version of --x — `x²(3-2x)` is the canonical
+     S-curve with zero derivative at both ends, so every transition
+     reading from --x-ease starts and lands gently rather than
+     marching linearly through the scroll. Internal helper; the React
+     component still owns the single source of truth, --x. */
+  --x-ease:calc(var(--x) * var(--x) * (3 - 2 * var(--x)));
+  /* Faster ease-out (easeOutQuad: `1 - (1-x)²`) — leads the smoothstep
+     so text shoves aside ahead of the artwork's slower entrance.
+     Reads as the text being "pushed" by the incoming frame. */
+  --x-push:calc(1 - (1 - var(--x)) * (1 - var(--x)));
+  /* Surface tokens — default to dark canvas / cream type so the page
+     reads as a backlit gallery wall. Paper variant overrides these
+     below to swap to the standard cream surface for artists whose
+     work belongs on a light ground (e.g. VES3L's Solve-Un-Solve). */
+  --reveal-bg:#000;
+  --reveal-fg:var(--on-dark-fg);
+  --reveal-fg-muted:var(--on-dark-fg-muted);
+  --reveal-fg-soft:var(--on-dark-fg-soft);
+  position:relative;
+  width:100vw;
+  height:calc(100vh - var(--nav-height));
+  height:calc(100dvh - var(--nav-height));
+  margin-top:var(--nav-height);
+  overflow-x:auto;overflow-y:hidden;
+  /* Hard stops on the horizontal axis — no rubber-band overscroll at
+     scrollLeft=0 or scrollLeft=max. Vertical axis stays `auto` so a
+     wheel/trackpad scroll over the deck still propagates to the body
+     and the footer remains reachable. */
+  overscroll-behavior-x:none;
+  scrollbar-width:none;
+  background:var(--reveal-bg);
+}
+.artist-reveal[data-theme="paper"]{
+  --reveal-bg:var(--paper);
+  --reveal-fg:var(--ink);
+  --reveal-fg-muted:var(--ink-muted);
+  --reveal-fg-soft:var(--ink-soft);
+}
+.artist-reveal::-webkit-scrollbar{display:none;}
+
+/* Track — wider than viewport, provides the horizontal scrollable
+   distance. The stage uses sticky positioning inside it. */
+.artist-reveal-track{
+  position:relative;
+  width:200vw;
+  height:100%;
+}
+
+/* Static variant — no showcase artwork to reveal, so the deck's
+   scroll mechanics (overflow-x, --x animation) earn nothing. The
+   .artist-reveal element stays as the page wrapper, but with all
+   scroll behaviors suppressed. The header/content children inherit
+   their existing CSS but never see --x change, so every parallax
+   translate / opacity fade defaults to its resting state (full,
+   in-place). The page reads as a plain bio. */
+.artist-reveal-static{
+  overflow:visible;
+  scroll-timeline-name:none;
+}
+
+/* Stage — sticky to the deck's left edge during horizontal scroll, so
+   the visible composition stays in the viewport while the track
+   scrolls behind. Vertically it sits in normal flow, so vertical
+   page scroll moves the entire reveal section out of view (and
+   into the footer) like any normal block in the page. */
+.artist-reveal-stage{
+  position:sticky;
+  top:0;
+  left:0;
+  width:100vw;
+  height:100%;
+  pointer-events:none;
+}
+.artist-reveal-stage > *{pointer-events:auto;}
+
+/* Artist name + socials — top-left. Fades out and drifts as the user
+   scrolls toward the artwork, like a label settling out of the frame
+   as the work takes its place. Drift magnitudes are CSS variables so
+   either axis can be adjusted independently — currently shifting
+   ~16px rightward, no vertical drift (set --header-drift-y to ±n
+   to re-enable). Uses `--x-push` (fast ease-out) for a nudged feel. */
+.artist-reveal-header{
+  --header-drift-x:16px;
+  --header-drift-y:0px;
+  position:absolute;top:32px;left:var(--gutter);
+  opacity:clamp(0, calc((0.85 - var(--x-ease)) / 0.15), 1);
+  transform:translate(
+    calc(var(--x-push) * var(--header-drift-x)),
+    calc(var(--x-push) * var(--header-drift-y))
+  );
+  will-change:transform, opacity;
+}
+.artist-reveal-title{
+  margin:0;
+  font-family:'Cormorant','Title CJK',serif;
+  font-weight:400;font-style:italic;
+  font-size:28px;line-height:1;letter-spacing:-0.3px;
+  color:var(--reveal-fg);
+  /* Cormorant italic defaults to old-style figures, which drop digits
+     like "3" below the baseline — fine in body prose, ugly mid-name
+     (VES3L → VES₃L). Lock to lining figures so digits sit at cap
+     height like the surrounding letters. */
+  font-variant-numeric:lining-nums;
+  font-feature-settings:"lnum" 1;
+}
+
+/* Bio + cue centered both axes. The cue sits centered beneath the
+   bio paragraphs (gap:32px). */
+.artist-reveal-content{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:32px;
+  padding:48px var(--gutter);
+  pointer-events:none;
+}
+.artist-reveal-content > *{pointer-events:auto;}
+
+.artist-reveal-bio{
+  max-width:54ch;
+  /* Fade between --x ≈ 0.6 → 0.8 — text disappears just before the
+     bg reaches full black, so it never reads as illegible dark-on-dark.
+     Parallax shoved ~60px leftward via `--x-push` (faster ease-out)
+     so the bio feels nudged by the incoming artwork. */
+  opacity:clamp(0, calc((0.8 - var(--x-ease)) / 0.2), 1);
+  transform:translateX(calc(var(--x-push) * -60px));
+  will-change:transform, opacity;
+}
+/* Monograph/wall-text treatment for long bios. Two narrow columns
+   halve the bio's height so 400+ word bios sit inside the viewport
+   without internal scrollbars or font-size shrinkage. `column-fill:
+   balance` keeps the columns equal-height; `break-inside: avoid` on
+   paragraphs prevents a paragraph from snapping across columns. The
+   max-width is sized so the bio's right edge has clear gap from the
+   half-clipped artwork at the viewport's right edge on standard
+   desktop widths; below 1240px we collapse back to single column. */
+.artist-reveal-bio[data-long]{
+  max-width:88ch;
+  column-count:2;
+  column-gap:48px;
+  column-fill:balance;
+}
+.artist-reveal-bio[data-long] p{
+  break-inside:avoid;
+}
+@media (max-width:1240px){
+  .artist-reveal-bio[data-long]{
+    max-width:54ch;
+    column-count:1;
+    column-gap:0;
+  }
+}
+.artist-reveal-bio p{
+  margin:0 0 1.4em;
+  font-family:'Cormorant','Title CJK',serif;
+  font-weight:400;
+  font-size:18px;line-height:1.6;
+  color:var(--reveal-fg);
+  /* Lining figures so "VES3L" reads cleanly mid-prose; also keeps
+     dates (e.g. "1990's") on the baseline rather than descending. */
+  font-variant-numeric:lining-nums;
+  font-feature-settings:"lnum" 1;
+}
+.artist-reveal-bio p:last-child{margin-bottom:0;}
+
+/* Social links — small italic line beneath the artist name. Sit in
+   the same fade-with-name behavior since they're part of the header
+   block. */
+.artist-reveal-socials{
+  margin-top:8px;
+  font-family:'Cormorant','Title CJK',serif;
+  font-style:italic;font-weight:400;
+  font-size:14px;line-height:1;letter-spacing:-0.1px;
+  color:var(--reveal-fg-muted);
+}
+.artist-reveal-socials-link{
+  color:inherit;
+  text-decoration:none;
+  transition:color 0.3s ease-out;
+}
+.artist-reveal-socials-sep{
+  color:var(--reveal-fg-muted);
+  opacity:0.7;
+}
+@media (hover:hover){
+  .artist-reveal-socials-link:hover{color:var(--reveal-fg-soft);}
+}
+
+/* Editorial cue — fades fully out by --x = 0.7, "~70% to black".
+   Parallax: drifts ~80px leftward as the user scrolls rightward,
+   moving more than the bio block above for a subtle layered depth.
+   Both translate and opacity ride --x-ease so the motion is smooth
+   in/out rather than a linear ramp. */
+.artist-reveal-cue{
+  display:inline-flex;align-items:baseline;gap:8px;
+  font-family:'Cormorant','Title CJK',serif;
+  font-style:italic;font-weight:400;
+  font-size:14px;line-height:1;letter-spacing:-0.1px;
+  color:var(--reveal-fg-muted);
+  text-decoration:none;
+  opacity:clamp(0, calc((0.7 - var(--x-ease)) / 0.2), 1);
+  /* Heavier push (~180px) on the same fast ease-out — moves more
+     than the bio above so the layered parallax still reads. */
+  transform:translateX(calc(var(--x-push) * -180px));
+  will-change:transform, opacity;
+  transition:color 0.3s ease-out;
+}
+/* Cue label inherits the parent's Cormorant italic styling — title and
+   year share one type voice (e.g., "Split Logic, 2026"), like a
+   museum's wall-label rather than a UI button. */
+.artist-reveal-cue-label{
+  font:inherit;
+  color:inherit;
+}
+.artist-reveal-cue-arrow{
+  font-style:normal;font-size:13px;line-height:1;
+  position:relative;top:1px;
+  transition:transform 0.4s var(--ease-slow);
+}
+@media (hover:hover){
+  .artist-reveal-cue:hover{color:var(--reveal-fg-soft);}
+  .artist-reveal-cue:hover .artist-reveal-cue-arrow{transform:translateX(3px);}
+}
+
+/* Artwork — anchored at top:50%, right:0; transform interpolates
+   between two states via --x:
+     - --x = 0: translate(50%, -50%) puts the artwork's center on the
+       viewport's right edge (left half visible, right half clipped),
+       at scale 1 (~240px wide).
+     - --x = 1: translate(50% - 50vw, -50%) shifts the center to
+       50vw (viewport center) and scale(3) enlarges to ~720px wide.
+   transform-origin stays at center so the scale doesn't shift the
+   center point, only the size. */
+.artist-reveal-artwork{
+  position:absolute;
+  top:50%;right:0;
+  width:510px;
+  /* No scale — frame stays the same size throughout and simply nudges
+     from "centered on the viewport's right edge" (left half visible)
+     at --x = 0 to "centered on the viewport" at --x = 1. `--canvas-w`
+     is the deck's real visible width set by JS, so the end-state
+     centers on the visible viewport, not 50vw (which on systems with
+     always-visible scrollbars is offset by half a scrollbar width). */
+  transform:
+    translate(
+      calc(50% - var(--x-ease) * var(--canvas-w, 100vw) / 2),
+      -50%
+    );
+  transform-origin:50% 50%;
+  cursor:pointer;
+  display:block;
+  text-decoration:none;
+}
+/* Aspect lives on the media element (not the wrapper) so each artwork
+   can render at its own ratio. Video uses Ricky's portrait frame and
+   reserves height to prevent layout shift before metadata loads.
+   Images render at their natural aspect via `height: auto`. */
+.artist-reveal-artwork video{
+  width:100%;
+  aspect-ratio:1456 / 1500;
+  height:auto;
+  object-fit:contain;display:block;
+}
+.artist-reveal-artwork img{
+  width:100%;height:auto;display:block;
+}
+/* Live-iframe variant — the iframe IS the artwork (genart accepts
+   mouse input). HeroIframeMedia renders an iframe with a per-aspect
+   CSS variable; we read that here. The reroll button shipped with
+   HeroIframeMedia is suppressed: on the artist page the randomize
+   feature still gives a fresh roll every visit, but a UI button
+   would clutter the half-clipped peek state. Background under the
+   iframe matches the page so any aspect-ratio padding isn't a
+   visible block. */
+.artist-reveal-artwork-iframe{
+  background:var(--reveal-bg);
+}
+/* Apply to BOTH the iframe and the pre-mount placeholder div — they
+   share the `ex-hero-iframe` class. Targeting just `iframe` left the
+   placeholder with no dimensions, so the wrapper collapsed to 0
+   height before hydration; when the iframe mounted, the wrapper
+   suddenly grew to its full size and the poster (positioned via
+   inset:0 against the wrapper) appeared to "snap" into place. With
+   the placeholder also reserving the aspect, the layout is stable
+   from the very first paint. */
+.artist-reveal-artwork-iframe .ex-hero-iframe{
+  width:100%;
+  aspect-ratio:var(--hero-iframe-aspect, 1);
+  height:auto;
+  border:0;
+  display:block;
+  background:transparent;
+}
+.artist-reveal-artwork-iframe .ex-hero-iframe-refresh{display:none;}
+
+@media (max-width:720px){
+  .artist-reveal-header{top:24px;}
+  .artist-reveal-title{font-size:24px;}
+  .artist-reveal-bio p{font-size:17px;}
+  .artist-reveal-artwork{width:383px;}
+}
+
 /* 404 — branded not-found page.
    Centered editorial composition: small uppercase label, italic
    serif headline, return link. Sits inside <main> so the shared
@@ -3118,4 +3668,6 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
 @media (max-width:480px){
   .not-found-title{font-size:34px;}
 }
+
+
 

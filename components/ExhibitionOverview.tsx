@@ -28,7 +28,11 @@ export function ExhibitionOverview({ exhibition }: { exhibition: Exhibition }) {
 function ExhibitionFacts({ exhibition }: { exhibition: Exhibition }) {
   const facts: { label: string; value: string }[] = [];
   if (exhibition.workCount) facts.push({ label: "Works", value: String(exhibition.workCount) });
-  if (exhibition.date) facts.push({ label: "Released", value: exhibition.date });
+  if (exhibition.date)
+    facts.push({
+      label: exhibition.status === "upcoming" ? "Opens" : "Released",
+      value: exhibition.date,
+    });
   if (exhibition.location) facts.push({ label: "Platform", value: exhibition.location });
   if (!facts.length) return null;
   return (

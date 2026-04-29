@@ -17,8 +17,18 @@ export type HeroSlide = {
 type HeroProps = { slides: HeroSlide[] };
 
 const DWELL_MS = 10000;
-const CROSSFADE_S = 2.6;
-const CARD_FADE_S = 1.4;
+// Upcoming-exhibition video slides hold for 2 minutes — the piece
+// commands the homepage when a viewer first lands, before the
+// rotation moves on to other works.
+const VIDEO_DWELL_MS = 120000;
+const CROSSFADE_S = 2.0;
+// Card uses AnimatePresence mode="wait" — old fully exits before new
+// enters — so each phase is half the total. With CARD_FADE_S = 1.0
+// per phase, the full out+in cycle takes 2.0s, matching the slide's
+// parallel crossfade. The "pure-bg moment" between the old card
+// leaving and the new arriving reads as a deliberate beat rather than
+// a half-faded mash of two artists' names.
+const CARD_FADE_S = 1.0;
 const EASE = EASE_SLOW;
 
 export function Hero({ slides }: HeroProps) {
@@ -29,12 +39,16 @@ export function Hero({ slides }: HeroProps) {
 
   useEffect(() => {
     if (reduced || slides.length < 2 || paused) return;
-    const id = window.setInterval(
+    const currentSlide = slides[index % slides.length];
+    const dwell = currentSlide.exhibition.homepageHeroVideo
+      ? VIDEO_DWELL_MS
+      : DWELL_MS;
+    const id = window.setTimeout(
       () => setIndex((n) => (n + 1) % slides.length),
-      DWELL_MS
+      dwell
     );
-    return () => window.clearInterval(id);
-  }, [reduced, slides.length, paused]);
+    return () => window.clearTimeout(id);
+  }, [reduced, slides, paused, index]);
 
   if (slides.length === 0) return null;
   const current = slides[index % slides.length];
@@ -49,6 +63,7 @@ export function Hero({ slides }: HeroProps) {
     <section
       className="hero"
       data-theme={theme}
+      data-slug={ex.slug}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => {
         setPaused(false);
@@ -64,7 +79,8 @@ export function Hero({ slides }: HeroProps) {
     >
       <div className="hero-slides">
         {slides.map((s, i) => {
-          const img = s.exhibition.homepageHero ?? s.exhibition.hero!;
+          const video = s.exhibition.homepageHeroVideo;
+          const img = s.exhibition.homepageHero ?? s.exhibition.hero;
           return (
             <motion.div
               key={s.exhibition.slug}
@@ -79,10 +95,24 @@ export function Hero({ slides }: HeroProps) {
                 tabIndex={i === index ? 0 : -1}
                 aria-label={`View ${s.exhibition.artistName}, ${s.exhibition.title}`}
               >
-                <HeroArtwork
-                  src={img}
-                  alt={`${s.exhibition.artistName}, ${s.exhibition.title}`}
-                />
+                {video ? (
+                  <video
+                    className="slide-video"
+                    src={video}
+                    poster={s.exhibition.homepageHeroVideoPoster}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    aria-label={`${s.exhibition.artistName}, ${s.exhibition.title}`}
+                  />
+                ) : (
+                  <HeroArtwork
+                    src={img!}
+                    alt={`${s.exhibition.artistName}, ${s.exhibition.title}`}
+                  />
+                )}
               </Link>
             </motion.div>
           );
@@ -92,7 +122,7 @@ export function Hero({ slides }: HeroProps) {
       <div className="hero-card">
         <HeroCardReveal>
           <div className="hero-card-stage">
-            <AnimatePresence initial={false}>
+            <AnimatePresence initial={false} mode="wait">
               <motion.div
                 key={ex.slug}
                 className="hero-card-slide"
@@ -109,9 +139,17 @@ export function Hero({ slides }: HeroProps) {
                     <div className="hero-artist">{ex.artistName}</div>
                     <div className="hero-title">{ex.title}</div>
                   </div>
-                  <div className="hero-meta">{ex.date}</div>
+                  <div className="hero-meta">
+                    {ex.status === "upcoming"
+                      ? `Upcoming · ${ex.date}`
+                      : ex.date}
+                  </div>
                   <span className="hero-link">
-                    <span className="hero-link-label">View Exhibition</span>
+                    <span className="hero-link-label">
+                      {ex.status === "upcoming"
+                        ? "Get notified"
+                        : "View Exhibition"}
+                    </span>
                     <span className="hero-link-arrow">→</span>
                   </span>
                 </Link>
@@ -131,15 +169,17 @@ export function Hero({ slides }: HeroProps) {
             aria-label="Previous exhibition"
           >
             <svg
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
+              viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
               aria-hidden="true"
             >
               <path
-                d="M0 50 L100 0 L100 100 Z M46 50 L79 33 L79 67 Z"
-                fill="currentColor"
-                fillRule="evenodd"
+                d="M15 5 L8 12 L15 19"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.25"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
             </svg>
           </button>
@@ -151,15 +191,17 @@ export function Hero({ slides }: HeroProps) {
             aria-label="Next exhibition"
           >
             <svg
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
+              viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
               aria-hidden="true"
             >
               <path
-                d="M100 50 L0 0 L0 100 Z M54 50 L21 67 L21 33 Z"
-                fill="currentColor"
-                fillRule="evenodd"
+                d="M9 5 L16 12 L9 19"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.25"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
             </svg>
           </button>

@@ -1,5 +1,6 @@
 import { ExhibitionRow } from "@/components/ExhibitionRow";
 import { PastCard } from "@/components/PastCard";
+import { PastYear } from "@/components/PastYear";
 import { EmptyState } from "@/components/EmptyState";
 import { fetchExhibitions } from "@/lib/verse-api";
 import type { Exhibition } from "@/lib/types";
@@ -26,20 +27,22 @@ export default async function ExhibitionsPage() {
     <div className="exhibitions-page">
       <h1 className="sr-only">Exhibitions — The Garden</h1>
 
-      <section className="ex-section">
-        <div className="ex-section-inner">
-          <h2 className="ex-section-title">Current</h2>
-          <div className="exhibitions-list">
-            {current.map((ex) => (
-              <ExhibitionRow
-                key={ex.slug}
-                exhibition={ex}
-                variant={current.length === 1 ? "featured" : "card"}
-              />
-            ))}
+      {current.length > 0 && (
+        <section className="ex-section">
+          <div className="ex-section-inner">
+            <h2 className="ex-section-title">Current</h2>
+            <div className="exhibitions-list">
+              {current.map((ex) => (
+                <ExhibitionRow
+                  key={ex.slug}
+                  exhibition={ex}
+                  variant={current.length === 1 ? "featured" : "card"}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="ex-section">
         <div className="ex-section-inner">
@@ -52,7 +55,11 @@ export default async function ExhibitionsPage() {
               />
             ) : (
               upcoming.map((ex) => (
-                <ExhibitionRow key={ex.slug} exhibition={ex} />
+                <ExhibitionRow
+                  key={ex.slug}
+                  exhibition={ex}
+                  variant={upcoming.length === 1 ? "featured" : "card"}
+                />
               ))
             )}
           </div>
@@ -61,11 +68,14 @@ export default async function ExhibitionsPage() {
 
       <section className="ex-section">
         <div className="ex-section-inner">
-          <h2 className="ex-section-title">Past</h2>
+          {/* Year headings already mark each archive block, so "Past"
+              would be redundant. Kept sr-only so the section's
+              semantic role is still announced to assistive tech. */}
+          <h2 className="sr-only">Past</h2>
           <div className="exhibitions-list past-grid">
             {pastYears.map((year) => (
               <div key={year}>
-                <h3 className="past-year">{year}</h3>
+                <PastYear year={year} />
                 <div className="past-year-group">
                   {pastByYear[year].map((ex) => (
                     <PastCard key={ex.slug} exhibition={ex} />

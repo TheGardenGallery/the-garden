@@ -12,8 +12,16 @@ export default async function HomePage() {
   const journal = await fetchJournalEntries();
 
   const heroExhibitions =
-    exhibitions.filter((e) => e.status === "current" && e.hero).length > 0
-      ? exhibitions.filter((e) => e.status === "current" && e.hero)
+    exhibitions.filter(
+      (e) =>
+        (e.status === "current" || e.status === "upcoming") &&
+        (e.hero || e.homepageHeroVideo)
+    ).length > 0
+      ? exhibitions.filter(
+          (e) =>
+            (e.status === "current" || e.status === "upcoming") &&
+            (e.hero || e.homepageHeroVideo)
+        )
       : [
           exhibitions.find((e) => e.status === "current") ?? exhibitions[0],
         ].filter(Boolean);
@@ -32,10 +40,21 @@ export default async function HomePage() {
 
       <Hero
         slides={await Promise.all(
-          heroExhibitions.map(async (ex) => ({
-            exhibition: ex,
-            palette: await getArtworkPalette(ex.homepageHero ?? ex.hero!),
-          }))
+          heroExhibitions.map(async (ex) => {
+            const paletteSrc =
+              ex.homepageHero ?? ex.homepageHeroVideoPoster ?? ex.hero;
+            const palette = paletteSrc
+              ? await getArtworkPalette(paletteSrc)
+              : {
+                  base: "#f1f4f6",
+                  glow: "#f7f9fa",
+                  deep: "#e9ecee",
+                  foreground: "#232326",
+                  shadow: "rgba(40,35,25,0.14)",
+                  isDark: false,
+                };
+            return { exhibition: ex, palette };
+          })
         )}
       />
 

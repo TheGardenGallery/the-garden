@@ -2,11 +2,19 @@ export type Artist = {
   slug: string;
   name: string;
   coord: { row: string; col: number };
+  /** Editorial bio for the artist page. Paragraphs separated by
+      double-newlines (`\n\n`); the renderer splits on render. When
+      present, the artist page renders the refined bio layout in
+      place of the "coming soon" placeholder. */
   bio?: string;
   /** Verse profile slug. Use only when it differs from the local
       `slug` (e.g. our `sp-gelsesmaskinen` vs Verse's `spogelsesmaskinen`).
       Defaults to `slug` at the call site when unset. */
   verseSlug?: string;
+  /** External social links rendered as a small italic line beneath
+      the artist name on the bio page. Order matters — listed left
+      to right with middle-dot separators. */
+  socials?: { label: string; href: string }[];
 };
 
 export type Work = {
@@ -78,6 +86,9 @@ export type Exhibition = {
   heroIframeRandomize?: boolean; // when true, the client replaces the payload's `hash` field with a fresh 64-char hex value on every mount, so the genart re-rolls visibly on every page load (most generative bundles are hash-deterministic — bumping just a cache-buster won't visibly change the output).
   heroVerseUrl?: string;         // override for the hero plate's outbound link; falls back to `verseSeriesUrl`. Use when the hero presents a single specific work distinct from the series page.
   homepageHero?: string;         // used on homepage hero — may differ from detail hero
+  homepageHeroVideo?: string;    // if set, the homepage hero renders this muted autoplay loop instead of homepageHero/hero
+  homepageHeroVideoPoster?: string; // poster frame for homepageHeroVideo
+  releaseDate?: string;          // ISO timestamp for upcoming exhibitions — drives the flip-clock countdown on the detail page
   heroTheme?: "dark" | "paper";  // hero backdrop — cream for light-surface pieces, dark for digital
   frameColor?: string;           // background of the exhibitions-list image frame, matched to the artwork's palette
   listImageScale?: number;       // multiplier for the exhibitions-list thumbnail, compensating for mattes baked into the hero file

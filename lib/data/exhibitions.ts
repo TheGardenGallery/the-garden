@@ -1,6 +1,22 @@
 import type { Exhibition } from "@/lib/types";
 
 export const exhibitions: Exhibition[] = [
+  // === UPCOMING ===
+  {
+    slug: "split-logic",
+    artistSlug: "ricky-retouch",
+    artistName: "Ricky Retouch",
+    title: "Split Logic",
+    year: 2026,
+    month: "May",
+    date: "May 2026",
+    location: "Verse",
+    status: "upcoming",
+    homepageHeroVideo: "/images/ricky-retouch/split-logic-hero.mp4",
+    heroVideo: "/images/ricky-retouch/split-logic-hero.mp4",
+    heroTheme: "dark",
+    frameColor: "#000000",
+  },
   // === CURRENT ===
   {
     slug: "iso-iec-10646",
@@ -11,7 +27,7 @@ export const exhibitions: Exhibition[] = [
     month: "Nov",
     date: "November 2024",
     location: "Verse",
-    status: "current",
+    status: "past",
     hero: "/images/paul-prudence/iso-iec-10646-hero.png",
     homepageHero: "/images/paul-prudence/iso-iec-10646-homepage-hero.jpg",
     cardImage: "/images/paul-prudence/iso-iec-10646-homepage-hero.jpg",
