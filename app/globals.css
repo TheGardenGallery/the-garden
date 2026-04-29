@@ -653,9 +653,9 @@ footer{background:var(--on-dark-bg);color:var(--on-dark-fg);padding:72px var(--g
    ground dissolves seamlessly into the backdrop and the work reads as
    stark light against negative space. The default dark theme's #0c0c10
    would show a visible seam against the black video. */
-.hero[data-slug="split-logic"]{background:#000000;}
-.hero[data-slug="split-logic"]::after{display:none;}
-.hero[data-slug="split-logic"] .slide-video{filter:none;}
+.hero[data-hero-treatment="full-bleed-video"]{background:#000000;}
+.hero[data-hero-treatment="full-bleed-video"]::after{display:none;}
+.hero[data-hero-treatment="full-bleed-video"] .slide-video{filter:none;}
 .hero[data-theme="paper"] .hero-artist,
 .hero[data-theme="paper"] .hero-title{color:var(--ink);}
 .hero[data-theme="paper"] .hero-meta{color:rgba(35,35,38,0.6);}

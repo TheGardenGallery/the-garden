@@ -8,6 +8,7 @@ import type { Palette } from "@/lib/palette";
 import { HeroCardReveal } from "./HeroCardReveal";
 import { HeroArtwork } from "./HeroArtwork";
 import { EASE_SLOW } from "@/lib/motion";
+import { getHeroTreatment } from "@/lib/data/display-rules";
 
 export type HeroSlide = {
   exhibition: Exhibition;
@@ -64,6 +65,7 @@ export function Hero({ slides }: HeroProps) {
       className="hero"
       data-theme={theme}
       data-slug={ex.slug}
+      data-hero-treatment={getHeroTreatment(ex.slug)}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => {
         setPaused(false);

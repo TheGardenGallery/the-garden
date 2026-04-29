@@ -6,6 +6,7 @@ import { JournalItem } from "@/components/JournalItem";
 import { Reveal } from "@/components/Reveal";
 import { fetchExhibitions, fetchJournalEntries } from "@/lib/verse-api";
 import { getArtworkPalette } from "@/lib/palette";
+import { homepagePastPicks } from "@/lib/data/display-rules";
 
 export default async function HomePage() {
   const exhibitions = await fetchExhibitions();
@@ -26,8 +27,7 @@ export default async function HomePage() {
           exhibitions.find((e) => e.status === "current") ?? exhibitions[0],
         ].filter(Boolean);
 
-  const PAST_PICKS = ["the-flood", "equinox", "haha-over-time"];
-  const pastExhibitions = PAST_PICKS
+  const pastExhibitions = homepagePastPicks
     .map((slug) => exhibitions.find((e) => e.slug === slug))
     .filter((e): e is NonNullable<typeof e> => Boolean(e));
 
