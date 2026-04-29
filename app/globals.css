@@ -3820,6 +3820,22 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
     opacity:1;
     transform:none;
   }
+  /* Disable pretext shaping on mobile. The shaped bio's spans carry
+     pre-computed line breaks calculated against the desktop column
+     width; with `white-space:pre; overflow:hidden` those lines extend
+     past a narrow viewport and get clipped at the right edge. Restore
+     natural inline flow so the paragraphs reflow to the mobile gutter. */
+  .artist-reveal-bio-shaped p span{
+    display:inline;
+    white-space:normal;
+    overflow:visible;
+  }
+  /* Long-bio magazine layout collapses to a single column on mobile —
+     two narrow columns at phone widths break before they help. */
+  .artist-reveal-bio-shaped[data-long]{
+    display:block;
+    width:auto;
+  }
   .artist-reveal-cue{
     /* Same reset as bio: drop --x-driven motion, sit beneath the bio. */
     opacity:1;
