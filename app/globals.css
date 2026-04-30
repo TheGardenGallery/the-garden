@@ -4008,15 +4008,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   overflow:hidden;
 }
 
-/* Split black/white background — left black, right white */
-.welcome-bg{
-  position:absolute;
-  inset:0;
-  background:linear-gradient(to right, #000000 50%, #ffffff 50%);
-  z-index:0;
-}
-
-/* 20px white border frame */
+/* 20px white border frame — sits ABOVE flaps so it stays during animation */
 .welcome-frame{
   position:absolute;
   inset:0;
@@ -4051,16 +4043,15 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   outline-offset:-4px;
 }
 
-/* Flap container — sits above everything during animation */
+/* Flap container — the flaps ARE the visible surface */
 .welcome-flaps{
   position:absolute;
   inset:0;
-  z-index:2;
-  pointer-events:none;
+  z-index:1;
   perspective:1800px;
 }
 
-/* Individual flap strip */
+/* Individual flap strip — each shows its slice of the B/W gradient */
 .welcome-flap{
   position:absolute;
   left:0;

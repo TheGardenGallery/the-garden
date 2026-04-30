@@ -7,9 +7,10 @@ import { useCallback, useRef, useState } from "react";
  * Clicking the button triggers a split-flap / rolodex curtain animation
  * that peels away to reveal The Garden homepage underneath.
  *
- * All the Three.js artwork (flower, spiral, particles) from the original
- * standalone index.html is intentionally omitted — it was hidden anyway.
- * This component is purely the entry ceremony.
+ * Architecture: the flap strips ARE the visible surface. Each strip shows
+ * its slice of the B/W gradient. When a strip flips away the Garden page
+ * shows through the gap. The white border frame sits above everything and
+ * fades out after the animation finishes.
  */
 
 const NUM_FLAPS = 22;
@@ -53,7 +54,8 @@ export function WelcomeOverlay() {
     }
 
     // Trigger flap animations in seeded-random order
-    const flaps = overlayRef.current?.querySelectorAll<HTMLDivElement>(".welcome-flap");
+    const flaps =
+      overlayRef.current?.querySelectorAll<HTMLDivElement>(".welcome-flap");
     if (!flaps) return;
 
     const indices = Array.from({ length: flaps.length }, (_, i) => i);
@@ -65,41 +67,46 @@ export function WelcomeOverlay() {
       }, order * STAGGER_MS);
     });
 
-    // After animation completes, unmount overlay entirely
-    const totalDuration = NUM_FLAPS * STAGGER_MS + 800;
+    // Fade frame + unmount after all flaps done
+    const lastFlapEnd = NUM_FLAPS * STAGGER_MS + 700; // 700ms = animation duration
+    const frame = overlayRef.current?.querySelector<HTMLDivElement>(
+      ".welcome-frame"
+    );
+    if (frame) {
+      setTimeout(() => {
+        frame.style.transition = "opacity 0.35s ease-out";
+        frame.style.opacity = "0";
+      }, lastFlapEnd - 200);
+    }
+
     setTimeout(() => {
       setDismissed(true);
-    }, totalDuration);
+    }, lastFlapEnd + 200);
   }, [flipping]);
 
   if (dismissed) return null;
 
   return (
     <div className="welcome-overlay" ref={overlayRef}>
-      {/* Split background */}
-      <div className="welcome-bg" />
-
-      {/* White border frame */}
-      <div className="welcome-frame" />
-
-      {/* Flap strips — each mirrors the split B/W background */}
+      {/* Flap strips — these ARE the visible B/W surface.
+          Each strip clips its portion of the full-viewport gradient.
+          When a strip flips, the Garden page shows through the gap. */}
       <div className="welcome-flaps">
         {Array.from({ length: NUM_FLAPS }, (_, i) => {
-          const flapHeight = `calc(100% / ${NUM_FLAPS})`;
-          const topOffset = `calc(${i} * 100% / ${NUM_FLAPS})`;
+          const pct = 100 / NUM_FLAPS;
           return (
             <div
               key={i}
               className="welcome-flap"
               style={{
-                top: topOffset,
-                height: flapHeight,
+                top: `${i * pct}%`,
+                height: `${pct}%`,
               }}
             >
               <div
                 className="welcome-flap-inner"
                 style={{
-                  height: `calc(100vh)`,
+                  height: "100vh",
                   top: `calc(-${i} * 100vh / ${NUM_FLAPS})`,
                 }}
               />
@@ -108,7 +115,10 @@ export function WelcomeOverlay() {
         })}
       </div>
 
-      {/* The button */}
+      {/* White border frame — above flaps so it persists during animation */}
+      <div className="welcome-frame" />
+
+      {/* The button — above everything */}
       <button
         ref={btnRef}
         className="welcome-btn"
