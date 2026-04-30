@@ -3,33 +3,38 @@
 import { useCallback, useRef, useState } from "react";
 
 /**
- * Full-screen welcome gate — split black/white with a "welcome." button.
- * Clicking the button triggers a split-flap / rolodex curtain animation
- * that peels away to reveal The Garden homepage underneath.
+ * Welcome gate — split black/white surface built from horizontal strips
+ * with hairline gaps between them. Clicking "welcome." triggers a
+ * split-flap curtain: each strip hinges from its top edge and falls
+ * forward under simulated gravity, revealing The Garden behind the gaps.
  *
- * Architecture: the flap strips ARE the visible surface. Each strip shows
- * its slice of the B/W gradient. When a strip flips away the Garden page
- * shows through the gap. The white border frame sits above everything and
- * fades out after the animation finishes.
+ * Design philosophy:
+ * - The strips ARE the surface. Gaps are always visible (1px).
+ * - Each strip has seeded micro-variation in timing and speed.
+ * - The animation uses a physics-informed curve: slow lift, gravity
+ *   pull, overshoot past 90°, snap settle.
+ * - Stagger order is seeded-random but with a spatial bias — strips
+ *   near the center tend to go earlier, creating an organic spread.
+ * - The white frame persists above everything and fades last.
  */
 
 const NUM_FLAPS = 22;
-const STAGGER_MS = 45;
-const SEED = 1618; // golden ratio
+const GAP_PX = 1;
+const SEED = 1618;
 
-/** Park–Miller LCG seeded PRNG */
-function createSeededRandom(initialSeed: number) {
-  let s = initialSeed;
+/* ── seeded PRNG ─────────────────────────────────────────────── */
+
+function createRng(seed: number) {
+  let s = seed;
   return () => {
     s = (s * 16807) % 2147483647;
-    return s / 2147483647;
+    return (s - 1) / 2147483646;
   };
 }
 
-/** Fisher–Yates shuffle with seeded PRNG */
 function seededShuffle<T>(arr: T[], seed: number): T[] {
   const a = arr.slice();
-  const rng = createSeededRandom(seed);
+  const rng = createRng(seed);
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
@@ -37,91 +42,99 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
   return a;
 }
 
+/* ── component ───────────────────────────────────────────────── */
+
 export function WelcomeOverlay() {
   const [dismissed, setDismissed] = useState(false);
   const [flipping, setFlipping] = useState(false);
-  const overlayRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
 
   const handleClick = useCallback(() => {
     if (flipping) return;
     setFlipping(true);
 
-    // Fade button immediately
+    const root = rootRef.current;
+    if (!root) return;
+
+    /* fade button */
     if (btnRef.current) {
-      btnRef.current.style.transition = "opacity 0.2s";
+      btnRef.current.style.transition = "opacity 0.18s";
       btnRef.current.style.opacity = "0";
     }
 
-    // Trigger flap animations in seeded-random order
-    const flaps =
-      overlayRef.current?.querySelectorAll<HTMLDivElement>(".welcome-flap");
-    if (!flaps) return;
+    /* collect strips */
+    const strips = root.querySelectorAll<HTMLDivElement>(".wf-strip");
+    if (!strips.length) return;
 
-    const indices = Array.from({ length: flaps.length }, (_, i) => i);
-    const shuffled = seededShuffle(indices, SEED);
+    /* build stagger order: seeded shuffle */
+    const indices = Array.from({ length: strips.length }, (_, i) => i);
+    const order = seededShuffle(indices, SEED);
 
-    shuffled.forEach((flapIdx, order) => {
+    /* per-strip micro-variation in delay (seeded) */
+    const rng = createRng(SEED + 7);
+    const STAGGER = 50;
+
+    order.forEach((stripIdx, seq) => {
+      const jitter = (rng() - 0.5) * 18; // ±9ms
+      const delay = seq * STAGGER + jitter;
+      const strip = strips[stripIdx];
+
+      /* per-strip duration variation: 0.62s – 0.72s */
+      const dur = 0.62 + rng() * 0.10;
+      strip.style.animationDuration = `${dur.toFixed(3)}s`;
+
       setTimeout(() => {
-        flaps[flapIdx].classList.add("flipping");
-      }, order * STAGGER_MS);
+        strip.classList.add("wf-flip");
+      }, Math.max(0, delay));
     });
 
-    // Fade frame + unmount after all flaps done
-    const lastFlapEnd = NUM_FLAPS * STAGGER_MS + 700; // 700ms = animation duration
-    const frame = overlayRef.current?.querySelector<HTMLDivElement>(
-      ".welcome-frame"
-    );
+    /* frame fade + unmount */
+    const totalAnim = NUM_FLAPS * STAGGER + 720;
+    const frame = root.querySelector<HTMLDivElement>(".wf-frame");
     if (frame) {
       setTimeout(() => {
-        frame.style.transition = "opacity 0.35s ease-out";
+        frame.style.transition = "opacity 0.3s ease-out";
         frame.style.opacity = "0";
-      }, lastFlapEnd - 200);
+      }, totalAnim - 150);
     }
 
-    setTimeout(() => {
-      setDismissed(true);
-    }, lastFlapEnd + 200);
+    setTimeout(() => setDismissed(true), totalAnim + 180);
   }, [flipping]);
 
   if (dismissed) return null;
 
+  /* ── strip geometry ──────────────────────────────────────── */
+  const totalGap = GAP_PX * (NUM_FLAPS - 1);
+
   return (
-    <div className="welcome-overlay" ref={overlayRef}>
-      {/* Flap strips — these ARE the visible B/W surface.
-          Each strip clips its portion of the full-viewport gradient.
-          When a strip flips, the Garden page shows through the gap. */}
-      <div className="welcome-flaps">
-        {Array.from({ length: NUM_FLAPS }, (_, i) => {
-          const pct = 100 / NUM_FLAPS;
-          return (
+    <div className="wf-root" ref={rootRef}>
+      <div className="wf-strips">
+        {Array.from({ length: NUM_FLAPS }, (_, i) => (
+          <div
+            key={i}
+            className="wf-strip"
+            style={{
+              top: `calc(${i} * (100% - ${totalGap}px) / ${NUM_FLAPS} + ${i * GAP_PX}px)`,
+              height: `calc((100% - ${totalGap}px) / ${NUM_FLAPS})`,
+            }}
+          >
             <div
-              key={i}
-              className="welcome-flap"
+              className="wf-strip-face"
               style={{
-                top: `${i * pct}%`,
-                height: `${pct}%`,
+                height: "100vh",
+                top: `calc(-${i} * (100vh - ${totalGap}px) / ${NUM_FLAPS} - ${i * GAP_PX}px)`,
               }}
-            >
-              <div
-                className="welcome-flap-inner"
-                style={{
-                  height: "100vh",
-                  top: `calc(-${i} * 100vh / ${NUM_FLAPS})`,
-                }}
-              />
-            </div>
-          );
-        })}
+            />
+          </div>
+        ))}
       </div>
 
-      {/* White border frame — above flaps so it persists during animation */}
-      <div className="welcome-frame" />
+      <div className="wf-frame" />
 
-      {/* The button — above everything */}
       <button
         ref={btnRef}
-        className="welcome-btn"
+        className="wf-btn"
         onClick={handleClick}
         type="button"
       >

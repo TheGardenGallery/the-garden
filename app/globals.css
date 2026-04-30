@@ -3998,18 +3998,98 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 }
 
 /* =======================================================================
-   WELCOME OVERLAY — split B/W landing gate with split-flap reveal
+   WELCOME OVERLAY — split-flap curtain gate
+   -----------------------------------------------------------------------
+   22 horizontal strips with 1px gaps form the B/W surface. Each strip
+   hinges from its top edge and falls forward like a mechanical flap board.
+   The gaps let the Garden page peek through before any interaction.
    ===================================================================== */
 
-.welcome-overlay{
+/* ── root container ── */
+.wf-root{
   position:fixed;
   inset:0;
   z-index:9999;
   overflow:hidden;
 }
 
-/* 20px white border frame — sits ABOVE flaps so it stays during animation */
-.welcome-frame{
+/* ── strip container — perspective from viewer distance ── */
+.wf-strips{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  /* perspective at ~2× viewport height feels like standing
+     at a train station looking at the departure board */
+  perspective:1600px;
+  perspective-origin:50% 50%;
+}
+
+/* ── individual strip ── */
+.wf-strip{
+  position:absolute;
+  left:0;
+  width:100%;
+  overflow:hidden;
+  /* hinge at top edge — the strip falls forward from here */
+  transform-origin:50% 0%;
+  will-change:transform;
+  /* hairline shadow on bottom edge — depth cue between strips */
+  box-shadow:0 1px 0 rgba(0,0,0,0.08);
+}
+
+/* inner face — slides the full-viewport gradient so each strip
+   shows exactly its horizontal slice of the B/W split */
+.wf-strip-face{
+  position:absolute;
+  left:0;
+  width:100%;
+  background:linear-gradient(to right, #000000 50%, #ffffff 50%);
+}
+
+/* ── flip animation ──
+   Physics: hinge at top, gravity pulls bottom edge forward.
+   - 0–30%: slow initial release (like a latch letting go)
+   - 30–75%: gravity acceleration through the main arc
+   - 75–88%: overshoot past 90° (momentum carries it)
+   - 88–100%: micro-settle back to final resting angle
+   The strip ends at ~94° (not flat 90°) for realism — a real
+   flap overshoots and settles slightly past perpendicular. */
+
+.wf-strip.wf-flip{
+  animation:wfFall 0.68s cubic-bezier(0.36, 0, 0.66, -0.04) forwards;
+}
+
+@keyframes wfFall{
+  0%{
+    transform:rotateX(0deg);
+    opacity:1;
+  }
+  30%{
+    transform:rotateX(-12deg);
+    opacity:1;
+  }
+  65%{
+    transform:rotateX(-78deg);
+    opacity:0.85;
+  }
+  80%{
+    /* overshoot — momentum carries past perpendicular */
+    transform:rotateX(-97deg);
+    opacity:0.3;
+  }
+  90%{
+    /* settle back */
+    transform:rotateX(-92deg);
+    opacity:0.12;
+  }
+  100%{
+    transform:rotateX(-94deg);
+    opacity:0;
+  }
+}
+
+/* ── white border frame — above strips, persists during animation ── */
+.wf-frame{
   position:absolute;
   inset:0;
   border:20px solid #ffffff;
@@ -4017,8 +4097,8 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   pointer-events:none;
 }
 
-/* The "welcome." button — centered in the white (right) half */
-.welcome-btn{
+/* ── welcome button ── */
+.wf-btn{
   position:absolute;
   left:75%;
   top:50%;
@@ -4035,56 +4115,19 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   outline:none;
   letter-spacing:-0.4px;
 }
-.welcome-btn:active{
-  /* no overlay/opacity change on click — pure colors */
-}
-.welcome-btn:focus-visible{
+.wf-btn:active{}
+.wf-btn:focus-visible{
   outline:1px dotted #ffffff;
   outline-offset:-4px;
 }
 
-/* Flap container — the flaps ARE the visible surface */
-.welcome-flaps{
-  position:absolute;
-  inset:0;
-  z-index:1;
-  perspective:1800px;
-}
-
-/* Individual flap strip — each shows its slice of the B/W gradient */
-.welcome-flap{
-  position:absolute;
-  left:0;
-  width:100%;
-  overflow:hidden;
-  transform-origin:top center;
-  will-change:transform, opacity;
-}
-.welcome-flap-inner{
-  position:absolute;
-  left:0;
-  width:100%;
-  background:linear-gradient(to right, #000000 50%, #ffffff 50%);
-}
-
-/* Flap curtain-fold animation */
-.welcome-flap.flipping{
-  animation:welcomeFlapCurtain 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-}
-@keyframes welcomeFlapCurtain{
-  0%{transform:rotateX(0deg) translateY(0);opacity:1;}
-  60%{opacity:1;}
-  85%{transform:rotateX(-75deg) translateY(4px);opacity:0.4;}
-  100%{transform:rotateX(-92deg) translateY(6px);opacity:0;}
-}
-
-/* Lock scroll and hide chrome while welcome overlay is mounted */
-body:has(.welcome-overlay){
+/* ── body lockdown while gate is mounted ── */
+body:has(.wf-root){
   overflow:hidden;
 }
-body:has(.welcome-overlay) > nav,
-body:has(.welcome-overlay) > header,
-body:has(.welcome-overlay) footer{
+body:has(.wf-root) > nav,
+body:has(.wf-root) > header,
+body:has(.wf-root) footer{
   opacity:0 !important;
   visibility:hidden;
   pointer-events:none;
