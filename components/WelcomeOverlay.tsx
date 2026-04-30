@@ -116,7 +116,6 @@ export function WelcomeOverlay() {
         inset: 0,
         zIndex: 9999,
         overflow: "hidden",
-        background: "linear-gradient(to right, #000 50%, #fff 50%)",
       }}
     >
       <div className="wf-strips">
