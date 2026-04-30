@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { WelcomeOverlay } from "@/components/WelcomeOverlay";
 import "./globals.css";
 
 // Resolve the canonical origin for absolute URLs in meta tags (og:image,
@@ -58,6 +59,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <WelcomeOverlay />
         <Nav />
         <main>{children}</main>
         <Footer />

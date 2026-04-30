@@ -4,7 +4,6 @@ import { ExhibitionCard } from "@/components/ExhibitionCard";
 import { JournalHero } from "@/components/JournalHero";
 import { JournalItem } from "@/components/JournalItem";
 import { Reveal } from "@/components/Reveal";
-import { WelcomeOverlay } from "@/components/WelcomeOverlay";
 import { fetchExhibitions, fetchJournalEntries } from "@/lib/verse-api";
 import { getArtworkPalette } from "@/lib/palette";
 import { homepagePastPicks } from "@/lib/data/display-rules";
@@ -46,7 +45,6 @@ export default async function HomePage() {
 
   return (
     <>
-      <WelcomeOverlay />
       <h1 className="sr-only">The Garden — an online gallery for digital art</h1>
 
       <Hero
