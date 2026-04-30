@@ -118,12 +118,15 @@ export function WelcomeOverlay() {
         overflow: "hidden",
       }}
     >
-      <div className="wf-strips">
+      <div className="wf-strips" style={{ position: "absolute", inset: 0 }}>
         {Array.from({ length: NUM_FLAPS }, (_, i) => (
           <div
             key={i}
             className="wf-strip"
             style={{
+              position: "absolute",
+              left: 0,
+              width: "100%",
               top: `calc(${i} * (100% - ${totalGap}px) / ${NUM_FLAPS} + ${i * GAP_PX}px)`,
               height: `calc((100% - ${totalGap}px) / ${NUM_FLAPS})`,
             }}
@@ -131,6 +134,10 @@ export function WelcomeOverlay() {
             <div
               className="wf-strip-face"
               style={{
+                position: "absolute",
+                left: 0,
+                width: "100%",
+                background: "linear-gradient(to right, #000 50%, #fff 50%)",
                 height: "100vh",
                 top: `calc(-${i} * (100vh - ${totalGap}px) / ${NUM_FLAPS} - ${i * GAP_PX}px)`,
               }}
