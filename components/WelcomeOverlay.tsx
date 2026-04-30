@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useCallback, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 /**
@@ -42,14 +41,10 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
 
 export function WelcomeOverlay() {
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [flipping, setFlipping] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
-
-  /* portal needs a client-side mount check */
-  useEffect(() => setMounted(true), []);
 
   const handleClick = useCallback(() => {
     if (flipping) return;
@@ -105,13 +100,13 @@ export function WelcomeOverlay() {
     setTimeout(() => setDismissed(true), totalAnim + 180);
   }, [flipping]);
 
-  /* only homepage, only client-side, only until dismissed */
-  if (!mounted || dismissed || pathname !== "/") return null;
+  /* only homepage, only until dismissed */
+  if (dismissed || pathname !== "/") return null;
 
   /* ── strip geometry ──────────────────────────────────────── */
   const totalGap = GAP_PX * (NUM_FLAPS - 1);
 
-  return createPortal(
+  return (
     <div className="wf-root" ref={rootRef} onClick={handleClick}>
       <div className="wf-strips">
         {Array.from({ length: NUM_FLAPS }, (_, i) => (
@@ -144,7 +139,6 @@ export function WelcomeOverlay() {
       >
         welcome.
       </button>
-    </div>,
-    document.body
+    </div>
   );
 }
