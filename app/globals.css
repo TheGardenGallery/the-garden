@@ -4101,20 +4101,20 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 /* ── welcome button ── */
 .wf-btn{
   position:absolute;
-  left:75%;
+  left:50%;
   top:50%;
   transform:translate(-50%, -50%);
   z-index:4;
   background:#000000;
   border:none;
-  padding:4px 16px;
+  padding:8px 32px;
   font-family:Inter, sans-serif;
-  font-size:20.9px;
+  font-size:41.8px;
   font-weight:700;
   color:#ffffff;
   cursor:pointer;
   outline:none;
-  letter-spacing:-0.4px;
+  letter-spacing:-0.8px;
 }
 .wf-btn:active{}
 .wf-btn:focus-visible{
