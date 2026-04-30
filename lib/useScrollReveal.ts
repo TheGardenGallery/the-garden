@@ -2,28 +2,24 @@
 
 import { useEffect, useRef, useState } from "react";
 
-/** Scroll-reveal with refined initial-load handling.
+/** Scroll-reveal with smart initial-load handling.
  *
- *  Elements that are already inside (or near) the viewport when the
- *  page first paints reveal with a soft staggered fade — no jarring
- *  pop, no invisible-until-scroll gap.  Elements further below the
- *  fold animate in on scroll as before.
+ *  Elements already near the viewport on mount (< 1.5× viewport
+ *  height) reveal with a soft staggered cascade — no waiting for
+ *  the first scroll event. Elements further below the fold animate
+ *  in on scroll via IntersectionObserver as before.
  *
- *  The CSS `.reveal` class no longer starts at opacity:0; instead,
- *  JS adds `.reveal--hidden` after hydration.  This means content is
- *  always visible in the HTML source (good for screenshots, scrapers,
- *  and the flash before hydration), and the hide→reveal lifecycle is
- *  entirely JS-driven.
+ *  CSS starts elements hidden (opacity:0). This hook adds the
+ *  `--visible` class to trigger the transition.
  *
- *  Falls back to immediate-visible when IntersectionObserver is
- *  unavailable. */
+ *  Falls back to immediate-visible when IO is unavailable. */
 
 // Monotonic counter for stagger ordering within a single page load.
 let mountOrder = 0;
 
 export function useScrollReveal<T extends HTMLElement>() {
   const ref = useRef<T>(null);
-  const [state, setState] = useState<"idle" | "hidden" | "visible">("idle");
+  const [visible, setVisible] = useState(false);
   const orderRef = useRef<number>(0);
 
   // Capture mount order synchronously during first render.
@@ -37,35 +33,30 @@ export function useScrollReveal<T extends HTMLElement>() {
     if (!el) return;
 
     if (typeof IntersectionObserver === "undefined") {
-      setState("visible");
+      setVisible(true);
       return;
     }
 
     // Check if element is already near the viewport on mount.
-    // Threshold is 1.5× so elements just below a full-viewport hero
-    // (which sit at ~1.0× viewport height) are treated as "near" and
-    // cascade in on page load rather than waiting for scroll.
+    // 1.5× catches elements just below a full-viewport hero.
     const rect = el.getBoundingClientRect();
     const nearViewport = rect.top < window.innerHeight * 1.5;
 
     if (nearViewport) {
-      // Already in or near viewport — stagger the reveal so multiple
-      // elements cascade rather than all appearing simultaneously.
-      // Base delay is tiny (80ms per mount-order) so the first item
-      // is nearly instant and later items ripple in.
-      setState("hidden");
+      // Stagger so multiple elements cascade rather than all
+      // appearing simultaneously. 80ms per mount-order, capped
+      // at 400ms so deep lists don't wait forever.
       const delay = Math.min(orderRef.current * 80, 400);
-      const timer = window.setTimeout(() => setState("visible"), delay);
+      const timer = window.setTimeout(() => setVisible(true), delay);
       return () => window.clearTimeout(timer);
     }
 
     // Below the fold — observe and reveal on scroll.
-    setState("hidden");
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setState("visible");
+            setVisible(true);
             io.unobserve(entry.target);
           }
         });
@@ -76,5 +67,5 @@ export function useScrollReveal<T extends HTMLElement>() {
     return () => io.disconnect();
   }, []);
 
-  return { ref, state };
+  return { ref, visible };
 }

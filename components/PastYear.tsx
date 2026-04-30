@@ -10,19 +10,12 @@ import { useScrollReveal } from "@/lib/useScrollReveal";
  * table while the rows beneath it rise into place.
  */
 export function PastYear({ year }: { year: number }) {
-  const { ref, state } = useScrollReveal<HTMLHeadingElement>();
-
-  const cls =
-    state === "hidden"
-      ? "past-year past-year--hidden"
-      : state === "visible"
-        ? "past-year past-year--visible"
-        : "past-year";
+  const { ref, visible } = useScrollReveal<HTMLHeadingElement>();
 
   return (
     <h3
       ref={ref}
-      className={cls}
+      className={`past-year${visible ? " past-year--visible" : ""}`}
     >
       <span className="past-year-label">{year}</span>
     </h3>
