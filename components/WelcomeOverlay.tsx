@@ -107,7 +107,18 @@ export function WelcomeOverlay() {
   const totalGap = GAP_PX * (NUM_FLAPS - 1);
 
   return (
-    <div className="wf-root" ref={rootRef} onClick={handleClick}>
+    <div
+      className="wf-root"
+      ref={rootRef}
+      onClick={handleClick}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        overflow: "hidden",
+        background: "linear-gradient(to right, #000 50%, #fff 50%)",
+      }}
+    >
       <div className="wf-strips">
         {Array.from({ length: NUM_FLAPS }, (_, i) => (
           <div
