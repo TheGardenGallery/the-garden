@@ -707,6 +707,14 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .hero[data-hero-treatment="full-bleed-video"]{background:#000000;}
 .hero[data-hero-treatment="full-bleed-video"]::after{display:none;}
 .hero[data-hero-treatment="full-bleed-video"] .slide-video{filter:none;}
+/* Ricky / Split Logic: dial the homepage hero artwork back from the
+   slide's full padding box so the work reads with a touch more
+   surrounding negative space. The video composition is dense and
+   benefits from a frame rather than bleeding to the edges. */
+.hero[data-slug="split-logic"] .slide-video{
+  max-width:90%;
+  max-height:90%;
+}
 /* Slightly larger hero card lockup for dense featured homepage works. */
 .hero[data-hero-copy-treatment="featured-lockup"] .hero-artist,
 .hero[data-hero-copy-treatment="featured-lockup"] .hero-title{font-size:clamp(28px, calc(1vw + 19px), 38px);}
