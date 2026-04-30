@@ -3997,5 +3997,105 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   .not-found-title{font-size:34px;}
 }
 
+/* =======================================================================
+   WELCOME OVERLAY — split B/W landing gate with split-flap reveal
+   ===================================================================== */
 
+.welcome-overlay{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  overflow:hidden;
+}
+
+/* Split black/white background — left black, right white */
+.welcome-bg{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to right, #000000 50%, #ffffff 50%);
+  z-index:0;
+}
+
+/* 20px white border frame */
+.welcome-frame{
+  position:absolute;
+  inset:0;
+  border:20px solid #ffffff;
+  z-index:3;
+  pointer-events:none;
+}
+
+/* The "welcome." button — centered in the white (right) half */
+.welcome-btn{
+  position:absolute;
+  left:75%;
+  top:50%;
+  transform:translate(-50%, -50%);
+  z-index:4;
+  background:#000000;
+  border:none;
+  padding:4px 16px;
+  font-family:Inter, sans-serif;
+  font-size:20.9px;
+  font-weight:700;
+  color:#ffffff;
+  cursor:pointer;
+  outline:none;
+  letter-spacing:-0.4px;
+}
+.welcome-btn:active{
+  /* no overlay/opacity change on click — pure colors */
+}
+.welcome-btn:focus-visible{
+  outline:1px dotted #ffffff;
+  outline-offset:-4px;
+}
+
+/* Flap container — sits above everything during animation */
+.welcome-flaps{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  perspective:1800px;
+}
+
+/* Individual flap strip */
+.welcome-flap{
+  position:absolute;
+  left:0;
+  width:100%;
+  overflow:hidden;
+  transform-origin:top center;
+  will-change:transform, opacity;
+}
+.welcome-flap-inner{
+  position:absolute;
+  left:0;
+  width:100%;
+  background:linear-gradient(to right, #000000 50%, #ffffff 50%);
+}
+
+/* Flap curtain-fold animation */
+.welcome-flap.flipping{
+  animation:welcomeFlapCurtain 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+@keyframes welcomeFlapCurtain{
+  0%{transform:rotateX(0deg) translateY(0);opacity:1;}
+  60%{opacity:1;}
+  85%{transform:rotateX(-75deg) translateY(4px);opacity:0.4;}
+  100%{transform:rotateX(-92deg) translateY(6px);opacity:0;}
+}
+
+/* Lock scroll and hide chrome while welcome overlay is mounted */
+body:has(.welcome-overlay){
+  overflow:hidden;
+}
+body:has(.welcome-overlay) > nav,
+body:has(.welcome-overlay) > header,
+body:has(.welcome-overlay) footer{
+  opacity:0 !important;
+  visibility:hidden;
+  pointer-events:none;
+}
 
