@@ -32,7 +32,7 @@ export default async function HomePage() {
     );
   const heroExhibitions =
     liveOrUpcoming.length + pinnedPast.length > 0
-      ? [...liveOrUpcoming, ...pinnedPast]
+      ? [...pinnedPast, ...liveOrUpcoming]
       : [
           exhibitions.find((e) => e.status === "current") ?? exhibitions[0],
         ].filter(Boolean);
