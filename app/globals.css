@@ -4011,6 +4011,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   inset:0;
   z-index:9999;
   overflow:hidden;
+  cursor:pointer;
 }
 
 /* ── strip container — perspective from viewer distance ── */

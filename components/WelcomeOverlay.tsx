@@ -112,7 +112,7 @@ export function WelcomeOverlay() {
   const totalGap = GAP_PX * (NUM_FLAPS - 1);
 
   return createPortal(
-    <div className="wf-root" ref={rootRef}>
+    <div className="wf-root" ref={rootRef} onClick={handleClick}>
       <div className="wf-strips">
         {Array.from({ length: NUM_FLAPS }, (_, i) => (
           <div
