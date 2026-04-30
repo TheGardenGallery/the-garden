@@ -513,7 +513,7 @@ export const exhibitions: Exhibition[] = [
     hero: "/images/aluan-wang/equinox-hero.jpg",
     heroTheme: "paper",
     descriptionByArtist: true,
-    cardImage: "/images/aluan-wang/equinox.jpg",
+    cardImage: "/images/aluan-wang/equinox-inline-1.jpg",
     verseSeriesUrl: "https://verse.works/series/equinox-by-aluan-wang",
     workCount: 64,
     description: [

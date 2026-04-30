@@ -843,6 +843,10 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .exhibitions-grid-hybrid{display:grid;grid-template-columns:repeat(3, 1fr);gap:56px 32px;}
 .exhibition-card{display:flex;flex-direction:column;cursor:pointer;color:var(--ink);text-decoration:none;transition:color 0.3s ease-out;}
 .exhibition-card-image{width:100%;aspect-ratio:4/5;background:#f1f4f6;overflow:hidden;border-radius:0;margin-bottom:16px;display:flex;align-items:center;justify-content:center;padding:10% 12%;}
+/* Yoshi / The Flood — artwork's white halo blends into the card
+   background, making the core drawing feel small. Tighten padding
+   so the image fills more of the plate. */
+.exhibition-card[data-slug="the-flood"] .exhibition-card-image{padding:5% 6%;}
 .exhibition-card-media{
   width:100%;height:100%;
   display:flex;align-items:center;justify-content:center;
@@ -882,9 +886,9 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
      overrides handle pieces whose own composition pushes the rendered
      image bigger or smaller than the others at the same padding. */
   .exhibition-card-image{padding:14% 16%;}
-  /* Yoshi / The Flood — artwork has a wide white halo that reads larger
-     than the network at its core, so add vertical room. */
-  .exhibition-card[data-slug="the-flood"] .exhibition-card-image{padding:26% 20%;}
+  /* Yoshi / The Flood — tighter mobile padding to match the desktop
+     override; the artwork's halo provides its own breathing room. */
+  .exhibition-card[data-slug="the-flood"] .exhibition-card-image{padding:10% 10%;}
   /* Aluan / Equinox — composition is dense and sits visually small at
      the shared padding; tighten so it reads at scale. */
   .exhibition-card[data-slug="equinox"] .exhibition-card-image{padding:5% 7%;}

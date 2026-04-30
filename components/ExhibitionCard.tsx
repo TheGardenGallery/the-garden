@@ -35,9 +35,10 @@ export function ExhibitionCard({ exhibition }: { exhibition: Exhibition }) {
             <Image
               src={coverImage}
               alt={`${exhibition.artistName}, ${exhibition.title}`}
-              width={600}
-              height={750}
+              width={1200}
+              height={1500}
               sizes="(min-width: 960px) 30vw, (min-width: 600px) 46vw, 92vw"
+              quality={90}
             />
           ) : null}
         </div>
