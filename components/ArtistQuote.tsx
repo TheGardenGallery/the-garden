@@ -16,7 +16,7 @@ type Quote = NonNullable<Exhibition["artistQuote"]>;
  * full opacity immediately.
  */
 export function ArtistQuote({ quote }: { quote: Quote }) {
-  const { ref, visible } = useScrollReveal<HTMLElement>();
+  const { ref, state } = useScrollReveal<HTMLElement>();
 
   // Split each paragraph into word spans with a globally-incrementing
   // index so the stagger runs continuously across paragraph breaks.
@@ -36,7 +36,7 @@ export function ArtistQuote({ quote }: { quote: Quote }) {
   return (
     <section
       ref={ref}
-      className={`ex-artist-quote${visible ? " is-writing" : ""}`}
+      className={`ex-artist-quote${state === "visible" ? " is-writing" : ""}`}
       aria-label="Artist statement"
       style={style}
     >

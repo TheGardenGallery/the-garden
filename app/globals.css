@@ -106,13 +106,15 @@
 
 /* ---- SCROLL REVEAL --------------------------------------------------- */
 .reveal{
-  opacity:0;
-  transform:translateY(0.4em);
   transition:opacity 0.8s ease-out, transform 0.8s ease-out;
 }
-.reveal.is-visible{opacity:1;transform:translateY(0);}
+.reveal--hidden{
+  opacity:0;
+  transform:translateY(0.4em);
+}
+.reveal--visible{opacity:1;transform:translateY(0);}
 @media (prefers-reduced-motion:reduce){
-  .reveal{opacity:1;transform:none;transition:none;}
+  .reveal--hidden{opacity:1;transform:none;transition:none;}
 }
 
 /* ---- RESET ---------------------------------------------------------- */
@@ -1766,16 +1768,18 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
    of cards, which rise from below. Border stays static on the h3. */
 .past-year-label{
   display:inline-block;
-  opacity:0;
-  transform:translateY(-0.2em);
   transition:opacity 0.8s ease-out, transform 0.8s ease-out;
 }
-.past-year.is-visible .past-year-label{
+.past-year--hidden .past-year-label{
+  opacity:0;
+  transform:translateY(-0.2em);
+}
+.past-year--visible .past-year-label{
   opacity:1;
   transform:translateY(0);
 }
 @media (prefers-reduced-motion:reduce){
-  .past-year-label{opacity:1;transform:none;transition:none;}
+  .past-year--hidden .past-year-label{opacity:1;transform:none;transition:none;}
 }
 
 /* Margin between year-group wrapper divs creates the gap between
@@ -1802,11 +1806,10 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   cursor:pointer;
   color:var(--ink);
   text-decoration:none;
-  opacity:0;
-  transform:translateY(0.2em);
   transition:opacity 0.8s ease-out, transform 0.8s ease-out, color 0.3s ease-out;
 }
-.past-card.is-visible{opacity:1;transform:translateY(0);}
+.past-card--hidden{opacity:0;transform:translateY(0.2em);}
+.past-card--visible{opacity:1;transform:translateY(0);}
 .past-card .past-artist{
   font-family:'Cormorant','Title CJK',serif;
   font-weight:500;font-size:22px;letter-spacing:-0.15px;line-height:1.25;
@@ -1828,7 +1831,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   .past-card:hover{color:var(--ink-hover);}
 }
 @media (prefers-reduced-motion:reduce){
-  .past-card{opacity:1;transform:none;transition:color 0.3s ease-out;}
+  .past-card--hidden{opacity:1;transform:none;transition:color 0.3s ease-out;}
 }
 
 .exhibitions-empty{

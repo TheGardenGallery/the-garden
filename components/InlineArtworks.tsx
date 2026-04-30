@@ -35,7 +35,7 @@ export function InlineArtworks({
   fallbackYear?: number;
   fallbackWorkCount?: number;
 }) {
-  const { ref, visible } = useScrollReveal<HTMLDivElement>();
+  const { ref, state } = useScrollReveal<HTMLDivElement>();
 
   // Play/pause each video based on its own visibility. Videos don't
   // autoplay on mount — they only start when scrolled into view, then
@@ -65,7 +65,7 @@ export function InlineArtworks({
     return () => io.disconnect();
   }, []);
 
-  const cls = `ex-inline-artworks reveal${visible ? " is-visible" : ""}`;
+  const cls = `ex-inline-artworks reveal${state === "hidden" ? " reveal--hidden" : state === "visible" ? " reveal--visible" : ""}`;
 
   return (
     <div ref={ref} className={cls}>
