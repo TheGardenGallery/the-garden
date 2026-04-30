@@ -132,7 +132,7 @@ export function Hero({ slides }: HeroProps) {
           AnimatePresence mounts the visible slide on cycle, the video
           / image is already in cache and decoded — the very first
           slide-from-side animation is as smooth as later ones. */}
-      <div className="hero-prewarm" aria-hidden="true" style={{ position: "absolute", width: 1, height: 1, opacity: 0, overflow: "hidden" }}>
+      <div className="hero-prewarm" aria-hidden="true">
         {slides.map((s) => {
           if (s.exhibition.slug === ex.slug) return null;
           const v = s.exhibition.homepageHeroVideo;
