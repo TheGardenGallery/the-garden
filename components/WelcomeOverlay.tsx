@@ -91,12 +91,14 @@ export function WelcomeOverlay() {
 
     /* frame fade + unmount */
     const totalAnim = NUM_FLAPS * STAGGER + 720;
+    /* shrink frame instead of fading */
     const frame = root.querySelector<HTMLDivElement>(".wf-frame");
     if (frame) {
       setTimeout(() => {
-        frame.style.transition = "opacity 0.3s ease-out";
+        frame.style.transition = "border-width 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.15s ease-out 0.3s";
+        frame.style.borderWidth = "0px";
         frame.style.opacity = "0";
-      }, totalAnim - 150);
+      }, totalAnim - 200);
     }
 
     setTimeout(() => setDismissed(true), totalAnim + 180);
