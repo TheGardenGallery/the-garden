@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { usePathname } from "next/navigation";
 
 /**
  * Welcome gate — split black/white surface built from horizontal strips
@@ -8,14 +10,8 @@ import { useCallback, useRef, useState } from "react";
  * split-flap curtain: each strip hinges from its top edge and falls
  * forward under simulated gravity, revealing The Garden behind the gaps.
  *
- * Design philosophy:
- * - The strips ARE the surface. Gaps are always visible (1px).
- * - Each strip has seeded micro-variation in timing and speed.
- * - The animation uses a physics-informed curve: slow lift, gravity
- *   pull, overshoot past 90°, snap settle.
- * - Stagger order is seeded-random but with a spatial bias — strips
- *   near the center tend to go earlier, creating an organic spread.
- * - The white frame persists above everything and fades last.
+ * Portalled to document.body so it's immune to template.tsx's motion
+ * fade-in (opacity 0 → 1). Only renders on the homepage ("/").
  */
 
 const NUM_FLAPS = 22;
@@ -45,10 +41,15 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
 /* ── component ───────────────────────────────────────────────── */
 
 export function WelcomeOverlay() {
+  const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [flipping, setFlipping] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
+
+  /* portal needs a client-side mount check */
+  useEffect(() => setMounted(true), []);
 
   const handleClick = useCallback(() => {
     if (flipping) return;
@@ -89,13 +90,13 @@ export function WelcomeOverlay() {
       }, Math.max(0, delay));
     });
 
-    /* frame fade + unmount */
+    /* shrink frame + unmount */
     const totalAnim = NUM_FLAPS * STAGGER + 720;
-    /* shrink frame instead of fading */
     const frame = root.querySelector<HTMLDivElement>(".wf-frame");
     if (frame) {
       setTimeout(() => {
-        frame.style.transition = "border-width 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.15s ease-out 0.3s";
+        frame.style.transition =
+          "border-width 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.15s ease-out 0.3s";
         frame.style.borderWidth = "0px";
         frame.style.opacity = "0";
       }, totalAnim - 200);
@@ -104,12 +105,13 @@ export function WelcomeOverlay() {
     setTimeout(() => setDismissed(true), totalAnim + 180);
   }, [flipping]);
 
-  if (dismissed) return null;
+  /* only homepage, only client-side, only until dismissed */
+  if (!mounted || dismissed || pathname !== "/") return null;
 
   /* ── strip geometry ──────────────────────────────────────── */
   const totalGap = GAP_PX * (NUM_FLAPS - 1);
 
-  return (
+  return createPortal(
     <div className="wf-root" ref={rootRef}>
       <div className="wf-strips">
         {Array.from({ length: NUM_FLAPS }, (_, i) => (
@@ -142,6 +144,7 @@ export function WelcomeOverlay() {
       >
         welcome.
       </button>
-    </div>
+    </div>,
+    document.body
   );
 }
