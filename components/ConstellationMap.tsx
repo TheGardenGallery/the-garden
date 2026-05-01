@@ -75,37 +75,42 @@ type Star = {
 };
 type Edge = [number, number];
 
-/* ── layout ──────────────────────────────────────────────── */
+/* ── layout ──────────────────────────────────────────────── 
+   Instead of a jittered grid, place stars along a meandering
+   river-path that drifts across the canvas. Each star nudges
+   forward along the path with heavy lateral scatter. The path
+   itself curves via layered sine waves — no two rows, no
+   visible grid, just an organic cloud that happens to progress
+   chronologically from upper-left toward lower-right.
+   ──────────────────────────────────────────────────────────── */
 function layoutStars(seed: number): Star[] {
   const r = makeRng(seed);
   const n = ARTISTS.length;
   const stars: Star[] = [];
-  const cols = 6;
-  const rows = Math.ceil(n / cols);
 
   for (let i = 0; i < n; i++) {
-    const row = Math.floor(i / cols);
-    const col = i % cols;
-    const serpentine = row % 2 === 0;
-    const xBase = serpentine
-      ? col / Math.max(cols - 1, 1)
-      : 1 - col / Math.max(cols - 1, 1);
-    const yBase = rows > 1 ? row / (rows - 1) : 0.5;
+    const t = i / (n - 1);  // 0–1 chronological progress
 
-    const j1x = (r() - 0.5) * 0.14;
-    const j1y = (r() - 0.5) * 0.10;
-    const j2x = (r() - 0.5) * 0.06;
-    const j2y = (r() - 0.5) * 0.04;
-    const j3x = (r() - 0.5) * 0.02;
-    const j3y = (r() - 0.5) * 0.015;
-    const curve = Math.sin(yBase * Math.PI * 0.9 + r() * 0.5) * 0.05;
+    // Base path: gentle diagonal from upper-left to lower-right
+    // with two sine-wave bends for organic curvature
+    const pathX = t * 0.7 + 0.15 
+      + Math.sin(t * Math.PI * 2.3) * 0.10
+      + Math.sin(t * Math.PI * 5.1 + 1.2) * 0.04;
+    const pathY = t * 0.75 + 0.12
+      + Math.cos(t * Math.PI * 1.8 + 0.5) * 0.08
+      + Math.cos(t * Math.PI * 4.3 + 2.1) * 0.03;
+
+    // Heavy scatter perpendicular to the path
+    const scatter = 0.16;
+    const sx = (r() - 0.5) * scatter + (r() - 0.5) * scatter * 0.4;
+    const sy = (r() - 0.5) * scatter + (r() - 0.5) * scatter * 0.4;
 
     stars.push({
       name: ARTISTS[i].name,
       slug: ARTISTS[i].slug,
       colour: artistColour(i),
-      x: Math.max(0.03, Math.min(0.97, xBase + j1x + j2x + j3x + curve)),
-      y: Math.max(0.03, Math.min(0.97, yBase + j1y + j2y + j3y)),
+      x: Math.max(0.04, Math.min(0.96, pathX + sx)),
+      y: Math.max(0.04, Math.min(0.96, pathY + sy)),
       dAx: 1.8 + r() * 2.5,
       dAy: 1.4 + r() * 2.0,
       dFx: 0.00008 + r() * 0.00012,
@@ -117,28 +122,86 @@ function layoutStars(seed: number): Star[] {
   return stars;
 }
 
-/* ── edges ────────────────────────────────────────────────── */
+/* ── edges ────────────────────────────────────────────────── 
+   Build a tree (never closes into shapes). Start from the
+   chronological spine but skip some links to create dead-end
+   spurs. Then add a few short branches (not cycles) by
+   connecting isolated stars to their nearest connected
+   neighbour. The result is an open, branching structure
+   like Ursa Major or Orion — paths that fork and end,
+   never loops.
+   ──────────────────────────────────────────────────────────── */
 function buildEdges(stars: Star[], seed: number): Edge[] {
   const r = makeRng(seed);
   const n = stars.length;
   const edges: Edge[] = [];
-  for (let i = 0; i < n - 1; i++) edges.push([i, i + 1]);
+  const connected = new Set<number>([0]);
 
   const dist = (a: Star, b: Star) =>
     Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
-  const target = Math.floor(n * 0.22);
-  let added = 0;
-  for (let t = 0; t < n * 6 && added < target; t++) {
-    const a = Math.floor(r() * n);
-    const b = Math.floor(r() * n);
-    if (a === b || Math.abs(a - b) <= 1) continue;
-    if (dist(stars[a], stars[b]) > 0.25) continue;
-    const dup = edges.some(
-      ([ea, eb]) => (ea === a && eb === b) || (ea === b && eb === a)
-    );
-    if (!dup) { edges.push([a, b]); added++; }
+
+  // Build a minimum spanning tree — guaranteed no cycles,
+  // produces the most natural-looking open constellation
+  const inTree = new Set<number>([0]);
+  while (inTree.size < n) {
+    let bestD = Infinity;
+    let bestFrom = -1;
+    let bestTo = -1;
+
+    for (const from of inTree) {
+      for (let to = 0; to < n; to++) {
+        if (inTree.has(to)) continue;
+        const d = dist(stars[from], stars[to]);
+        if (d < bestD) {
+          bestD = d;
+          bestFrom = from;
+          bestTo = to;
+        }
+      }
+    }
+
+    if (bestTo >= 0) {
+      edges.push([bestFrom, bestTo]);
+      inTree.add(bestTo);
+      connected.add(bestFrom);
+      connected.add(bestTo);
+    }
   }
-  return edges;
+
+  // Now prune ~20% of edges to create dead-end spurs
+  // (only prune edges that won't disconnect the tree —
+  // i.e. edges where one endpoint has degree > 1)
+  const degree = new Map<number, number>();
+  for (const [a, b] of edges) {
+    degree.set(a, (degree.get(a) || 0) + 1);
+    degree.set(b, (degree.get(b) || 0) + 1);
+  }
+
+  const pruneTarget = Math.floor(edges.length * 0.18);
+  let pruned = 0;
+  const pruneOrder = Array.from({ length: edges.length }, (_, i) => i);
+  // Shuffle prune order
+  for (let i = pruneOrder.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    [pruneOrder[i], pruneOrder[j]] = [pruneOrder[j], pruneOrder[i]];
+  }
+
+  const removed = new Set<number>();
+  for (const idx of pruneOrder) {
+    if (pruned >= pruneTarget) break;
+    const [a, b] = edges[idx];
+    const dA = degree.get(a)!;
+    const dB = degree.get(b)!;
+    // Only prune if both endpoints keep at least 1 connection
+    if (dA > 1 && dB > 1) {
+      removed.add(idx);
+      degree.set(a, dA - 1);
+      degree.set(b, dB - 1);
+      pruned++;
+    }
+  }
+
+  return edges.filter((_, i) => !removed.has(i));
 }
 
 /* ── pre-compute adjacency: which edges touch which star ── */
