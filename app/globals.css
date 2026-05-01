@@ -1100,15 +1100,14 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 }
 
 /* ---- CONSTELLATION MAP ---------------------------------------------- */
-/* Dieter Rams catalog page. Nothing decorative. The constellation
-   is information made beautiful through restraint. Hover reveals
-   only the connections touching the active star — everything
-   else recedes. */
+/* Stockholm Design Lab meets star atlas. Every element
+   earns its place. The constellation is information
+   made beautiful through restraint. */
 .constellation-root{
   position:relative;
   width:100%;
   min-height:100vh;min-height:100dvh;
-  background:#fff;
+  background:#fafafa;
   overflow:hidden;
 }
 .constellation-svg{
@@ -1121,22 +1120,24 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .c-line{
   stroke:#000;
   stroke-width:0.5;
-  stroke-dasharray:2 3.5;
-  opacity:0.12;
+  stroke-dasharray:1.5 4;
+  opacity:0.09;
   stroke-linecap:round;
-  transition:stroke 450ms ease-out, opacity 450ms ease-out, stroke-width 450ms ease-out;
+  transition:stroke 500ms ease-out, opacity 500ms ease-out, stroke-width 500ms ease-out;
 }
 .c-line--lit{
-  opacity:0.75;
-  stroke-width:1;
+  opacity:0.65;
+  stroke-width:0.8;
+  stroke-dasharray:none;
   animation:c-flow 2.4s linear infinite;
 }
 .c-line--all{
-  opacity:0.45;
-  stroke-width:0.7;
+  opacity:0.22;
+  stroke-width:0.5;
+  stroke-dasharray:1.5 4;
 }
 .c-line--dim{
-  opacity:0.04;
+  opacity:0.03;
 }
 @keyframes c-flow{
   from{stroke-dashoffset:0;}
@@ -1145,34 +1146,25 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 
 /* ── dots ── */
 .c-dot{
-  fill:#000;
-  transition:fill 350ms ease-out, r 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* ── tag ── */
-.c-tag{
-  fill:none;
-  stroke:rgba(0,0,0,0.14);
-  stroke-width:0.5;
-  transition:stroke 350ms ease-out;
+  fill:#1a1a1a;
+  transition:fill 400ms ease-out, r 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* ── label ── */
 .c-label{
   font-family:'Courier New',Courier,monospace;
-  font-size:10px;
-  letter-spacing:0.04em;
-  fill:#000;
-  opacity:0.72;
+  font-size:10.5px;
+  letter-spacing:0.06em;
+  fill:#1a1a1a;
+  opacity:0.58;
   font-weight:400;
-  transition:fill 350ms ease-out, opacity 350ms ease-out;
+  transition:fill 400ms ease-out, opacity 400ms ease-out;
   pointer-events:none;
 }
 
 /* ── star group ── */
 .c-star{cursor:pointer;}
-.c-star--dim .c-tag{opacity:0.25;}
-.c-star--dim .c-label{opacity:0.18;}
+.c-star--dim .c-label{opacity:0.14;}
 
 /* Principles — interactive garden. Each plant is a minimal line-art
    botanical; keyword sits below it always, a one-line explanation

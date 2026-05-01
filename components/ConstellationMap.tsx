@@ -288,16 +288,13 @@ function buildAdjacency(edges: Edge[], n: number): Set<number>[] {
 type Label = {
   x: number; y: number;
   anchor: "start" | "end";
-  bx: number; by: number; bw: number; bh: number;
-  tx: number; ty: number; tw: number; th: number;
+  bx: number; by: number; bw: number; bh: number;  // mask rect
 };
 
 const CHAR_W = 6.8;
-const LBL_H = 14;
-const LBL_PAD = 10;   // Extra breathing room between labels
-const DOT_GAP = 10;   // Distance from dot to label start
-const TAG_PX = 5;
-const TAG_PY = 3.5;
+const LBL_H = 13;
+const LBL_PAD = 8;
+const DOT_GAP = 6;    // Tight — name sits close to its dot
 
 function placeLabels(
   stars: Star[],
@@ -359,14 +356,9 @@ function placeLabels(
 
       if (lx1 < 0 || lx2 > cw || ly1 < 0 || ly2 > ch) continue;
       if (!hit(lx1, ly1, lx2, ly2)) {
-        const tagX = t.a === "start" ? t.x - TAG_PX : t.x - tw - TAG_PX;
-        const tagY = t.y - LBL_H + 2;
-        const tagW = tw + TAG_PX * 2;
-        const tagH = LBL_H + TAG_PY;
         labels.push({
           x: t.x, y: t.y, anchor: t.a,
           bx: lx1, by: ly1, bw: lx2 - lx1, bh: ly2 - ly1,
-          tx: tagX, ty: tagY, tw: tagW, th: tagH,
         });
         rects.push({ x1: lx1, y1: ly1, x2: lx2, y2: ly2 });
         placed = true;
@@ -380,11 +372,9 @@ function placeLabels(
       const ly1 = fb.y - LBL_H;
       const bw = tw + LBL_PAD * 2;
       const bh = LBL_H + LBL_PAD;
-      const tagX = fb.x - TAG_PX;
       labels.push({
         x: fb.x, y: fb.y, anchor: fb.a,
         bx: lx1, by: ly1, bw, bh,
-        tx: tagX, ty: fb.y - LBL_H + 2, tw: tw + TAG_PX * 2, th: LBL_H + TAG_PY,
       });
       rects.push({ x1: lx1, y1: ly1, x2: lx1 + bw, y2: ly1 + bh });
     }
@@ -424,8 +414,8 @@ function useDrift(stars: Star[]) {
 
 /* ── component ───────────────────────────────────────────── */
 const SEED = 3141;
-const DOT_R = 2.5;
-const HIT_R = 24;
+const DOT_R = 2;
+const HIT_R = 22;
 
 export function ConstellationMap() {
   const router = useRouter();
@@ -451,10 +441,10 @@ export function ConstellationMap() {
   const w = dims.w || 1;
   const h = dims.h || 1;
 
-  const mL = Math.max(110, w * 0.15);
-  const mR = Math.max(110, w * 0.15);
-  const mTop = 170;
-  const mBot = 110;
+  const mL = Math.max(80, w * 0.10);
+  const mR = Math.max(80, w * 0.10);
+  const mTop = 120;
+  const mBot = 80;
   const iw = Math.max(1, w - mL - mR);
   const ih = Math.max(1, h - mTop - mBot);
 
@@ -522,15 +512,9 @@ export function ConstellationMap() {
                 <circle
                   ref={(el) => { dotRefs.current[i] = el; }}
                   cx={cx} cy={cy}
-                  r={active ? 4 : DOT_R}
-                  fill={active ? s.colour : "#000"}
+                  r={active ? 3.5 : DOT_R}
+                  fill={active ? s.colour : "#1a1a1a"}
                   className="c-dot" />
-                <rect
-                  x={label.tx} y={label.ty}
-                  width={label.tw} height={label.th}
-                  className="c-tag"
-                  style={active ? { stroke: s.colour } : undefined}
-                />
                 <text x={label.x} y={label.y}
                   textAnchor={label.anchor}
                   className="c-label"
