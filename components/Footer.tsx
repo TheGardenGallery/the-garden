@@ -9,7 +9,6 @@ const exploreLinks = [
 ];
 
 const studioLinks = [
-  { href: "/press",                          label: "Press" },
   { href: "mailto:chilltulpa@gmail.com",     label: "Contact" },
 ];
 
