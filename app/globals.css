@@ -885,9 +885,6 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
      overrides handle pieces whose own composition pushes the rendered
      image bigger or smaller than the others at the same padding. */
   .exhibition-card-image{padding:14% 16%;}
-  /* Yoshi / The Flood — tighter mobile padding to match the desktop
-     override; the artwork's halo provides its own breathing room. */
-  .exhibition-card[data-slug="the-flood"] .exhibition-card-image{padding:10% 10%;}
   /* Aluan / Equinox — composition is dense and sits visually small at
      the shared padding; tighten so it reads at scale. */
   .exhibition-card[data-slug="equinox"] .exhibition-card-image{padding:5% 7%;}
