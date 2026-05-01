@@ -1126,7 +1126,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   transition:stroke 500ms ease-out, opacity 500ms ease-out;
 }
 .c-line--active{
-  opacity:0.25;
+  opacity:0.55;
   animation:c-flow 1.8s linear infinite;
 }
 @keyframes c-flow{
@@ -1139,17 +1139,17 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 }
 .c-tag{
   fill:#fff;
-  stroke:rgba(0,0,0,0.22);
-  stroke-width:0.75;
+  stroke:#000;
+  stroke-width:0.85;
   transition:stroke 400ms ease-out;
 }
 .c-label{
   font-family:'Courier New',Courier,monospace;
-  font-size:11px;
+  font-size:11.5px;
   letter-spacing:0.02em;
   fill:#000;
-  opacity:0.88;
-  font-weight:400;
+  opacity:0.92;
+  font-weight:500;
   transition:fill 400ms ease-out, opacity 350ms ease-out;
   pointer-events:none;
 }
