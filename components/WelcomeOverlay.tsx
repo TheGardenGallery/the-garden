@@ -83,6 +83,9 @@ export function WelcomeOverlay() {
     try {
       if (sessionStorage.getItem(SESSION_KEY)) {
         setCachedAway(true);
+      } else {
+        /* stamp immediately so a reload mid-animation does not replay */
+        sessionStorage.setItem(SESSION_KEY, "1");
       }
     } catch { /* sessionStorage unavailable */ }
     setMounted(true);
