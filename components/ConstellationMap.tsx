@@ -192,9 +192,9 @@ function placeLabels(
 
       if (lx1 < 0 || lx2 > cw || ly1 < 0 || ly2 > ch) continue;
       if (!hit(lx1, ly1, lx2, ly2)) {
-        // Tight tag rect: 3px padding around text
-        const TAG_PX = 4;
-        const TAG_PY = 3;
+        // Tight tag rect: generous inner padding so text never touches edges
+        const TAG_PX = 7;
+        const TAG_PY = 5;
         const tagX = t.a === "start" ? t.x - TAG_PX : t.x - tw - TAG_PX;
         const tagY = t.y - LBL_H + 2;
         const tagW = tw + TAG_PX * 2;
@@ -215,8 +215,8 @@ function placeLabels(
       const ly1 = fb.y - LBL_H;
       const bw = tw + LBL_PAD * 2;
       const bh = LBL_H + LBL_PAD;
-      const TAG_PX = 4;
-      const TAG_PY = 3;
+      const TAG_PX = 7;
+      const TAG_PY = 5;
       const tagX = fb.a === "start" ? fb.x - TAG_PX : fb.x - tw - TAG_PX;
       labels.push({
         x: fb.x, y: fb.y, anchor: fb.a,
@@ -365,7 +365,6 @@ export function ConstellationMap() {
                 <rect
                   x={label.tx} y={label.ty}
                   width={label.tw} height={label.th}
-                  rx={2} ry={2}
                   className="c-tag"
                   style={{
                     stroke: active ? s.colour : undefined,
