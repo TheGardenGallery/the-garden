@@ -82,78 +82,99 @@ type Edge = [number, number];
    itself curves via layered sine waves — no two rows, no
    visible grid, just an organic cloud that happens to progress
    chronologically from upper-left toward lower-right.
+   
+   A Poisson-disc-like approach ensures no two stars land
+   closer than MIN_DIST, eliminating name overlap.
    ──────────────────────────────────────────────────────────── */
 function layoutStars(seed: number): Star[] {
   const r = makeRng(seed);
   const n = ARTISTS.length;
   const stars: Star[] = [];
 
-  // Minimum distance between any two stars (in 0–1 normalised space).
-  // This prevents the clustered / overlapping-names problem.
-  const MIN_DIST = 0.085;
+  // Anisotropic minimum distance — labels are wider than tall.
+  // X is scaled by name length; Y just needs ~30px of clearance.
+  // These are in 0–1 normalised space. At 1000px inner width,
+  // 0.15 ≈ 150px. The longest name ("Spøgelsesmaskinen") at
+  // 6.8px/char is ~122px, so 0.14 in X gives comfortable clearance.
+  const MIN_DX = 0.14;   // horizontal exclusion
+  const MIN_DY = 0.065;  // vertical exclusion
+
+  // Anisotropic overlap test: no two stars may be closer than
+  // MIN_DX horizontally AND MIN_DY vertically simultaneously.
+  const tooClose = (ax: number, ay: number, bx: number, by: number) => {
+    return Math.abs(ax - bx) < MIN_DX && Math.abs(ay - by) < MIN_DY;
+  };
 
   for (let i = 0; i < n; i++) {
     const t = i / (n - 1);  // 0–1 chronological progress
 
     // Base path: gentle diagonal from upper-left to lower-right
-    // with two sine-wave bends for organic curvature
-    const pathX = t * 0.7 + 0.15 
-      + Math.sin(t * Math.PI * 2.3) * 0.10
-      + Math.sin(t * Math.PI * 5.1 + 1.2) * 0.04;
-    const pathY = t * 0.75 + 0.12
-      + Math.cos(t * Math.PI * 1.8 + 0.5) * 0.08
-      + Math.cos(t * Math.PI * 4.3 + 2.1) * 0.03;
+    // with two sine-wave bends for organic curvature.
+    const pathX = t * 0.78 + 0.10 
+      + Math.sin(t * Math.PI * 2.3) * 0.12
+      + Math.sin(t * Math.PI * 5.1 + 1.2) * 0.05;
+    const pathY = t * 0.78 + 0.10
+      + Math.cos(t * Math.PI * 1.8 + 0.5) * 0.10
+      + Math.cos(t * Math.PI * 4.3 + 2.1) * 0.04;
 
-    // Try placing with scatter — retry up to 40 times to respect MIN_DIST
-    const scatter = 0.16;
+    // Try placing with scatter — retry up to 80 times
+    const scatter = 0.26;
     let bestX = pathX;
     let bestY = pathY;
+    let bestScore = -Infinity;
     let placed = false;
 
-    for (let attempt = 0; attempt < 40; attempt++) {
+    for (let attempt = 0; attempt < 80; attempt++) {
       const sx = (r() - 0.5) * scatter + (r() - 0.5) * scatter * 0.4;
       const sy = (r() - 0.5) * scatter + (r() - 0.5) * scatter * 0.4;
-      const cx = Math.max(0.04, Math.min(0.96, pathX + sx));
-      const cy = Math.max(0.04, Math.min(0.96, pathY + sy));
+      const cx = Math.max(0.03, Math.min(0.97, pathX + sx));
+      const cy = Math.max(0.03, Math.min(0.97, pathY + sy));
 
-      let tooClose = false;
+      let clash = false;
+      let minNormDist = Infinity;
       for (let j = 0; j < stars.length; j++) {
-        const dx = cx - stars[j].x;
-        const dy = cy - stars[j].y;
-        if (Math.sqrt(dx * dx + dy * dy) < MIN_DIST) {
-          tooClose = true;
+        if (tooClose(cx, cy, stars[j].x, stars[j].y)) {
+          clash = true;
           break;
         }
+        // Normalised distance (account for aspect ratio of exclusion zone)
+        const ndx = (cx - stars[j].x) / MIN_DX;
+        const ndy = (cy - stars[j].y) / MIN_DY;
+        const nd = Math.sqrt(ndx * ndx + ndy * ndy);
+        if (nd < minNormDist) minNormDist = nd;
       }
 
-      if (!tooClose) {
+      if (!clash) {
         bestX = cx;
         bestY = cy;
         placed = true;
         break;
       }
 
-      // Keep the last attempt as fallback
-      bestX = cx;
-      bestY = cy;
+      // Keep the candidate with the best (largest) normalised distance
+      if (minNormDist > bestScore) {
+        bestScore = minNormDist;
+        bestX = cx;
+        bestY = cy;
+      }
     }
 
-    // If still too close after all attempts, nudge away from nearest star
+    // If still clashing, nudge away from nearest star
     if (!placed && stars.length > 0) {
       let nearestIdx = 0;
-      let nearestD = Infinity;
+      let nearestND = Infinity;
       for (let j = 0; j < stars.length; j++) {
-        const dx = bestX - stars[j].x;
-        const dy = bestY - stars[j].y;
-        const d = Math.sqrt(dx * dx + dy * dy);
-        if (d < nearestD) { nearestD = d; nearestIdx = j; }
+        const ndx = (bestX - stars[j].x) / MIN_DX;
+        const ndy = (bestY - stars[j].y) / MIN_DY;
+        const nd = Math.sqrt(ndx * ndx + ndy * ndy);
+        if (nd < nearestND) { nearestND = nd; nearestIdx = j; }
       }
-      if (nearestD < MIN_DIST && nearestD > 0) {
-        const scale = MIN_DIST / nearestD;
+      if (nearestND < 1 && nearestND > 0) {
+        const scale = 1.15 / nearestND;
         bestX = stars[nearestIdx].x + (bestX - stars[nearestIdx].x) * scale;
         bestY = stars[nearestIdx].y + (bestY - stars[nearestIdx].y) * scale;
-        bestX = Math.max(0.04, Math.min(0.96, bestX));
-        bestY = Math.max(0.04, Math.min(0.96, bestY));
+        bestX = Math.max(0.03, Math.min(0.97, bestX));
+        bestY = Math.max(0.03, Math.min(0.97, bestY));
       }
     }
 
@@ -463,17 +484,17 @@ export function ConstellationMap() {
             </mask>
           </defs>
 
-          {/* Lines — only connected lines take colour on hover */}
+          {/* Lines — all lines take the hovered star's colour */}
           <g mask="url(#lbl-mask)">
             {edges.map(([a, b], i) => {
               const lit = activeEdges?.has(i);
-              const dimmed = hovered !== null && !lit;
+              const anyHover = hovered !== null;
               return (
                 <line key={`e${i}`}
                   x1={toX(stars[a])} y1={toY(stars[a])}
                   x2={toX(stars[b])} y2={toY(stars[b])}
-                  className={`c-line${lit ? " c-line--lit" : ""}${dimmed ? " c-line--dim" : ""}`}
-                  style={lit ? { stroke: hoverColour! } : undefined}
+                  className={`c-line${lit ? " c-line--lit" : ""}${anyHover && !lit ? " c-line--all" : ""}`}
+                  style={anyHover ? { stroke: hoverColour! } : undefined}
                 />
               );
             })}
