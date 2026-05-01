@@ -1177,7 +1177,7 @@ html:has(.constellation-root){
 @media (max-width:600px){
   .constellation-root{
     overflow:visible;
-    min-height:auto;
+    min-height:280vh;min-height:280dvh;
   }
   .constellation-svg{
     position:relative;
@@ -1200,6 +1200,16 @@ html:has(.constellation-root){
   }
 }
 @media (min-width:601px) and (max-width:900px){
+  .constellation-root{
+    min-height:160vh;min-height:160dvh;
+    overflow:visible;
+  }
+  .constellation-svg{
+    position:relative;
+    inset:auto;
+    width:100%;
+    height:100%;
+  }
   .c-label{
     font-size:10.5px;
   }

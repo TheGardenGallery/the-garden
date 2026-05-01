@@ -441,17 +441,10 @@ export function ConstellationMap() {
   const w = dims.w || 1;
   const h = dims.h || 1;
 
-  // On narrow screens, make the canvas taller so stars have room to breathe.
-  // On desktop the SVG fills 100vh. On mobile we let it grow to ~280vh
-  // so the page scrolls and names never overlap — each star gets its own
-  // vertical band. The layout algorithm places stars in 0–1 space; the
-  // extra height maps that same normalised Y range to more pixels.
-  const isMobile = w < 600;
-  const isTablet = w >= 600 && w < 900;
-  const mL = isMobile ? 20 : Math.max(80, w * 0.10);
-  const mR = isMobile ? 20 : Math.max(80, w * 0.10);
-  const mTop = isMobile ? 80 : 120;
-  const mBot = isMobile ? 40 : 80;
+  const mL = Math.max(80, w * 0.10);
+  const mR = Math.max(80, w * 0.10);
+  const mTop = 120;
+  const mBot = 80;
   const iw = Math.max(1, w - mL - mR);
   const ih = Math.max(1, h - mTop - mBot);
 
@@ -467,7 +460,6 @@ export function ConstellationMap() {
     <div
       className="constellation-root"
       ref={rootRef}
-      style={isMobile ? { minHeight: '280vh' } : isTablet ? { minHeight: '160vh' } : undefined}
     >
       {dims.w > 0 && (
         <svg
