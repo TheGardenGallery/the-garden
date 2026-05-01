@@ -30,7 +30,7 @@ const VIDEO_DWELL_MS = 120000;
 // so the work itself is always solid on screen. A slow ease keeps
 // the gesture editorial rather than slideshow-y.
 const SLIDE_S = 1.4;
-const CARD_FADE_S = 1.0;
+const CARD_FADE_S = 0.45;
 const EASE = EASE_SLOW;
 
 const slideVariants = {
