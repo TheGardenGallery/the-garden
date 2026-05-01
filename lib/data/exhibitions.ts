@@ -513,7 +513,7 @@ export const exhibitions: Exhibition[] = [
     hero: "/images/aluan-wang/equinox-hero.jpg",
     heroTheme: "paper",
     descriptionByArtist: true,
-    cardImage: "/images/aluan-wang/equinox-inline-1.jpg",
+    cardImage: "/images/aluan-wang/equinox-12.jpg",
     verseSeriesUrl: "https://verse.works/series/equinox-by-aluan-wang",
     workCount: 64,
     description: [
@@ -527,11 +527,11 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 1,
         items: [
           {
-            image: "/images/aluan-wang/equinox-inline-1.jpg",
-            alt: "Aluan Wang, Equinox #12",
-            title: "Equinox #12",
+            image: "/images/aluan-wang/equinox-inline-1.png",
+            alt: "Aluan Wang, Equinox #1",
+            title: "Equinox #1",
             verseUrl:
-              "https://verse.works/items/ethereum/0x909666d671fef2f593ef8c70cbd43abf60e75c24/11",
+              "https://verse.works/items/ethereum/0x909666d671fef2f593ef8c70cbd43abf60e75c24/0",
           },
           {
             image: "/images/aluan-wang/equinox-inline-2.jpg",
