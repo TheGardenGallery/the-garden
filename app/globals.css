@@ -1236,7 +1236,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .about-principles-link{
   position:fixed;
   top:calc(var(--nav-height) + 24px);
-  left:calc(100vw - var(--gutter) - 128px);
+  right:var(--gutter);
   font-family:'Barlow',sans-serif;font-weight:500;
   font-size:10px;letter-spacing:1px;text-transform:uppercase;
   color:var(--ink-muted);text-decoration:none;
