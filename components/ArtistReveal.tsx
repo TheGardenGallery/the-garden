@@ -559,6 +559,7 @@ export function ArtistReveal({
                 playsInline
                 preload="metadata"
                 aria-hidden="true"
+                ref={(el) => { if (el) el.play().catch(() => {}); }}
               />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element

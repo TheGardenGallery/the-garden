@@ -164,6 +164,7 @@ function ExploreItem({
               playsInline
               preload="auto"
               aria-label={item.alt}
+              ref={(el) => { if (el) el.play().catch(() => {}); }}
             />
           ) : animating ? (
             // Raw <img> so the browser plays the GIF natively from

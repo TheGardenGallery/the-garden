@@ -322,7 +322,7 @@ export function ArtistHoverPreview({
           />
         ) : src && type === "video" ? (
           <video
-            ref={videoRef}
+            ref={(el) => { videoRef.current = el; if (el) el.play().catch(() => {}); }}
             src={src}
             poster={poster}
             autoPlay

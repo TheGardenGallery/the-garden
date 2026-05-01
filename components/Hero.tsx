@@ -186,6 +186,7 @@ export function Hero({ slides }: HeroProps) {
                   playsInline
                   preload="auto"
                   aria-label={`${ex.artistName}, ${ex.title}`}
+                  ref={(el) => { if (el) el.play().catch(() => {}); }}
                 />
               ) : (
                 <HeroArtwork

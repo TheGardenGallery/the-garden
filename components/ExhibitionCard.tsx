@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Exhibition } from "@/lib/types";
+import { AutoPlayVideo } from "./AutoPlayVideo";
 import { DisplayName, DisplayTitle, MetaLine, Stack } from "@/components/ds";
 
 /**
@@ -20,7 +21,7 @@ export function ExhibitionCard({ exhibition }: { exhibition: Exhibition }) {
       <div className="exhibition-card-image">
         <div className="exhibition-card-media">
           {exhibition.cardVideo ? (
-            <video
+            <AutoPlayVideo
               className="exhibition-card-video"
               src={exhibition.cardVideo}
               poster={coverImage}

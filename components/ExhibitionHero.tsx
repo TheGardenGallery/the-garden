@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { Exhibition } from "@/lib/types";
 import { HeroIframeMedia } from "./HeroIframeMedia";
+import { AutoPlayVideo } from "./AutoPlayVideo";
 
 /**
  * Full-viewport exhibition hero. Mirrors the homepage hero so clicking a
@@ -79,7 +80,7 @@ function HeroMedia({ exhibition }: { exhibition: Exhibition }) {
       randomize={exhibition.heroIframeRandomize}
     />
   ) : exhibition.heroVideo ? (
-    <video
+    <AutoPlayVideo
       className="ex-hero-video"
       src={exhibition.heroVideo}
       poster={exhibition.heroVideoPoster ?? exhibition.hero}
