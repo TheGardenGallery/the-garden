@@ -7,12 +7,19 @@ import { useRouter } from "next/navigation";
    CONSTELLATION MAP
 
    Chronological star chart — Paolo Čerić (May 2023) through
-   Ricky Retouch (May 2026). Stars drift on slow orbits. Labels
-   float in guaranteed white space (SVG mask clears lines).
+   Ricky Retouch (May 2026).
 
-   Hover: golden-angle hue walk gives each artist a unique
-   colour. Dot swells, label + dot shift into colour, connected
-   lines brighten. Click navigates to the artist page.
+   Design: think Experimental Jetset, Stockholm Design Lab,
+   a page from a Dieter Rams exhibition catalog. Every element
+   earns its place. Nothing decorative. The constellation is
+   information made beautiful through restraint.
+
+   Resting state: near-invisible hairline connections, small
+   precise dots, quiet monospace names. The page breathes.
+
+   Hover: only the lines touching the hovered star come alive
+   in that artist's muted colour. Everything else recedes.
+   The tag border — a single-pixel hairline — takes the colour.
    ══════════════════════════════════════════════════════════════ */
 
 const ARTISTS: { name: string; slug: string }[] = [
@@ -44,21 +51,19 @@ const ARTISTS: { name: string; slug: string }[] = [
   { name: "Ricky Retouch",     slug: "ricky-retouch" },
 ];
 
-/* ── per-artist hover colour ─────────────────────────────── */
+/* ── colour ──────────────────────────────────────────────── */
 const GOLDEN_ANGLE = 137.508;
-const HUE_OFFSET = 220;
-function artistColour(index: number): string {
-  const hue = (HUE_OFFSET + index * GOLDEN_ANGLE) % 360;
-  return `hsl(${hue.toFixed(1)}, 38%, 48%)`;
+const HUE_OFFSET = 210;
+function artistColour(i: number): string {
+  const hue = (HUE_OFFSET + i * GOLDEN_ANGLE) % 360;
+  // Muted, sophisticated — like ink swatches, not highlighters
+  return `hsl(${hue.toFixed(1)}, 45%, 42%)`;
 }
 
 /* ── seeded PRNG ─────────────────────────────────────────── */
 function makeRng(seed: number) {
   let s = seed;
-  return () => {
-    s = (s * 16807) % 2147483647;
-    return (s - 1) / 2147483646;
-  };
+  return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
 }
 
 /* ── types ────────────────────────────────────────────────── */
@@ -101,9 +106,9 @@ function layoutStars(seed: number): Star[] {
       colour: artistColour(i),
       x: Math.max(0.03, Math.min(0.97, xBase + j1x + j2x + j3x + curve)),
       y: Math.max(0.03, Math.min(0.97, yBase + j1y + j2y + j3y)),
-      dAx: 1.8 + r() * 2.5,     // 1.8–4.3 px amplitude
+      dAx: 1.8 + r() * 2.5,
       dAy: 1.4 + r() * 2.0,
-      dFx: 0.00008 + r() * 0.00012, // ~50–125 second periods
+      dFx: 0.00008 + r() * 0.00012,
       dFy: 0.00006 + r() * 0.00010,
       dPx: r() * Math.PI * 2,
       dPy: r() * Math.PI * 2,
@@ -136,19 +141,27 @@ function buildEdges(stars: Star[], seed: number): Edge[] {
   return edges;
 }
 
+/* ── pre-compute adjacency: which edges touch which star ── */
+function buildAdjacency(edges: Edge[], n: number): Set<number>[] {
+  const adj: Set<number>[] = Array.from({ length: n }, () => new Set<number>());
+  edges.forEach(([a, b], i) => { adj[a].add(i); adj[b].add(i); });
+  return adj;
+}
+
 /* ── label placement ─────────────────────────────────────── */
 type Label = {
   x: number; y: number;
   anchor: "start" | "end";
-  bx: number; by: number; bw: number; bh: number; // mask rect (generous)
-  tx: number; ty: number; tw: number; th: number;  // visible tag rect (tight)
+  bx: number; by: number; bw: number; bh: number;
+  tx: number; ty: number; tw: number; th: number;
 };
 
-// Generous estimates for 11px Courier New
 const CHAR_W = 6.8;
-const LBL_H = 15;
-const LBL_PAD = 8;   // large halo so lines never touch text
-const DOT_GAP = 8; // gap from dot centre to label
+const LBL_H = 14;
+const LBL_PAD = 8;
+const DOT_GAP = 8;
+const TAG_PX = 5;
+const TAG_PY = 3.5;
 
 function placeLabels(
   stars: Star[],
@@ -175,12 +188,12 @@ function placeLabels(
     const tries: { x: number; y: number; a: "start" | "end" }[] = [
       { x: cx + DOT_GAP,  y: cy + 4,   a: "start" },
       { x: cx - DOT_GAP,  y: cy + 4,   a: "end" },
-      { x: cx + DOT_GAP,  y: cy - 10,  a: "start" },
-      { x: cx - DOT_GAP,  y: cy - 10,  a: "end" },
-      { x: cx + DOT_GAP,  y: cy + 20,  a: "start" },
-      { x: cx - DOT_GAP,  y: cy + 20,  a: "end" },
-      { x: cx + DOT_GAP,  y: cy - 22,  a: "start" },
-      { x: cx - DOT_GAP,  y: cy + 30,  a: "end" },
+      { x: cx + DOT_GAP,  y: cy - 8,   a: "start" },
+      { x: cx - DOT_GAP,  y: cy - 8,   a: "end" },
+      { x: cx + DOT_GAP,  y: cy + 18,  a: "start" },
+      { x: cx - DOT_GAP,  y: cy + 18,  a: "end" },
+      { x: cx + DOT_GAP,  y: cy - 20,  a: "start" },
+      { x: cx - DOT_GAP,  y: cy + 28,  a: "end" },
     ];
 
     let placed = false;
@@ -192,9 +205,6 @@ function placeLabels(
 
       if (lx1 < 0 || lx2 > cw || ly1 < 0 || ly2 > ch) continue;
       if (!hit(lx1, ly1, lx2, ly2)) {
-        // Tight tag rect: generous inner padding so text never touches edges
-        const TAG_PX = 7;
-        const TAG_PY = 5;
         const tagX = t.a === "start" ? t.x - TAG_PX : t.x - tw - TAG_PX;
         const tagY = t.y - LBL_H + 2;
         const tagW = tw + TAG_PX * 2;
@@ -215,8 +225,6 @@ function placeLabels(
       const ly1 = fb.y - LBL_H;
       const bw = tw + LBL_PAD * 2;
       const bh = LBL_H + LBL_PAD;
-      const TAG_PX = 7;
-      const TAG_PY = 5;
       const tagX = fb.a === "start" ? fb.x - TAG_PX : fb.x - tw - TAG_PX;
       labels.push({
         x: fb.x, y: fb.y, anchor: fb.a,
@@ -229,7 +237,7 @@ function placeLabels(
   return labels;
 }
 
-/* ── drift animation (dots only) ─────────────────────────── */
+/* ── drift (dots only) ───────────────────────────────────── */
 function useDrift(stars: Star[]) {
   const refs = useRef<(SVGCircleElement | null)[]>([]);
   const frame = useRef(0);
@@ -239,17 +247,16 @@ function useDrift(stars: Star[]) {
     const tick = (t: number) => {
       if (!live) return;
       for (let i = 0; i < stars.length; i++) {
-        const circle = refs.current[i];
-        if (!circle) continue;
+        const c = refs.current[i];
+        if (!c) continue;
         const s = stars[i];
-        // Two layered sine waves for a soft Lissajous-like orbit
         const dx =
           Math.sin(t * s.dFx + s.dPx) * s.dAx * 0.7 +
           Math.sin(t * s.dFx * 0.6 + s.dPy) * s.dAx * 0.3;
         const dy =
           Math.cos(t * s.dFy + s.dPy) * s.dAy * 0.7 +
           Math.cos(t * s.dFy * 0.7 + s.dPx) * s.dAy * 0.3;
-        circle.style.transform = `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px)`;
+        c.style.transform = `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px)`;
       }
       frame.current = requestAnimationFrame(tick);
     };
@@ -262,8 +269,8 @@ function useDrift(stars: Star[]) {
 
 /* ── component ───────────────────────────────────────────── */
 const SEED = 3141;
-const DOT_R = 3;
-const HIT_R = 28; // invisible hit area radius
+const DOT_R = 2.5;
+const HIT_R = 24;
 
 export function ConstellationMap() {
   const router = useRouter();
@@ -283,6 +290,7 @@ export function ConstellationMap() {
 
   const stars = useMemo(() => layoutStars(SEED), []);
   const edges = useMemo(() => buildEdges(stars, SEED + 77), [stars]);
+  const adjacency = useMemo(() => buildAdjacency(edges, stars.length), [edges, stars.length]);
   const dotRefs = useDrift(stars);
 
   const w = dims.w || 1;
@@ -297,8 +305,11 @@ export function ConstellationMap() {
 
   const toX = useCallback((s: Star) => mL + s.x * iw, [mL, iw]);
   const toY = useCallback((s: Star) => mTop + s.y * ih, [mTop, ih]);
-
   const labels = dims.w > 0 ? placeLabels(stars, toX, toY, w, h) : [];
+
+  // Which edges are adjacent to the hovered star?
+  const activeEdges = hovered !== null ? adjacency[hovered] : null;
+  const hoverColour = hovered !== null ? stars[hovered].colour : null;
 
   return (
     <div className="constellation-root" ref={rootRef}>
@@ -318,66 +329,57 @@ export function ConstellationMap() {
             </mask>
           </defs>
 
-          {/* Dashed lines — masked where labels sit */}
+          {/* Lines — only connected lines take colour on hover */}
           <g mask="url(#lbl-mask)">
             {edges.map(([a, b], i) => {
-              const active = hovered !== null;
+              const lit = activeEdges?.has(i);
+              const dimmed = hovered !== null && !lit;
               return (
                 <line key={`e${i}`}
                   x1={toX(stars[a])} y1={toY(stars[a])}
                   x2={toX(stars[b])} y2={toY(stars[b])}
-                  className={`c-line${active ? " c-line--active" : ""}`}
-                  style={active ? {
-                    stroke: stars[hovered!].colour,
-                  } : undefined}
+                  className={`c-line${lit ? " c-line--lit" : ""}${dimmed ? " c-line--dim" : ""}`}
+                  style={lit ? { stroke: hoverColour! } : undefined}
                 />
               );
             })}
           </g>
 
-          {/* Stars — hover managed via React state for reliable colour */}
+          {/* Stars */}
           {stars.map((s, i) => {
             const cx = toX(s);
             const cy = toY(s);
             const label = labels[i];
             if (!label) return null;
             const active = hovered === i;
+            const dimmed = hovered !== null && !active;
 
             return (
               <g key={s.slug}
-                className="c-star"
+                className={`c-star${dimmed ? " c-star--dim" : ""}`}
                 onMouseEnter={() => setHovered(i)}
                 onMouseLeave={() => setHovered(null)}
                 onClick={() => router.push(`/artists#${s.slug}`)}
                 style={{ cursor: "pointer" }}
               >
-                {/* Invisible hit area — easy to hover */}
                 <circle cx={cx} cy={cy} r={HIT_R}
                   fill="transparent" style={{ pointerEvents: "all" }} />
-                {/* Visible dot — drifts softly */}
                 <circle
                   ref={(el) => { dotRefs.current[i] = el; }}
                   cx={cx} cy={cy}
-                  r={active ? 5 : DOT_R}
+                  r={active ? 4 : DOT_R}
                   fill={active ? s.colour : "#000"}
                   className="c-dot" />
-                {/* Tag rectangle behind label */}
                 <rect
                   x={label.tx} y={label.ty}
                   width={label.tw} height={label.th}
                   className="c-tag"
-                  style={{
-                    stroke: active ? s.colour : undefined,
-                  }}
+                  style={active ? { stroke: s.colour } : undefined}
                 />
-                {/* Label */}
                 <text x={label.x} y={label.y}
                   textAnchor={label.anchor}
                   className="c-label"
-                  style={{
-                    fill: active ? s.colour : undefined,
-                    opacity: active ? 1 : undefined,
-                  }}
+                  style={active ? { fill: s.colour, opacity: 1 } : undefined}
                 >
                   {s.name}
                 </text>
