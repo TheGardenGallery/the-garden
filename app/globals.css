@@ -4114,7 +4114,6 @@ html:has(.constellation-root){
   inset:0;
   z-index:9999;
   overflow:hidden;
-  cursor:pointer;
 }
 
 /* ── strip container — perspective from viewer distance ── */
