@@ -1123,6 +1123,16 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   stroke-dasharray:3 4;
   opacity:0.20;
   stroke-linecap:round;
+  transition:stroke 500ms ease-out, opacity 500ms ease-out;
+}
+.c-line--active{
+  opacity:0.40;
+  stroke-width:0.75;
+  animation:c-flow 1.8s linear infinite;
+}
+@keyframes c-flow{
+  from{stroke-dashoffset:0;}
+  to{stroke-dashoffset:-14;}
 }
 .c-dot{
   fill:#000;

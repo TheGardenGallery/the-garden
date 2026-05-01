@@ -302,12 +302,19 @@ export function ConstellationMap() {
 
           {/* Dashed lines — masked where labels sit */}
           <g mask="url(#lbl-mask)">
-            {edges.map(([a, b], i) => (
-              <line key={`e${i}`}
-                x1={toX(stars[a])} y1={toY(stars[a])}
-                x2={toX(stars[b])} y2={toY(stars[b])}
-                className="c-line" />
-            ))}
+            {edges.map(([a, b], i) => {
+              const active = hovered !== null;
+              return (
+                <line key={`e${i}`}
+                  x1={toX(stars[a])} y1={toY(stars[a])}
+                  x2={toX(stars[b])} y2={toY(stars[b])}
+                  className={`c-line${active ? " c-line--active" : ""}`}
+                  style={active ? {
+                    stroke: stars[hovered!].colour,
+                  } : undefined}
+                />
+              );
+            })}
           </g>
 
           {/* Stars — hover managed via React state for reliable colour */}
