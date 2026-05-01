@@ -17,6 +17,8 @@ import { usePathname } from "next/navigation";
 const NUM_FLAPS = 22;
 const GAP_PX = 1;
 const SEED = 1618;
+const CACHE_KEY = "garden-welcome-seen";
+const CACHE_HOURS = 3;
 
 /* ── seeded PRNG ─────────────────────────────────────────────── */
 
@@ -44,12 +46,24 @@ export function WelcomeOverlay() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [cachedAway, setCachedAway] = useState(false);
   const [flipping, setFlipping] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
 
   /* portal needs a client-side mount check */
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    /* check localStorage — skip overlay if seen within CACHE_HOURS */
+    try {
+      const ts = localStorage.getItem(CACHE_KEY);
+      if (ts && Date.now() - Number(ts) < CACHE_HOURS * 60 * 60 * 1000) {
+        setCachedAway(true);
+      }
+    } catch {
+      /* localStorage unavailable (private mode etc.) — show overlay */
+    }
+    setMounted(true);
+  }, []);
 
   const handleClick = useCallback(() => {
     if (flipping) return;
@@ -103,10 +117,17 @@ export function WelcomeOverlay() {
     }
 
     setTimeout(() => setDismissed(true), totalAnim + 180);
+
+    /* stamp localStorage so we don't show again for CACHE_HOURS */
+    try {
+      localStorage.setItem(CACHE_KEY, String(Date.now()));
+    } catch {
+      /* ignore */
+    }
   }, [flipping]);
 
-  /* only homepage, only client-side, only until dismissed */
-  if (!mounted || dismissed || pathname !== "/") return null;
+  /* only homepage, only client-side, only until dismissed or cached */
+  if (!mounted || dismissed || cachedAway || pathname !== "/") return null;
 
   /* ── strip geometry ──────────────────────────────────────── */
   const totalGap = GAP_PX * (NUM_FLAPS - 1);
