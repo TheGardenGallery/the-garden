@@ -1119,20 +1119,20 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 /* ── lines ── */
 .c-line{
   stroke:#000;
-  stroke-width:0.5;
+  stroke-width:0.6;
   stroke-dasharray:2 4;
-  opacity:0.18;
+  opacity:0.24;
   stroke-linecap:round;
   transition:stroke 500ms ease-out, opacity 500ms ease-out, stroke-width 500ms ease-out;
 }
 .c-line--lit{
-  opacity:0.65;
-  stroke-width:0.8;
+  opacity:0.70;
+  stroke-width:0.9;
   stroke-dasharray:none;
   animation:c-flow 2.4s linear infinite;
 }
 .c-line--all{
-  opacity:0.55;
+  opacity:0.60;
   stroke-width:0.7;
   stroke-dasharray:2 4;
 }
@@ -1153,10 +1153,10 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 /* ── label ── */
 .c-label{
   font-family:'Courier New',Courier,monospace;
-  font-size:11px;
+  font-size:11.5px;
   letter-spacing:0.06em;
   fill:#000;
-  opacity:0.78;
+  opacity:0.88;
   font-weight:400;
   transition:fill 400ms ease-out, opacity 400ms ease-out;
   pointer-events:none;
@@ -1164,7 +1164,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 
 /* ── star group ── */
 .c-star{cursor:pointer;}
-.c-star--dim .c-label{opacity:0.22;}
+.c-star--dim .c-label{opacity:0.28;}
 
 /* Principles — interactive garden. Each plant is a minimal line-art
    botanical; keyword sits below it always, a one-line explanation
