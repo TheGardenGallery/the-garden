@@ -55,7 +55,7 @@ export function Footer() {
       </div>
       <div className="footer-bottom">
         <div className="f-bottom-left">
-          <span className="f-copy">© 2023 The Garden</span>
+          <span className="f-copy">© 2026 The Garden</span>
           <div className="f-soc-text">
             {socialLinks.map((s) => (
               <Link key={s.label} href={s.href}>

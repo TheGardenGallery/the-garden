@@ -29,16 +29,16 @@ const SEED = 1618;
    to a non-homepage route also disarms the welcome. */
 const SESSION_KEY = "garden-session";
 
-/* ── pacing (ms) — choreographed for gallery-grade slowness ──
-   Five phases: a beat of silence on the split surface, a slow
-   considered fade-in, a hold long enough to absorb the word, a
-   gentle dissolve, then real anticipation before the flaps fall. */
-const OPEN_HOLD = 420;       // silence on the B/W split before any motion
-const TEXT_IN = 880;         // fade-in duration (matches button transition)
-const TEXT_HOLD = 1320;      // dwell at full opacity
-const TEXT_OUT = 600;        // fade-out duration (matches button transition)
-const PRE_FALL = 340;        // anticipation between text gone and curtain
-// Total ≈ 3.56s before the cascade begins.
+/* ── pacing (ms) — five phases, kept brisk ──
+   A short silence, a quick-but-smooth fade-in, a tight hold, a clean
+   dissolve, then a small beat before the flaps fall. The split surface
+   should feel composed, not patient. */
+const OPEN_HOLD = 180;       // silence on the B/W split before any motion
+const TEXT_IN = 620;         // fade-in duration (matches button transition)
+const TEXT_HOLD = 720;       // dwell at full opacity
+const TEXT_OUT = 440;        // fade-out duration (matches button transition)
+const PRE_FALL = 200;        // anticipation between text gone and curtain
+// Total ≈ 2.16s before the cascade begins.
 
 /* refined easings — easeOutExpo in, easeInQuad out */
 const EASE_IN = "cubic-bezier(0.16, 1, 0.3, 1)";
@@ -149,7 +149,7 @@ export function WelcomeOverlay() {
 
     /* per-strip micro-variation in delay (seeded) */
     const rng = createRng(SEED + 7);
-    const STAGGER = 62;  // unhurried cascade — favors deliberation
+    const STAGGER = 52;  // brisk cascade — keeps momentum
 
     order.forEach((stripIdx, seq) => {
       const jitter = (rng() - 0.5) * 12; // ±6ms — clean, not jittery
