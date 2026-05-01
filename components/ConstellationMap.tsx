@@ -101,10 +101,10 @@ function layoutStars(seed: number): Star[] {
       colour: artistColour(i),
       x: Math.max(0.03, Math.min(0.97, xBase + j1x + j2x + j3x + curve)),
       y: Math.max(0.03, Math.min(0.97, yBase + j1y + j2y + j3y)),
-      dAx: 1.5 + r() * 2.0,     // 1.5–3.5 px amplitude
-      dAy: 1.2 + r() * 1.5,
-      dFx: 0.00015 + r() * 0.00025, // ~25–70s periods
-      dFy: 0.00012 + r() * 0.00020,
+      dAx: 1.8 + r() * 2.5,     // 1.8–4.3 px amplitude
+      dAy: 1.4 + r() * 2.0,
+      dFx: 0.00008 + r() * 0.00012, // ~50–125 second periods
+      dFy: 0.00006 + r() * 0.00010,
       dPx: r() * Math.PI * 2,
       dPy: r() * Math.PI * 2,
     });
@@ -229,9 +229,9 @@ function placeLabels(
   return labels;
 }
 
-/* ── drift animation ─────────────────────────────────────── */
+/* ── drift animation (dots only) ─────────────────────────── */
 function useDrift(stars: Star[]) {
-  const refs = useRef<(SVGGElement | null)[]>([]);
+  const refs = useRef<(SVGCircleElement | null)[]>([]);
   const frame = useRef(0);
 
   useEffect(() => {
@@ -239,12 +239,17 @@ function useDrift(stars: Star[]) {
     const tick = (t: number) => {
       if (!live) return;
       for (let i = 0; i < stars.length; i++) {
-        const g = refs.current[i];
-        if (!g) continue;
+        const circle = refs.current[i];
+        if (!circle) continue;
         const s = stars[i];
-        const dx = Math.sin(t * s.dFx + s.dPx) * s.dAx;
-        const dy = Math.cos(t * s.dFy + s.dPy) * s.dAy;
-        g.style.transform = `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px)`;
+        // Two layered sine waves for a soft Lissajous-like orbit
+        const dx =
+          Math.sin(t * s.dFx + s.dPx) * s.dAx * 0.7 +
+          Math.sin(t * s.dFx * 0.6 + s.dPy) * s.dAx * 0.3;
+        const dy =
+          Math.cos(t * s.dFy + s.dPy) * s.dAy * 0.7 +
+          Math.cos(t * s.dFy * 0.7 + s.dPx) * s.dAy * 0.3;
+        circle.style.transform = `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px)`;
       }
       frame.current = requestAnimationFrame(tick);
     };
@@ -278,7 +283,7 @@ export function ConstellationMap() {
 
   const stars = useMemo(() => layoutStars(SEED), []);
   const edges = useMemo(() => buildEdges(stars, SEED + 77), [stars]);
-  const groupRefs = useDrift(stars);
+  const dotRefs = useDrift(stars);
 
   const w = dims.w || 1;
   const h = dims.h || 1;
@@ -340,7 +345,6 @@ export function ConstellationMap() {
 
             return (
               <g key={s.slug}
-                ref={(el) => { groupRefs.current[i] = el; }}
                 className="c-star"
                 onMouseEnter={() => setHovered(i)}
                 onMouseLeave={() => setHovered(null)}
@@ -350,8 +354,10 @@ export function ConstellationMap() {
                 {/* Invisible hit area — easy to hover */}
                 <circle cx={cx} cy={cy} r={HIT_R}
                   fill="transparent" style={{ pointerEvents: "all" }} />
-                {/* Visible dot */}
-                <circle cx={cx} cy={cy}
+                {/* Visible dot — drifts softly */}
+                <circle
+                  ref={(el) => { dotRefs.current[i] = el; }}
+                  cx={cx} cy={cy}
                   r={active ? 5 : DOT_R}
                   fill={active ? s.colour : "#000"}
                   className="c-dot" />
