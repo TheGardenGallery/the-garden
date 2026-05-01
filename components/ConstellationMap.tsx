@@ -140,14 +140,15 @@ function buildEdges(stars: Star[], seed: number): Edge[] {
 type Label = {
   x: number; y: number;
   anchor: "start" | "end";
-  bx: number; by: number; bw: number; bh: number;
+  bx: number; by: number; bw: number; bh: number; // mask rect (generous)
+  tx: number; ty: number; tw: number; th: number;  // visible tag rect (tight)
 };
 
 // Generous estimates for 11px Courier New
 const CHAR_W = 6.8;
 const LBL_H = 15;
 const LBL_PAD = 8;   // large halo so lines never touch text
-const DOT_GAP = 12;
+const DOT_GAP = 8; // gap from dot centre to label
 
 function placeLabels(
   stars: Star[],
@@ -191,9 +192,17 @@ function placeLabels(
 
       if (lx1 < 0 || lx2 > cw || ly1 < 0 || ly2 > ch) continue;
       if (!hit(lx1, ly1, lx2, ly2)) {
+        // Tight tag rect: 3px padding around text
+        const TAG_PX = 4;
+        const TAG_PY = 3;
+        const tagX = t.a === "start" ? t.x - TAG_PX : t.x - tw - TAG_PX;
+        const tagY = t.y - LBL_H + 2;
+        const tagW = tw + TAG_PX * 2;
+        const tagH = LBL_H + TAG_PY;
         labels.push({
           x: t.x, y: t.y, anchor: t.a,
           bx: lx1, by: ly1, bw: lx2 - lx1, bh: ly2 - ly1,
+          tx: tagX, ty: tagY, tw: tagW, th: tagH,
         });
         rects.push({ x1: lx1, y1: ly1, x2: lx2, y2: ly2 });
         placed = true;
@@ -206,9 +215,13 @@ function placeLabels(
       const ly1 = fb.y - LBL_H;
       const bw = tw + LBL_PAD * 2;
       const bh = LBL_H + LBL_PAD;
+      const TAG_PX = 4;
+      const TAG_PY = 3;
+      const tagX = fb.a === "start" ? fb.x - TAG_PX : fb.x - tw - TAG_PX;
       labels.push({
         x: fb.x, y: fb.y, anchor: fb.a,
         bx: lx1, by: ly1, bw, bh,
+        tx: tagX, ty: fb.y - LBL_H + 2, tw: tw + TAG_PX * 2, th: LBL_H + TAG_PY,
       });
       rects.push({ x1: lx1, y1: ly1, x2: lx1 + bw, y2: ly1 + bh });
     }
@@ -342,6 +355,16 @@ export function ConstellationMap() {
                   r={active ? 5 : DOT_R}
                   fill={active ? s.colour : "#000"}
                   className="c-dot" />
+                {/* Tag rectangle behind label */}
+                <rect
+                  x={label.tx} y={label.ty}
+                  width={label.tw} height={label.th}
+                  rx={2} ry={2}
+                  className="c-tag"
+                  style={{
+                    stroke: active ? s.colour : undefined,
+                  }}
+                />
                 {/* Label */}
                 <text x={label.x} y={label.y}
                   textAnchor={label.anchor}
