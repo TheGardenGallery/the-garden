@@ -164,7 +164,14 @@ function ExploreItem({
               playsInline
               preload="auto"
               aria-label={item.alt}
-              ref={(el) => { if (el) el.play().catch(() => {}); }}
+              ref={(el) => {
+                if (!el) return;
+                el.muted = true;
+                const go = () => { if (el.paused) el.play().catch(() => {}); };
+                go();
+                el.addEventListener("loadeddata", go, { once: true });
+                el.addEventListener("canplay", go, { once: true });
+              }}
             />
           ) : animating ? (
             // Raw <img> so the browser plays the GIF natively from
