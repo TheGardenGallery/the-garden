@@ -1100,34 +1100,47 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 }
 
 /* ---- CONSTELLATION MAP ---------------------------------------------- */
+/* White ground, black ink, monospace labels. Dashed hairlines
+   are masked where they'd cross a label so text always floats
+   in clear white space. Each star drifts on a barely-perceptible
+   orbit via rAF. */
 .constellation-root{
   position:relative;
   width:100%;
   min-height:100vh;min-height:100dvh;
   background:#fff;
-  padding:var(--nav-height) 0 0;
+  overflow:hidden;
+  cursor:default;
 }
 .constellation-svg{
   position:absolute;
   inset:0;
   width:100%;height:100%;
 }
-.constellation-line{
+.c-line{
   stroke:#000;
-  stroke-width:1;
-  stroke-dasharray:4 5;
-  opacity:0.35;
+  stroke-width:0.75;
+  stroke-dasharray:3 4;
+  opacity:0.20;
+  stroke-linecap:round;
 }
-.constellation-dot{
+.c-dot{
   fill:#000;
+  transition:fill 400ms ease-out, r 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.constellation-label{
+.c-label{
   font-family:'Courier New',Courier,monospace;
-  font-size:10px;
-  letter-spacing:0.3px;
+  font-size:11px;
+  letter-spacing:0.02em;
   fill:#000;
-  opacity:0.7;
+  opacity:0.45;
+  font-weight:400;
+  transition:fill 400ms ease-out, opacity 350ms ease-out;
+  pointer-events:none;
 }
+.c-star{cursor:pointer;}
+.c-star:hover .c-dot{r:5;fill:var(--c-hover);}
+.c-star:hover .c-label{opacity:1;fill:var(--c-hover);}
 
 /* Principles — interactive garden. Each plant is a minimal line-art
    botanical; keyword sits below it always, a one-line explanation
