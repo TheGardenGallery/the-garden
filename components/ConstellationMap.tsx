@@ -223,8 +223,12 @@ function placeLabels(
   const hit = (x1: number, y1: number, x2: number, y2: number) =>
     rects.some(r => x1 < r.x2 && x2 > r.x1 && y1 < r.y2 && y2 > r.y1);
 
-  // Allow labels to bleed slightly off-canvas on mobile rather than overlap
-  const edgeBleed = cw < 500 ? -20 : 0;
+  // Hard in-frame: labels must fit within the canvas. The 20px bleed
+  // we previously allowed on mobile let long names get cut at the
+  // viewport edge (the SVG clips at viewBox regardless of CSS), which
+  // looked broken. With strict bounds + a smarter last-resort anchor,
+  // labels stay readable at any viewport.
+  const edgeBleed = 0;
 
   for (let i = 0; i < stars.length; i++) {
     const s = stars[i];
@@ -263,12 +267,16 @@ function placeLabels(
       }
     }
     if (!placed) {
-      // Last resort — place below, allow edge bleed
-      const t = { x: cx + g, y: cy + 48, a: "start" as const };
-      const lx1 = t.x - LBL_PAD;
+      // Last resort — place below the dot, anchored to whichever side
+      // has more room. Hardcoding "start" (right of dot) used to push
+      // labels far past the right edge for any dot in the right half.
+      const anchor: "start" | "end" = cx > cw / 2 ? "end" : "start";
+      const tx = anchor === "start" ? cx + g : cx - g;
+      const ty = cy + 48;
+      const lx1 = anchor === "start" ? tx - LBL_PAD : tx - tw - LBL_PAD;
       const bw = tw + LBL_PAD * 2;
-      labels.push({ x: t.x, y: t.y, anchor: t.a, bx: lx1, by: t.y - LBL_H, bw, bh: LBL_H + LBL_PAD });
-      rects.push({ x1: lx1, y1: t.y - LBL_H, x2: lx1 + bw, y2: t.y + LBL_PAD });
+      labels.push({ x: tx, y: ty, anchor, bx: lx1, by: ty - LBL_H, bw, bh: LBL_H + LBL_PAD });
+      rects.push({ x1: lx1, y1: ty - LBL_H, x2: lx1 + bw, y2: ty + LBL_PAD });
     }
   }
   return labels;
@@ -340,8 +348,12 @@ export function ConstellationMap() {
   const iw = Math.max(1, w - mL - mR);
   const ih = Math.max(1, h - mTop - mBot);
 
-  // Char width matches CSS font size (9.5px mobile, 11.5px desktop)
-  const charW = narrow ? 5.7 : 6.8;
+  // Char width estimate for label width math. Slightly OVER-estimates
+  // the rendered Courier advance (incl. letter-spacing) so the algorithm
+  // never thinks a long name like "Spøgelsesmaskinen" fits a slot it
+  // doesn't really fit — under-estimating let labels run past the right
+  // edge on mobile and get clipped.
+  const charW = narrow ? 6.6 : 7.4;
 
   const toX = useCallback((s: Star) => mL + s.x * iw, [mL, iw]);
   const toY = useCallback((s: Star) => mTop + s.y * ih, [mTop, ih]);
