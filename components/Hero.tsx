@@ -70,7 +70,33 @@ export function Hero({ slides }: HeroProps) {
   // below force decode too. Without this, the FIRST switch is choppy
   // (asset fetched + decoded as it animates in); subsequent switches
   // are smooth because everything's cached.
+  //
+  // Deferred until after the visible hero (LCP image) has had a chance
+  // to render — preloading 4+ other slides immediately on mount steals
+  // bandwidth from the work the viewer actually sees. Auto-rotation
+  // doesn't fire for 10s anyway, so a ~1.4s head-start for the LCP
+  // doesn't risk a choppy first transition.
+  const [prewarm, setPrewarm] = useState(false);
   useEffect(() => {
+    if (prewarm) return;
+    const w = window as unknown as {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+    };
+    const start = () => setPrewarm(true);
+    const idle = w.requestIdleCallback;
+    const idleId = idle ? idle(start, { timeout: 2200 }) : null;
+    const fallbackId = window.setTimeout(start, 1400);
+    return () => {
+      if (idleId !== null && "cancelIdleCallback" in window) {
+        (window as unknown as { cancelIdleCallback: (id: number) => void })
+          .cancelIdleCallback(idleId);
+      }
+      window.clearTimeout(fallbackId);
+    };
+  }, [prewarm]);
+
+  useEffect(() => {
+    if (!prewarm) return;
     const links: HTMLLinkElement[] = [];
     for (const s of slides) {
       const ex = s.exhibition;
@@ -95,7 +121,7 @@ export function Hero({ slides }: HeroProps) {
     return () => {
       for (const l of links) l.remove();
     };
-  }, [slides]);
+  }, [slides, prewarm]);
 
   if (slides.length === 0) return null;
   const current = slides[index % slides.length];
@@ -133,29 +159,30 @@ export function Hero({ slides }: HeroProps) {
           / image is already in cache and decoded — the very first
           slide-from-side animation is as smooth as later ones. */}
       <div className="hero-prewarm" aria-hidden="true">
-        {slides.map((s) => {
-          if (s.exhibition.slug === ex.slug) return null;
-          const v = s.exhibition.homepageHeroVideo;
-          const img = s.exhibition.homepageHero ?? s.exhibition.hero;
-          if (v) {
-            return (
-              <video
-                key={s.exhibition.slug}
-                src={v}
-                muted
-                playsInline
-                preload="auto"
-              />
-            );
-          }
-          if (img) {
-            return (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img key={s.exhibition.slug} src={img} alt="" />
-            );
-          }
-          return null;
-        })}
+        {prewarm &&
+          slides.map((s) => {
+            if (s.exhibition.slug === ex.slug) return null;
+            const v = s.exhibition.homepageHeroVideo;
+            const img = s.exhibition.homepageHero ?? s.exhibition.hero;
+            if (v) {
+              return (
+                <video
+                  key={s.exhibition.slug}
+                  src={v}
+                  muted
+                  playsInline
+                  preload="auto"
+                />
+              );
+            }
+            if (img) {
+              return (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img key={s.exhibition.slug} src={img} alt="" />
+              );
+            }
+            return null;
+          })}
       </div>
 
       <div className="hero-slides">

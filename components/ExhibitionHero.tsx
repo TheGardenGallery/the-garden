@@ -78,6 +78,7 @@ function HeroMedia({ exhibition }: { exhibition: Exhibition }) {
       title={label}
       aspect={exhibition.heroIframeAspect}
       randomize={exhibition.heroIframeRandomize}
+      posterSrc={exhibition.hero}
     />
   ) : exhibition.heroVideo ? (
     <AutoPlayVideo

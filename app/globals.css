@@ -2348,9 +2348,12 @@ html:has(.constellation-root){
   max-width:100%;max-height:100%;
   aspect-ratio:4/5;background:var(--placeholder);
 }
-.ex-hero-plate:has(iframe){
-  /* Establish a size container so the iframe can size against the
-     plate's actual dimensions via cqw/cqh. */
+.ex-hero-plate:has(iframe),
+.ex-hero-plate:has(.ex-hero-iframe){
+  /* Establish a size container so the iframe (and its poster overlay)
+     can size against the plate's actual dimensions via cqw/cqh. The
+     class-based selector also catches the placeholder div used during
+     SSR for randomize-mode iframes. */
   container-type:size;
 }
 .ex-hero-plate img,
@@ -2495,10 +2498,30 @@ html:has(.constellation-root){
   width:min(100cqw, calc(100cqh * var(--hero-iframe-aspect)));
   height:min(100cqh, calc(100cqw / var(--hero-iframe-aspect)));
   filter:drop-shadow(0 11px 26px rgba(40,35,25,0.075)) drop-shadow(0 2px 5px rgba(40,35,25,0.045));
+  position:relative; z-index:2;
 }
 .ex-hero[data-theme="dark"] .ex-hero-plate .ex-hero-iframe{
   filter:drop-shadow(0 14px 38px rgba(0,0,0,0.42)) drop-shadow(0 2px 5px rgba(0,0,0,0.26));
 }
+/* Static poster shown while the live bundle loads. Sized to match the
+   iframe's footprint so there's no shape change at the handover, then
+   fades out a beat after the iframe's onLoad fires. */
+.ex-hero-plate .ex-hero-iframe-poster{
+  position:absolute;
+  inset:0; margin:auto;
+  --hero-iframe-aspect:1;
+  width:min(100cqw, calc(100cqh * var(--hero-iframe-aspect)));
+  height:min(100cqh, calc(100cqw / var(--hero-iframe-aspect)));
+  object-fit:contain;
+  pointer-events:none;
+  z-index:1;
+  filter:drop-shadow(0 11px 26px rgba(40,35,25,0.075)) drop-shadow(0 2px 5px rgba(40,35,25,0.045));
+  transition:opacity 720ms cubic-bezier(0.5, 0, 0.75, 0);
+}
+.ex-hero[data-theme="dark"] .ex-hero-plate .ex-hero-iframe-poster{
+  filter:drop-shadow(0 14px 38px rgba(0,0,0,0.42)) drop-shadow(0 2px 5px rgba(0,0,0,0.26));
+}
+.ex-hero-plate .ex-hero-iframe-poster[data-faded]{ opacity:0; }
 /* VES3L / Solve-Un-Solve: the genart bakes a margin around the puzzle,
    so even at 100% plate-fill the structure reads a little small. Scale
    the iframe 6% so the puzzle commands the frame; minor overflow is

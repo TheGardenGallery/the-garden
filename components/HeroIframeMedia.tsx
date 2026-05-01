@@ -27,11 +27,13 @@ export function HeroIframeMedia({
   title,
   aspect,
   randomize = false,
+  posterSrc,
 }: {
   src: string;
   title: string;
   aspect?: string;
   randomize?: boolean;
+  posterSrc?: string;
 }) {
   // When `randomize` is on, we must defer iframe mount to client so
   // the SSR-fetched bundle isn't immediately discarded by a re-mount
@@ -43,6 +45,11 @@ export function HeroIframeMedia({
   const [state, setState] = useState<{ src: string; v: number } | null>(
     randomize ? null : { src, v: 1 }
   );
+  // Poster covers the iframe area while the bundle loads, then fades
+  // out a beat after the iframe's onLoad fires (the small delay lets
+  // the genart's JS init paint at least one frame, so we never reveal
+  // a blank canvas mid-fade). Resets on reroll.
+  const [posterFading, setPosterFading] = useState(false);
 
   useEffect(() => {
     if (!randomize) return;
@@ -51,6 +58,10 @@ export function HeroIframeMedia({
       v: Date.now(),
     });
   }, [src, randomize]);
+
+  useEffect(() => {
+    setPosterFading(false);
+  }, [state?.v]);
 
   function reroll() {
     setState((prev) => ({
@@ -69,6 +80,17 @@ export function HeroIframeMedia({
 
   return (
     <>
+      {posterSrc && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          className="ex-hero-iframe-poster"
+          src={posterSrc}
+          alt=""
+          aria-hidden="true"
+          data-faded={posterFading || undefined}
+          style={aspectStyle}
+        />
+      )}
       {finalSrc && state ? (
         <iframe
           key={state.v}
@@ -76,6 +98,11 @@ export function HeroIframeMedia({
           src={finalSrc}
           title={title}
           style={aspectStyle}
+          onLoad={() => {
+            // Hold the poster a beat past load so the bundle's first
+            // paint lands before we fade it out.
+            window.setTimeout(() => setPosterFading(true), 320);
+          }}
         />
       ) : (
         <div className="ex-hero-iframe" style={aspectStyle} aria-hidden="true" />
