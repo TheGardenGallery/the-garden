@@ -885,6 +885,12 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
      overrides handle pieces whose own composition pushes the rendered
      image bigger or smaller than the others at the same padding. */
   .exhibition-card-image{padding:14% 16%;}
+  /* Yoshi / The Flood — the 9:16 video fills the full inner height of
+     the 4:5 card, and its pale edges blend into the card background,
+     making it look padding-less. Cap the media height so there's
+     visible breathing room top & bottom on mobile. */
+  .exhibition-card[data-slug="the-flood"] .exhibition-card-image img,
+  .exhibition-card[data-slug="the-flood"] .exhibition-card-image video{max-height:88%;}
   /* Aluan / Equinox — composition is dense and sits visually small at
      the shared padding; tighten so it reads at scale. */
   .exhibition-card[data-slug="equinox"] .exhibition-card-image{padding:5% 7%;}
