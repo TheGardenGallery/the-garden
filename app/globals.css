@@ -1139,8 +1139,8 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 }
 .c-tag{
   fill:#fff;
-  stroke:rgba(0,0,0,0.06);
-  stroke-width:0.5;
+  stroke:rgba(0,0,0,0.22);
+  stroke-width:0.75;
   transition:stroke 400ms ease-out;
 }
 .c-label{
@@ -1148,7 +1148,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   font-size:11px;
   letter-spacing:0.02em;
   fill:#000;
-  opacity:0.70;
+  opacity:0.88;
   font-weight:400;
   transition:fill 400ms ease-out, opacity 350ms ease-out;
   pointer-events:none;
