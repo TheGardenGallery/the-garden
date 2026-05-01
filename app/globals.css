@@ -1099,6 +1099,36 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   .about-rule{margin:35px auto 0;}
 }
 
+/* ---- CONSTELLATION MAP ---------------------------------------------- */
+.constellation-root{
+  position:relative;
+  width:100%;
+  min-height:100vh;min-height:100dvh;
+  background:#fff;
+  padding:var(--nav-height) 0 0;
+}
+.constellation-svg{
+  position:absolute;
+  inset:0;
+  width:100%;height:100%;
+}
+.constellation-line{
+  stroke:#000;
+  stroke-width:1;
+  stroke-dasharray:4 5;
+  opacity:0.35;
+}
+.constellation-dot{
+  fill:#000;
+}
+.constellation-label{
+  font-family:'Courier New',Courier,monospace;
+  font-size:10px;
+  letter-spacing:0.3px;
+  fill:#000;
+  opacity:0.7;
+}
+
 /* Principles — interactive garden. Each plant is a minimal line-art
    botanical; keyword sits below it always, a one-line explanation
    fades in on hover (and shows by default on touch where there is no

@@ -37,7 +37,7 @@ export function Footer() {
           <span className="f-col-label">Locations</span>
           <ul>
             <li>
-              <span className="no-reveal f-location-vibe">
+              <Link href="/constellation" className="no-reveal">
                 Worldwide{" "}
                 <span
                   style={{
@@ -48,7 +48,7 @@ export function Footer() {
                 >
                   (Online)
                 </span>
-              </span>
+              </Link>
             </li>
           </ul>
         </div>
