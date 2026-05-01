@@ -1121,13 +1121,12 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   stroke:#000;
   stroke-width:0.75;
   stroke-dasharray:3 4;
-  opacity:0.20;
+  opacity:0.09;
   stroke-linecap:round;
   transition:stroke 500ms ease-out, opacity 500ms ease-out;
 }
 .c-line--active{
-  opacity:0.40;
-  stroke-width:0.75;
+  opacity:0.25;
   animation:c-flow 1.8s linear infinite;
 }
 @keyframes c-flow{
@@ -1140,8 +1139,8 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 }
 .c-tag{
   fill:#fff;
-  stroke:rgba(0,0,0,0.10);
-  stroke-width:0.75;
+  stroke:rgba(0,0,0,0.06);
+  stroke-width:0.5;
   transition:stroke 400ms ease-out;
 }
 .c-label{
@@ -1149,7 +1148,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   font-size:11px;
   letter-spacing:0.02em;
   fill:#000;
-  opacity:0.45;
+  opacity:0.70;
   font-weight:400;
   transition:fill 400ms ease-out, opacity 350ms ease-out;
   pointer-events:none;
