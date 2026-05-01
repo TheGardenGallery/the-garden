@@ -527,7 +527,7 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 1,
         items: [
           {
-            image: "/images/aluan-wang/equinox-inline-1.png",
+            image: "/images/aluan-wang/equinox-inline-1.jpg",
             alt: "Aluan Wang, Equinox #1",
             title: "Equinox #1",
             verseUrl:
