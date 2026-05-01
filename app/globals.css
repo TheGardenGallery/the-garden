@@ -1175,6 +1175,9 @@ html:has(.constellation-root){
 
 /* ── mobile ── */
 @media (max-width:600px){
+  .constellation-root{
+    overflow:visible;
+  }
   .c-label{
     font-size:9.5px;
     letter-spacing:0.03em;

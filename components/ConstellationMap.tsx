@@ -6,20 +6,9 @@ import { useRouter } from "next/navigation";
 /* ══════════════════════════════════════════════════════════════
    CONSTELLATION MAP
 
-   Chronological star chart — Paolo Čerić (May 2023) through
-   Ricky Retouch (May 2026).
-
-   Design: think Experimental Jetset, Stockholm Design Lab,
-   a page from a Dieter Rams exhibition catalog. Every element
-   earns its place. Nothing decorative. The constellation is
-   information made beautiful through restraint.
-
-   Resting state: near-invisible hairline connections, small
-   precise dots, quiet monospace names. The page breathes.
-
-   Hover: only the lines touching the hovered star come alive
-   in that artist's muted colour. Everything else recedes.
-   The tag border — a single-pixel hairline — takes the colour.
+   Chronological star chart of The Garden's artist roster.
+   Dark background, white dots, monospace names.
+   On hover every line takes the hovered artist's colour.
    ══════════════════════════════════════════════════════════════ */
 
 const ARTISTS: { name: string; slug: string }[] = [
@@ -56,7 +45,6 @@ const GOLDEN_ANGLE = 137.508;
 const HUE_OFFSET = 210;
 function artistColour(i: number): string {
   const hue = (HUE_OFFSET + i * GOLDEN_ANGLE) % 360;
-  // Bright enough to read on dark background, still muted
   return `hsl(${hue.toFixed(1)}, 55%, 62%)`;
 }
 
@@ -75,49 +63,28 @@ type Star = {
 };
 type Edge = [number, number];
 
-/* ── layout ──────────────────────────────────────────────── 
-   Instead of a jittered grid, place stars along a meandering
-   river-path that drifts across the canvas. Each star nudges
-   forward along the path with heavy lateral scatter. The path
-   itself curves via layered sine waves — no two rows, no
-   visible grid, just an organic cloud that happens to progress
-   chronologically from upper-left toward lower-right.
-   
-   A Poisson-disc-like approach ensures no two stars land
-   closer than MIN_DIST, eliminating name overlap.
-   ──────────────────────────────────────────────────────────── */
+/* ── layout ──────────────────────────────────────────────── */
 function layoutStars(seed: number): Star[] {
   const r = makeRng(seed);
   const n = ARTISTS.length;
   const stars: Star[] = [];
 
-  // Anisotropic minimum distance — labels are wider than tall.
-  // X is scaled by name length; Y just needs ~30px of clearance.
-  // These are in 0–1 normalised space. At 1000px inner width,
-  // 0.15 ≈ 150px. The longest name ("Spøgelsesmaskinen") at
-  // 6.8px/char is ~122px, so 0.14 in X gives comfortable clearance.
-  const MIN_DX = 0.14;   // horizontal exclusion
-  const MIN_DY = 0.065;  // vertical exclusion
+  const MIN_DX = 0.14;
+  const MIN_DY = 0.065;
 
-  // Anisotropic overlap test: no two stars may be closer than
-  // MIN_DX horizontally AND MIN_DY vertically simultaneously.
-  const tooClose = (ax: number, ay: number, bx: number, by: number) => {
-    return Math.abs(ax - bx) < MIN_DX && Math.abs(ay - by) < MIN_DY;
-  };
+  const tooClose = (ax: number, ay: number, bx: number, by: number) =>
+    Math.abs(ax - bx) < MIN_DX && Math.abs(ay - by) < MIN_DY;
 
   for (let i = 0; i < n; i++) {
-    const t = i / (n - 1);  // 0–1 chronological progress
+    const t = i / (n - 1);
 
-    // Base path: gentle diagonal from upper-left to lower-right
-    // with two sine-wave bends for organic curvature.
-    const pathX = t * 0.78 + 0.10 
+    const pathX = t * 0.78 + 0.10
       + Math.sin(t * Math.PI * 2.3) * 0.12
       + Math.sin(t * Math.PI * 5.1 + 1.2) * 0.05;
     const pathY = t * 0.78 + 0.10
       + Math.cos(t * Math.PI * 1.8 + 0.5) * 0.10
       + Math.cos(t * Math.PI * 4.3 + 2.1) * 0.04;
 
-    // Try placing with scatter — retry up to 80 times
     const scatter = 0.26;
     let bestX = pathX;
     let bestY = pathY;
@@ -131,220 +98,153 @@ function layoutStars(seed: number): Star[] {
       const cy = Math.max(0.03, Math.min(0.97, pathY + sy));
 
       let clash = false;
-      let minNormDist = Infinity;
+      let minND = Infinity;
       for (let j = 0; j < stars.length; j++) {
-        if (tooClose(cx, cy, stars[j].x, stars[j].y)) {
-          clash = true;
-          break;
-        }
-        // Normalised distance (account for aspect ratio of exclusion zone)
+        if (tooClose(cx, cy, stars[j].x, stars[j].y)) { clash = true; break; }
         const ndx = (cx - stars[j].x) / MIN_DX;
         const ndy = (cy - stars[j].y) / MIN_DY;
         const nd = Math.sqrt(ndx * ndx + ndy * ndy);
-        if (nd < minNormDist) minNormDist = nd;
+        if (nd < minND) minND = nd;
       }
 
-      if (!clash) {
-        bestX = cx;
-        bestY = cy;
-        placed = true;
-        break;
-      }
-
-      // Keep the candidate with the best (largest) normalised distance
-      if (minNormDist > bestScore) {
-        bestScore = minNormDist;
-        bestX = cx;
-        bestY = cy;
-      }
+      if (!clash) { bestX = cx; bestY = cy; placed = true; break; }
+      if (minND > bestScore) { bestScore = minND; bestX = cx; bestY = cy; }
     }
 
-    // If still clashing, nudge away from nearest star
     if (!placed && stars.length > 0) {
-      let nearestIdx = 0;
-      let nearestND = Infinity;
+      let ni = 0, nd = Infinity;
       for (let j = 0; j < stars.length; j++) {
-        const ndx = (bestX - stars[j].x) / MIN_DX;
-        const ndy = (bestY - stars[j].y) / MIN_DY;
-        const nd = Math.sqrt(ndx * ndx + ndy * ndy);
-        if (nd < nearestND) { nearestND = nd; nearestIdx = j; }
+        const dx = (bestX - stars[j].x) / MIN_DX;
+        const dy = (bestY - stars[j].y) / MIN_DY;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < nd) { nd = d; ni = j; }
       }
-      if (nearestND < 1 && nearestND > 0) {
-        const scale = 1.15 / nearestND;
-        bestX = stars[nearestIdx].x + (bestX - stars[nearestIdx].x) * scale;
-        bestY = stars[nearestIdx].y + (bestY - stars[nearestIdx].y) * scale;
-        bestX = Math.max(0.03, Math.min(0.97, bestX));
-        bestY = Math.max(0.03, Math.min(0.97, bestY));
+      if (nd < 1 && nd > 0) {
+        const s = 1.15 / nd;
+        bestX = Math.max(0.03, Math.min(0.97, stars[ni].x + (bestX - stars[ni].x) * s));
+        bestY = Math.max(0.03, Math.min(0.97, stars[ni].y + (bestY - stars[ni].y) * s));
       }
     }
 
     stars.push({
-      name: ARTISTS[i].name,
-      slug: ARTISTS[i].slug,
-      colour: artistColour(i),
-      x: bestX,
-      y: bestY,
-      dAx: 1.8 + r() * 2.5,
-      dAy: 1.4 + r() * 2.0,
-      dFx: 0.00008 + r() * 0.00012,
-      dFy: 0.00006 + r() * 0.00010,
-      dPx: r() * Math.PI * 2,
-      dPy: r() * Math.PI * 2,
+      name: ARTISTS[i].name, slug: ARTISTS[i].slug, colour: artistColour(i),
+      x: bestX, y: bestY,
+      dAx: 1.8 + r() * 2.5, dAy: 1.4 + r() * 2.0,
+      dFx: 0.00008 + r() * 0.00012, dFy: 0.00006 + r() * 0.00010,
+      dPx: r() * Math.PI * 2, dPy: r() * Math.PI * 2,
     });
   }
   return stars;
 }
 
-/* ── edges ────────────────────────────────────────────────── 
-   Build a tree (never closes into shapes). Start from the
-   chronological spine but skip some links to create dead-end
-   spurs. Then add a few short branches (not cycles) by
-   connecting isolated stars to their nearest connected
-   neighbour. The result is an open, branching structure
-   like Ursa Major or Orion — paths that fork and end,
-   never loops.
-   ──────────────────────────────────────────────────────────── */
+/* ── edges ────────────────────────────────────────────────── */
 function buildEdges(stars: Star[], seed: number): Edge[] {
   const r = makeRng(seed);
   const n = stars.length;
   const edges: Edge[] = [];
-  const connected = new Set<number>([0]);
+  const dist = (a: Star, b: Star) => Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
 
-  const dist = (a: Star, b: Star) =>
-    Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
-
-  // Build a minimum spanning tree — guaranteed no cycles,
-  // produces the most natural-looking open constellation
+  // MST
   const inTree = new Set<number>([0]);
   while (inTree.size < n) {
-    let bestD = Infinity;
-    let bestFrom = -1;
-    let bestTo = -1;
-
+    let bestD = Infinity, bestFrom = -1, bestTo = -1;
     for (const from of inTree) {
       for (let to = 0; to < n; to++) {
         if (inTree.has(to)) continue;
         const d = dist(stars[from], stars[to]);
-        if (d < bestD) {
-          bestD = d;
-          bestFrom = from;
-          bestTo = to;
-        }
+        if (d < bestD) { bestD = d; bestFrom = from; bestTo = to; }
       }
     }
-
-    if (bestTo >= 0) {
-      edges.push([bestFrom, bestTo]);
-      inTree.add(bestTo);
-      connected.add(bestFrom);
-      connected.add(bestTo);
-    }
+    if (bestTo >= 0) { edges.push([bestFrom, bestTo]); inTree.add(bestTo); }
   }
 
-  // Now prune ~20% of edges to create dead-end spurs
-  // (only prune edges that won't disconnect the tree —
-  // i.e. edges where one endpoint has degree > 1)
+  // Prune ~18%
   const degree = new Map<number, number>();
   for (const [a, b] of edges) {
     degree.set(a, (degree.get(a) || 0) + 1);
     degree.set(b, (degree.get(b) || 0) + 1);
   }
-
-  const pruneTarget = Math.floor(edges.length * 0.18);
+  const target = Math.floor(edges.length * 0.18);
   let pruned = 0;
-  const pruneOrder = Array.from({ length: edges.length }, (_, i) => i);
-  // Shuffle prune order
-  for (let i = pruneOrder.length - 1; i > 0; i--) {
+  const order = Array.from({ length: edges.length }, (_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
     const j = Math.floor(r() * (i + 1));
-    [pruneOrder[i], pruneOrder[j]] = [pruneOrder[j], pruneOrder[i]];
+    [order[i], order[j]] = [order[j], order[i]];
   }
-
   const removed = new Set<number>();
-  for (const idx of pruneOrder) {
-    if (pruned >= pruneTarget) break;
+  for (const idx of order) {
+    if (pruned >= target) break;
     const [a, b] = edges[idx];
-    const dA = degree.get(a)!;
-    const dB = degree.get(b)!;
-    // Only prune if both endpoints keep at least 1 connection
+    const dA = degree.get(a)!, dB = degree.get(b)!;
     if (dA > 1 && dB > 1) {
-      removed.add(idx);
-      degree.set(a, dA - 1);
-      degree.set(b, dB - 1);
-      pruned++;
+      removed.add(idx); degree.set(a, dA - 1); degree.set(b, dB - 1); pruned++;
     }
   }
-
   return edges.filter((_, i) => !removed.has(i));
 }
 
-/* ── pre-compute adjacency: which edges touch which star ── */
+/* ── adjacency ────────────────────────────────────────────── */
 function buildAdjacency(edges: Edge[], n: number): Set<number>[] {
   const adj: Set<number>[] = Array.from({ length: n }, () => new Set<number>());
   edges.forEach(([a, b], i) => { adj[a].add(i); adj[b].add(i); });
   return adj;
 }
 
-/* ── label placement ─────────────────────────────────────── */
+/* ── label placement ─────────────────────────────────────── 
+   Places labels near their dot, trying 12 positions.
+   On narrow screens, allows labels to extend slightly beyond
+   the SVG edge (clamped at -20px) rather than overlapping.
+   ──────────────────────────────────────────────────────────── */
 type Label = {
   x: number; y: number;
   anchor: "start" | "end";
-  bx: number; by: number; bw: number; bh: number;  // mask rect
+  bx: number; by: number; bw: number; bh: number;
 };
 
-const LBL_H = 13;
-const LBL_PAD = 8;
-const DOT_GAP = 6;    // Tight — name sits close to its dot
+const LBL_H = 12;
+const LBL_PAD = 6;
+const DOT_GAP = 5;
 
 function placeLabels(
   stars: Star[],
   toX: (s: Star) => number,
   toY: (s: Star) => number,
   cw: number, ch: number,
-  charW: number = 6.8,
+  charW: number,
 ): Label[] {
   const labels: Label[] = [];
   const rects: { x1: number; y1: number; x2: number; y2: number }[] = [];
 
-  // Reserve space around every dot so labels don't sit on top of dots
   for (const s of stars) {
     const cx = toX(s), cy = toY(s);
-    rects.push({ x1: cx - 10, y1: cy - 10, x2: cx + 10, y2: cy + 10 });
+    rects.push({ x1: cx - 8, y1: cy - 8, x2: cx + 8, y2: cy + 8 });
   }
 
   const hit = (x1: number, y1: number, x2: number, y2: number) =>
     rects.some(r => x1 < r.x2 && x2 > r.x1 && y1 < r.y2 && y2 > r.y1);
+
+  // Allow labels to bleed slightly off-canvas on mobile rather than overlap
+  const edgeBleed = cw < 500 ? -20 : 0;
 
   for (let i = 0; i < stars.length; i++) {
     const s = stars[i];
     const cx = toX(s), cy = toY(s);
     const tw = s.name.length * charW;
 
-    // 12 placement candidates — right, left, above, below, and diagonals
+    const g = DOT_GAP;
     const tries: { x: number; y: number; a: "start" | "end" }[] = [
-      // Right
-      { x: cx + DOT_GAP,      y: cy + 4,    a: "start" },
-      // Left
-      { x: cx - DOT_GAP,      y: cy + 4,    a: "end" },
-      // Above-right
-      { x: cx + DOT_GAP,      y: cy - 12,   a: "start" },
-      // Above-left
-      { x: cx - DOT_GAP,      y: cy - 12,   a: "end" },
-      // Below-right
-      { x: cx + DOT_GAP,      y: cy + 20,   a: "start" },
-      // Below-left
-      { x: cx - DOT_GAP,      y: cy + 20,   a: "end" },
-      // Far above-right
-      { x: cx + DOT_GAP,      y: cy - 26,   a: "start" },
-      // Far above-left
-      { x: cx - DOT_GAP,      y: cy - 26,   a: "end" },
-      // Far below-right
-      { x: cx + DOT_GAP,      y: cy + 34,   a: "start" },
-      // Far below-left
-      { x: cx - DOT_GAP,      y: cy + 34,   a: "end" },
-      // Directly above (centered)
-      { x: cx + tw / 2,       y: cy - 16,   a: "end" },
-      // Directly below (centered)
-      { x: cx + tw / 2,       y: cy + 26,   a: "end" },
+      { x: cx + g, y: cy + 4,  a: "start" },
+      { x: cx - g, y: cy + 4,  a: "end" },
+      { x: cx + g, y: cy - 10, a: "start" },
+      { x: cx - g, y: cy - 10, a: "end" },
+      { x: cx + g, y: cy + 18, a: "start" },
+      { x: cx - g, y: cy + 18, a: "end" },
+      { x: cx + g, y: cy - 22, a: "start" },
+      { x: cx - g, y: cy - 22, a: "end" },
+      { x: cx + g, y: cy + 30, a: "start" },
+      { x: cx - g, y: cy + 30, a: "end" },
+      { x: cx + g, y: cy - 34, a: "start" },
+      { x: cx - g, y: cy + 42, a: "end" },
     ];
 
     let placed = false;
@@ -354,29 +254,21 @@ function placeLabels(
       const ly1 = t.y - LBL_H;
       const ly2 = t.y + LBL_PAD;
 
-      if (lx1 < 0 || lx2 > cw || ly1 < 0 || ly2 > ch) continue;
+      if (lx1 < edgeBleed || lx2 > cw - edgeBleed || ly1 < 0 || ly2 > ch) continue;
       if (!hit(lx1, ly1, lx2, ly2)) {
-        labels.push({
-          x: t.x, y: t.y, anchor: t.a,
-          bx: lx1, by: ly1, bw: lx2 - lx1, bh: ly2 - ly1,
-        });
+        labels.push({ x: t.x, y: t.y, anchor: t.a, bx: lx1, by: ly1, bw: lx2 - lx1, bh: ly2 - ly1 });
         rects.push({ x1: lx1, y1: ly1, x2: lx2, y2: ly2 });
         placed = true;
         break;
       }
     }
     if (!placed) {
-      // Fallback: place far below to the right to minimise overlap
-      const fb = { x: cx + DOT_GAP, y: cy + 40, a: "start" as const };
-      const lx1 = fb.x - LBL_PAD;
-      const ly1 = fb.y - LBL_H;
+      // Last resort — place below, allow edge bleed
+      const t = { x: cx + g, y: cy + 48, a: "start" as const };
+      const lx1 = t.x - LBL_PAD;
       const bw = tw + LBL_PAD * 2;
-      const bh = LBL_H + LBL_PAD;
-      labels.push({
-        x: fb.x, y: fb.y, anchor: fb.a,
-        bx: lx1, by: ly1, bw, bh,
-      });
-      rects.push({ x1: lx1, y1: ly1, x2: lx1 + bw, y2: ly1 + bh });
+      labels.push({ x: t.x, y: t.y, anchor: t.a, bx: lx1, by: t.y - LBL_H, bw, bh: LBL_H + LBL_PAD });
+      rects.push({ x1: lx1, y1: t.y - LBL_H, x2: lx1 + bw, y2: t.y + LBL_PAD });
     }
   }
   return labels;
@@ -395,12 +287,10 @@ function useDrift(stars: Star[]) {
         const c = refs.current[i];
         if (!c) continue;
         const s = stars[i];
-        const dx =
-          Math.sin(t * s.dFx + s.dPx) * s.dAx * 0.7 +
-          Math.sin(t * s.dFx * 0.6 + s.dPy) * s.dAx * 0.3;
-        const dy =
-          Math.cos(t * s.dFy + s.dPy) * s.dAy * 0.7 +
-          Math.cos(t * s.dFy * 0.7 + s.dPx) * s.dAy * 0.3;
+        const dx = Math.sin(t * s.dFx + s.dPx) * s.dAx * 0.7
+          + Math.sin(t * s.dFx * 0.6 + s.dPy) * s.dAx * 0.3;
+        const dy = Math.cos(t * s.dFy + s.dPy) * s.dAy * 0.7
+          + Math.cos(t * s.dFy * 0.7 + s.dPx) * s.dAy * 0.3;
         c.style.transform = `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px)`;
       }
       frame.current = requestAnimationFrame(tick);
@@ -441,32 +331,26 @@ export function ConstellationMap() {
   const w = dims.w || 1;
   const h = dims.h || 1;
 
-  // Responsive margins — on mobile, use minimal margins to give
-  // the constellation maximum breathing room
+  // Responsive margins
   const narrow = w < 600;
-  const mL = narrow ? Math.max(16, w * 0.04) : Math.max(80, w * 0.10);
-  const mR = narrow ? Math.max(16, w * 0.04) : Math.max(80, w * 0.10);
-  const mTop = narrow ? 80 : 120;
-  const mBot = narrow ? 40 : 80;
+  const mL = narrow ? 12 : Math.max(80, w * 0.10);
+  const mR = narrow ? 12 : Math.max(80, w * 0.10);
+  const mTop = narrow ? 72 : 120;
+  const mBot = narrow ? 24 : 80;
   const iw = Math.max(1, w - mL - mR);
   const ih = Math.max(1, h - mTop - mBot);
 
-  // Character width scales with viewport — CSS sets smaller font on mobile
-  const charW = narrow ? 5.8 : 6.8;
+  // Char width matches CSS font size (9.5px mobile, 11.5px desktop)
+  const charW = narrow ? 5.7 : 6.8;
 
   const toX = useCallback((s: Star) => mL + s.x * iw, [mL, iw]);
   const toY = useCallback((s: Star) => mTop + s.y * ih, [mTop, ih]);
   const labels = dims.w > 0 ? placeLabels(stars, toX, toY, w, h, charW) : [];
 
-  // Which edges are adjacent to the hovered star?
-  const activeEdges = hovered !== null ? adjacency[hovered] : null;
   const hoverColour = hovered !== null ? stars[hovered].colour : null;
 
   return (
-    <div
-      className="constellation-root"
-      ref={rootRef}
-    >
+    <div className="constellation-root" ref={rootRef}>
       {dims.w > 0 && (
         <svg
           className="constellation-svg"
@@ -483,7 +367,7 @@ export function ConstellationMap() {
             </mask>
           </defs>
 
-          {/* Lines — all lines take the hovered star's colour */}
+          {/* Lines */}
           <g mask="url(#lbl-mask)">
             {edges.map(([a, b], i) => {
               const anyHover = hovered !== null;
