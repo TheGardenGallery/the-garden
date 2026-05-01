@@ -88,6 +88,10 @@ function layoutStars(seed: number): Star[] {
   const n = ARTISTS.length;
   const stars: Star[] = [];
 
+  // Minimum distance between any two stars (in 0–1 normalised space).
+  // This prevents the clustered / overlapping-names problem.
+  const MIN_DIST = 0.085;
+
   for (let i = 0; i < n; i++) {
     const t = i / (n - 1);  // 0–1 chronological progress
 
@@ -100,17 +104,65 @@ function layoutStars(seed: number): Star[] {
       + Math.cos(t * Math.PI * 1.8 + 0.5) * 0.08
       + Math.cos(t * Math.PI * 4.3 + 2.1) * 0.03;
 
-    // Heavy scatter perpendicular to the path
+    // Try placing with scatter — retry up to 40 times to respect MIN_DIST
     const scatter = 0.16;
-    const sx = (r() - 0.5) * scatter + (r() - 0.5) * scatter * 0.4;
-    const sy = (r() - 0.5) * scatter + (r() - 0.5) * scatter * 0.4;
+    let bestX = pathX;
+    let bestY = pathY;
+    let placed = false;
+
+    for (let attempt = 0; attempt < 40; attempt++) {
+      const sx = (r() - 0.5) * scatter + (r() - 0.5) * scatter * 0.4;
+      const sy = (r() - 0.5) * scatter + (r() - 0.5) * scatter * 0.4;
+      const cx = Math.max(0.04, Math.min(0.96, pathX + sx));
+      const cy = Math.max(0.04, Math.min(0.96, pathY + sy));
+
+      let tooClose = false;
+      for (let j = 0; j < stars.length; j++) {
+        const dx = cx - stars[j].x;
+        const dy = cy - stars[j].y;
+        if (Math.sqrt(dx * dx + dy * dy) < MIN_DIST) {
+          tooClose = true;
+          break;
+        }
+      }
+
+      if (!tooClose) {
+        bestX = cx;
+        bestY = cy;
+        placed = true;
+        break;
+      }
+
+      // Keep the last attempt as fallback
+      bestX = cx;
+      bestY = cy;
+    }
+
+    // If still too close after all attempts, nudge away from nearest star
+    if (!placed && stars.length > 0) {
+      let nearestIdx = 0;
+      let nearestD = Infinity;
+      for (let j = 0; j < stars.length; j++) {
+        const dx = bestX - stars[j].x;
+        const dy = bestY - stars[j].y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < nearestD) { nearestD = d; nearestIdx = j; }
+      }
+      if (nearestD < MIN_DIST && nearestD > 0) {
+        const scale = MIN_DIST / nearestD;
+        bestX = stars[nearestIdx].x + (bestX - stars[nearestIdx].x) * scale;
+        bestY = stars[nearestIdx].y + (bestY - stars[nearestIdx].y) * scale;
+        bestX = Math.max(0.04, Math.min(0.96, bestX));
+        bestY = Math.max(0.04, Math.min(0.96, bestY));
+      }
+    }
 
     stars.push({
       name: ARTISTS[i].name,
       slug: ARTISTS[i].slug,
       colour: artistColour(i),
-      x: Math.max(0.04, Math.min(0.96, pathX + sx)),
-      y: Math.max(0.04, Math.min(0.96, pathY + sy)),
+      x: bestX,
+      y: bestY,
       dAx: 1.8 + r() * 2.5,
       dAy: 1.4 + r() * 2.0,
       dFx: 0.00008 + r() * 0.00012,
@@ -221,8 +273,8 @@ type Label = {
 
 const CHAR_W = 6.8;
 const LBL_H = 14;
-const LBL_PAD = 8;
-const DOT_GAP = 8;
+const LBL_PAD = 10;   // Extra breathing room between labels
+const DOT_GAP = 10;   // Distance from dot to label start
 const TAG_PX = 5;
 const TAG_PY = 3.5;
 
@@ -235,9 +287,10 @@ function placeLabels(
   const labels: Label[] = [];
   const rects: { x1: number; y1: number; x2: number; y2: number }[] = [];
 
+  // Reserve space around every dot so labels don't sit on top of dots
   for (const s of stars) {
     const cx = toX(s), cy = toY(s);
-    rects.push({ x1: cx - 8, y1: cy - 8, x2: cx + 8, y2: cy + 8 });
+    rects.push({ x1: cx - 10, y1: cy - 10, x2: cx + 10, y2: cy + 10 });
   }
 
   const hit = (x1: number, y1: number, x2: number, y2: number) =>
@@ -248,15 +301,32 @@ function placeLabels(
     const cx = toX(s), cy = toY(s);
     const tw = s.name.length * CHAR_W;
 
+    // 12 placement candidates — right, left, above, below, and diagonals
     const tries: { x: number; y: number; a: "start" | "end" }[] = [
-      { x: cx + DOT_GAP,  y: cy + 4,   a: "start" },
-      { x: cx - DOT_GAP,  y: cy + 4,   a: "end" },
-      { x: cx + DOT_GAP,  y: cy - 8,   a: "start" },
-      { x: cx - DOT_GAP,  y: cy - 8,   a: "end" },
-      { x: cx + DOT_GAP,  y: cy + 18,  a: "start" },
-      { x: cx - DOT_GAP,  y: cy + 18,  a: "end" },
-      { x: cx + DOT_GAP,  y: cy - 20,  a: "start" },
-      { x: cx - DOT_GAP,  y: cy + 28,  a: "end" },
+      // Right
+      { x: cx + DOT_GAP,      y: cy + 4,    a: "start" },
+      // Left
+      { x: cx - DOT_GAP,      y: cy + 4,    a: "end" },
+      // Above-right
+      { x: cx + DOT_GAP,      y: cy - 12,   a: "start" },
+      // Above-left
+      { x: cx - DOT_GAP,      y: cy - 12,   a: "end" },
+      // Below-right
+      { x: cx + DOT_GAP,      y: cy + 20,   a: "start" },
+      // Below-left
+      { x: cx - DOT_GAP,      y: cy + 20,   a: "end" },
+      // Far above-right
+      { x: cx + DOT_GAP,      y: cy - 26,   a: "start" },
+      // Far above-left
+      { x: cx - DOT_GAP,      y: cy - 26,   a: "end" },
+      // Far below-right
+      { x: cx + DOT_GAP,      y: cy + 34,   a: "start" },
+      // Far below-left
+      { x: cx - DOT_GAP,      y: cy + 34,   a: "end" },
+      // Directly above (centered)
+      { x: cx + tw / 2,       y: cy - 16,   a: "end" },
+      // Directly below (centered)
+      { x: cx + tw / 2,       y: cy + 26,   a: "end" },
     ];
 
     let placed = false;
@@ -283,12 +353,13 @@ function placeLabels(
       }
     }
     if (!placed) {
-      const fb = tries[0];
+      // Fallback: place far below to the right to minimise overlap
+      const fb = { x: cx + DOT_GAP, y: cy + 40, a: "start" as const };
       const lx1 = fb.x - LBL_PAD;
       const ly1 = fb.y - LBL_H;
       const bw = tw + LBL_PAD * 2;
       const bh = LBL_H + LBL_PAD;
-      const tagX = fb.a === "start" ? fb.x - TAG_PX : fb.x - tw - TAG_PX;
+      const tagX = fb.x - TAG_PX;
       labels.push({
         x: fb.x, y: fb.y, anchor: fb.a,
         bx: lx1, by: ly1, bw, bh,
