@@ -477,13 +477,12 @@ export function ConstellationMap() {
           {/* Lines — all lines take the hovered star's colour */}
           <g mask="url(#lbl-mask)">
             {edges.map(([a, b], i) => {
-              const lit = activeEdges?.has(i);
               const anyHover = hovered !== null;
               return (
                 <line key={`e${i}`}
                   x1={toX(stars[a])} y1={toY(stars[a])}
                   x2={toX(stars[b])} y2={toY(stars[b])}
-                  className={`c-line${lit ? " c-line--lit" : ""}${anyHover && !lit ? " c-line--all" : ""}`}
+                  className={`c-line${anyHover ? " c-line--all" : ""}`}
                   style={anyHover ? { stroke: hoverColour! } : undefined}
                 />
               );
@@ -504,7 +503,7 @@ export function ConstellationMap() {
                 className={`c-star${dimmed ? " c-star--dim" : ""}`}
                 onMouseEnter={() => setHovered(i)}
                 onMouseLeave={() => setHovered(null)}
-                onClick={() => router.push(`/artists#${s.slug}`)}
+                onClick={() => router.push(`/artists/${s.slug}`)}
                 style={{ cursor: "pointer" }}
               >
                 <circle cx={cx} cy={cy} r={HIT_R}
