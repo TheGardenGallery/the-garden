@@ -19,8 +19,6 @@ const legalLinks = [
 ];
 
 const socialLinks = [
-  { href: "https://instagram.com", label: "Instagram" },
-  { href: "/newsletter",           label: "Newsletter" },
   { href: "https://x.com/chilltulpa", label: "X" },
 ];
 
