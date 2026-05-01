@@ -512,7 +512,7 @@ export function ConstellationMap() {
                   ref={(el) => { dotRefs.current[i] = el; }}
                   cx={cx} cy={cy}
                   r={active ? 3.5 : DOT_R}
-                  fill={active ? s.colour : "#1a1a1a"}
+                  fill={active ? s.colour : "#000"}
                   className="c-dot" />
                 <text x={label.x} y={label.y}
                   textAnchor={label.anchor}
