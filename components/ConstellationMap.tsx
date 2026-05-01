@@ -56,8 +56,8 @@ const GOLDEN_ANGLE = 137.508;
 const HUE_OFFSET = 210;
 function artistColour(i: number): string {
   const hue = (HUE_OFFSET + i * GOLDEN_ANGLE) % 360;
-  // Muted, sophisticated — like ink swatches, not highlighters
-  return `hsl(${hue.toFixed(1)}, 45%, 42%)`;
+  // Bright enough to read on dark background, still muted
+  return `hsl(${hue.toFixed(1)}, 55%, 62%)`;
 }
 
 /* ── seeded PRNG ─────────────────────────────────────────── */
@@ -512,7 +512,7 @@ export function ConstellationMap() {
                   ref={(el) => { dotRefs.current[i] = el; }}
                   cx={cx} cy={cy}
                   r={active ? 3.5 : DOT_R}
-                  fill={active ? s.colour : "#000"}
+                  fill={active ? s.colour : "#fff"}
                   className="c-dot" />
                 <text x={label.x} y={label.y}
                   textAnchor={label.anchor}
