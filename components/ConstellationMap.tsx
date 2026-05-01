@@ -291,7 +291,6 @@ type Label = {
   bx: number; by: number; bw: number; bh: number;  // mask rect
 };
 
-const CHAR_W = 6.8;
 const LBL_H = 13;
 const LBL_PAD = 8;
 const DOT_GAP = 6;    // Tight — name sits close to its dot
@@ -301,6 +300,7 @@ function placeLabels(
   toX: (s: Star) => number,
   toY: (s: Star) => number,
   cw: number, ch: number,
+  charW: number = 6.8,
 ): Label[] {
   const labels: Label[] = [];
   const rects: { x1: number; y1: number; x2: number; y2: number }[] = [];
@@ -317,7 +317,7 @@ function placeLabels(
   for (let i = 0; i < stars.length; i++) {
     const s = stars[i];
     const cx = toX(s), cy = toY(s);
-    const tw = s.name.length * CHAR_W;
+    const tw = s.name.length * charW;
 
     // 12 placement candidates — right, left, above, below, and diagonals
     const tries: { x: number; y: number; a: "start" | "end" }[] = [
@@ -441,16 +441,22 @@ export function ConstellationMap() {
   const w = dims.w || 1;
   const h = dims.h || 1;
 
-  const mL = Math.max(80, w * 0.10);
-  const mR = Math.max(80, w * 0.10);
-  const mTop = 120;
-  const mBot = 80;
+  // Responsive margins — on mobile, use minimal margins to give
+  // the constellation maximum breathing room
+  const narrow = w < 600;
+  const mL = narrow ? Math.max(16, w * 0.04) : Math.max(80, w * 0.10);
+  const mR = narrow ? Math.max(16, w * 0.04) : Math.max(80, w * 0.10);
+  const mTop = narrow ? 80 : 120;
+  const mBot = narrow ? 40 : 80;
   const iw = Math.max(1, w - mL - mR);
   const ih = Math.max(1, h - mTop - mBot);
 
+  // Character width scales with viewport — CSS sets smaller font on mobile
+  const charW = narrow ? 5.8 : 6.8;
+
   const toX = useCallback((s: Star) => mL + s.x * iw, [mL, iw]);
   const toY = useCallback((s: Star) => mTop + s.y * ih, [mTop, ih]);
-  const labels = dims.w > 0 ? placeLabels(stars, toX, toY, w, h) : [];
+  const labels = dims.w > 0 ? placeLabels(stars, toX, toY, w, h, charW) : [];
 
   // Which edges are adjacent to the hovered star?
   const activeEdges = hovered !== null ? adjacency[hovered] : null;
