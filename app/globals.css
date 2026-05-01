@@ -13,6 +13,7 @@
   --nav-height: 70px;
   --content-max: 1440px;
   --gutter: 40px;
+  --logo-width: 131px;
 
   /* Viewport-square unit. Half a dvh + half a dvw = a viewport-
      average that scales with both axes. Useful for aspect-ratio
@@ -512,7 +513,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   footer{padding:56px var(--gutter) 32px;}
 }
 @media (max-width:600px){
-  :root{--nav-height:56px;--gutter:24px;}
+  :root{--nav-height:56px;--gutter:24px;--logo-width:120px;}
   nav,.site-nav{padding:18px var(--gutter);}
   .logo{font-size:19px;letter-spacing:-0.3px;}
   .nav-panel{padding:40px var(--gutter) 40px;}
@@ -1237,23 +1238,20 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   position:fixed;
   top:calc(var(--nav-height) + 24px);
   right:var(--gutter);
-  width:131px;
+  width:var(--logo-width, 131px);
   text-align:left;
   font-family:'Barlow',sans-serif;font-weight:500;
   font-size:10px;letter-spacing:1px;text-transform:uppercase;
   color:var(--ink-muted);text-decoration:none;
   transition:color 200ms ease-out;
+  z-index:100;
 }
 @media (hover:hover){
   .about-principles-link:hover{color:var(--ink-hover);}
 }
 @media (max-width:720px){
   .about-principles-link{
-    position:static;
-    display:block;
-    width:100%;max-width:600px;
-    text-align:right;
-    margin-top:16px;
+    top:calc(var(--nav-height) + 16px);
   }
 }
 
