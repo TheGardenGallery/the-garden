@@ -433,8 +433,14 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   font-weight:600;font-size:12px;letter-spacing:1.5px;
   text-transform:uppercase;
   color:var(--on-dark-fg);
-  line-height:1;height:12px;
-  display:flex;align-items:center;
+  /* Plain 12px block. Earlier this was a flex container with explicit
+     height + align-items:center, which left the label's first baseline
+     dependent on flex-baseline synthesis (a browser-rendering quirk).
+     With a simple block + line-height:1 the label is exactly 12px tall
+     in every browser, and the first link below sits at the same y as
+     its sibling columns to the pixel. */
+  line-height:1;
+  display:block;
   margin:0;
 }
 .f-logo{
