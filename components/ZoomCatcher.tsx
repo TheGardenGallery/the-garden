@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ExpandedArtwork } from "./ExpandedArtwork";
 import type { ExpandedArtworkItem } from "./ExpandedArtwork";
@@ -40,6 +40,54 @@ export function ZoomCatcher({
   const next = useCallback(() => {
     setIndex((i) => (i === null ? null : (i + 1) % items.length));
   }, [items.length]);
+
+  // Overlay-level swipe — fires prev/next when the user swipes
+  // anywhere on the lightbox backdrop, not just on the artwork
+  // itself. Touches that start on the artwork are skipped here and
+  // routed through ExpandedArtwork's own touch handlers (which
+  // handle pan-when-zoomed and visual swipe preview).
+  const swipeRef = useRef({ active: false, startX: 0, startY: 0, startTime: 0, moved: false });
+  const skipNextClickRef = useRef(false);
+
+  const onOverlayTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length !== 1) return;
+    const target = e.target as HTMLElement;
+    if (target.closest(".piece-grid-expanded, .piece-nav-btn")) return;
+    const t = e.touches[0];
+    swipeRef.current = {
+      active: true,
+      startX: t.clientX,
+      startY: t.clientY,
+      startTime: Date.now(),
+      moved: false,
+    };
+  };
+  const onOverlayTouchMove = (e: React.TouchEvent) => {
+    if (!swipeRef.current.active || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    const dx = t.clientX - swipeRef.current.startX;
+    const dy = t.clientY - swipeRef.current.startY;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) swipeRef.current.moved = true;
+  };
+  const onOverlayTouchEnd = (e: React.TouchEvent) => {
+    if (!swipeRef.current.active) return;
+    const moved = swipeRef.current.moved;
+    swipeRef.current.active = false;
+    const t = e.changedTouches[0];
+    if (!t) return;
+    const dx = t.clientX - swipeRef.current.startX;
+    const dy = t.clientY - swipeRef.current.startY;
+    const elapsed = Date.now() - swipeRef.current.startTime;
+    if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.3 && elapsed < 900) {
+      if (dx > 0) prev();
+      else next();
+      // Suppress the synthetic click after the swipe so onClick
+      // doesn't see a "tap on backdrop" and close the lightbox.
+      skipNextClickRef.current = true;
+    } else if (moved) {
+      skipNextClickRef.current = true;
+    }
+  };
 
   useEffect(() => {
     const container = document.querySelector(scope);
@@ -108,8 +156,15 @@ export function ZoomCatcher({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
           onClick={(e) => {
+            if (skipNextClickRef.current) {
+              skipNextClickRef.current = false;
+              return;
+            }
             if (e.target === e.currentTarget) setIndex(null);
           }}
+          onTouchStart={onOverlayTouchStart}
+          onTouchMove={onOverlayTouchMove}
+          onTouchEnd={onOverlayTouchEnd}
           onMouseMove={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
             const frac = (e.clientX - rect.left) / rect.width;

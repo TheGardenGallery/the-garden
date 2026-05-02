@@ -3950,13 +3950,13 @@ html:has(.constellation-root){
     grid-template-columns:1fr 1fr;
     gap:20px 24px;
   }
-  /* Equalise inter-section spacing on mobile. Default mobile padding
-     for ex-overview is 48px / 96px, which combines with the title
-     bar's 32px offset to leave ~80px of empty space between the
-     hero's title and the facts panel. Pull it tighter so the rhythm
-     matches piece-grid and colophon. */
+  /* Equalise inter-section spacing on mobile. The title bar already
+     sits 32px above the hero's bottom edge, and the facts panel
+     itself has a 32px margin-bottom to the description below. So
+     overview padding-top of 0 gives a 32px title-to-facts gap that
+     matches the facts-to-description gap exactly. */
   .exhibition-detail[data-slug="split-logic"] .ex-overview{
-    padding-top:24px;
+    padding-top:0;
     padding-bottom:32px;
   }
   .exhibition-detail[data-slug="split-logic"] .piece-grid-section{
