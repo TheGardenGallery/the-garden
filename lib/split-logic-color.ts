@@ -133,10 +133,11 @@ export function colorDistance(a: Oklch, b: Oklch): number {
   const Cmean = (a.C + b.C) / 2;
   const dHc = dh * Cmean;
 
-  // Weights tuned for art-curatorial similarity:
-  //   lightness shapes the visual neighbourhood (pastel/mid/deep),
-  //   hue carries colour identity, chroma differentiates intensity.
-  const wL = 1.5, wC = 0.8, wH = 1.5;
+  // Weights — hue carries colour identity (the "this is a green
+  // piece" signal), so it dominates. Lightness is a secondary
+  // refinement (sorts pastel-green ahead of mid-green when locked
+  // to a sage). Chroma differentiates muted from saturated.
+  const wL = 0.6, wC = 0.7, wH = 2.6;
   return Math.sqrt(
     (dL * wL) ** 2 + (dC * wC) ** 2 + (dHc * wH) ** 2
   );

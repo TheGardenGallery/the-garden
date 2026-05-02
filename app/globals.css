@@ -869,23 +869,23 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   display:flex;
   gap:32px;
   overflow-x:auto;
-  overscroll-behavior-x:contain;
-  scroll-snap-type:x mandatory;
-  scroll-behavior:smooth;
-  -webkit-overflow-scrolling:touch;
+  /* Explicit overflow-y: hidden — without this, overflow-y is implicitly
+     auto (per spec when overflow-x is non-default), and any momentary
+     vertical overflow (Reveal entry transform, card hover scale, etc.)
+     turns the row into a vertical scroll target. Chrome then snags
+     vertical wheels onto the row instead of letting them scroll the
+     page. With overflow-y: hidden the row can never absorb a vertical
+     wheel, so scrolling over it is fully native. */
+  overflow-y:hidden;
   scrollbar-width:none;
   /* Bleed past hybrid-container's content-max so the strip flows out
-     under the section gutter; padding-inline + scroll-padding-inline
-     keep the first card aligned with the content column edge. */
+     under the section gutter. */
   margin-inline:calc(var(--gutter) * -1);
   padding-inline:var(--gutter);
-  scroll-padding-inline:var(--gutter);
 }
 .exhibitions-grid-hybrid::-webkit-scrollbar{display:none;}
 .exhibitions-grid-hybrid > *{
   flex:0 0 min(28vw, 340px);
-  scroll-snap-align:start;
-  scroll-snap-stop:always;
 }
 .exhibition-card{display:flex;flex-direction:column;cursor:pointer;color:var(--ink);text-decoration:none;transition:color 0.3s ease-out;}
 .exhibition-card-image{width:100%;aspect-ratio:4/5;background:#f1f4f6;overflow:hidden;border-radius:0;margin-bottom:16px;display:flex;align-items:center;justify-content:center;padding:10% 12%;}
@@ -935,8 +935,19 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   }
 }
 @media (max-width:600px){
+  /* Snap + overscroll-contain kick in on mobile only — swipe-to-card
+     and "no rubber-band back-nav" are useful on phones, but on desktop
+     trackpads they fight the vertical wheel. */
+  .exhibitions-grid-hybrid{
+    scroll-snap-type:x mandatory;
+    scroll-padding-inline:var(--gutter);
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+  }
   .exhibitions-grid-hybrid > *{
     flex:0 0 82vw;                 /* slim peek of next-card sliver */
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
   }
   /* Match the desktop card's interior breathing room — the percentage
      padding renders smaller relative to the artwork at full-bleed

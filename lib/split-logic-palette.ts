@@ -24,111 +24,75 @@ function rgbToHex(r: number, g: number, b: number): string {
   );
 }
 
-const SAMPLE = 96;
+const SAMPLE = 128;
 
 type WedgeExtraction = {
-  /** Saturation-weighted mean over all pixels — used for bar display. */
+  /** The wedge's dominant chromatic colour — what the bar shows
+   *  and what the sort matches against. */
   characteristic: string;
-  /** Two-band palette: ink band + ground band. Each is the
-   *  saturation-weighted mean of the pixels above (light) and below
-   *  (dark) the image's mean luminance. Falls back gracefully when
-   *  one band has no chromatic mass. */
+  /** Same colour, wrapped as a single-entry palette (kept as an
+   *  array for the SplitLogicSystem sort, which still iterates a
+   *  per-wedge palette via min-distance). */
   palette: string[];
 };
 
+const VIBRANCE_THRESHOLD = 0.12;
+
 /**
- * Two-pass wedge extraction.
+ * Threshold-based dominant-colour extraction.
  *
- *  pass 1: mean luminance + overall sat-weighted mean (the
- *          *characteristic*; this is what the walker bar shows).
- *  pass 2: split pixels by mean luminance into "above" (ground/ink-
- *          on-dark) and "below" (ink-on-light/ground), and compute
- *          a sat-weighted mean of each band. Yields the colours that
- *          actually show through the piece — for a dark-ground piece
- *          with saturated ink, the *light band* mean is the pure ink
- *          colour, not the muddy black-plus-ink average.
+ * For each pixel we compute vibrance = saturation × value (HSV).
+ * Pure black, pure white, and any neutral gray sit at v ≈ 0; only
+ * chromatic pixels clear the threshold. We then take a vibrance-
+ * weighted mean of those chromatic pixels — the saturated ones pull
+ * the mean toward themselves, so the result is the *dominant
+ * chromatic identity* of the wedge:
  *
- * Palette = [light, dark] de-duplicated when both bands are
- * essentially the same colour (uniform pieces).
+ *   • pastel-ground pieces      → the pastel ground
+ *   • dark-ground / saturated-ink pieces → the ink colour
+ *
+ * Black or near-black background pixels never enter the average.
+ * Resize uses nearest-neighbour so pure pixels survive the down-
+ * sample (Lanczos was bleeding pure-yellow grid lines into
+ * desaturated mid-tones, then those mid-tones diluted the mean).
  */
 const extractWedgeData = unstable_cache(
   async (src: string): Promise<WedgeExtraction> => {
     const filePath = path.join(process.cwd(), "public", src.replace(/^\//, ""));
     const buf = await fs.readFile(filePath);
     const { data, info } = await sharp(buf)
-      .resize(SAMPLE, SAMPLE, { fit: "cover" })
+      .resize(SAMPLE, SAMPLE, { fit: "cover", kernel: "nearest" })
       .raw()
       .toBuffer({ resolveWithObject: true });
     const { channels } = info;
 
-    // Pass 1.
-    let lumSum = 0;
-    let lumCount = 0;
-    let allR = 0, allG = 0, allB = 0, allW = 0;
+    let sumR = 0, sumG = 0, sumB = 0, sumW = 0;
     for (let i = 0; i < data.length; i += channels) {
       const r = data[i], g = data[i + 1], b = data[i + 2];
       const max = Math.max(r, g, b);
       const min = Math.min(r, g, b);
       const sat = max === 0 ? 0 : (max - min) / max;
       const val = max / 255;
-      const w = sat * val;
-      const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-      lumSum += lum;
-      lumCount++;
-      allR += r * w; allG += g * w; allB += b * w; allW += w;
+      const v = sat * val;
+      if (v < VIBRANCE_THRESHOLD) continue;
+      sumR += r * v;
+      sumG += g * v;
+      sumB += b * v;
+      sumW += v;
     }
-    const meanLum = lumSum / Math.max(lumCount, 1);
-    const characteristic =
-      allW > 0
+
+    const dominant =
+      sumW > 0
         ? rgbToHex(
-            Math.round(allR / allW),
-            Math.round(allG / allW),
-            Math.round(allB / allW)
+            Math.round(sumR / sumW),
+            Math.round(sumG / sumW),
+            Math.round(sumB / sumW)
           )
         : "#808080";
 
-    // Pass 2 — split bands.
-    let lightR = 0, lightG = 0, lightB = 0, lightW = 0;
-    let darkR = 0, darkG = 0, darkB = 0, darkW = 0;
-    for (let i = 0; i < data.length; i += channels) {
-      const r = data[i], g = data[i + 1], b = data[i + 2];
-      const max = Math.max(r, g, b);
-      const min = Math.min(r, g, b);
-      const sat = max === 0 ? 0 : (max - min) / max;
-      const val = max / 255;
-      const w = sat * val;
-      const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-      if (lum >= meanLum) {
-        lightR += r * w; lightG += g * w; lightB += b * w; lightW += w;
-      } else {
-        darkR += r * w; darkG += g * w; darkB += b * w; darkW += w;
-      }
-    }
-
-    const palette: string[] = [];
-    if (lightW > 0.001) {
-      palette.push(
-        rgbToHex(
-          Math.round(lightR / lightW),
-          Math.round(lightG / lightW),
-          Math.round(lightB / lightW)
-        )
-      );
-    }
-    if (darkW > 0.001) {
-      palette.push(
-        rgbToHex(
-          Math.round(darkR / darkW),
-          Math.round(darkG / darkW),
-          Math.round(darkB / darkW)
-        )
-      );
-    }
-    if (palette.length === 0) palette.push(characteristic);
-
-    return { characteristic, palette };
+    return { characteristic: dominant, palette: [dominant] };
   },
-  ["split-logic-wedge-data-v3"],
+  ["split-logic-wedge-data-v5"],
   { revalidate: false }
 );
 
