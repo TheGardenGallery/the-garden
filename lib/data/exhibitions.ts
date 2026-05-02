@@ -16,6 +16,18 @@ export const exhibitions: Exhibition[] = [
     heroVideo: "/images/ricky-retouch/split-logic-hero.mp4",
     heroTheme: "dark",
     frameColor: "#000000",
+    // To activate the split-logic Intermission module once Ricky's
+    // statement is ready, set:
+    //   modules: [
+    //     { kind: "hero" },
+    //     { kind: "bespoke",
+    //       component: "split-logic/intermission",
+    //       config: { quote: "…", attribution: "Ricky Retouch" } },
+    //     { kind: "overview" },
+    //     { kind: "explore" }, { kind: "details" }, { kind: "featured" },
+    //     { kind: "works" }, { kind: "quote" }, { kind: "colophon" },
+    //     { kind: "nav" },
+    //   ],
   },
   // === CURRENT ===
   {

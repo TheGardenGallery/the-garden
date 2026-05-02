@@ -1,4 +1,5 @@
 import type { Exhibition, ExhibitionModule } from "@/lib/types";
+import { BESPOKE_REGISTRY } from "./bespoke/registry";
 import { WorksGrid } from "./WorksGrid";
 import { FeaturedArtworks } from "./FeaturedArtworks";
 import { ExploreRow } from "./ExploreRow";
@@ -85,10 +86,19 @@ export function ExhibitionModuleRenderer({
       if (!exhibition.prev && !exhibition.next) return null;
       return <ExhibitionNav exhibition={exhibition} />;
 
-    case "bespoke":
-      // Reserved for exhibition-specific modules registered under
-      // components/bespoke/{slug}/. No registry wired yet — silent.
-      return null;
+    case "bespoke": {
+      // Look up the bespoke component in the registry. Unknown keys
+      // render nothing (silent failure) so a typo in exhibition data
+      // never breaks the page.
+      const Component = BESPOKE_REGISTRY[module.component];
+      if (!Component) return null;
+      return (
+        <Component
+          exhibition={exhibition}
+          config={module.config ?? {}}
+        />
+      );
+    }
   }
 }
 

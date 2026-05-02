@@ -4242,3 +4242,83 @@ body:has(.wf-root) footer{
   pointer-events:none;
 }
 
+
+/* =======================================================================
+   BESPOKE: Split Logic — Intermission
+   -----------------------------------------------------------------------
+   Quiet pause module for Ricky's exhibition page. Holds a pull-quote
+   against the dark surface; the quote reveals one character at a time
+   with a tight flip motion that echoes the welcome overlay's split-flap
+   mechanic. Triggers when the section enters view; static thereafter.
+   ===================================================================== */
+.bespoke-intermission{
+  background:var(--ink);
+  color:var(--paper-warm);
+  padding:96px var(--gutter) 96px;
+  display:flex;align-items:center;justify-content:center;
+  min-height:48vh;
+}
+.bespoke-intermission-inner{
+  width:100%;
+  max-width:64rem;
+  margin:0 auto;
+}
+.bespoke-intermission-quote{
+  margin:0;
+  font-family:'Cormorant','Title CJK',serif;
+  font-style:italic;
+  font-weight:400;
+  font-size:clamp(1.4rem, 2.6vw, 2.2rem);
+  line-height:1.4;
+  letter-spacing:-0.005em;
+  text-wrap:balance;
+}
+.bespoke-intermission-quote p{
+  margin:0;
+  /* Each character is an inline-block span that animates independently;
+     `perspective` on the parent gives the flip a slight depth so the
+     character lands rather than just appears. */
+  perspective:600px;
+}
+.bespoke-intermission-char{
+  display:inline-block;
+  /* Hidden by default; the .bespoke-intermission[data-visible] state
+     hands each character its own animation-delay via inline style. */
+  opacity:0;
+  transform:rotateX(-78deg) translateY(-2px);
+  transform-origin:50% 0%;
+  white-space:pre;  /* preserve spaces between words */
+}
+.bespoke-intermission[data-visible] .bespoke-intermission-char{
+  animation:bespoke-intermission-flip both cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes bespoke-intermission-flip{
+  0%   {opacity:0;transform:rotateX(-78deg) translateY(-2px);}
+  60%  {opacity:1;transform:rotateX(6deg)  translateY(0);}
+  100% {opacity:1;transform:rotateX(0deg)  translateY(0);}
+}
+.bespoke-intermission-cite{
+  display:block;
+  margin-top:32px;
+  font-family:'Barlow',sans-serif;
+  font-style:normal;
+  font-size:11px;
+  letter-spacing:1.6px;
+  text-transform:uppercase;
+  color:var(--on-dark-fg-muted, rgba(245,243,239,0.55));
+  opacity:0;
+  transition:opacity 720ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bespoke-intermission[data-visible] .bespoke-intermission-cite{
+  opacity:1;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .bespoke-intermission[data-visible] .bespoke-intermission-char,
+  .bespoke-intermission[data-visible] .bespoke-intermission-cite{
+    animation:none;
+    transition:none;
+    opacity:1;
+    transform:none;
+  }
+}
