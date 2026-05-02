@@ -2688,6 +2688,15 @@ html:has(.constellation-root){
   max-width:var(--content-max);margin:0 auto;
   padding:64px var(--gutter) 120px;
   display:flex;flex-direction:column;
+  /* The facts sidenote is absolute-positioned (top:72px) and so does
+     not push this section taller. For exhibitions with no description
+     body the section would collapse to just its padding (~184px) and
+     the facts card overflows into the colophon — whose paper bg and
+     border-top would visibly clip the card. Reserve enough vertical
+     room for the worst-case 4-fact card (Works/Released/Platform/
+     anything else, ≈260px) plus bottom padding so the card always
+     sits cleanly inside its own section. */
+  min-height:420px;
 }
 .ex-overview-body{
   display:flex;flex-direction:column;gap:18px;
@@ -3512,6 +3521,13 @@ html:has(.constellation-root){
    elements inherit different fonts and `ch` would resolve differently
    on each). */
 @media (max-width:1000px){
+  .ex-overview{
+    /* Below 1000px the facts switch to position:static and contribute
+       to the section's intrinsic height, so the desktop min-height
+       reservation is no longer needed (and would only create dead
+       space below short prose). */
+    min-height:0;
+  }
   .ex-facts{
     position:static;
     flex-direction:row;flex-wrap:wrap;gap:20px;
