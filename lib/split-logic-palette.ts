@@ -92,7 +92,7 @@ const extractWedgeData = unstable_cache(
 
     return { characteristic: dominant, palette: [dominant] };
   },
-  ["split-logic-wedge-data-v5"],
+  ["split-logic-wedge-data-v6"],
   { revalidate: false }
 );
 
