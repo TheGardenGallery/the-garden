@@ -57,7 +57,14 @@ export function normalizeMarkdownItalics(md: string): string {
   return md.replace(/\*([^\n*]+?)\*/g, (full, inner) => {
     const trimmed = (inner as string).trim();
     if (!trimmed) return full; // `* *` etc — leave alone
-    return `*${trimmed}*`;
+    // Replace internal spaces with U+00A0 (non-breaking space) so
+    // line-break-based renderers — pretext shaping in the artist bio,
+    // and any CSS line wrap — can't split the italic phrase across
+    // lines. If they did, the asterisk pair would no longer share a
+    // single line, and the markdown/regex parsers downstream would
+    // fail to match — leaving literal asterisks on each fragment.
+    const atomic = trimmed.replace(/ /g, " ");
+    return `*${atomic}*`;
   });
 }
 
