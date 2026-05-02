@@ -193,6 +193,94 @@ export type Exhibition = {
   };
   prev?: ExhibitionLink;
   next?: ExhibitionLink;
+
+  // ──────────────────────────────────────────────────────────────────
+  // PER-EXHIBITION MODULATION SYSTEM
+  // ──────────────────────────────────────────────────────────────────
+  // The exhibition page is rendered as a sequence of "modules". When
+  // `modules` is omitted (the default), the page falls back to the
+  // standard order — hero, overview, explore, details, featured, works,
+  // quote, colophon, nav — which reproduces the prior layout exactly.
+  //
+  // A show that warrants a bespoke moment (Ricky's split-flap
+  // intermission, Itsgalo's parameter play, Yoshi's ambient layer) can
+  // declare its own ordered list of modules, optionally inserting
+  // bespoke React components at specific positions. The frame (nav,
+  // footer, paper baseline, type stack) stays constant; only the *flow*
+  // inside the page modulates.
+  //
+  // `theme`, `cadence`, and `atmosphere` are tonal shifts that flow
+  // through CSS custom properties scoped to this exhibition's slug.
+  // None of them replace the institutional voice — they only modulate
+  // it within constrained bounds.
+
+  /** Ordered list of modules to render. Omit to use the default. */
+  modules?: ExhibitionModule[];
+
+  /** Per-show palette tokens (one accent, surface tint, ink warmth).
+      Threaded through the page via `--ex-*` CSS custom properties. */
+  theme?: ExhibitionTheme;
+
+  /** Cadence preferences — block spacing and image rhythm. Standard
+      modules read these tokens to shift their own pacing. */
+  cadence?: ExhibitionCadence;
+
+  /** Atmospheric layers — optional ambient audio and exit transition.
+      Defaults to silent + standard fade. */
+  atmosphere?: ExhibitionAtmosphere;
+};
+
+// ── Modulation system types ─────────────────────────────────────────
+
+/** Standard rooms in the catalog spread. Each one is a known component
+    that reads from the exhibition. They render conditionally based on
+    the exhibition's data — e.g. "details" renders nothing if the
+    exhibition has no detail crops, so module lists can include all
+    standard rooms without worrying about empty sections. */
+export type ExhibitionModule =
+  | { kind: "hero" }
+  | { kind: "overview" }
+  | { kind: "explore" }
+  | { kind: "details" }
+  | { kind: "featured" }
+  | { kind: "works" }
+  | { kind: "quote" }
+  | { kind: "colophon" }
+  | { kind: "nav" }
+  /** Bespoke modules are exhibition-specific React components that live
+      under `components/bespoke/{slug}/{Name}.tsx`. They're code-split
+      and only ship for the exhibition that uses them. The `component`
+      string is a registry key looked up at render time. */
+  | { kind: "bespoke"; component: string; config?: Record<string, unknown> };
+
+export type ExhibitionTheme = {
+  /** Page surface mode. `paper` = the cream baseline, `tinted` = a
+      slight base hue shift, `dark` = inverted ink-on-dark. */
+  surface?: "paper" | "tinted" | "dark";
+  /** Background tint, defaults to the cream baseline. */
+  base?: string;
+  /** Primary type colour, defaults to `--ink`. */
+  ink?: string;
+  /** A single accent — used sparingly, threaded through hover states,
+      hairlines, and citations. The system enforces "one accent per
+      show" by exposing only this single token. */
+  accent?: string;
+};
+
+export type ExhibitionCadence = {
+  blockSpacing?: "editorial" | "tight" | "spacious";
+  imageRhythm?: "measured" | "cascade" | "punctuated";
+};
+
+export type ExhibitionAtmosphere = {
+  /** Optional ambient audio. Fades in once the user scrolls past
+      `fadeInAtScroll` (0–1 fraction of page height) and out before
+      the colophon. The user can mute via a small UI affordance. */
+  ambientAudio?: { src: string; fadeInAtScroll?: number };
+  /** Page-exit transition. Defaults to `fade`. `split-flap` echoes
+      the welcome overlay's mechanics for shows whose work uses that
+      vocabulary. */
+  exitTransition?: "fade" | "split-flap" | "dissolve";
 };
 
 export type JournalEntry = {

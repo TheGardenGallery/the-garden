@@ -1,16 +1,9 @@
 import { notFound } from "next/navigation";
 import { fetchExhibition, fetchExhibitions } from "@/lib/verse-api";
-import { WorksGrid } from "@/components/WorksGrid";
-import { FeaturedArtworks } from "@/components/FeaturedArtworks";
-import { ExploreRow } from "@/components/ExploreRow";
-import { ArtistQuote } from "@/components/ArtistQuote";
-import { ExhibitionDetails } from "@/components/ExhibitionDetails";
-import { ExhibitionHero } from "@/components/ExhibitionHero";
-import { ExhibitionOverview } from "@/components/ExhibitionOverview";
-import { ExhibitionColophon } from "@/components/ExhibitionColophon";
-import { ExhibitionNav } from "@/components/ExhibitionNav";
-import { Reveal } from "@/components/Reveal";
-import type { Exhibition } from "@/lib/types";
+import {
+  DEFAULT_EXHIBITION_MODULES,
+  ExhibitionModuleRenderer,
+} from "@/components/ExhibitionModuleRenderer";
 
 export async function generateStaticParams() {
   const all = await fetchExhibitions();
@@ -37,6 +30,12 @@ export default async function ExhibitionDetailPage({
   const exhibition = await fetchExhibition(slug);
   if (!exhibition) notFound();
 
+  // The page is a sequence of modules. Most exhibitions ride the
+  // default order; shows that warrant a bespoke moment override
+  // `exhibition.modules` to insert custom components or reorder rooms.
+  // The frame (nav, footer, paper baseline, type stack) is constant.
+  const modules = exhibition.modules ?? DEFAULT_EXHIBITION_MODULES;
+
   return (
     <div className="exhibition-detail" data-slug={exhibition.slug}>
       {/* Kick off the hero video fetch during HTML parse so the browser
@@ -52,69 +51,13 @@ export default async function ExhibitionDetailPage({
         />
       )}
 
-      <ExhibitionHero exhibition={exhibition} />
-
-      <ExhibitionOverview exhibition={exhibition} />
-
-      {exhibition.exploreArtworks && exhibition.exploreArtworks.length > 0 && (
-        <Reveal>
-          <ExploreRow
-            items={exhibition.exploreArtworks}
-            fallbackYear={exhibition.year}
-            fallbackWorkCount={exhibition.workCount}
-          />
-        </Reveal>
-      )}
-
-      {exhibition.details && exhibition.details.crops.length > 0 && (
-        <Reveal>
-          <ExhibitionDetails
-            details={exhibition.details}
-            title={exhibition.title}
-          />
-        </Reveal>
-      )}
-
-      {exhibition.featuredArtworks && exhibition.featuredArtworks.length > 0 && (
-        <Reveal>
-          <FeaturedArtworks items={exhibition.featuredArtworks} />
-        </Reveal>
-      )}
-
-      {exhibition.works && exhibition.works.length > 0 && (
-        <WorksSection works={exhibition.works} />
-      )}
-
-      {/* Artist quote sits after the work study — gives the artist the
-          last word before colophon, lets the typewriter animation land
-          as the page's closing moment rather than a mid-scroll pause. */}
-      {exhibition.artistQuote && (
-        <ArtistQuote quote={exhibition.artistQuote} />
-      )}
-
-      <Reveal>
-        <ExhibitionColophon exhibition={exhibition} />
-      </Reveal>
-
-      {(exhibition.prev || exhibition.next) && (
-        <ExhibitionNav exhibition={exhibition} />
-      )}
+      {modules.map((module, i) => (
+        <ExhibitionModuleRenderer
+          key={`${module.kind}-${i}`}
+          module={module}
+          exhibition={exhibition}
+        />
+      ))}
     </div>
   );
 }
-
-function WorksSection({ works }: { works: NonNullable<Exhibition["works"]> }) {
-  return (
-    <section className="ex-works" aria-labelledby="worksHead">
-      <div className="ex-works-inner">
-        <header className="ex-works-head">
-          <h2 className="ex-works-head-title" id="worksHead">
-            Selected works
-          </h2>
-        </header>
-        <WorksGrid works={works} />
-      </div>
-    </section>
-  );
-}
-
