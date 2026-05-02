@@ -166,6 +166,8 @@ export function PieceGrid({ items }: { items: PieceGridItem[] }) {
               key={expanded}
               item={items[expanded]}
               onClose={() => setExpanded(null)}
+              onPrev={items.length > 1 ? prev : undefined}
+              onNext={items.length > 1 ? next : undefined}
             />
 
             <button

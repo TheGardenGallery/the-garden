@@ -28,9 +28,13 @@ const DRAG_TOLERANCE = 4;
 export function ExpandedArtwork({
   item,
   onClose,
+  onPrev,
+  onNext,
 }: {
   item: ExpandedArtworkItem;
   onClose: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
 }) {
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -135,6 +139,81 @@ export function ExpandedArtwork({
     setPan({ x: 0, y: 0 });
   };
 
+  // Touch handling — single-finger drag pans when zoomed; at zoom 1
+  // a horizontal swipe past the threshold fires prev/next, a tap
+  // (no significant movement) closes. Mirrors the mouse pan +
+  // click-to-close pattern, plus the swipe-nav mobile gesture.
+  const touchRef = useRef({
+    active: false,
+    startX: 0,
+    startY: 0,
+    panStartX: 0,
+    panStartY: 0,
+    startTime: 0,
+    moved: false,
+  });
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length !== 1) return;
+    const t = e.touches[0];
+    touchRef.current = {
+      active: true,
+      startX: t.clientX,
+      startY: t.clientY,
+      panStartX: pan.x,
+      panStartY: pan.y,
+      startTime: Date.now(),
+      moved: false,
+    };
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchRef.current.active || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    const dx = t.clientX - touchRef.current.startX;
+    const dy = t.clientY - touchRef.current.startY;
+    if (Math.abs(dx) > DRAG_TOLERANCE || Math.abs(dy) > DRAG_TOLERANCE) {
+      touchRef.current.moved = true;
+    }
+    if (zoom > 1) {
+      setPan(
+        clampPan(
+          touchRef.current.panStartX + dx,
+          touchRef.current.panStartY + dy,
+          zoom,
+        ),
+      );
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchRef.current.active) return;
+    const moved = touchRef.current.moved;
+    const startTime = touchRef.current.startTime;
+    const startX = touchRef.current.startX;
+    const startY = touchRef.current.startY;
+    touchRef.current.active = false;
+
+    const t = e.changedTouches[0];
+    if (!t) return;
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+    const elapsed = Date.now() - startTime;
+
+    // Tap-to-close at zoom 1 (no movement, short duration).
+    if (!moved && zoom <= 1 && elapsed < 400) {
+      onClose();
+      return;
+    }
+
+    // Swipe-to-nav at zoom 1: horizontal travel beyond threshold,
+    // dominant over vertical, completed within a reasonable window.
+    if (zoom <= 1 && Math.abs(dx) > 56 && Math.abs(dx) > Math.abs(dy) * 1.4 && elapsed < 800) {
+      if (dx > 0) onPrev?.();
+      else onNext?.();
+    }
+  };
+
   const cursor = zoom > 1 ? (isDragging ? "grabbing" : "grab") : "zoom-out";
 
   const innerStyle: CSSProperties = {
@@ -156,6 +235,9 @@ export function ExpandedArtwork({
       onMouseUp={() => finishDrag(true)}
       onMouseLeave={() => finishDrag(false)}
       onDoubleClick={handleDoubleClick}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       role="button"
       aria-label="Artwork viewer — scroll to zoom, drag to pan, double-click to reset"
       style={{ cursor }}

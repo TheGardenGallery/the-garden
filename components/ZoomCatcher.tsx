@@ -133,6 +133,8 @@ export function ZoomCatcher({
           <ExpandedArtwork
             item={items[index]}
             onClose={() => setIndex(null)}
+            onPrev={items.length > 1 ? prev : undefined}
+            onNext={items.length > 1 ? next : undefined}
           />
           {items.length > 1 && (
             <>
