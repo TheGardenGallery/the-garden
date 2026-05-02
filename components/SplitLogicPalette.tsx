@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import type { WedgeCell } from "@/lib/split-logic-color";
+import { legibleOnDark, type WedgeCell } from "@/lib/split-logic-color";
 
 /**
  * Split Logic — walker bar.
@@ -20,9 +20,19 @@ type Props = {
   cells: WedgeCell[];
   lockedIdx: number | null;
   onCellClick: (i: number) => void;
+  /** Optional: notified each time the walker steps to a new zone.
+   *  The host uses this to re-rank the piece grid by the walker's
+   *  current colour, so the bar reads as the system actively tuning
+   *  rather than a decorative cursor. */
+  onWalkerChange?: (idx: number) => void;
 };
 
-export function SplitLogicPalette({ cells, lockedIdx, onCellClick }: Props) {
+export function SplitLogicPalette({
+  cells,
+  lockedIdx,
+  onCellClick,
+  onWalkerChange,
+}: Props) {
   const [walkerIdx, setWalkerIdx] = useState(0);
   const [fadingIdx, setFadingIdx] = useState<number | null>(null);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
@@ -31,19 +41,35 @@ export function SplitLogicPalette({ cells, lockedIdx, onCellClick }: Props) {
   const cellsLenRef = useRef(cellsLen);
   cellsLenRef.current = cellsLen;
 
+  // Notify the host whenever the walker moves so the grid can re-rank.
+  useEffect(() => {
+    onWalkerChange?.(walkerIdx);
+  }, [walkerIdx, onWalkerChange]);
+
   const isLocked = lockedIdx !== null;
 
-  // Display priority: hover preview > lock > walker. The walker keeps
-  // running underneath in the autonomous case; hover just temporarily
-  // shifts what's reported in the readout.
-  const displayIdx =
-    hoveredIdx !== null ? hoveredIdx : isLocked ? (lockedIdx as number) : walkerIdx;
+  // Display priority: lock > hover preview > walker. Once the viewer
+  // has tuned the system, that's the truth — hovering elsewhere
+  // doesn't override the locked state in the readout (clicking a
+  // different cell still re-tunes via onCellClick).
+  const displayIdx = isLocked
+    ? (lockedIdx as number)
+    : hoveredIdx !== null
+      ? hoveredIdx
+      : walkerIdx;
   const display = cells[displayIdx];
-  const displayMode: "preview" | "lock" | "walker" =
-    hoveredIdx !== null ? "preview" : isLocked ? "lock" : "walker";
+  const displayMode: "preview" | "lock" | "walker" = isLocked
+    ? "lock"
+    : hoveredIdx !== null
+      ? "preview"
+      : "walker";
 
   useEffect(() => {
-    if (isLocked || cellsLen === 0) return;
+    // Walker pauses while the viewer is interacting with the bar
+    // (hovering or locked) — only one cell is highlighted at a time
+    // so the strip reads as a single instrument, not three states
+    // happening in parallel.
+    if (isLocked || hoveredIdx !== null || cellsLen === 0) return;
     let cancelled = false;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
     let intervalId: ReturnType<typeof setInterval> | undefined;
@@ -90,11 +116,15 @@ export function SplitLogicPalette({ cells, lockedIdx, onCellClick }: Props) {
     // walkerIdx is the seed for the loop, not a dependency — once the
     // loop is running, it owns the cursor and re-seeds itself.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLocked, cellsLen]);
+  }, [isLocked, hoveredIdx, cellsLen]);
 
   if (cellsLen === 0) return null;
 
   const displayNum = String(displayIdx + 1).padStart(2, "0");
+  // Brightened for the readout text/cursor only — preserves hue +
+  // chroma but raises lightness so dark zones (navy, plum, brick)
+  // don't sink into the black surface.
+  const legibleHex = legibleOnDark(display.hex);
 
   return (
     <section
@@ -111,10 +141,13 @@ export function SplitLogicPalette({ cells, lockedIdx, onCellClick }: Props) {
       >
         {cells.map((c, i) => {
           const cellNum = String(i + 1).padStart(2, "0");
-          const isWalkerHere = !isLocked && i === walkerIdx;
+          const isHovering = hoveredIdx !== null;
+          const isWalkerHere =
+            !isLocked && !isHovering && i === walkerIdx;
           const isLockHere = lockedIdx === i;
           const isHoverHere = hoveredIdx === i;
-          const isFadeHere = fadingIdx === i && !isWalkerHere && !isLockHere;
+          const isFadeHere =
+            fadingIdx === i && !isWalkerHere && !isLockHere && !isHovering;
           const classes = [
             "sl-palette-cell",
             isWalkerHere && "is-walker",
@@ -144,26 +177,31 @@ export function SplitLogicPalette({ cells, lockedIdx, onCellClick }: Props) {
         <span className="sl-readout-prompt">{">>"}</span>
         <span
           className="sl-readout-hex"
-          style={{ color: display.hex }}
+          style={{ color: legibleHex }}
         >
           {display.hex.toUpperCase().replace("#", "0x")}
         </span>
         <span className="sl-readout-sep">::</span>
         <span className="sl-readout-id">zone {displayNum}/{cellsLen}</span>
-        <span className="sl-readout-sep">::</span>
-        <span className="sl-readout-state">
-          {displayMode === "lock"
-            ? "LOCK"
-            : displayMode === "preview"
-              ? "PREVIEW"
-              : `wait ${(dwellMs / 1000).toFixed(2)}s`}
-        </span>
+        {displayMode !== "preview" && (
+          <>
+            <span className="sl-readout-sep">::</span>
+            <span
+              className="sl-readout-state"
+              style={
+                displayMode === "lock" ? { color: legibleHex } : undefined
+              }
+            >
+              {displayMode === "lock"
+                ? "LOCKED"
+                : `wait ${(dwellMs / 1000).toFixed(2)}s`}
+            </span>
+          </>
+        )}
         <span
           className="sl-readout-cursor"
-          style={{ color: display.hex }}
-        >
-          █
-        </span>
+          style={{ color: legibleOnDark(display.hex, 0.62) }}
+        >█</span>
       </div>
     </section>
   );

@@ -65,7 +65,7 @@ export function SplitLogicSystem({
 
   const cellOrder = useMemo(() => {
     if (lockedZoneIdx === null) {
-      // Identity order — natural numbering.
+      // No tuning — natural numbering.
       return gridItems.map((_, i) => i);
     }
     const targetWedgeIdx = zoneIndices[lockedZoneIdx];

@@ -3770,12 +3770,9 @@ html:has(.constellation-root){
 .sl-readout-id,
 .sl-readout-state{ color:var(--on-dark-fg-soft); }
 .sl-palette.is-lock .sl-readout-state{
-  color:var(--phosphor);
   letter-spacing:0.22em;
-}
-.sl-palette.is-preview .sl-readout-state{
-  color:rgba(255,255,255,0.78);
-  letter-spacing:0.16em;
+  /* Colour set inline by the component to the locked zone's tone
+     (legibility-clamped on dark) so LOCKED matches the hex above. */
 }
 .sl-readout-cursor{
   display:inline-block;

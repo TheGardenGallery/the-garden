@@ -59,6 +59,49 @@ export function hexToOklch(hex: string): Oklch {
   };
 }
 
+/** OKLab → sRGB hex. Inverse of hexToOklab. */
+export function oklabToHex([L, a, b]: [number, number, number]): string {
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+  const l = l_ * l_ * l_;
+  const m = m_ * m_ * m_;
+  const s = s_ * s_ * s_;
+  const lr = 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+  const lg = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+  const lb = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
+  const enc = (v: number) => {
+    const clamped = Math.max(0, Math.min(1, v));
+    return clamped <= 0.0031308
+      ? 12.92 * clamped
+      : 1.055 * Math.pow(clamped, 1 / 2.4) - 0.055;
+  };
+  const r = Math.round(enc(lr) * 255);
+  const g = Math.round(enc(lg) * 255);
+  const b2 = Math.round(enc(lb) * 255);
+  return (
+    "#" +
+    [r, g, b2].map((v) => v.toString(16).padStart(2, "0")).join("")
+  );
+}
+
+export function oklchToHex({ L, C, h }: Oklch): string {
+  return oklabToHex([L, C * Math.cos(h), C * Math.sin(h)]);
+}
+
+/**
+ * Brightens a hex for legibility on dark surfaces while preserving
+ * its hue and chroma. Used by the readout: navy / plum / brick
+ * stays "navy in identity" but renders at a comfortable reading
+ * lightness rather than sinking into the black background. Pastels
+ * (already above the threshold) pass through unchanged.
+ */
+export function legibleOnDark(hex: string, minL = 0.78): string {
+  const lch = hexToOklch(hex);
+  if (lch.L >= minL) return hex;
+  return oklchToHex({ L: minL, C: lch.C, h: lch.h });
+}
+
 /**
  * Greedy farthest-first selection over OKLCh-distance. Used to thin a
  * full series palette down to a small set of mutually-distinct
