@@ -173,16 +173,22 @@ export function ExpandedArtwork({
       startTime: Date.now(),
       moved: false,
     };
+    // Disable transition immediately so the first touchmove follows
+    // the finger without a 220ms ease-out lag from the prior render.
+    setIsDragging(true);
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!touchRef.current.active || e.touches.length !== 1) return;
-    const t = e.touches[0];
-    const dx = t.clientX - touchRef.current.startX;
-    const dy = t.clientY - touchRef.current.startY;
-    if (Math.abs(dx) > DRAG_TOLERANCE || Math.abs(dy) > DRAG_TOLERANCE) {
-      touchRef.current.moved = true;
-    }
+  // rAF throttle for touchmove updates — caps setState to display
+  // refresh rate so we don't queue redundant React renders when the
+  // OS fires touchmove at >60Hz on capable devices.
+  const rafRef = useRef<number | null>(null);
+  const pendingMoveRef = useRef<{ dx: number; dy: number } | null>(null);
+
+  const flushTouchMove = useCallback(() => {
+    rafRef.current = null;
+    const pending = pendingMoveRef.current;
+    if (!pending || !touchRef.current.active) return;
+    const { dx, dy } = pending;
     if (zoom > 1) {
       setPan(
         clampPan(
@@ -192,12 +198,21 @@ export function ExpandedArtwork({
         ),
       );
     } else if (Math.abs(dx) > Math.abs(dy)) {
-      // At zoom 1, follow the finger horizontally so the swipe has
-      // immediate visual response (no "lag until release" feel). The
-      // pan is committed without going through clampPan since at
-      // zoom=1 the clamp would always force back to (0, 0).
-      setIsDragging(true);
       setPan({ x: dx, y: 0 });
+    }
+  }, [zoom, clampPan]);
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchRef.current.active || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    const dx = t.clientX - touchRef.current.startX;
+    const dy = t.clientY - touchRef.current.startY;
+    if (Math.abs(dx) > DRAG_TOLERANCE || Math.abs(dy) > DRAG_TOLERANCE) {
+      touchRef.current.moved = true;
+    }
+    pendingMoveRef.current = { dx, dy };
+    if (rafRef.current === null) {
+      rafRef.current = requestAnimationFrame(flushTouchMove);
     }
   };
 
@@ -208,6 +223,11 @@ export function ExpandedArtwork({
     const startX = touchRef.current.startX;
     const startY = touchRef.current.startY;
     touchRef.current.active = false;
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    pendingMoveRef.current = null;
 
     const t = e.changedTouches[0];
     if (!t) {

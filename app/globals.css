@@ -3795,9 +3795,31 @@ html:has(.constellation-root){
   cursor:zoom-in;
 }
 @media (max-width:760px){
+  /* Inline three-up becomes a horizontal scroll-snap carousel on
+     mobile — vertical stacking eats screen real-estate and breaks
+     the "row of three" rhythm Ricky's series benefits from. Each
+     item takes ~82% viewport width; the next peeks past the right
+     edge as a swipe affordance. The grid bleeds to viewport edges
+     so the first item sits flush with the page gutter. Mirrors the
+     ex-details mobile pattern. */
   .exhibition-detail[data-slug="split-logic"] .ex-inline-artworks{
-    grid-template-columns:1fr;
-    gap:14px;
+    display:flex !important;
+    grid-template-columns:none !important;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    gap:12px;
+    margin:32px calc(var(--gutter) * -1) !important;
+    padding:0 var(--gutter);
+    scroll-padding-left:var(--gutter);
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .exhibition-detail[data-slug="split-logic"] .ex-inline-artworks::-webkit-scrollbar{
+    display:none;
+  }
+  .exhibition-detail[data-slug="split-logic"] .ex-inline-artworks > *{
+    flex:0 0 82%;
+    scroll-snap-align:start;
   }
 }
 /* Terminal-style description: monospace stack, slightly tighter
