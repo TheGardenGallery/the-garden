@@ -3915,6 +3915,52 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="split-logic"] .ex-nav-line{color:var(--on-dark-fg);}
 .exhibition-detail[data-slug="split-logic"] .ex-nav-line .slash{color:var(--on-dark-fg-muted);}
 
+/* Mobile-specific refinements for Ricky's exhibition + the homepage
+   hero of his work. Each addresses a problem visible on portrait
+   phones at <720px: the square artworks scale too aggressively, the
+   facts panel wraps unevenly, and the prev/next nav cells get
+   cramped side-by-side. */
+@media (max-width:720px){
+  /* Homepage hero — cap the contained slide video so the near-square
+     artwork doesn't fill the viewport and dominate the screen. */
+  .hero[data-slug="split-logic"] .slide-video{
+    max-height:58vh;
+    max-width:88vw;
+  }
+  /* Exhibition hero — same treatment on the plate's media. Plus
+     tighten the title-safe zone so the artwork sits closer to the
+     "Ricky Retouch / Split Logic" headline below it. */
+  .exhibition-detail[data-slug="split-logic"] .ex-hero-plate img,
+  .exhibition-detail[data-slug="split-logic"] .ex-hero-plate .ex-hero-video{
+    max-width:88vw;
+    max-height:58vh;
+  }
+  .exhibition-detail[data-slug="split-logic"] .ex-hero{
+    --ex-title-bottom:32px;
+    --ex-title-clearance:48px;
+  }
+  /* Facts panel — switch from awkward flex-wrap (4 + 2) to a clean
+     2-column grid (3 even rows of 2). */
+  .exhibition-detail[data-slug="split-logic"] .ex-facts{
+    display:grid !important;
+    grid-template-columns:1fr 1fr;
+    gap:20px 24px;
+  }
+  /* Prev/next exhibition nav — stack vertically on narrow viewports.
+     Side-by-side at <414px wraps the right cell awkwardly. */
+  .exhibition-detail[data-slug="split-logic"] .ex-nav{
+    grid-template-columns:1fr;
+  }
+  .exhibition-detail[data-slug="split-logic"] .ex-nav a:first-child{
+    border-right:0;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+  }
+  .exhibition-detail[data-slug="split-logic"] .ex-nav a:last-child{
+    align-items:flex-start;
+    text-align:left;
+  }
+}
+
 .ex-colophon{
   border-top:1px solid var(--rule-thin);background:var(--paper);
   padding:80px var(--gutter) 96px;
