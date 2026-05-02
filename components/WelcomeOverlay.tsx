@@ -33,11 +33,11 @@ const SESSION_KEY = "garden-session";
    A short silence, a quick-but-smooth fade-in, a tight hold, a clean
    dissolve, then a small beat before the flaps fall. The split surface
    should feel composed, not patient. */
-const OPEN_HOLD = 180;       // silence on the B/W split before any motion
-const TEXT_IN = 620;         // fade-in duration (matches button transition)
-const TEXT_HOLD = 720;       // dwell at full opacity
-const TEXT_OUT = 440;        // fade-out duration (matches button transition)
-const PRE_FALL = 200;        // anticipation between text gone and curtain
+const OPEN_HOLD = 70;        // silence on the B/W split before any motion
+const TEXT_IN = 410;         // fade-in duration (matches button transition)
+const TEXT_HOLD = 240;       // dwell at full opacity
+const TEXT_OUT = 275;        // fade-out duration (matches button transition)
+const PRE_FALL = 70;         // anticipation between text gone and curtain
 // Total ≈ 2.16s before the cascade begins.
 
 /* refined easings — easeOutExpo in, easeInQuad out */
@@ -149,7 +149,7 @@ export function WelcomeOverlay() {
 
     /* per-strip micro-variation in delay (seeded) */
     const rng = createRng(SEED + 7);
-    const STAGGER = 52;  // brisk cascade — keeps momentum
+    const STAGGER = 38;  // brisk cascade — keeps momentum
 
     order.forEach((stripIdx, seq) => {
       const jitter = (rng() - 0.5) * 12; // ±6ms — clean, not jittery
