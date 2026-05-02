@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Exhibition } from "@/lib/types";
-import { preserveHyphens } from "@/lib/typography";
+import { markdownItalicsToHtml, preserveHyphens } from "@/lib/typography";
 import { ArrowRight, ArrowDown, ArrowNE } from "@/components/Arrows";
 import { ClampedBody } from "@/components/ClampedBody";
 import { artists } from "@/lib/data/artists";
@@ -19,10 +19,16 @@ export function ExhibitionColophon({ exhibition }: { exhibition: Exhibition }) {
   // a single <p> (with line-clamp), so collapse paragraph breaks to
   // single spaces for inline rendering.
   const localBio = artist?.bio?.replace(/\n+/g, " ");
-  const colophonBio =
+  // Verse-sourced bios use markdown-style `*emphasis*` for project
+  // titles. The body is rendered via dangerouslySetInnerHTML, which
+  // doesn't parse markdown, so convert the asterisks to <em> ourselves
+  // before they reach the renderer. Local bios (artists.ts) get the
+  // same treatment defensively in case any of them slip in markdown.
+  const colophonBio = markdownItalicsToHtml(
     localBio ??
-    exhibition.artistBio ??
-    "Multidisciplinary artist working across digital and generative systems.";
+      exhibition.artistBio ??
+      "Multidisciplinary artist working across digital and generative systems.",
+  );
 
   return (
     <section className="ex-colophon">

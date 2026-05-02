@@ -60,3 +60,23 @@ export function normalizeMarkdownItalics(md: string): string {
     return `*${trimmed}*`;
   });
 }
+
+/**
+ * Convert single-line `*…*` markdown italics into HTML `<em>…</em>`.
+ * Use when prose from an external source (Verse bios, etc.) is about
+ * to be rendered via `dangerouslySetInnerHTML` — i.e. markdown won't
+ * be parsed by the consumer, so we have to do the substitution
+ * ourselves. Trims inner whitespace defensively (Verse's copy often
+ * has `* TEXT *` with leading/trailing spaces).
+ *
+ * Same conservative match as normalizeMarkdownItalics: single-line
+ * runs only, no nested asterisks, leaves bullets and footnote markers
+ * alone.
+ */
+export function markdownItalicsToHtml(text: string): string {
+  return text.replace(/\*([^\n*]+?)\*/g, (full, inner) => {
+    const trimmed = (inner as string).trim();
+    if (!trimmed) return full;
+    return `<em>${trimmed}</em>`;
+  });
+}
