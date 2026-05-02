@@ -40,7 +40,7 @@ export default function RootLayout({
         />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;1,400&family=Barlow:wght@400;500;600&family=Inter:wght@700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;1,400&family=Barlow:wght@400;500;600&family=Inter:wght@700&family=Big+Shoulders+Display:wght@800&family=Saira+Condensed:wght@500;600&family=Space+Mono:wght@400&display=swap"
         />
         {/* Warm up DNS/TCP for the IPFS / S3 gateways our genart
             iframes load resources from via <base href>. Cheap network

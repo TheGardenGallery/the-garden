@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import type { Exhibition } from "@/lib/types";
 import { preserveHyphens } from "@/lib/typography";
 import { InlineArtworks } from "@/components/InlineArtworks";
+import { TerminalDescription } from "@/components/TerminalDescription";
 
 /**
  * Exhibition overview section: facts sidebar + prose column. Prose is
@@ -15,7 +16,18 @@ export function ExhibitionOverview({ exhibition }: { exhibition: Exhibition }) {
     <section className="ex-overview">
       <ExhibitionFacts exhibition={exhibition} />
       {exhibition.description && exhibition.description.length > 0 ? (
-        <OverviewSegments exhibition={exhibition} />
+        exhibition.descriptionTypewriter ? (
+          <TerminalDescription
+            paragraphs={exhibition.description}
+            labels={exhibition.descriptionLabels}
+            inlineArtworks={exhibition.inlineArtworks}
+            fallbackUrl={exhibition.verseSeriesUrl}
+            fallbackYear={exhibition.year}
+            fallbackWorkCount={exhibition.workCount}
+          />
+        ) : (
+          <OverviewSegments exhibition={exhibition} />
+        )
       ) : exhibition.descriptionMarkdown ? (
         <div className="ex-overview-body">
           <ReactMarkdown>{exhibition.descriptionMarkdown}</ReactMarkdown>
@@ -34,6 +46,9 @@ function ExhibitionFacts({ exhibition }: { exhibition: Exhibition }) {
       value: exhibition.date,
     });
   if (exhibition.location) facts.push({ label: "Platform", value: exhibition.location });
+  if (exhibition.chain) facts.push({ label: "Chain", value: exhibition.chain });
+  if (exhibition.tokenStandard) facts.push({ label: "Token standard", value: exhibition.tokenStandard });
+  if (exhibition.storage) facts.push({ label: "Storage", value: exhibition.storage });
   if (!facts.length) return null;
   return (
     <aside className="ex-facts" aria-label="Exhibition facts">

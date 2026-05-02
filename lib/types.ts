@@ -98,6 +98,7 @@ export type Exhibition = {
   location: string;
   status: ExhibitionStatus;
   description?: string[];        // paragraphs (HTML allowed in prose)
+  descriptionLabels?: string[];  // optional code-headers per paragraph (paired index-by-index with `description`); when present and `descriptionTypewriter` is on, each paragraph renders as a labeled "data station" staggered across a wider grid — echoes Ricky-style label clusters
   descriptionMarkdown?: string;  // markdown from Verse — takes priority when present
   descriptionByArtist?: boolean; // when true, render a "Text by the artist" byline under the description
   artistBio?: string;            // plain-text bio from Verse (colophon)
@@ -114,6 +115,8 @@ export type Exhibition = {
   homepageHeroVideoPoster?: string; // poster frame for homepageHeroVideo
   releaseDate?: string;          // ISO timestamp for upcoming exhibitions — drives the flip-clock countdown on the detail page
   heroTheme?: "dark" | "paper";  // hero backdrop — cream for light-surface pieces, dark for digital
+  titleTypewriter?: boolean;     // when true, animate the artist/title in word-by-word with a blinking cursor at the end
+  descriptionTypewriter?: boolean; // when true, render the description prose as terminal-style character-by-character type-in (mono font, on-dark colors, scroll-triggered). Plain-text descriptions only.
   frameColor?: string;           // background of the exhibitions-list image frame, matched to the artwork's palette
   listImageScale?: number;       // multiplier for the exhibitions-list thumbnail, compensating for mattes baked into the hero file
   disableListHoverZoom?: boolean; // skip the hover scale on the exhibitions-list row when fine patterns in the artwork would shimmer under sub-pixel scaling
@@ -121,6 +124,10 @@ export type Exhibition = {
   cardVideo?: string;            // if set, ExhibitionCard plays this muted-autoplay loop instead of cardImage
   works?: Work[];
   featuredArtworks?: FeaturedArtwork[];
+  /** Folder-grid: 4×4 of artwork "files" with each piece's head peeking
+      above a manila pocket. Click a cell to expand that piece into the
+      full grid area as a playing video. */
+  pieceGrid?: { video: string; poster: string; alt?: string }[];
   /** Horizontal row of other works from the series, shown below the
       editorial overview. Meant for "explore more from this series"
       pieces; thumbnails link out to the work on Verse. */
@@ -170,6 +177,9 @@ export type Exhibition = {
     }[];
   };
   workCount?: number;            // total works (e.g. 96, even if only some shown)
+  chain?: string;                // blockchain — e.g. "Ethereum"
+  tokenStandard?: string;        // e.g. "ERC-721"
+  storage?: string;              // asset storage — e.g. "IPFS"
   presentedBy?: string;
   verseSeriesUrl?: string;       // external link to the exhibition's Verse series page
   /** Documents block on the exhibition page (press release PDF, artist

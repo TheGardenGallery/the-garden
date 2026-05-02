@@ -12,10 +12,51 @@ export const exhibitions: Exhibition[] = [
     date: "May 2026",
     location: "Verse",
     status: "upcoming",
+    workCount: 100,
+    chain: "Ethereum",
+    tokenStandard: "ERC-721",
+    storage: "IPFS",
     homepageHeroVideo: "/images/ricky-retouch/split-logic-hero.mp4",
     heroVideo: "/images/ricky-retouch/split-logic-hero.mp4",
     heroTheme: "dark",
     frameColor: "#000000",
+    descriptionTypewriter: true,
+    description: [
+      "The work begins with a standard rectangular framework that gradually slips out of alignment through a re-meshing process. Grids stretch, compress, and fold into dense spatial structures where repeated subdivision produces areas of unexpected tension. Certain compositions feel almost architectural at first glance, though the geometry never fully settles. The images seem to evolve by pushing the system past the point where its original structure can comfortably hold.",
+      "Beneath the surface, these fields operate as responsive environments. Small blinking walkers move through dense networks, tracing routes that shift continuously across the image. Wait timers determine when new destinations appear, producing the intermittent pulses visible throughout the compositions. Some regions become crowded and highly active, while others remain sparse or suspended. The movement occasionally recalls infrastructural traffic, circuit mapping, or colonies navigating through synthetic terrain, though no single element appears to direct the image outright.",
+      "The pieces carry traces of vector displays, terminal interfaces, and certain visual languages associated with 1970s science fiction. Depth emerges through luminous points, interference patterns, and shifting densities rather than realism. The use of Avant Garde and Eurostile reinforces that technical lineage without turning nostalgic. These references feel absorbed into the broader visual texture of contemporary computational culture, where older interface systems continue to echo through present-day image making.",
+      "What remains compelling is the instability itself. The grids never fully resolve into fixed structures. They continue reorganizing under pressure, held in a state that feels simultaneously controlled and provisional.",
+    ],
+    inlineArtworks: [
+      {
+        afterParagraphIndex: 1,
+        items: [
+          {
+            image: "/images/ricky-retouch/inline/inline-1.jpg",
+            video: "/images/ricky-retouch/inline/inline-1.mp4",
+            alt: "Split Logic, study",
+          },
+          {
+            image: "/images/ricky-retouch/inline/inline-2.jpg",
+            video: "/images/ricky-retouch/inline/inline-2.mp4",
+            alt: "Split Logic, study",
+          },
+          {
+            image: "/images/ricky-retouch/inline/inline-3.jpg",
+            video: "/images/ricky-retouch/inline/inline-3.mp4",
+            alt: "Split Logic, study",
+          },
+        ],
+      },
+    ],
+    pieceGrid: Array.from({ length: 16 }, (_, i) => {
+      const n = String(i + 1).padStart(2, "0");
+      return {
+        video: `/images/ricky-retouch/works/wedge-${n}.mp4`,
+        poster: `/images/ricky-retouch/works/wedge-${n}.jpg`,
+        alt: `Split Logic, wedge ${i + 1}`,
+      };
+    }),
   },
   // === CURRENT ===
   {

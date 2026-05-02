@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { Exhibition } from "@/lib/types";
 import { HeroIframeMedia } from "./HeroIframeMedia";
 import { AutoPlayVideo } from "./AutoPlayVideo";
+import { Typewriter } from "./Typewriter";
 
 /**
  * Full-viewport exhibition hero. Mirrors the homepage hero so clicking a
@@ -29,7 +30,9 @@ export function ExhibitionHero({ exhibition }: { exhibition: Exhibition }) {
       >
         <div className="ex-title-headline" id="exTitle">
           <div className="ex-title-artist">
-            {exhibition.verseSeriesUrl ? (
+            {exhibition.titleTypewriter ? (
+              <Typewriter text={exhibition.artistName} />
+            ) : exhibition.verseSeriesUrl ? (
               <a
                 href={exhibition.verseSeriesUrl}
                 target="_blank"
@@ -44,7 +47,12 @@ export function ExhibitionHero({ exhibition }: { exhibition: Exhibition }) {
             )}
           </div>
           <h1 className="ex-title-title">
-            {exhibition.verseSeriesUrl ? (
+            {exhibition.titleTypewriter ? (
+              <Typewriter
+                text={exhibition.title}
+                startIdx={Array.from(exhibition.artistName).length}
+              />
+            ) : exhibition.verseSeriesUrl ? (
               <a
                 href={exhibition.verseSeriesUrl}
                 target="_blank"

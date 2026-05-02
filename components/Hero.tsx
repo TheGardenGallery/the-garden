@@ -234,7 +234,7 @@ export function Hero({ slides }: HeroProps) {
                   <span className="hero-link">
                     <span className="hero-link-label">
                       {ex.status === "upcoming"
-                        ? "Get notified"
+                        ? "Learn more"
                         : "View Exhibition"}
                     </span>
                     <span className="hero-link-arrow">→</span>

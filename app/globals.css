@@ -184,6 +184,14 @@ figcaption em{font-feature-settings:"kern" 1, "liga" 1, "dlig" 1;}
 .ex-hero[data-theme="dark"] ::selection,
 .artist-reveal:not([data-theme="paper"]) ::selection,
 footer ::selection{background-color:rgba(245,243,239,0.12);color:var(--on-dark-fg);}
+/* Split Logic's body sits outside .ex-hero, so the default
+   dark-on-light selection above turns text invisible against the
+   black page bg. Scope an inverse selection: cream-cyan plate, dark
+   ink text — high contrast, matches the page's tonal family. */
+.exhibition-detail[data-slug="split-logic"] ::selection{
+  background-color:rgba(232, 248, 248, 0.85);
+  color:#000;
+}
 
 /* ---- NO-SELECT: images + grid interactives ------------------------- */
 img{-webkit-user-select:none;user-select:none;-webkit-user-drag:none;user-drag:none;pointer-events:auto;}
@@ -302,6 +310,17 @@ body.nav-on-paper{
   --nav-fg:var(--ink);
   --nav-fg-muted:var(--ink-muted);
   --nav-rule:var(--rule);
+}
+
+/* Split Logic is fully dark below the hero (grid + colophon + nav-bottom
+   all on black), so the standard "flip back to paper after the dark
+   canvas scrolls past" rule above produces a visible seam. Suppress it
+   for this slug — the nav stays on-dark all the way down. */
+body.nav-on-paper:has(.exhibition-detail[data-slug="split-logic"]){
+  --nav-bg:#000;
+  --nav-fg:var(--on-dark-fg);
+  --nav-fg-muted:var(--on-dark-fg-muted);
+  --nav-rule:rgba(245,243,239,0.08);
 }
 
 .logo{
@@ -708,19 +727,18 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   width:100%;height:100%;
   object-fit:cover;
 }
-/* Ricky Retouch / Split Logic: pure black hero so the artwork's dark
-   ground dissolves seamlessly into the backdrop and the work reads as
-   stark light against negative space. The default dark theme's #0c0c10
-   would show a visible seam against the black video. */
+/* Ricky Retouch / Split Logic: pure black hero ground. The varied
+   per-piece palettes across the series read as lit plates against
+   negative space; matching to any single piece's edge would clash
+   with the others. Contained (not full-bleed) so the near-square
+   1456x1500 piece sits in generous negative space. */
 .hero[data-hero-treatment="full-bleed-video"]{background:#000000;}
 .hero[data-hero-treatment="full-bleed-video"]::after{display:none;}
-.hero[data-hero-treatment="full-bleed-video"] .slide-video{filter:none;}
-/* Ricky / Split Logic: the video's authored edge is pure black —
-   let it bleed to the slide's padding boundary so there's no visible
-   seam between the video border and the hero background. */
 .hero[data-slug="split-logic"] .slide-video{
-  max-width:100%;
-  max-height:100%;
+  max-height:74vh;
+  max-width:74vh;
+  width:auto;
+  height:auto;
 }
 /* Slightly larger hero card lockup for dense featured homepage works. */
 .hero[data-hero-copy-treatment="featured-lockup"] .hero-artist,
@@ -2052,13 +2070,10 @@ html:has(.constellation-root){
      invisible against the black ground anyway; kill it here. */
   filter:none;
 }
-/* Ricky Retouch / Split Logic: the video's ground is pure #000. Match
-   the homepage hero's pure-black backdrop and kill the drop-shadow on
-   the video so its edges dissolve into the page seamlessly. */
+/* Ricky Retouch / Split Logic: pure black hero ground — same as the
+   homepage hero. The series' varied palettes read as lit plates
+   floating in negative space against black. */
 .ex-hero[data-slug="split-logic"]{background:#000000;}
-.ex-hero[data-slug="split-logic"] .ex-hero-plate .ex-hero-video{
-  filter:none;
-}
 /* Canonical hero framing. The frame reserves a title safe-zone at
    the bottom so the artwork's contain-fit can never extend into the
    title-bar's territory at any viewport aspect ratio.
@@ -2215,9 +2230,19 @@ html:has(.constellation-root){
   max-width:1190px;
 }
 /* Paolo / Drift — narrow the details inner well below the default
-   1040 so the three 3:4 crops sit at a more intimate scale. */
+   1040 so the three 3:4 crops sit at a more intimate scale. Force the
+   grid to 3 columns on desktop (the standard auto-fit min-width of
+   240px would drop to 2 columns at this narrower 760px container). */
 .exhibition-detail[data-slug="drift"] .ex-details-inner{
-  max-width:760px;
+  max-width:900px;
+}
+.exhibition-detail[data-slug="drift"] .ex-details-grid{
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+}
+@media (max-width:960px){
+  .exhibition-detail[data-slug="drift"] .ex-details-grid{
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+  }
 }
 /* The shared <Image> component declares width=1200 height=1500 (4:5
    portrait) for CLS reservation. That HTML-attr default aspect can
@@ -2778,6 +2803,40 @@ html:has(.constellation-root){
   font-size:0.82em;line-height:1.55;
   color:var(--ink-muted);
   margin-top:8px;
+}
+
+/* Typewriter idiom (used by the title bar when `titleTypewriter` is
+   set on an exhibition). Each .tw-char fades in in sequence — display
+   stays `inline` so character kerning is preserved in the
+   proportional title font. --idx (set inline) drives the per-char
+   delay. The trailing .tw-cursor begins blinking just after the last
+   character lands. */
+.tw-char{
+  opacity:0;
+  animation:tw-char-in 110ms ease-out both;
+  animation-delay:calc(var(--idx, 0) * 78ms);
+}
+@keyframes tw-char-in{
+  to{opacity:1;}
+}
+.tw-cursor{
+  display:inline-block;
+  width:2px;height:0.48em;
+  background:currentColor;
+  vertical-align:baseline;
+  margin-left:0.32em;
+  transform:translateY(0.02em);
+  opacity:0;
+  animation:tw-cursor-blink 1.1s ease-in-out infinite;
+  animation-delay:var(--cursor-delay, 1000ms);
+}
+@keyframes tw-cursor-blink{
+  0%, 100%{opacity:1;}
+  50%{opacity:0;}
+}
+@media (prefers-reduced-motion:reduce){
+  .tw-char{opacity:1;animation:none;}
+  .tw-cursor{opacity:0;animation:none;}
 }
 
 /* Inline artwork pair breaking out of the 68ch prose column into an
@@ -3419,6 +3478,442 @@ html:has(.constellation-root){
   font-family:'Barlow',sans-serif;font-weight:400;font-size:10px;letter-spacing:0.5px;
   text-transform:uppercase;line-height:1;
 }
+
+/* Folder-grid: 4×4 of artwork "files" filed behind a frosted-glass
+   pocket — each piece's head reads crisply above the blur, the body
+   diffused below. Click a cell to morph that piece up out of the
+   folder and into a centered viewport-anchored frame where it plays;
+   click the artwork (or anywhere) to file it back. */
+.piece-grid-section{
+  max-width:var(--content-max);margin:0 auto;
+  padding:96px var(--gutter) 120px;
+}
+.piece-grid{
+  position:relative;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:18px;
+  max-width:1289px;margin:0 auto;
+}
+.piece-cell{
+  position:relative;
+  appearance:none;border:0;padding:0;background:transparent;
+  font:inherit;color:inherit;text-align:left;cursor:pointer;
+  aspect-ratio:1;
+  display:block;width:100%;
+  border-radius:1px;overflow:hidden;
+  /* On a black ground, a light hairline carries the card edge and a
+     soft outer glow lifts the cell off the surface. The glass pocket
+     below contributes the rest of the visual weight. */
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06),
+    0 8px 24px -12px rgba(0,0,0,0.6);
+  background:#000;
+}
+.piece-cell:disabled{cursor:default;}
+.piece-cell:focus-visible{outline:2px solid var(--ink);outline-offset:3px;}
+/* Artwork peek wrapper: the full artwork sits absolute behind the
+   pocket. The glass pocket below handles the head/body delineation
+   via a subtle frosted layer; no mask needed on the artwork itself. */
+.piece-folder-art-wrap{
+  position:absolute;inset:0;
+  overflow:hidden;
+  z-index:1;
+}
+.piece-folder-art{
+  position:absolute;left:0;top:0;
+  width:100%;
+  aspect-ratio:1;
+  /* Match the cell's barely-smoothed radius so when the piece lifts
+     on hover, its bottom corners curve in step with the cell rather
+     than reading as a hard horizontal cutoff. */
+  border-radius:1px;
+  overflow:hidden;
+}
+.piece-folder-art img,
+.piece-folder-art video{
+  width:100%;height:100%;display:block;
+  object-fit:cover;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+/* Pocket region (no visual). The pocket div stays in the DOM as a
+   structural anchor but contributes no fill, blur, or border — the
+   artwork reads end-to-end through the cell. */
+.piece-folder-pocket{
+  position:absolute;left:0;right:0;bottom:0;
+  height:58%;
+  z-index:2;
+  pointer-events:none;
+}
+/* Hover: subtle lift cue — the artwork nudges up a hair so a bit more
+   head reveals from behind the glass. Restrained, not jumpy. */
+@media (hover:hover){
+  .piece-cell:not(:disabled) .piece-folder-art{
+    transition:transform 560ms var(--ease-slow);
+  }
+  .piece-cell:not(:disabled):hover .piece-folder-art{
+    transform:translateY(-0.8%);
+  }
+}
+/* Expanded overlay: viewport-fixed so the artwork sits centered on the
+   page, not just within the grid section. The backdrop is a heavily
+   blurred copy of the active artwork itself — automatic color match
+   to whatever piece is open, no precomputed palette. */
+.piece-grid-overlay{
+  position:fixed;inset:0;z-index:60;
+  background:#000;
+  display:flex;align-items:center;justify-content:center;
+  padding:48px;
+  cursor:zoom-out;
+  border:0;
+  overflow:hidden;
+}
+.piece-grid-overlay-bg{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  /* Stacked blur (two 57px passes ≈ original 80px effective) gives
+     a smoother gaussian falloff than a single large blur — single
+     CSS blurs are box-filter approximations that produce visible
+     banding at high radii; stacking two reduces it. Contrast 0.9
+     softens sharp transitions in the source before the blur sees
+     them, so there are fewer hard edges to band on. Saturate
+     bumped slightly to compensate for the contrast reduction. */
+  filter:blur(57px) blur(57px) saturate(1.4) brightness(0.42) contrast(0.9);
+  transform:scale(1.18);
+  pointer-events:none;
+  z-index:-1;
+}
+.piece-grid-expanded{
+  position:relative;
+  /* Capped at 720px or 70% of the smaller viewport dimension so the
+     artwork reads as a centered plate with breathing room — never
+     filling the screen edge to edge. */
+  width:min(720px, 70vmin);
+  aspect-ratio:1;
+  cursor:zoom-out;
+  /* No box-shadow / border-radius — at higher zoom the artwork
+     scales past this frame and a styled empty container would show
+     up as a ghost "box" behind the artwork. Frame is purely a
+     layout anchor; the artwork itself is the only visible thing. */
+  overflow:visible;
+}
+/* Inner zoomable wrapper — receives the user's transform (translate +
+   scale) so it doesn't fight Framer Motion's entry animation on the
+   parent. Fills the parent expanded box. */
+.piece-grid-zoomable{
+  width:100%;height:100%;display:block;
+  will-change:transform;
+}
+.piece-grid-zoomable video{
+  width:100%;height:100%;display:block;
+  object-fit:cover;
+  /* Pixel-perfect when zoomed — keep the artwork's grid pattern sharp
+     instead of being blurred by browser's default smooth upscaling.
+     Three declarations cover Chrome/Edge/Safari/Firefox respectively. */
+  image-rendering:pixelated;
+  image-rendering:-moz-crisp-edges;
+  image-rendering:crisp-edges;
+}
+.piece-grid-expanded video{
+  width:100%;height:100%;display:block;
+  object-fit:cover;
+}
+/* Prev/next nav in the expanded view — same opacity/transform
+   pattern as the homepage hero arrows so the gesture reads as the
+   site's house style. */
+.piece-nav-btn{
+  position:absolute;top:50%;
+  background:transparent;border:0;padding:18px;cursor:pointer;
+  color:var(--on-dark-fg);
+  opacity:0.32;
+  z-index:70;
+  transition:opacity 600ms var(--ease-slow), transform 600ms var(--ease-slow);
+}
+.piece-nav-btn svg{display:block;width:18px;height:18px;}
+.piece-nav-prev{left:32px;transform:translateY(-50%);}
+.piece-nav-next{right:32px;transform:translateY(-50%);}
+@media (hover:hover){
+  .piece-nav-prev[data-visible="true"]{opacity:0.7;}
+  .piece-nav-next[data-visible="true"]{opacity:0.7;}
+  .piece-nav-prev:hover{opacity:1;transform:translate(-3px, -50%);}
+  .piece-nav-next:hover{opacity:1;transform:translate(3px, -50%);}
+}
+@media (hover:none){
+  .piece-nav-prev,.piece-nav-next{opacity:0.5;}
+}
+.piece-nav-btn:focus-visible{
+  opacity:1;outline:1px solid var(--on-dark-fg);outline-offset:6px;
+}
+@media (max-width:760px){
+  .piece-grid-section{padding:64px var(--gutter) 88px;}
+  .piece-grid{grid-template-columns:repeat(2,1fr);gap:14px;}
+  .piece-grid-overlay{padding:24px;}
+  .piece-nav-prev{left:8px;}
+  .piece-nav-next{right:8px;}
+}
+
+/* ---- Split Logic: full-page dark treatment -------------------------
+   The whole exhibition-detail surface (page bg, overview facts panel,
+   colophon, nav) flips to a black ground with on-dark text tokens —
+   the entire page reads as one continuous gallery space rather than
+   black hero/grid above paper colophon. Scoped to the slug so other
+   exhibitions stay paper. */
+.exhibition-detail[data-slug="split-logic"]{
+  color:var(--on-dark-fg);
+  /* Match the hero artwork's letter color (cool cyan-tinted white,
+     ≈ #e8f8f8 — sampled from the wedge_32 letterforms). All on-dark
+     text inside this exhibition page picks up the redefined tokens
+     so titles, body, facts, colophon, and ex-nav share one tonal
+     family — hierarchy via opacity, not via hue. */
+  --on-dark-fg: rgba(232, 248, 248, 0.95);
+  --on-dark-fg-soft: rgba(232, 248, 248, 0.78);
+  --on-dark-fg-muted: rgba(232, 248, 248, 0.55);
+  --on-dark-fg-whisper: rgba(232, 248, 248, 0.38);
+  /* Phosphor lattice — a single SVG sprite tiles across the page,
+     each tile a stack of five concentric cyan-white circles with
+     opacity decaying from centre outward. The stack approximates a
+     Gaussian point-of-light: the inner ~1.4px reads as a sharp
+     bright dot, the surrounding ~8px as a soft halo that fades to
+     zero. SVG over CSS gradients because gradients composite layer-
+     by-layer and produce visible banding at low opacities; SVG
+     rasterises once cleanly and the browser tiles a pre-baked
+     bitmap, giving pixel-perfect uniformity across the viewport.
+     Fixed attachment locks the pattern to the viewport so content
+     scrolls past a stable field rather than dragging the lattice
+     with it (CRT-static feel). */
+  background-color:#000;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='20' cy='20' r='4' fill='%23e8f8f8' opacity='0.008'/><circle cx='20' cy='20' r='2.5' fill='%23e8f8f8' opacity='0.018'/><circle cx='20' cy='20' r='1.6' fill='%23e8f8f8' opacity='0.04'/><circle cx='20' cy='20' r='1' fill='%23e8f8f8' opacity='0.1'/><circle cx='20' cy='20' r='0.7' fill='%23e8f8f8' opacity='0.4'/></svg>");
+  background-size:40px 40px;
+  background-position:0 0;
+  background-attachment:fixed;
+}
+/* Sections become transparent so the page-level dot lattice shows
+   through them (was: each section painted over with solid black,
+   hiding the parent texture). */
+.exhibition-detail[data-slug="split-logic"] .ex-overview,
+.exhibition-detail[data-slug="split-logic"] .piece-grid-section{
+  background:transparent;
+}
+/* Scope the section-fade .reveal class on this page to opacity-only
+   (drop the translateY). The default .reveal applies a transform,
+   which would create a containing block for any descendant
+   `position:fixed` element — that's what broke PieceGrid's expanded
+   modal centering before. Opacity-only fade preserves the gesture
+   without breaking the modal. */
+.exhibition-detail[data-slug="split-logic"] .reveal,
+.exhibition-detail[data-slug="split-logic"] .reveal--visible{
+  transform:none;
+}
+/* Piece-grid section stays permanently transparent so the page's
+   phosphor lattice is a stable substrate behind the cells (visible in
+   the 18px gaps between cells and around the grid). The Reveal fade
+   then reads as artworks materializing onto a constant ground —
+   rather than the section's bg flashing through as it animates. */
+.exhibition-detail[data-slug="split-logic"] .piece-grid-section{
+  background:transparent;
+  padding-top:32px;
+}
+/* Overview keeps a solid bg behind its prose column for readability —
+   running mono body text directly over the lattice would noise it up. */
+.exhibition-detail[data-slug="split-logic"] .ex-overview{
+  background:#000;
+  padding-bottom:48px;
+}
+.exhibition-detail[data-slug="split-logic"] .ex-facts{
+  border-left-color:rgba(255,255,255,0.12);
+}
+.exhibition-detail[data-slug="split-logic"] .ex-fact-label{color:var(--on-dark-fg-muted);}
+.exhibition-detail[data-slug="split-logic"] .ex-fact-value{color:var(--on-dark-fg);}
+/* Echo Ricky's typographic choices in his work: letters in Avant Garde
+   Bold Condensed, numbers in Eurostile Condensed. Antonio (Google
+   Fonts) and Saira Condensed (Google Fonts) are free geometric-
+   condensed analogs — visually close, license-clean. The hero title
+   takes the "letter" treatment; the facts panel (where numerals
+   live) takes the "number" treatment. */
+.exhibition-detail[data-slug="split-logic"] .ex-title-artist,
+.exhibition-detail[data-slug="split-logic"] .ex-title-title{
+  font-family:'Big Shoulders Display','Inter',sans-serif;
+  font-weight:800;font-style:normal;
+  text-transform:uppercase;
+  letter-spacing:0;
+  font-size:clamp(30px, calc(1.1vw + 20px), 42px);
+  line-height:1.0;
+}
+.exhibition-detail[data-slug="split-logic"] .ex-fact-label{
+  font-family:'Saira Condensed','Barlow',sans-serif;
+  font-weight:600;
+  letter-spacing:0.18em;
+  font-size:11px;
+}
+.exhibition-detail[data-slug="split-logic"] .ex-fact-value{
+  font-family:'Saira Condensed','Barlow',sans-serif;
+  font-weight:500;font-style:normal;
+  font-variant-numeric:tabular-nums lining-nums;
+  letter-spacing:0.04em;
+  font-size:18px;
+  text-transform:uppercase;
+}
+/* Description prose on the dark surface — light text instead of the
+   default ink, so it actually reads against #000. */
+/* Body prose uses the page's redefined --on-dark-fg-soft (cool
+   cyan-white at 78% opacity) — same hue family as everything else
+   on the page, hierarchy carried by opacity. */
+.exhibition-detail[data-slug="split-logic"] .ex-overview-body{color:var(--on-dark-fg-soft);}
+.exhibition-detail[data-slug="split-logic"] .ex-overview-body p{color:var(--on-dark-fg-soft);}
+/* Three-up inline-artworks row for split-logic — the standard rule
+   above lays them in 2 columns, which would orphan the third on its
+   own line. Stretch the container so three crops fit comfortably. */
+.exhibition-detail[data-slug="split-logic"] .ex-inline-artworks{
+  grid-template-columns:repeat(3, 1fr);
+  max-width:1505px;
+  gap:18px;
+  margin:48px auto;
+}
+/* Drop the cream matte plate that wraps inline videos by default
+   (it baked in `background:#f1f4f6` and ~10% padding). Ricky's
+   videos are square and should fill their cell edge-to-edge —
+   matches how every other piece on this page presents. */
+.exhibition-detail[data-slug="split-logic"] .ex-inline-plate{
+  aspect-ratio:1;
+  background:transparent;
+  padding:0;
+}
+.exhibition-detail[data-slug="split-logic"] .ex-inline-media video,
+.exhibition-detail[data-slug="split-logic"] .ex-inline-media img{
+  width:100%;height:100%;
+  max-width:none;max-height:none;
+  object-fit:cover;
+}
+/* Zoom-in cursor cue on every artwork the ZoomCatcher will handle —
+   the hero video and the inline videos. Excludes the piece grid
+   videos (they have their own cursor logic via PieceGrid). */
+.exhibition-detail[data-slug="split-logic"] .ex-hero-plate video,
+.exhibition-detail[data-slug="split-logic"] .ex-inline-media video{
+  cursor:zoom-in;
+}
+@media (max-width:760px){
+  .exhibition-detail[data-slug="split-logic"] .ex-inline-artworks{
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+}
+/* Terminal-style description: monospace stack, slightly tighter
+   leading and tracking than the default editorial Cormorant. Each
+   character mounts hidden and reveals via a per-char keyframe
+   staggered by --idx — once the section enters the viewport (the
+   `is-typing` class is added by the client component), the prose
+   prints character-by-character like terminal output. */
+.ex-overview-body-terminal{
+  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace !important;
+  font-size:15px !important;line-height:1.7 !important;
+  letter-spacing:0.005em !important;
+  font-variant-numeric:tabular-nums;
+  /* Widen the terminal body so its inline-artwork rows can break out
+     of the standard 680px prose cap. Prose paragraphs are
+     re-constrained to 680px below for readability; only the
+     `.ex-inline-artworks` rows span the wider container. */
+  max-width:1440px !important;
+}
+.ex-overview-body-terminal p{
+  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace !important;
+  font-size:15px !important;line-height:1.7 !important;
+  letter-spacing:0.005em !important;
+  font-feature-settings:normal;
+}
+.ex-overview-body-terminal .term-station{
+  max-width:680px;
+  margin-left:auto;margin-right:auto;
+  width:100%;
+}
+.term-char{
+  opacity:0;
+}
+/* Each char snaps in at the start of its keyframe (no fade) and emits
+   a brief phosphor flash that decays over the rest of the duration —
+   because the duration is much longer than the stagger, the most
+   recently-printed glyphs glow as the leading edge of typing moves
+   forward, giving a CRT-print feel that ties into the blinking
+   walkers in the artwork. */
+.ex-overview-body-terminal.is-typing .term-char{
+  animation:term-char-in 280ms ease-out both;
+  animation-delay:calc(var(--idx, 0) * var(--char-stagger, 7ms));
+}
+@keyframes term-char-in{
+  0%{
+    opacity:0;
+    text-shadow:0 0 0 transparent;
+  }
+  3%{
+    opacity:1;
+    text-shadow:0 0 6px rgba(245,243,239,0.85), 0 0 1px rgba(255,255,255,0.6);
+  }
+  100%{
+    opacity:1;
+    text-shadow:0 0 0 transparent;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  .term-char{opacity:1;animation:none;text-shadow:none;}
+}
+
+/* Data stations — labeled paragraphs stack in a single column. The
+   small Saira Condensed code header above each paragraph echoes
+   Ricky's label clusters typographically; the staggered grid version
+   read too disruptive, so the visual nod lives in the labels alone
+   while the prose flow stays clean. */
+.ex-overview-body-terminal--stations{
+  display:flex !important;
+  flex-direction:column;
+  gap:36px;
+}
+.term-station{
+  display:flex;flex-direction:column;
+  gap:14px;
+}
+.term-station-label{
+  font-family:'Saira Condensed','Barlow',sans-serif;
+  font-weight:600;
+  font-size:11px;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--on-dark-fg-muted);
+  font-variant-numeric:tabular-nums lining-nums;
+  line-height:1;
+}
+
+/* Colophon and ex-nav return to solid black so prose / labels read
+   cleanly without the lattice noising up the type behind them. The
+   lattice still shows in the page-bg gaps above (around the piece
+   grid) — the lower band becomes a calm reading surface where the
+   editorial text and outbound links live. The hover-ignite on the
+   nav links still works (the ::before overlay sits on top of the
+   solid bg, materializing dots only when hovered). */
+.exhibition-detail[data-slug="split-logic"] .ex-colophon{
+  background:#000;border-top-color:rgba(255,255,255,0.08);
+}
+.exhibition-detail[data-slug="split-logic"] .col-label{color:var(--on-dark-fg-muted);}
+.exhibition-detail[data-slug="split-logic"] .col-title{color:var(--on-dark-fg);}
+.exhibition-detail[data-slug="split-logic"] .col-body{color:var(--on-dark-fg-soft);}
+.exhibition-detail[data-slug="split-logic"] .col-link{color:var(--on-dark-fg);}
+.exhibition-detail[data-slug="split-logic"] .col-link .arrow{color:var(--on-dark-fg-muted);}
+.exhibition-detail[data-slug="split-logic"] .ex-nav{
+  background:#000;border-top-color:rgba(255,255,255,0.08);
+}
+.exhibition-detail[data-slug="split-logic"] .ex-nav a{
+  color:var(--on-dark-fg);
+}
+/* Standard dark-mode hover — subtle near-white wash on the link.
+   The global rule sets `background:var(--paper-warm)` on hover which
+   is bright cream and clashes with a black surface. Override to
+   match dark-mode conventions. */
+.exhibition-detail[data-slug="split-logic"] .ex-nav a:hover{
+  background:rgba(232,248,248,0.04);
+}
+.exhibition-detail[data-slug="split-logic"] .ex-nav a:first-child{
+  border-right-color:rgba(255,255,255,0.08);
+}
+.exhibition-detail[data-slug="split-logic"] .ex-nav-label{color:var(--on-dark-fg-muted);}
+.exhibition-detail[data-slug="split-logic"] .ex-nav-line{color:var(--on-dark-fg);}
+.exhibition-detail[data-slug="split-logic"] .ex-nav-line .slash{color:var(--on-dark-fg-muted);}
 
 .ex-colophon{
   border-top:1px solid var(--rule-thin);background:var(--paper);

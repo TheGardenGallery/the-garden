@@ -9,6 +9,8 @@ import { ExhibitionHero } from "@/components/ExhibitionHero";
 import { ExhibitionOverview } from "@/components/ExhibitionOverview";
 import { ExhibitionColophon } from "@/components/ExhibitionColophon";
 import { ExhibitionNav } from "@/components/ExhibitionNav";
+import { PieceGrid } from "@/components/PieceGrid";
+import { ZoomCatcher } from "@/components/ZoomCatcher";
 import { Reveal } from "@/components/Reveal";
 import type { Exhibition } from "@/lib/types";
 
@@ -37,6 +39,38 @@ export default async function ExhibitionDetailPage({
   const exhibition = await fetchExhibition(slug);
   if (!exhibition) notFound();
 
+  // Unified zoomable artwork collection for split-logic — hero +
+  // inline-artwork videos + piece-grid items, in that document order.
+  // ZoomCatcher uses this to drive prev/next navigation across every
+  // artwork on the page (left/right arrows + keyboard cycle through
+  // all 20 in sequence regardless of which one was clicked first).
+  const heroItem = exhibition.heroVideo
+    ? [
+        {
+          video: exhibition.heroVideo,
+          poster:
+            exhibition.heroVideoPoster ??
+            exhibition.hero ??
+            exhibition.heroVideo,
+          alt: `${exhibition.artistName}, ${exhibition.title}`,
+        },
+      ]
+    : [];
+  const inlineItemsFlat = (exhibition.inlineArtworks ?? []).flatMap((g) =>
+    g.items
+      .filter((i) => i.video)
+      .map((i) => ({
+        video: i.video as string,
+        poster: i.image,
+        alt: i.alt,
+      })),
+  );
+  const allArtworks = [
+    ...heroItem,
+    ...inlineItemsFlat,
+    ...(exhibition.pieceGrid ?? []),
+  ];
+
   return (
     <div className="exhibition-detail" data-slug={exhibition.slug}>
       {/* Kick off the hero video fetch during HTML parse so the browser
@@ -54,7 +88,30 @@ export default async function ExhibitionDetailPage({
 
       <ExhibitionHero exhibition={exhibition} />
 
-      <ExhibitionOverview exhibition={exhibition} />
+      {exhibition.slug === "split-logic" && allArtworks.length > 0 && (
+        <ZoomCatcher
+          items={allArtworks}
+          scope='.exhibition-detail[data-slug="split-logic"]'
+        />
+      )}
+
+      {exhibition.slug === "split-logic" ? (
+        <Reveal>
+          <ExhibitionOverview exhibition={exhibition} />
+        </Reveal>
+      ) : (
+        <ExhibitionOverview exhibition={exhibition} />
+      )}
+
+      {exhibition.pieceGrid && exhibition.pieceGrid.length > 0 && (
+        exhibition.slug === "split-logic" ? (
+          <Reveal>
+            <PieceGrid items={exhibition.pieceGrid} />
+          </Reveal>
+        ) : (
+          <PieceGrid items={exhibition.pieceGrid} />
+        )
+      )}
 
       {exhibition.exploreArtworks && exhibition.exploreArtworks.length > 0 && (
         <Reveal>
