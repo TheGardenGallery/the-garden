@@ -163,6 +163,7 @@ export function ExpandedArtwork({
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length !== 1) return;
+    if (committingRef.current) return;
     const t = e.touches[0];
     touchRef.current = {
       active: true,
@@ -174,7 +175,7 @@ export function ExpandedArtwork({
       moved: false,
     };
     // Disable transition immediately so the first touchmove follows
-    // the finger without a 220ms ease-out lag from the prior render.
+    // the finger without a transition-lag from the prior render.
     setIsDragging(true);
   };
 
@@ -216,6 +217,11 @@ export function ExpandedArtwork({
     }
   };
 
+  // Block touch input during the swipe-off animation between
+  // committing prev/next and the new item mounting. Without this, a
+  // second flick mid-animation would re-enter the commit branch.
+  const committingRef = useRef(false);
+
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!touchRef.current.active) return;
     const moved = touchRef.current.moved;
@@ -245,21 +251,41 @@ export function ExpandedArtwork({
       return;
     }
 
-    // Swipe-to-nav at zoom 1: horizontal travel beyond threshold,
-    // dominant over vertical, completed within a reasonable window.
+    // Swipe-to-nav at zoom 1: horizontal-dominant motion that's
+    // either travelled past the distance threshold or reads as a
+    // flick (high velocity, smaller distance).
+    const horizontalDominant = Math.abs(dx) > Math.abs(dy) * 1.3;
+    const velocity = Math.abs(dx) / Math.max(elapsed, 1);
+    const farEnough = Math.abs(dx) > 36;
+    const flick = velocity > 0.4 && Math.abs(dx) > 18;
+    const inWindow = elapsed < 900;
+
     if (
       zoom <= 1 &&
-      Math.abs(dx) > 48 &&
-      Math.abs(dx) > Math.abs(dy) * 1.3 &&
-      elapsed < 900
+      horizontalDominant &&
+      inWindow &&
+      (farEnough || flick) &&
+      (onPrev || onNext)
     ) {
-      if (dx > 0) onPrev?.();
-      else onNext?.();
+      // Commit: continue the motion off-screen so the artwork visibly
+      // leaves in the swipe direction, then unmount once it's offscreen
+      // and let the new item's mount animation play centre-stage.
+      committingRef.current = true;
+      setIsDragging(false);
+      const offX =
+        dx > 0
+          ? Math.max(window.innerWidth, 480)
+          : -Math.max(window.innerWidth, 480);
+      setPan({ x: offX, y: 0 });
+      window.setTimeout(() => {
+        if (dx > 0) onPrev?.();
+        else onNext?.();
+      }, 200);
+      return;
     }
-    // Reset pan + drag flag — for committed swipe nav, this cleans up
-    // the visual offset before the next item mounts. For non-swipe
-    // movement, transition (re-enabled by isDragging=false) animates
-    // the artwork snapping back to centre.
+
+    // Non-commit: snap back to centre using the eased transition
+    // re-enabled by isDragging=false.
     setPan({ x: 0, y: 0 });
     setIsDragging(false);
   };
@@ -269,7 +295,9 @@ export function ExpandedArtwork({
   const innerStyle: CSSProperties = {
     transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
     transformOrigin: "center center",
-    transition: isDragging ? "none" : "transform 220ms ease-out",
+    transition: isDragging
+      ? "none"
+      : "transform 280ms cubic-bezier(0.22, 0.61, 0.36, 1)",
   };
 
   return (
@@ -278,7 +306,11 @@ export function ExpandedArtwork({
       className="piece-grid-expanded"
       initial={{ opacity: 0, scale: 0.94 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.96 }}
+      exit={{
+        opacity: 0,
+        scale: 0.94,
+        transition: { duration: 0.16, ease: "easeOut" },
+      }}
       transition={{ type: "spring", stiffness: 280, damping: 30 }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}

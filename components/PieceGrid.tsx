@@ -198,7 +198,7 @@ export function PieceGrid({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
             onClick={(e) => {
               if (skipNextClickRef.current) {
                 skipNextClickRef.current = false;

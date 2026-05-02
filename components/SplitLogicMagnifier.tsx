@@ -8,7 +8,12 @@ const ARTWORK_SELECTOR =
   '.exhibition-detail[data-slug="split-logic"] .piece-cell';
 
 const ZOOM = 1.6;
-const SIZE = 32;
+// Magnifier sized to match the gallery's Δ logomark in the nav
+// (.logo .triangle is 0.73em of a 20.9px font ≈ 15.26px square).
+// Square box, triangle inscribed apex-up; centroid at (50%, 2/3 H).
+const SIZE_W = 16;
+const SIZE_H = 16;
+const CENTROID_Y = SIZE_H * (2 / 3);
 
 function lookupTone(
   tones: Record<string, string> | undefined,
@@ -135,8 +140,8 @@ export function SplitLogicMagnifier({
 
       const w = rect.width * ZOOM;
       const h = rect.height * ZOOM;
-      const ox = SIZE / 2 - relX * ZOOM;
-      const oy = SIZE / 2 - relY * ZOOM;
+      const ox = SIZE_W / 2 - relX * ZOOM;
+      const oy = CENTROID_Y - relY * ZOOM;
 
       const tone =
         lookupTone(tones, videoSrc) ?? lookupTone(tones, imgSrc) ?? "#ffffff";
@@ -283,11 +288,15 @@ export function SplitLogicMagnifier({
       }
     : { display: "none" as const };
 
+  // The wrapper is centred via translate(-50%, -50%); shift the y
+  // anchor up by SIZE_H/6 so the triangle's centroid (not its box
+  // centre) lands on the cursor — what's under the apparent point
+  // of the lens is what gets magnified.
   const wrapperStyle: CSSProperties = m.visible
     ? {
         opacity: 1,
         left: m.x,
-        top: m.y,
+        top: m.y - SIZE_H / 6,
         ["--mag-tone" as string]: m.tone,
       }
     : { opacity: 0, left: -9999, top: -9999 };
@@ -298,24 +307,20 @@ export function SplitLogicMagnifier({
       style={wrapperStyle}
       aria-hidden="true"
     >
-      <div className="sl-magnifier-lens">
-        {m.visible && m.videoSrc ? (
-          <video
-            ref={lensVideoRef}
-            key={m.videoSrc}
-            src={m.videoSrc}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            style={innerStyle}
-          />
-        ) : m.visible && m.imgSrc ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={m.imgSrc} alt="" style={innerStyle} draggable={false} />
-        ) : null}
-      </div>
+      {/* Solid-white triangular lens — the gallery's Δ logomark
+          following the cursor. The pointer-over-artwork detection,
+          scroll/lightbox suppression, and centroid anchoring all stay
+          intact above; only the magnified content is dropped. */}
+      <div className="sl-magnifier-lens" />
+      {/* Hidden video element kept mounted only to satisfy the
+          existing useEffect/refs; never displayed. */}
+      <video
+        ref={lensVideoRef}
+        muted
+        playsInline
+        preload="none"
+        style={{ display: "none" }}
+      />
     </div>
   );
 }

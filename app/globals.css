@@ -3818,32 +3818,27 @@ html.sl-scrolling .exhibition-detail[data-slug="split-logic"] :is(
 }
 .sl-magnifier{
   position:fixed;
-  width:32px;height:32px;
-  border-radius:50%;
+  /* Same dimensions as the nav logo's Δ (.logo .triangle is 0.73em
+     of a 20.9px font ≈ 15.26px). */
+  width:16px;height:16px;
   pointer-events:none;
   z-index:120;
   transform:translate(-50%, -50%);
-  /* Depth shadow + soft tonal glow tinted by the artwork's dominant
-     colour (set via --mag-tone by the component on each new entry).
-     box-shadow follows border-radius so the glow is circular too. */
-  box-shadow:
-    0 3px 10px rgba(0,0,0,0.34),
-    0 0 22px color-mix(in srgb, var(--mag-tone, #fff) 30%, transparent);
-  transition:
-    opacity 120ms ease-out,
-    box-shadow 280ms ease-out;
+  /* Drop-shadow filters follow the clipped (triangular) shape, where
+     box-shadow can't. Depth shadow + soft neutral white glow. */
+  filter:
+    drop-shadow(0 2px 6px rgba(0,0,0,0.34))
+    drop-shadow(0 0 10px rgba(255,255,255,0.22));
+  transition:opacity 120ms ease-out;
   will-change:left, top;
 }
-/* Lens clips the upscaled frame to the circular magnifier shape.
-   No background-color: it was bleeding through the rounded-edge
-   antialiasing as a thin black ring at the perimeter. */
+/* Solid white triangle — the gallery's logomark following the cursor.
+   Pointing up, fills the magnifier's box via clip-path. */
 .sl-magnifier-lens{
   position:absolute;
   inset:0;
-  clip-path:circle(50% at 50% 50%);
-  overflow:hidden;
-  background-repeat:no-repeat;
-  will-change:background-position;
+  clip-path:polygon(50% 0%, 100% 100%, 0% 100%);
+  background:#ffffff;
 }
 /* Sharpen the upscaled video/poster a touch — closer to crisp grid
    pixels than the browser's default bilinear smoothing, but not the
