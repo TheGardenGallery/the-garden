@@ -158,7 +158,12 @@ export function SplitLogicPalette({ cells, lockedIdx, onCellClick }: Props) {
               ? "PREVIEW"
               : `wait ${(dwellMs / 1000).toFixed(2)}s`}
         </span>
-        <span className="sl-readout-cursor">█</span>
+        <span
+          className="sl-readout-cursor"
+          style={{ color: display.hex }}
+        >
+          █
+        </span>
       </div>
     </section>
   );
