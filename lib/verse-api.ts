@@ -16,7 +16,6 @@ import { artists } from "@/lib/data/artists";
 import { exhibitions as seedExhibitions } from "@/lib/data/exhibitions";
 import { journalEntries } from "@/lib/data/journal";
 import type { Artist, Exhibition, JournalEntry } from "@/lib/types";
-import { normalizeMarkdownItalics } from "@/lib/typography";
 
 const VERSE_ENDPOINT = "https://verse.works/query";
 
@@ -96,17 +95,10 @@ function mergeExhibitionWithVerse(
   const artistBio = ex.artistBioOverride
     ? ex.artistBio ?? verseBio
     : verseBio ?? ex.artistBio;
-  // Verse's prose frequently contains asterisk-italic phrases written
-  // with whitespace inside the delimiters (e.g. `* INFINITE PRESSURE*`).
-  // CommonMark refuses to italicize that pattern; downstream renderers
-  // would show the asterisks literally. Normalize at the data boundary
-  // so every consumer of `descriptionMarkdown` / `artistBio` receives
-  // clean `*X*` runs that any markdown parser will recognise.
-  const description = verse.about ?? ex.descriptionMarkdown;
   return {
     ...ex,
-    descriptionMarkdown: description ? normalizeMarkdownItalics(description) : description,
-    artistBio: artistBio ? normalizeMarkdownItalics(artistBio) : artistBio,
+    descriptionMarkdown: verse.about ?? ex.descriptionMarkdown,
+    artistBio,
   };
 }
 
@@ -134,19 +126,13 @@ export async function fetchArtists(): Promise<Artist[]> {
   // lets us hand-author copy that we want to keep stable. Verse is the
   // fallback for artists without a local bio so we still get
   // something for newcomers.
-  return artists.map((a) => {
-    const rawBio =
+  return artists.map((a) => ({
+    ...a,
+    bio:
       a.bio ??
       (a.verseSlug && bioByVerseSlug.get(a.verseSlug)) ??
-      bioByArtistName.get(normalize(a.name));
-    return {
-      ...a,
-      // Same normalization as the exhibition merge: trim whitespace
-      // inside `*…*` runs so any downstream markdown renderer treats
-      // them as italic instead of printing the asterisks literally.
-      bio: rawBio ? normalizeMarkdownItalics(rawBio) : rawBio,
-    };
-  });
+      bioByArtistName.get(normalize(a.name)),
+  }));
 }
 
 export async function fetchExhibitions(): Promise<Exhibition[]> {

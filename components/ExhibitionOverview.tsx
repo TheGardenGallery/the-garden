@@ -1,7 +1,7 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import type { Exhibition } from "@/lib/types";
-import { normalizeMarkdownItalics, preserveHyphens } from "@/lib/typography";
+import { preserveHyphens } from "@/lib/typography";
 import { InlineArtworks } from "@/components/InlineArtworks";
 
 /**
@@ -18,9 +18,7 @@ export function ExhibitionOverview({ exhibition }: { exhibition: Exhibition }) {
         <OverviewSegments exhibition={exhibition} />
       ) : exhibition.descriptionMarkdown ? (
         <div className="ex-overview-body">
-          <ReactMarkdown>
-            {normalizeMarkdownItalics(exhibition.descriptionMarkdown)}
-          </ReactMarkdown>
+          <ReactMarkdown>{exhibition.descriptionMarkdown}</ReactMarkdown>
         </div>
       ) : null}
     </section>
