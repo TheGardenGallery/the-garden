@@ -893,6 +893,13 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
    background, making the core drawing feel small. Tighten padding
    so the image fills more of the plate. */
 .exhibition-card[data-slug="the-flood"] .exhibition-card-image{padding:5% 6%;}
+/* Nikita / Making an Egg with Hands — same fix as the exhibition hero:
+   the source video and its extracted poster have a thin black sliver
+   baked into the bottom edge. Clip it on the card too. */
+.exhibition-card[data-slug="making-an-egg"] .exhibition-card-image img,
+.exhibition-card[data-slug="making-an-egg"] .exhibition-card-image video{
+  clip-path:inset(0 0.2% 1.5% 0);
+}
 .exhibition-card-media{
   width:100%;height:100%;
   display:flex;align-items:center;justify-content:center;
@@ -929,7 +936,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 }
 @media (max-width:600px){
   .exhibitions-grid-hybrid > *{
-    flex:0 0 80vw;                 /* wider cards on small phones */
+    flex:0 0 84vw;                 /* wider cards = smaller peek of next */
   }
   /* Match the desktop card's interior breathing room — the percentage
      padding renders smaller relative to the artwork at full-bleed
