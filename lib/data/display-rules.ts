@@ -6,8 +6,10 @@
 
 export const homepagePastPicks = [
   "the-flood",
-  "equinox",
   "haha-over-time",
+  "equinox",
+  "making-an-egg",
+  "imagined-wreckage",
 ] as const;
 
 export type HeroTreatment = "full-bleed-video";

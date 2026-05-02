@@ -131,6 +131,7 @@ export const exhibitions: Exhibition[] = [
     status: "past",
     hero: "/images/chuck-anderson/imagined-wreckage-hero.jpg",
     homepageHero: "/images/chuck-anderson/homepage-hero.jpg",
+    cardImage: "/images/chuck-anderson/devonian-period-browser-tabs.jpg",
     frameColor: "#000000",
     presentedBy: "Ivan Zhyzhkevych",
     workCount: 96,
@@ -702,6 +703,7 @@ export const exhibitions: Exhibition[] = [
     location: "Verse",
     status: "past",
     hero: "/images/chepertom/mound-rad.png",
+    cardImage: "/images/chepertom/undertow-rad.png",
     verseSeriesUrl: "https://verse.works/series/deluge-by-chepertom",
     workCount: 14,
     description: [
@@ -1144,6 +1146,8 @@ export const exhibitions: Exhibition[] = [
     location: "Verse",
     status: "past",
     heroVideo: "/images/nikita-diakur/making-an-egg-hero.mp4",
+    cardVideo: "/images/nikita-diakur/making-an-egg-card.mp4",
+    cardImage: "/images/nikita-diakur/making-an-egg-card-poster.jpg",
     heroVerseUrl: "https://verse.works/artworks/2737ddd1-55e0-4df4-ba84-bf8533bd9575",
     artistBio: "Nikita Diakur, an artist based in Germany, is known for portraying everyday activities using unconventional computer simulation methods that inherently bring randomness and chaos into his work. This approach allows for unexpected and spontaneous results, which are integral to his animation style. In addition, Diakur shares his expertise through lectures and workshops.",
     description: [
