@@ -171,19 +171,14 @@ export function SplitLogicMagnifier({
     };
 
     // While the page is scrolling, no pointermove fires — but the
-    // artwork is sliding under the magnifier, so its rendered detail
-    // would go stale. Hide the magnifier and reveal the native cursor
-    // on the artwork surface (via an html class) until the user
-    // moves the pointer again.
-    let scrollTimerId: ReturnType<typeof setTimeout> | undefined;
+    // page moves under the cursor, so what's beneath the (viewport-
+    // fixed) pointer changes. Re-evaluate at the last known pointer
+    // position so the Δ stays visible whenever the pointer is still
+    // over an artwork, and disappears the moment it isn't.
     const onScroll = () => {
-      sourceVideoRef.current = null;
-      setM((s) => (s.visible ? { visible: false } : s));
-      document.documentElement.classList.add("sl-scrolling");
-      if (scrollTimerId) clearTimeout(scrollTimerId);
-      scrollTimerId = setTimeout(() => {
-        document.documentElement.classList.remove("sl-scrolling");
-      }, 140);
+      if (!lastPointerRef.current) return;
+      const { x, y } = lastPointerRef.current;
+      evaluate(x, y, document.elementFromPoint(x, y));
     };
 
     const reEvaluateAtLastPointer = () => {
@@ -251,9 +246,7 @@ export function SplitLogicMagnifier({
       document.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("blur", onLeave);
       window.removeEventListener("scroll", onScroll);
-      if (scrollTimerId) clearTimeout(scrollTimerId);
       lightboxObserver?.disconnect();
-      document.documentElement.classList.remove("sl-scrolling");
     };
   }, [tones]);
 

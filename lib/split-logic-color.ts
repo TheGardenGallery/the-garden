@@ -15,10 +15,18 @@
  */
 
 export type WedgeCell = {
-  /** Hex color, e.g. "#f3c5c2" */
+  /** Display hex — used in the walker bar. */
   hex: string;
   /** Wedge id, e.g. "wedge-04" */
   wedgeId: string;
+  /**
+   * Multi-colour palette used for similarity matching: typically the
+   * "ground band" and the "ink band" of the wedge. The grid sort
+   * uses min(distance) over this set, so a dark-ground piece with
+   * saturated ink ranks correctly against the ink's hue rather than
+   * the muddy mean of dark + ink.
+   */
+  palette: string[];
 };
 
 export type Oklch = { L: number; C: number; h: number };

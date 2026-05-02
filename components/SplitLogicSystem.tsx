@@ -34,16 +34,29 @@ export function SplitLogicSystem({
 }) {
   const [lockedZoneIdx, setLockedZoneIdx] = useState<number | null>(null);
 
-  // Pre-compute OKLCh once per cell — used both for zone selection and
-  // for grid re-ranking.
-  const lchs = useMemo(() => cells.map((c) => hexToOklch(c.hex)), [cells]);
+  // Bar zones come from the characteristic colour per wedge.
+  const characteristicLchs = useMemo(
+    () => cells.map((c) => hexToOklch(c.hex)),
+    [cells]
+  );
+  // Each wedge also exposes its full matching palette (typically the
+  // ground band + ink band). The grid sort uses min-distance across
+  // these so a dark-ground / saturated-ink piece ranks against its
+  // ink colour, not the muddy black-plus-ink mean.
+  const palettesLch = useMemo(
+    () =>
+      cells.map((c) =>
+        (c.palette.length > 0 ? c.palette : [c.hex]).map(hexToOklch)
+      ),
+    [cells]
+  );
 
   // Pick BAR_ZONE_COUNT mutually-distinct wedges and present them as
   // the bar's zones. `zoneIndices[k]` is the index into `cells` for
   // the k-th zone.
   const zoneIndices = useMemo(
-    () => pickDistinctIndices(lchs, BAR_ZONE_COUNT),
-    [lchs]
+    () => pickDistinctIndices(characteristicLchs, BAR_ZONE_COUNT),
+    [characteristicLchs]
   );
   const zoneCells = useMemo(
     () => zoneIndices.map((i) => cells[i]),
@@ -56,20 +69,33 @@ export function SplitLogicSystem({
       return gridItems.map((_, i) => i);
     }
     const targetWedgeIdx = zoneIndices[lockedZoneIdx];
-    const target = lchs[targetWedgeIdx];
-    // Pair each piece's wedge colour with its distance to the locked zone.
-    const distances = lchs.map((lch) => colorDistance(lch, target));
-    // Rank ascending. ranking[k] is the original index of the k-th closest piece.
-    const ranking = lchs
+    const target = characteristicLchs[targetWedgeIdx];
+    // For each wedge, the distance is the *minimum* distance from the
+    // locked colour to any colour in that wedge's matching palette —
+    // a wedge is "near" the locked colour if any of its bands matches.
+    const distances = palettesLch.map((palette) => {
+      let minD = Infinity;
+      for (const lch of palette) {
+        const d = colorDistance(lch, target);
+        if (d < minD) minD = d;
+      }
+      return minD;
+    });
+    const ranking = palettesLch
       .map((_, i) => i)
       .sort((a, b) => distances[a] - distances[b]);
-    // Invert: order[origIdx] = position in the sorted list.
-    const order = new Array<number>(lchs.length);
+    const order = new Array<number>(palettesLch.length);
     ranking.forEach((origIdx, sortedPos) => {
       order[origIdx] = sortedPos;
     });
     return order;
-  }, [lchs, zoneIndices, lockedZoneIdx, gridItems]);
+  }, [
+    characteristicLchs,
+    palettesLch,
+    zoneIndices,
+    lockedZoneIdx,
+    gridItems,
+  ]);
 
   const handleZoneClick = (i: number) => {
     setLockedZoneIdx((cur) => (cur === i ? null : i));

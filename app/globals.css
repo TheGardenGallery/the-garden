@@ -3806,16 +3806,6 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="split-logic"] .piece-cell{
   cursor:none;
 }
-/* While the page is scrolling the magnifier is hidden — restore the
-   native cursor on the artwork surfaces so the viewer isn't pointing
-   at nothing while the artwork slides past. */
-html.sl-scrolling .exhibition-detail[data-slug="split-logic"] :is(
-  .ex-hero-plate, .ex-hero-plate video,
-  .ex-inline-media, .ex-inline-media video,
-  .piece-cell
-){
-  cursor:auto;
-}
 .sl-magnifier{
   position:fixed;
   /* Same dimensions as the nav logo's Δ (.logo .triangle is 0.73em
