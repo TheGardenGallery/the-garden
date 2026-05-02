@@ -957,10 +957,12 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   /* John / haha over time — same, the piece's own internal margins
      leave it looking small inside the plate. */
   .exhibition-card[data-slug="haha-over-time"] .exhibition-card-image{padding:1% 6%;}
-  /* Nikita / Making an Egg with Hands — portrait video reads tall
-     against a 4:5 plate; pad a touch more vertically than the shared
-     mobile padding so the video doesn't kiss the plate edges. */
-  .exhibition-card[data-slug="making-an-egg"] .exhibition-card-image{padding:16% 16%;}
+  /* Nikita / Making an Egg with Hands — same shape of fix as Yoshi:
+     cap the portrait video's max-height so it can't fill the plate
+     edge-to-edge. Default mobile padding handles the horizontal
+     inset; max-height creates clear breathing room top and bottom. */
+  .exhibition-card[data-slug="making-an-egg"] .exhibition-card-image img,
+  .exhibition-card[data-slug="making-an-egg"] .exhibition-card-image video{max-height:78%;}
   /* Chuck / Imagined Wreckage — 4:5 collage matches the plate aspect,
      so the busy composition reads small at the shared mobile padding;
      give it more of the plate. */
