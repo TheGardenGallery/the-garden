@@ -865,7 +865,28 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .hybrid-container{max-width:var(--content-max);margin:0 auto;display:flex;flex-direction:column;gap:48px;}
 .hybrid-section-title{font-family:'Barlow',sans-serif;font-weight:500;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink);line-height:1;}
 
-.exhibitions-grid-hybrid{display:grid;grid-template-columns:repeat(3, 1fr);gap:56px 32px;}
+.exhibitions-grid-hybrid{
+  display:flex;
+  gap:32px;
+  overflow-x:auto;
+  overscroll-behavior-x:contain;
+  scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  /* Bleed past hybrid-container's content-max so the strip flows out
+     under the section gutter; padding-inline + scroll-padding-inline
+     keep the first card aligned with the content column edge. */
+  margin-inline:calc(var(--gutter) * -1);
+  padding-inline:var(--gutter);
+  scroll-padding-inline:var(--gutter);
+}
+.exhibitions-grid-hybrid::-webkit-scrollbar{display:none;}
+.exhibitions-grid-hybrid > *{
+  flex:0 0 min(28vw, 340px);
+  scroll-snap-align:start;
+  scroll-snap-stop:always;
+}
 .exhibition-card{display:flex;flex-direction:column;cursor:pointer;color:var(--ink);text-decoration:none;transition:color 0.3s ease-out;}
 .exhibition-card-image{width:100%;aspect-ratio:4/5;background:#f1f4f6;overflow:hidden;border-radius:0;margin-bottom:16px;display:flex;align-items:center;justify-content:center;padding:10% 12%;}
 /* Yoshi / The Flood — artwork's white halo blends into the card
@@ -900,10 +921,16 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .exhibition-card-meta{font-size:10px;letter-spacing:0.5px;color:inherit;opacity:0.55;font-weight:400;line-height:1;text-transform:uppercase;margin-top:12px;}
 
 @media (max-width:960px){
-  .exhibitions-grid-hybrid{grid-template-columns:repeat(2, 1fr);gap:48px 28px;}
+  /* Tablet: slightly narrower gap, bigger cards for comfortable scroll */
+  .exhibitions-grid-hybrid{gap:28px;}
+  .exhibitions-grid-hybrid > *{
+    flex:0 0 min(48vw, 380px);
+  }
 }
 @media (max-width:600px){
-  .exhibitions-grid-hybrid{grid-template-columns:1fr;gap:40px;}
+  .exhibitions-grid-hybrid > *{
+    flex:0 0 80vw;                 /* wider cards on small phones */
+  }
   /* Match the desktop card's interior breathing room — the percentage
      padding renders smaller relative to the artwork at full-bleed
      widths, so the plate looked padding-less. Bumped to keep the
