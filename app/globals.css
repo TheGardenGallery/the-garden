@@ -936,7 +936,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 }
 @media (max-width:600px){
   .exhibitions-grid-hybrid > *{
-    flex:0 0 84vw;                 /* wider cards = smaller peek of next */
+    flex:0 0 82vw;                 /* slim peek of next-card sliver */
   }
   /* Match the desktop card's interior breathing room — the percentage
      padding renders smaller relative to the artwork at full-bleed
@@ -957,9 +957,14 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   /* John / haha over time — same, the piece's own internal margins
      leave it looking small inside the plate. */
   .exhibition-card[data-slug="haha-over-time"] .exhibition-card-image{padding:1% 6%;}
-  /* Nikita / Making an Egg with Hands — portrait video reads a touch
-     pinched at the shared mobile padding; ease the vertical inset. */
-  .exhibition-card[data-slug="making-an-egg"] .exhibition-card-image{padding:11% 16%;}
+  /* Nikita / Making an Egg with Hands — portrait video; ease the
+     vertical inset off the shared mobile padding without going as
+     tight as the dense compositions above. */
+  .exhibition-card[data-slug="making-an-egg"] .exhibition-card-image{padding:13% 16%;}
+  /* Chuck / Imagined Wreckage — 4:5 collage matches the plate aspect,
+     so the busy composition reads small at the shared mobile padding;
+     give it more of the plate. */
+  .exhibition-card[data-slug="imagined-wreckage"] .exhibition-card-image{padding:8% 10%;}
   .exhibition-card .ds-display-name,
   .exhibition-card .ds-display-title{font-size:22px;letter-spacing:-0.1px;}
 }

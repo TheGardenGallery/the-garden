@@ -1418,7 +1418,7 @@ export const exhibitions: Exhibition[] = [
     status: "past",
     hero: "/images/john-provencher/haha-hero.jpg",
     heroTheme: "paper",
-    cardImage: "/images/john-provencher/haha.jpg",
+    cardImage: "/images/john-provencher/haha-preview.jpg",
     verseSeriesUrl: "https://verse.works/exhibitions/haha-over-time",
     description: [
       `The Garden is delighted to present John Provencher&rsquo;s <em>HAHA</em> and <em>over-time</em>, which are both inherently digital. Provencher is a designer, educator, and artist working primarily with generative systems.`,
