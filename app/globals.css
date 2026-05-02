@@ -3807,7 +3807,7 @@ html:has(.constellation-root){
     grid-template-columns:none !important;
     overflow-x:auto;
     scroll-snap-type:x mandatory;
-    gap:12px;
+    gap:24px;
     margin:32px calc(var(--gutter) * -1) !important;
     padding:0 var(--gutter);
     scroll-padding-left:var(--gutter);
