@@ -10,8 +10,14 @@ import { ExhibitionOverview } from "@/components/ExhibitionOverview";
 import { ExhibitionColophon } from "@/components/ExhibitionColophon";
 import { ExhibitionNav } from "@/components/ExhibitionNav";
 import { PieceGrid } from "@/components/PieceGrid";
+import { SplitLogicSystem } from "@/components/SplitLogicSystem";
 import { ZoomCatcher } from "@/components/ZoomCatcher";
 import { Reveal } from "@/components/Reveal";
+import { SplitLogicMagnifier } from "@/components/SplitLogicMagnifier";
+import {
+  getSplitLogicPalette,
+  getSplitLogicMagnifierTones,
+} from "@/lib/split-logic-palette";
 import type { Exhibition } from "@/lib/types";
 
 export async function generateStaticParams() {
@@ -86,6 +92,10 @@ export default async function ExhibitionDetailPage({
         />
       )}
 
+      {exhibition.slug === "split-logic" && (
+        <SplitLogicMagnifier tones={await getSplitLogicMagnifierTones()} />
+      )}
+
       <ExhibitionHero exhibition={exhibition} />
 
       {exhibition.slug === "split-logic" && allArtworks.length > 0 && (
@@ -106,7 +116,10 @@ export default async function ExhibitionDetailPage({
       {exhibition.pieceGrid && exhibition.pieceGrid.length > 0 && (
         exhibition.slug === "split-logic" ? (
           <Reveal>
-            <PieceGrid items={exhibition.pieceGrid} />
+            <SplitLogicSystem
+              cells={await getSplitLogicPalette()}
+              gridItems={exhibition.pieceGrid}
+            />
           </Reveal>
         ) : (
           <PieceGrid items={exhibition.pieceGrid} />

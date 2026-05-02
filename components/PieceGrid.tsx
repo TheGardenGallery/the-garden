@@ -10,7 +10,20 @@ export type PieceGridItem = {
   alt?: string;
 };
 
-export function PieceGrid({ items }: { items: PieceGridItem[] }) {
+export function PieceGrid({
+  items,
+  cellOrder,
+}: {
+  items: PieceGridItem[];
+  /**
+   * Optional per-item visual order. `cellOrder[i]` gives the CSS `order`
+   * value for the i-th item — the React array stays stable (so videoRefs,
+   * mounted, and expanded indices keep pointing at the right piece) while
+   * cells visually reflow. motion's `layout` prop FLIPs them between
+   * positions instead of teleporting.
+   */
+  cellOrder?: number[];
+}) {
   const [expanded, setExpanded] = useState<number | null>(null);
   const [hovered, setHovered] = useState<number | null>(null);
   // Once a cell has been hovered (or focused), its <video> mounts and
@@ -125,12 +138,17 @@ export function PieceGrid({ items }: { items: PieceGridItem[] }) {
       <div className="piece-grid">
         {items.map((item, i) => {
           const isMounted = mounted.has(i);
+          const cellStyle: React.CSSProperties = {};
+          if (cellOrder !== undefined) cellStyle.order = cellOrder[i];
           return (
-            <button
+            <motion.button
               key={i}
               type="button"
+              layout
+              transition={{ layout: { duration: 0.55, ease: [0.22, 0.61, 0.36, 1] } }}
               className="piece-cell"
               data-zoom-src={item.video}
+              style={cellStyle}
               onClick={() => setExpanded(i)}
               onMouseEnter={() => handleEnter(i)}
               onMouseLeave={handleLeave}
@@ -167,7 +185,7 @@ export function PieceGrid({ items }: { items: PieceGridItem[] }) {
                 </div>
               </div>
               <div className="piece-folder-pocket" aria-hidden="true" />
-            </button>
+            </motion.button>
           );
         })}
       </div>

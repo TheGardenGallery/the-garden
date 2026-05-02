@@ -18,6 +18,7 @@ export const exhibitions: Exhibition[] = [
     storage: "IPFS",
     homepageHeroVideo: "/images/ricky-retouch/split-logic-hero.mp4",
     heroVideo: "/images/ricky-retouch/split-logic-hero.mp4",
+    heroVideoPoster: "/images/ricky-retouch/split-logic-hero.jpg",
     heroTheme: "dark",
     frameColor: "#000000",
     descriptionTypewriter: true,

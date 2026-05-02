@@ -3523,6 +3523,352 @@ html:has(.constellation-root){
   text-transform:uppercase;line-height:1;
 }
 
+/* Split Logic — walker bar / system index ----------------------- */
+/* A working element rather than a swatch palette: each of the 16 cells
+   is a wedge's dominant colour, sampled at build time. The cells are
+   tactile phosphor tiles — each lifts on hover with an amber halo,
+   presses on click, and locks with a steady warm reticle when tuned.
+   A walker scans across them autonomously with a stochastic wait
+   timer; when it jumps, the previous tile retains a brief afterglow,
+   like decay on a CRT phosphor.
+   Below, a Space Mono readout transcribes hex / node / state with a
+   blinking terminal cursor at the end. */
+.sl-palette{
+  --phosphor: #ffc97a;            /* warm amber — vector-display lineage */
+  --phosphor-soft: rgba(255, 201, 122, 0.55);
+  --phosphor-deep: rgba(255, 201, 122, 0.30);
+  max-width:var(--content-max);
+  margin:0 auto;
+  padding:64px var(--gutter) 32px;
+  background:#000;
+  color:var(--on-dark-fg-soft);
+  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-variant-numeric:tabular-nums;
+}
+.sl-palette-strip{
+  position:relative;
+  display:grid;
+  grid-template-columns:repeat(16, 1fr);
+  height:68px;
+  max-width:1289px;
+  margin:0 auto;
+  isolation:isolate;
+  /* CRT bloom — picks up the active node's colour via --active-color
+     pushed in by the React component on every walker step. */
+  filter:drop-shadow(0 0 22px color-mix(in srgb, var(--active-color, var(--phosphor)) 32%, transparent));
+  transition:filter 700ms ease-out;
+}
+/* Each cell is a phosphor tile sitting in a console-panel slot.
+   Layered surface gives the tile volume:
+   - Top→bottom lighting gradient (lit from above, dimmer below)
+   - Backlit centre glow (radial, brightens the middle)
+   - CRT scanlines (multiplied for fine texture)
+   The edges carry the tile geometry: a bright top specular line, a
+   dark bottom seam, a hairline left seam to the neighbour, and an
+   inner bottom-fading shadow that seats the tile in its slot. */
+.sl-palette-cell{
+  position:relative;
+  height:100%;
+  border:0;
+  padding:0;
+  cursor:pointer;
+  appearance:none;
+  background-image:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.10) 0%,
+      rgba(255,255,255,0.02) 18%,
+      transparent 60%,
+      rgba(0,0,0,0.20) 100%),
+    radial-gradient(ellipse 65% 80% at 50% 42%,
+      rgba(255,255,255,0.08) 0%,
+      rgba(255,255,255,0.02) 55%,
+      transparent 85%),
+    repeating-linear-gradient(0deg,
+      transparent 0,
+      transparent 2px,
+      rgba(0,0,0,0.16) 3px,
+      rgba(0,0,0,0.16) 3px);
+  background-blend-mode:normal, normal, multiply;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.26),
+    inset 0 -1px 0 rgba(0,0,0,0.46),
+    inset 1px 0 0 rgba(0,0,0,0.28),
+    inset 0 -10px 16px -12px rgba(0,0,0,0.45);
+  transition:
+    transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    filter 220ms ease-out,
+    box-shadow 280ms ease-out;
+}
+.sl-palette-cell:first-child{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.26),
+    inset 0 -1px 0 rgba(0,0,0,0.46),
+    inset 0 -10px 16px -12px rgba(0,0,0,0.45);
+}
+/* Hover: the lifted tile catches more light at the top edge, casts a
+   small dark "lift shadow" directly beneath, and sheds a soft tonal
+   halo into the surrounding panel. */
+.sl-palette-cell:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.06) saturate(1.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.34),
+    inset 0 -1px 0 rgba(0,0,0,0.46),
+    inset 1px 0 0 rgba(0,0,0,0.28),
+    inset 0 -10px 16px -12px rgba(0,0,0,0.45),
+    0 1px 2px rgba(0,0,0,0.32),
+    0 4px 14px color-mix(in srgb, var(--phosphor) 14%, transparent),
+    0 12px 28px color-mix(in srgb, var(--phosphor) 8%, transparent);
+  z-index:2;
+}
+/* Press: tile pushes back into the surface, brightness dips for an
+   80ms flicker — gives the click a satisfying "switch" character. */
+.sl-palette-cell:active{
+  transform:translateY(0);
+  filter:brightness(0.92);
+  transition-duration:80ms;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 -1px 1px rgba(0,0,0,0.4),
+    inset 0 0 10px rgba(0,0,0,0.32);
+}
+.sl-palette-cell:focus-visible{
+  outline:1px solid var(--phosphor);
+  outline-offset:2px;
+  z-index:3;
+}
+/* Walker — the tile is "energised": phosphor wash bleeds inward from
+   the edges, with a brighter sliver lighting the top. No flat 1px
+   border line. The reticle hangs above and below as the CRT cursor. */
+.sl-palette-cell.is-walker::before{
+  content:"";
+  position:absolute;inset:0;
+  pointer-events:none;
+  box-shadow:
+    inset 0 0 11px color-mix(in srgb, var(--phosphor) 28%, transparent),
+    inset 0 0 4px color-mix(in srgb, var(--phosphor) 38%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--phosphor) 62%, transparent);
+  animation:sl-walker-pulse 1.6s ease-in-out infinite;
+}
+.sl-palette-cell.is-walker::after{
+  content:"";
+  position:absolute;
+  left:50%;top:-10px;bottom:-10px;
+  width:1px;
+  transform:translateX(-50%);
+  /* Reticle fades at its tips — feels less like a drawn line, more
+     like a focused beam. */
+  background:linear-gradient(180deg,
+    color-mix(in srgb, var(--phosphor) 0%, transparent) 0%,
+    var(--phosphor) 28%,
+    var(--phosphor) 72%,
+    color-mix(in srgb, var(--phosphor) 0%, transparent) 100%);
+  box-shadow:
+    0 0 6px color-mix(in srgb, var(--phosphor) 65%, transparent),
+    0 0 14px color-mix(in srgb, var(--phosphor) 28%, transparent);
+  opacity:0.85;
+  pointer-events:none;
+}
+@keyframes sl-walker-pulse{
+  0%,100%{ opacity:0.55; }
+  50%    { opacity:1.0;  }
+}
+/* Hover preview — soft white bleed inward, no flat border. Reads as
+   "the tile is being illuminated" rather than "it's selected." */
+.sl-palette-cell.is-hovered::before{
+  content:"";
+  position:absolute;inset:0;
+  pointer-events:none;
+  box-shadow:
+    inset 0 0 10px rgba(255,255,255,0.10),
+    inset 0 1px 0 rgba(255,255,255,0.32);
+}
+/* Locked — fully energised: deeper phosphor wash, no pulse, brighter
+   top sliver, and a steady reticle. The system is tuned. */
+.sl-palette-cell.is-locked,
+.sl-palette-cell.is-locked:hover{
+  transform:translateY(0);
+  filter:brightness(0.96) saturate(1.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255,201,122,0.40),
+    inset 0 -1px 0 rgba(0,0,0,0.55),
+    inset 1px 0 0 rgba(0,0,0,0.30),
+    inset 0 -10px 16px -12px rgba(0,0,0,0.55);
+}
+.sl-palette-cell.is-locked::before{
+  content:"";
+  position:absolute;inset:0;
+  pointer-events:none;
+  box-shadow:
+    inset 0 0 14px color-mix(in srgb, var(--phosphor) 42%, transparent),
+    inset 0 0 5px color-mix(in srgb, var(--phosphor) 52%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--phosphor) 88%, transparent);
+}
+.sl-palette-cell.is-locked::after{
+  content:"";
+  position:absolute;
+  left:50%;top:-12px;bottom:-12px;
+  width:1px;
+  transform:translateX(-50%);
+  background:linear-gradient(180deg,
+    color-mix(in srgb, var(--phosphor) 0%, transparent) 0%,
+    var(--phosphor) 24%,
+    var(--phosphor) 76%,
+    color-mix(in srgb, var(--phosphor) 0%, transparent) 100%);
+  box-shadow:
+    0 0 8px color-mix(in srgb, var(--phosphor) 80%, transparent),
+    0 0 18px color-mix(in srgb, var(--phosphor) 40%, transparent);
+  pointer-events:none;
+}
+/* Phosphor decay: when the walker leaves, the previous cell's amber
+   wash fades out over 600ms — like trail on a CRT scanning beam. */
+.sl-palette-cell.is-fading::before{
+  content:"";
+  position:absolute;inset:0;
+  pointer-events:none;
+  box-shadow:
+    inset 0 0 10px color-mix(in srgb, var(--phosphor) 24%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--phosphor) 48%, transparent);
+  animation:sl-afterglow 600ms ease-out forwards;
+}
+@keyframes sl-afterglow{
+  0%   { opacity:0.7; }
+  100% { opacity:0;   }
+}
+
+/* Readout — Space Mono telemetry line under the strip. Hex glows in
+   its live colour, state token shifts based on display mode, and a
+   blinking phosphor block sits at the end as a terminal cursor. */
+.sl-palette-readout{
+  max-width:1289px;
+  margin:20px auto 0;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  gap:0.6em;
+  font-size:13px;
+  letter-spacing:0.04em;
+  color:var(--on-dark-fg-muted);
+}
+.sl-readout-prompt{ color:var(--on-dark-fg-soft); letter-spacing:0; }
+.sl-readout-hex{
+  font-weight:700;
+  transition:color 240ms ease-out;
+}
+.sl-readout-sep{ color:rgba(245,243,239,0.28); }
+.sl-readout-id,
+.sl-readout-state{ color:var(--on-dark-fg-soft); }
+.sl-palette.is-lock .sl-readout-state{
+  color:var(--phosphor);
+  letter-spacing:0.22em;
+}
+.sl-palette.is-preview .sl-readout-state{
+  color:rgba(255,255,255,0.78);
+  letter-spacing:0.16em;
+}
+.sl-readout-cursor{
+  display:inline-block;
+  width:0.42em;
+  color:var(--on-dark-fg-soft);
+  transform:translateY(-1.5px);
+  animation:sl-cursor-blink 1.06s steps(1, end) infinite;
+  user-select:none;
+}
+@keyframes sl-cursor-blink{
+  0%,50%   { opacity:1; }
+  50.01%,100%{ opacity:0; }
+}
+
+@media (max-width:760px){
+  .sl-palette{ padding:48px var(--gutter) 24px; }
+  .sl-palette-strip{ height:52px; }
+  .sl-palette-readout{ font-size:11px; gap:0.5em; }
+}
+@media (prefers-reduced-motion: reduce){
+  .sl-palette-cell.is-walker::before,
+  .sl-palette-cell.is-fading::before,
+  .sl-readout-cursor{ animation:none; opacity:1; }
+  .sl-palette-cell{ transition:none; }
+  .sl-palette-cell:hover{ transform:none; }
+  .sl-palette-strip{ transition:none; }
+}
+
+/* Split Logic — magnifying-glass cursor.
+   Hovering any artwork (hero, inline triptych, piece-grid cell)
+   suppresses the native cursor and reveals a small "glass tile" that
+   tracks the pointer and shows a 1.6× detail of whatever sits beneath
+   it. The frame is a thin white edge over a soft outer shadow — reads
+   as a piece of glass laid on the surface, not a hovering UI chrome. */
+.exhibition-detail[data-slug="split-logic"] .ex-hero-plate,
+.exhibition-detail[data-slug="split-logic"] .ex-hero-plate video,
+.exhibition-detail[data-slug="split-logic"] .ex-inline-media,
+.exhibition-detail[data-slug="split-logic"] .ex-inline-media video,
+.exhibition-detail[data-slug="split-logic"] .piece-cell{
+  cursor:none;
+}
+/* While the page is scrolling the magnifier is hidden — restore the
+   native cursor on the artwork surfaces so the viewer isn't pointing
+   at nothing while the artwork slides past. */
+html.sl-scrolling .exhibition-detail[data-slug="split-logic"] :is(
+  .ex-hero-plate, .ex-hero-plate video,
+  .ex-inline-media, .ex-inline-media video,
+  .piece-cell
+){
+  cursor:auto;
+}
+.sl-magnifier{
+  position:fixed;
+  width:32px;height:32px;
+  border-radius:50%;
+  pointer-events:none;
+  z-index:120;
+  transform:translate(-50%, -50%);
+  /* Depth shadow + soft tonal glow tinted by the artwork's dominant
+     colour (set via --mag-tone by the component on each new entry).
+     box-shadow follows border-radius so the glow is circular too. */
+  box-shadow:
+    0 3px 10px rgba(0,0,0,0.34),
+    0 0 22px color-mix(in srgb, var(--mag-tone, #fff) 30%, transparent);
+  transition:
+    opacity 120ms ease-out,
+    box-shadow 280ms ease-out;
+  will-change:left, top;
+}
+/* Lens clips the upscaled frame to the circular magnifier shape.
+   No background-color: it was bleeding through the rounded-edge
+   antialiasing as a thin black ring at the perimeter. */
+.sl-magnifier-lens{
+  position:absolute;
+  inset:0;
+  clip-path:circle(50% at 50% 50%);
+  overflow:hidden;
+  background-repeat:no-repeat;
+  will-change:background-position;
+}
+/* Sharpen the upscaled video/poster a touch — closer to crisp grid
+   pixels than the browser's default bilinear smoothing, but not the
+   blocky nearest-neighbour of `pixelated`. */
+.sl-magnifier-lens video,
+.sl-magnifier-lens img{
+  image-rendering:-webkit-optimize-contrast;
+  image-rendering:crisp-edges;
+}
+@media (prefers-reduced-motion: reduce){
+  .sl-magnifier{ transition:none; }
+}
+@media (hover:none){
+  /* Touch devices don't drive a pointer — keep native tap cursor and
+     hide the magnifier permanently. */
+  .exhibition-detail[data-slug="split-logic"] .ex-hero-plate,
+  .exhibition-detail[data-slug="split-logic"] .ex-hero-plate video,
+  .exhibition-detail[data-slug="split-logic"] .ex-inline-media,
+  .exhibition-detail[data-slug="split-logic"] .ex-inline-media video,
+  .exhibition-detail[data-slug="split-logic"] .piece-cell{
+    cursor:auto;
+  }
+  .sl-magnifier{ display:none; }
+}
+
 /* Folder-grid: 4×4 of artwork "files" filed behind a frosted-glass
    pocket — each piece's head reads crisply above the blur, the body
    diffused below. Click a cell to morph that piece up out of the
@@ -3831,13 +4177,10 @@ html:has(.constellation-root){
   max-width:none;max-height:none;
   object-fit:cover;
 }
-/* Zoom-in cursor cue on every artwork the ZoomCatcher will handle —
-   the hero video and the inline videos. Excludes the piece grid
-   videos (they have their own cursor logic via PieceGrid). */
-.exhibition-detail[data-slug="split-logic"] .ex-hero-plate video,
-.exhibition-detail[data-slug="split-logic"] .ex-inline-media video{
-  cursor:zoom-in;
-}
+/* The hero and inline videos previously carried a cursor:zoom-in
+   affordance to hint at ZoomCatcher. The Split Logic magnifier now
+   provides a richer cue (the glass tile that follows the pointer),
+   so the zoom-in cursor is intentionally removed for this slug. */
 @media (max-width:760px){
   /* Inline three-up becomes a horizontal scroll-snap carousel on
      mobile — vertical stacking eats screen real-estate and breaks
