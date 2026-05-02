@@ -3818,7 +3818,7 @@ html:has(.constellation-root){
     display:none;
   }
   .exhibition-detail[data-slug="split-logic"] .ex-inline-artworks > *{
-    flex:0 0 82%;
+    flex:0 0 90%;
     scroll-snap-align:start;
   }
 }
