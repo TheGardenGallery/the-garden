@@ -37,3 +37,26 @@ export function preserveHyphens(html: string): string {
   // whitespace immediately before an em dash entity or literal U+2014.
   return emNoBreak.replace(/\s(&mdash;|—)/g, " $1");
 }
+
+/**
+ * Pre-clean markdown coming from external sources (Verse's `about`
+ * field) before passing it to the strict CommonMark parser.
+ *
+ * The Verse copy frequently contains italic phrases written like
+ * `* INFINITE PRESSURE*` — i.e. with whitespace immediately inside the
+ * asterisks. CommonMark refuses to treat that as italic (an opening
+ * `*` must not be followed by whitespace; a closing `*` must not be
+ * preceded by it) and renders the asterisks literally. This trims the
+ * inner whitespace so author intent is preserved.
+ *
+ * Conservative: only matches `*…*` runs that stay on a single line and
+ * don't nest other asterisks, so `**bold**`, list bullets at line
+ * start, and trailing footnote markers (`text*`) are unaffected.
+ */
+export function normalizeMarkdownItalics(md: string): string {
+  return md.replace(/\*([^\n*]+?)\*/g, (full, inner) => {
+    const trimmed = (inner as string).trim();
+    if (!trimmed) return full; // `* *` etc — leave alone
+    return `*${trimmed}*`;
+  });
+}

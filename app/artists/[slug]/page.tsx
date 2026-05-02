@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { fetchArtists, fetchExhibitions } from "@/lib/verse-api";
 import { ArtistReveal } from "@/components/ArtistReveal";
+import { normalizeMarkdownItalics } from "@/lib/typography";
 
 export async function generateStaticParams() {
   const artists = await fetchArtists();
@@ -36,7 +37,7 @@ export default async function ArtistDetailPage({
   const paragraphs =
     artist.bio
       ?.split(/\n{2,}/)
-      .map((p) => p.trim())
+      .map((p) => normalizeMarkdownItalics(p.trim()))
       .filter(Boolean) ?? [];
 
   if (paragraphs.length === 0) {
