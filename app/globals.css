@@ -3566,6 +3566,10 @@ html:has(.constellation-root){
   cursor:zoom-out;
   border:0;
   overflow:hidden;
+  /* Take over touch handling — without this the browser may try to
+     scroll / pinch-zoom on swipes, which fights our gesture
+     detection and produces the "laggy" feel. JS owns all touch. */
+  touch-action:none;
 }
 .piece-grid-overlay-bg{
   position:absolute;inset:0;
@@ -3945,6 +3949,19 @@ html:has(.constellation-root){
     display:grid !important;
     grid-template-columns:1fr 1fr;
     gap:20px 24px;
+  }
+  /* Equalise inter-section spacing on mobile. Default mobile padding
+     for ex-overview is 48px / 96px, which combines with the title
+     bar's 32px offset to leave ~80px of empty space between the
+     hero's title and the facts panel. Pull it tighter so the rhythm
+     matches piece-grid and colophon. */
+  .exhibition-detail[data-slug="split-logic"] .ex-overview{
+    padding-top:24px;
+    padding-bottom:32px;
+  }
+  .exhibition-detail[data-slug="split-logic"] .piece-grid-section{
+    padding-top:24px;
+    padding-bottom:32px;
   }
   /* Prev/next exhibition nav — stack vertically on narrow viewports.
      Side-by-side at <414px wraps the right cell awkwardly. */

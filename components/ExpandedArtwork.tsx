@@ -77,6 +77,14 @@ export function ExpandedArtwork({
     setPan((p) => clampPan(p.x, p.y, zoom));
   }, [zoom, clampPan]);
 
+  // Reset zoom + pan when the displayed artwork changes (prev/next
+  // navigation). Without this, the new item would render with the
+  // previous one's residual zoom/pan state.
+  useEffect(() => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  }, [item.video]);
+
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -183,6 +191,13 @@ export function ExpandedArtwork({
           zoom,
         ),
       );
+    } else if (Math.abs(dx) > Math.abs(dy)) {
+      // At zoom 1, follow the finger horizontally so the swipe has
+      // immediate visual response (no "lag until release" feel). The
+      // pan is committed without going through clampPan since at
+      // zoom=1 the clamp would always force back to (0, 0).
+      setIsDragging(true);
+      setPan({ x: dx, y: 0 });
     }
   };
 
@@ -195,23 +210,38 @@ export function ExpandedArtwork({
     touchRef.current.active = false;
 
     const t = e.changedTouches[0];
-    if (!t) return;
+    if (!t) {
+      setIsDragging(false);
+      return;
+    }
     const dx = t.clientX - startX;
     const dy = t.clientY - startY;
     const elapsed = Date.now() - startTime;
 
     // Tap-to-close at zoom 1 (no movement, short duration).
     if (!moved && zoom <= 1 && elapsed < 400) {
+      setIsDragging(false);
       onClose();
       return;
     }
 
     // Swipe-to-nav at zoom 1: horizontal travel beyond threshold,
     // dominant over vertical, completed within a reasonable window.
-    if (zoom <= 1 && Math.abs(dx) > 56 && Math.abs(dx) > Math.abs(dy) * 1.4 && elapsed < 800) {
+    if (
+      zoom <= 1 &&
+      Math.abs(dx) > 48 &&
+      Math.abs(dx) > Math.abs(dy) * 1.3 &&
+      elapsed < 900
+    ) {
       if (dx > 0) onPrev?.();
       else onNext?.();
     }
+    // Reset pan + drag flag — for committed swipe nav, this cleans up
+    // the visual offset before the next item mounts. For non-swipe
+    // movement, transition (re-enabled by isDragging=false) animates
+    // the artwork snapping back to centre.
+    setPan({ x: 0, y: 0 });
+    setIsDragging(false);
   };
 
   const cursor = zoom > 1 ? (isDragging ? "grabbing" : "grab") : "zoom-out";
