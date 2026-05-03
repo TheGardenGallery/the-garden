@@ -16,14 +16,12 @@ import { PieceGrid, type PieceGridItem } from "./PieceGrid";
  * mauve, coral, deep blue) instead of doubling up on close greens.
  */
 const ZONE_WEDGE_IDS = [
-  "wedge-02", // DBK   — white / very pale
-  "wedge-03", // HTX   — pastel yellow
-  "wedge-07", // HEK   — peach / pastel pink
-  "wedge-12", // MB/SUL — dark cream
-  "wedge-04", // CI    — sage green
-  "wedge-15", // maze  — mauve
-  "wedge-10", // MJG   — coral / red
-  "wedge-16", // EL    — deep blue
+  "wedge-03", // HTX  — yellow
+  "wedge-07", // HEK  — pink
+  "wedge-04", // CI   — sage green
+  "wedge-15", // maze — mauve
+  "wedge-10", // MJG  — coral / red
+  "wedge-16", // EL   — deep blue
 ];
 
 /**
