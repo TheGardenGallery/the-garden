@@ -45,7 +45,7 @@ export function TerminalDescription({
               {hasLabels && labels?.[pi] && (
                 <span className="term-station-label">{labels[pi]}</span>
               )}
-              <p>{para}</p>
+              <p dangerouslySetInnerHTML={{ __html: para }} />
             </div>
             {breakAt && (
               <InlineArtworks

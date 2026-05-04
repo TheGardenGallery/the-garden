@@ -14,6 +14,7 @@ import { SplitLogicSystem } from "@/components/SplitLogicSystem";
 import { ZoomCatcher } from "@/components/ZoomCatcher";
 import { Reveal } from "@/components/Reveal";
 import { SplitLogicMagnifier } from "@/components/SplitLogicMagnifier";
+import { ArtistBroadsheet } from "@/components/ArtistBroadsheet";
 import {
   getSplitLogicPalette,
   getSplitLogicMagnifierTones,
@@ -126,6 +127,13 @@ export default async function ExhibitionDetailPage({
         )
       )}
 
+      {exhibition.slug === "split-logic" && (
+        <ArtistBroadsheet
+          paragraphs={RICKY_TEXT}
+          attribution="Ricky Retouch"
+        />
+      )}
+
       {exhibition.exploreArtworks && exhibition.exploreArtworks.length > 0 && (
         <Reveal>
           <ExploreRow
@@ -172,6 +180,14 @@ export default async function ExhibitionDetailPage({
     </div>
   );
 }
+
+// ── Ricky's artist description of the series ──────────────────────────
+const RICKY_TEXT = [
+  `<em>Split Logic</em> is a collection of procedural terminal works built from screen partitions, grid structures, moving fields, coded labels, and rule-based color. The series begins with layout as a kind of logic, dividing the frame into zones that hold fragments of data, measurements, symbols, and empty space.`,
+  `Across the works, motion is found through grid walkers, directional noise, and shifting points that respond to various constraints within the algorithm. Some pieces feel like transit diagrams or stock tickers. Others resemble diagnostic screens or monitoring systems from an imagined machine. The information is partly legible and partly invented, sitting somewhere between data, interface, and decoration.`,
+  `The series moves away from the paper-like texture of my earlier collections and toward a more digital surface. Its imperfections come from glow, blur, density, compression, and instability. It suggests a functioning system designed for clarity, but still shaped by drift, interference, and human selection.`,
+  `The pieces are meant to feel like screens from an unknown system that could have existed in a more advanced version of the 1980s, where modern computation is filtered through older display language.`,
+];
 
 function WorksSection({ works }: { works: NonNullable<Exhibition["works"]> }) {
   return (
