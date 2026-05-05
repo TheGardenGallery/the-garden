@@ -3,6 +3,10 @@ import type { JournalEntry } from "@/lib/types";
 
 type JournalItemProps = { entry: JournalEntry };
 
+function isInternalPath(url: string | undefined): url is string {
+  return typeof url === "string" && url.startsWith("/");
+}
+
 export function JournalItem({ entry }: JournalItemProps) {
   const body = (
     <>
@@ -16,6 +20,14 @@ export function JournalItem({ entry }: JournalItemProps) {
       </div>
     </>
   );
+
+  if (isInternalPath(entry.externalUrl)) {
+    return (
+      <Link href={entry.externalUrl} className="journal-item">
+        {body}
+      </Link>
+    );
+  }
 
   if (entry.externalUrl) {
     return (

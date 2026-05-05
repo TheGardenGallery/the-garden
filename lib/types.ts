@@ -212,6 +212,49 @@ export type JournalEntry = {
   date: string;
   excerpt?: string;
   hero?: string;
+  heroVideo?: string;        // optional looping video to play in the hero slot. When set, renders a muted/autoplaying/looping <video> instead of the still <img>. `hero` is reused as the poster frame when present.
+  heroAspect?: string;       // optional override for the hero image aspect-ratio (e.g. "1954/1002"). Defaults to 16/10. Use when the source artwork has a non-standard ratio and `object-fit:cover` would crop meaningful detail.
+  kicker?: string;           // optional uppercase eyebrow above the headline — used to signify the exhibition or series the piece belongs to (e.g. "Split Logic")
   externalUrl?: string;      // when set, the journal item links out to this URL instead of the internal /journal/[slug] route
   disableHoverZoom?: boolean; // when true, skip the hover scale on the hero image — use for fine-pattern artwork where the scale slices into the grid
+};
+
+/** A single Q/A pair inside an InterviewSection. Each question is
+ *  treated like a labeled cluster in one of Ricky's wedge plots —
+ *  a two-or-three-letter `code` paired with a decimal `value` is the
+ *  question's coordinate identity. Both default-derive when absent. */
+export type InterviewQA = {
+  q: string;              // question (HTML entities allowed)
+  a: string;              // answer (HTML entities allowed; `<em>`, `<br/>` ok). Empty string = awaiting artist response.
+  code?: string;          // 2–3 letter cluster label, e.g. "CL", "HXP"
+  value?: string;         // decimal readout paired with the code, e.g. "8.040"
+};
+
+/** A chapter of an interview — labeled station, titled, with its own
+ *  section-break video (typically a silent looping work from the show). */
+export type InterviewSection = {
+  label: string;          // short code, e.g. "SEC.03"
+  title: string;          // human-readable chapter title
+  code?: string;          // symbolic 3-letter code anchored to the bottom-right of the section break frame, like a label in one of the wedge plots
+  breakVideo?: string;    // full-bleed looping clip rendered as the section's opening plate
+  breakPoster?: string;   // poster frame for breakVideo (prevents black flash)
+  questions: InterviewQA[];
+};
+
+/** A long-form interview with an artist. Rendered at /interviews/[slug]. */
+export type Interview = {
+  slug: string;
+  artistName: string;
+  artistSlug: string;            // links back to /artists/[slug]
+  title?: string;                // the conversation's own title (e.g. "Unknown Variables") — sits beneath the artist name on the hero
+  exhibitionSlug?: string;       // optional — if the interview ties to a show
+  exhibitionTitle?: string;
+  interviewer: string;
+  interviewerRole?: string;      // e.g. "Curator"
+  number: string;                // "001" — conversation catalogue index
+  date: string;                  // long-form, e.g. "May 2026"
+  preamble?: string;             // short editorial intro shown under the title block
+  heroVideo?: string;            // silent looping clip behind the opening title plate
+  heroPoster?: string;           // poster for heroVideo
+  sections: InterviewSection[];
 };

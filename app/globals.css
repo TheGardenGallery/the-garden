@@ -290,11 +290,12 @@ body:has(.artist-reveal:not([data-theme="paper"])){
 }
 
 /* Nav theme adaptation applies to any page with a dark canvas at
-   the fold (dark artist reveal, dark hero, dark ex-hero) — the header
-   reads as part of the dark surface rather than a bright slab on
-   top of it. Body bg is independent (only dark artist-reveal flips).
-   Paper-themed artist-reveal pages use the standard cream nav. */
-body:where(:has(.artist-reveal:not([data-theme="paper"])), :has(.hero[data-theme="dark"]), :has(.ex-hero[data-theme="dark"])){
+   the fold (dark artist reveal, dark hero, dark ex-hero, interview).
+   The header reads as part of the dark surface rather than a bright
+   slab on top of it. Interview pages stay dark top-to-bottom, so
+   `.nav-on-paper` is never toggled there (Nav.tsx doesn't include
+   `.interview-root` in its scroll-target selector). */
+body:where(:has(.artist-reveal:not([data-theme="paper"])), :has(.hero[data-theme="dark"]), :has(.ex-hero[data-theme="dark"]), :has(.interview-root)){
   --nav-bg:#000;
   --nav-fg:var(--on-dark-fg);
   --nav-fg-muted:var(--on-dark-fg-muted);
@@ -995,7 +996,7 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
    and drop to a single column. Keeps the two-column grid markup intact
    for when more entries are populated. */
 .journal-grid.is-solo{
-  grid-template-columns:minmax(0, 610px);
+  grid-template-columns:minmax(0, 680px);
   justify-content:center;
   gap:0;
 }
@@ -1008,22 +1009,43 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   overflow:hidden;
   margin-bottom:24px;
 }
-.journal-hero-image img{width:100%;height:100%;object-fit:cover;transform:translateZ(0) scale(1.02);transition:transform 1s ease-out;color:transparent;font-size:0;will-change:transform;backface-visibility:hidden;}
+.journal-hero-image img,
+.journal-hero-image video{width:100%;height:100%;object-fit:cover;object-position:center top;transform:translateZ(0) scale(1.02);transition:transform 1s ease-out;color:transparent;font-size:0;will-change:transform;backface-visibility:hidden;}
 /* Fine-pattern artwork (e.g. Paul's Unicode grids) — freeze the scale at
    the resting 1.02 so sub-pixel transforms don't slice through the grid
    rows. Idle look matches the default; hover just doesn't animate. */
-.journal-hero-image.no-hover-zoom img{transform:translateZ(0) scale(1.02);transition:none;will-change:auto;}
+.journal-hero-image.no-hover-zoom img,
+.journal-hero-image.no-hover-zoom video{transform:translateZ(0) scale(1.02);transition:none;will-change:auto;}
 @media (hover:hover){
   .journal-hero:hover{color:var(--ink-hover);}
-  .journal-hero:hover .journal-hero-image img{transform:translateZ(0) scale(1);}
-  .journal-hero:hover .journal-hero-image.no-hover-zoom img{transform:translateZ(0) scale(1.02);}
+  .journal-hero:hover .journal-hero-image img,
+  .journal-hero:hover .journal-hero-image video{transform:translateZ(0) scale(1);}
+  .journal-hero:hover .journal-hero-image.no-hover-zoom img,
+  .journal-hero:hover .journal-hero-image.no-hover-zoom video{transform:translateZ(0) scale(1.02);}
 }
 .journal-hero-content{display:flex;flex-direction:column;max-width:560px;}
+.journal-hero-kicker{
+  font-family:'Barlow',sans-serif;
+  font-weight:500;font-size:11px;letter-spacing:1.4px;
+  text-transform:uppercase;line-height:1;
+  color:inherit;opacity:0.7;
+  margin-bottom:14px;
+  /* Optical alignment — Barlow "S" stroke is inset from the bearing
+     edge; pull a hair left to match the headline/byline/excerpt
+     dark-ink column. */
+  margin-left:-0.5px;
+}
 .journal-hero-headline{
   font-family:'Cormorant','Title CJK',serif;
   font-weight:400;
   font-size:38px;letter-spacing:-0.3px;line-height:1.15;
   color:inherit;
+  /* Optical left-edge alignment with the surrounding Barlow rows.
+     Cormorant capitals carry larger left side-bearings than the
+     uppercase Barlow used in the kicker/byline/meta, so the box-
+     aligned headline visually drifts right. Pulling it left
+     restores the shared optical column. */
+  margin-left:-2px;
 }
 .journal-hero-byline{
   font-family:'Barlow',sans-serif;
@@ -1031,12 +1053,18 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   text-transform:uppercase;line-height:1;
   color:inherit;opacity:0.75;
   margin-top:16px;
+  /* Optical alignment — Barlow "I" sits with its stroke centered in the
+     glyph box, drifting right of the kicker's "S" / meta's "M". Pull
+     it back to the shared optical column. */
+  margin-left:-1.5px;
 }
 .journal-hero-excerpt{
   font-family:'Barlow',sans-serif;
   font-size:14px;letter-spacing:0.2px;line-height:1.65;
   color:inherit;opacity:0.78;font-weight:400;
   margin-top:16px;
+  /* Optical alignment — same reasoning as the byline. */
+  margin-left:-1px;
 }
 .journal-hero-meta{
   font-family:'Barlow',sans-serif;
@@ -1045,6 +1073,9 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   text-transform:uppercase;
   display:flex;align-items:center;gap:8px;
   line-height:1;margin-top:20px;
+  /* Optical alignment — Barlow "M" stem center is inset relative to
+     the surrounding rows. Pull left a hair to match. */
+  margin-left:-1px;
 }
 .journal-hero-meta .sep{color:currentColor;opacity:0.35;}
 
@@ -5328,3 +5359,503 @@ body:has(.wf-root) footer{
   pointer-events:none;
 }
 
+
+
+/* =======================================================================
+   INTERVIEW — "Phosphor Grid Transcript"
+
+   A dark, monospace reading surface structured like one of Ricky Retouch's
+   own pieces: a phosphor hairline grid, indexed cells, a traveling dot
+   marker in the gutter, and silent looping wedges between chapters.
+
+   Design register: Dieter Rams + P1 phosphor green. Restraint, not
+   skeuomorphism. Hairlines, not glows. Color accents stay muted enough
+   that the reader's eye stays on the type, not the frame.
+
+   Lives at /interviews/[slug]. Homepage routes to this page via the
+   "Interview" section on the landing page.
+   ======================================================================= */
+
+.interview-root{
+  /* Cyan-tinted white palette, matching the Split Logic exhibition
+     page: same #e8f8f8 base sampled from Ricky's wedge letterforms,
+     hierarchy via opacity (not via hue). The "phosphor" tokens stay
+     named for compatibility with existing selectors but resolve to
+     the same tonal family — every element on the page sits in one
+     monochromatic cyan-white ladder. */
+  --iv-bg:#0a0a0a;
+  --iv-bg-deep:#070707;
+  --iv-fg:rgba(232,248,248,0.95);
+  --iv-fg-muted:rgba(232,248,248,0.78);
+  --iv-fg-quiet:rgba(232,248,248,0.55);
+  --iv-fg-ghost:rgba(232,248,248,0.18);
+  --iv-phosphor:rgba(232,248,248,0.95);
+  --iv-phosphor-soft:rgba(232,248,248,0.78);
+  --iv-phosphor-quiet:rgba(232,248,248,0.55);
+  --iv-phosphor-ghost:rgba(232,248,248,0.18);
+  --iv-max:760px;                        /* reading column (matches broadsheet) */
+  --iv-pad:var(--gutter);
+
+  background:var(--iv-bg);
+  color:var(--iv-fg);
+  min-height:100vh;
+  /* Push below the fixed nav. Nav will auto-adapt to dark via existing
+     `html:has(.interview-root)` rule added below. */
+  padding-top:var(--nav-height);
+}
+
+/* Nav auto-dark when an interview is on screen (mirrors the
+   constellation page's approach). The selector keys off the article
+   class so any page that renders .interview-root gets the treatment. */
+html:has(.interview-root) body{background:var(--iv-bg);}
+
+/* ---------- Opening plate / hero ----------------------------------- */
+
+.iv-hero{
+  position:relative;
+  /* Fill the visible viewport below the fixed nav so nothing of the
+     first section break peeks through under the hero. .interview-root
+     pushes content down by var(--nav-height); the hero takes the
+     remaining 100vh of visible space. */
+  min-height:calc(100vh - var(--nav-height));
+  min-height:calc(100dvh - var(--nav-height));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:var(--iv-bg-deep);
+  border-bottom:1px solid var(--iv-phosphor-ghost);
+}
+
+/* Source video plays at full opacity, full quality. The blur is NOT
+   applied here — applying `filter:blur()` to a translucent source then
+   compositing it over a dark bg compresses the bright wedge highlights
+   into a small luminance range, producing visible Mach bands; scaling
+   the result amplifies them further. Instead we let the video render
+   pristine and put the blur on a glass overlay above (.iv-hero-glass),
+   which uses GPU-precision backdrop-filter sampling. */
+.iv-hero-media{
+  position:absolute;inset:0;
+  z-index:0;
+}
+.iv-hero-media video{
+  width:100%;height:100%;
+  object-fit:cover;
+  /* Bias the crop toward the top of the source so the wedge plot
+     sits higher in the visible window. */
+  object-position:center 30%;
+  display:block;
+}
+
+/* Glass overlay — backdrop-filter samples the live video beneath at
+   full GPU precision, so the blur is clean (no rasterized banding)
+   and there's no halo at the edges (filter samples extend below the
+   layer naturally). The dark tint replaces the old opacity-dimming
+   of the source, providing text contrast without collapsing the
+   source's color range. */
+.iv-hero-glass{
+  position:absolute;inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:rgba(8,8,10,0.48);
+  -webkit-backdrop-filter:blur(28px) saturate(0.92);
+  backdrop-filter:blur(28px) saturate(0.92);
+}
+/* Subtle SVG turbulence grain — dithers any residual color steps from
+   the backdrop-filter pass so smooth gradients never show banding.
+   Same technique Apple/Stripe use for clean glass surfaces. ~6%
+   opacity, overlay blend, tile-stitched so it doesn't seam. */
+.iv-hero-glass::after{
+  content:"";
+  position:absolute;inset:0;
+  pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/></svg>");
+  background-size:220px 220px;
+  opacity:0.06;
+  mix-blend-mode:overlay;
+}
+
+.iv-hero-inner{
+  position:relative;z-index:2;
+  width:100%;
+  max-width:var(--iv-max);
+  margin:0 auto;
+  padding:0 var(--iv-pad);
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.iv-hero-title{
+  /* Match the Split Logic exhibition page's title-bar treatment:
+     Big Shoulders Display 800 uppercase — the heavy industrial
+     condensed face that mirrors the typography baked into Ricky's
+     wedge plots. Same typeface used on the show's hero title-bar. */
+  font-family:'Big Shoulders Display','Inter',sans-serif;
+  font-weight:800;
+  text-transform:uppercase;
+  font-size:clamp(48px, 7vw, 84px);
+  line-height:1.0;
+  letter-spacing:0;
+  color:var(--iv-fg);
+  margin:0;
+}
+.iv-hero-title-link{
+  color:inherit;
+  text-decoration:none;
+  transition:color 0.3s ease-out;
+}
+@media (hover:hover){
+  .iv-hero-title-link:hover{
+    color:var(--iv-phosphor-soft);
+  }
+}
+
+/* Conversation-title line beneath the artist name — same Big Shoulders
+   Display 800 uppercase as the artist line, smaller scale. Mirrors
+   the Split Logic exhibition title-bar where artist + title share
+   the same heavy industrial face (no italic, no swap to serif). */
+.iv-hero-subtitle{
+  font-family:'Big Shoulders Display','Inter',sans-serif;
+  font-weight:800;
+  text-transform:uppercase;
+  font-size:clamp(26px, 3.4vw, 42px);
+  line-height:1.0;
+  letter-spacing:0;
+  color:var(--iv-fg-muted);
+  margin:14px 0 0;
+}
+
+/* Bottom-left corner label — "CONVERSATION: SPLIT LOGIC" with the
+   show name linking back to its exhibition page. Same Saira Condensed
+   600 uppercase vocabulary as the section-break code labels and the
+   exhibition's `.ex-fact-label`. */
+.iv-hero-corner{
+  position:absolute;
+  z-index:3;
+  bottom:28px;
+  left:var(--iv-pad);
+  font-family:'Saira Condensed','Barlow',sans-serif;
+  font-weight:600;
+  font-size:11px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  line-height:1;
+}
+.iv-hero-corner-label{
+  color:var(--iv-phosphor-soft);
+}
+.iv-hero-corner-link{
+  color:var(--iv-fg);
+  text-decoration:none;
+  transition:color 0.3s ease-out;
+}
+@media (hover:hover){
+  .iv-hero-corner-link:hover{
+    color:var(--iv-phosphor-soft);
+  }
+}
+
+/* ---------- Body wrapper ------------------------------------------ */
+
+.iv-body{
+  position:relative;
+  padding-bottom:40px;
+}
+
+/* ---------- Section break plates ---------------------------------- */
+
+.iv-section{position:relative;}
+
+.iv-break{
+  position:relative;
+  height:58vh;
+  min-height:380px;
+  max-height:640px;
+  overflow:hidden;
+  background:var(--iv-bg-deep);
+  border-bottom:1px solid var(--iv-phosphor-ghost);
+}
+
+/* Section-break label — sits absolutely positioned along the bottom
+   of the wedge plate. Single horizontal line: SEC.NN ── chapter title,
+   in Saira condensed phosphor green / white. */
+.iv-break-label{
+  position:absolute;z-index:2;
+  left:var(--iv-pad);right:var(--iv-pad);bottom:32px;
+  max-width:var(--iv-max);margin:0 auto;
+  display:flex;align-items:center;gap:18px;
+  font-family:'Saira Condensed','Barlow',sans-serif;
+  font-weight:600;
+  font-size:11px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  line-height:1;
+}
+.iv-break-code{
+  color:var(--iv-phosphor);
+  font-variant-numeric:tabular-nums lining-nums;
+}
+.iv-break-rule{
+  flex:0 1 120px;
+  height:1px;
+  /* Same brightness register as the Q/A hairline — quiet, not a slab. */
+  background:rgba(232,248,248,0.30);
+}
+.iv-break-title{
+  color:var(--iv-fg);
+  /* Tighter tracking than the small SEC code — bigger type carries
+     less letter-spacing without losing legibility. */
+  letter-spacing:0.16em;
+  font-size:clamp(14px, 1.3vw, 18px);
+}
+.iv-break-media{
+  position:absolute;z-index:0;
+  /* Oversize the media plate so the per-section parallax translate
+     never reveals empty space at the top/bottom edges of the wedge
+     frame. The frame's overflow:hidden clips the excess. */
+  top:-20%;bottom:-20%;left:0;right:0;
+  transform:translate3d(0, var(--parallax-y, 0), 0);
+  will-change:transform;
+}
+.iv-break-media video{
+  width:100%;height:100%;object-fit:cover;display:block;
+  /* Let the wedge breathe but stay recessed — we're not showing the piece
+     as a finished work here, just a fragment between chapters. */
+  opacity:0.58;
+  filter:saturate(0.92) contrast(1.02);
+}
+.iv-break::after{
+  content:"";position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,
+    rgba(10,10,10,0.35) 0%,
+    rgba(10,10,10,0.05) 40%,
+    rgba(10,10,10,0.35) 75%,
+    rgba(10,10,10,0.88) 100%);
+  pointer-events:none;
+}
+
+
+/* ---------- Q/A stack --------------------------------------------- */
+
+.iv-qa-stack{
+  max-width:var(--iv-max);
+  margin:0 auto;
+  padding:104px var(--iv-pad);
+  display:flex;
+  flex-direction:column;
+  gap:72px;
+}
+
+.iv-qa{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:0;
+}
+
+.iv-qa-q{
+  display:grid;
+  grid-template-columns:64px 1fr;
+  gap:0 22px;
+  align-items:baseline;
+  padding-bottom:16px;
+}
+.iv-qa-idx{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  line-height:1;
+  user-select:none;
+  /* Pull the cluster label up to the question's optical baseline so it
+     reads as the question's coordinate label. */
+  position:relative;
+  top:6px;
+}
+/* Cluster label — same Saira Condensed 600 uppercase treatment as
+   the Split Logic exhibition's `.ex-fact-label` and `.term-station-label`. */
+.iv-qa-code{
+  font-family:'Saira Condensed','Barlow',sans-serif;
+  font-weight:600;
+  font-size:11px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--iv-phosphor);
+  font-variant-numeric:tabular-nums lining-nums;
+}
+/* Decimal readout — same Saira Condensed 500 tabular treatment as
+   the Split Logic exhibition's `.ex-fact-value`. */
+.iv-qa-value{
+  font-family:'Saira Condensed','Barlow',sans-serif;
+  font-weight:500;
+  font-size:13px;
+  letter-spacing:0.04em;
+  color:var(--iv-phosphor-quiet);
+  font-variant-numeric:tabular-nums lining-nums;
+}
+/* Question text — Space Mono body prose, mirrors the Split Logic
+   exhibition's `.ex-overview-body-terminal` paragraph treatment.
+   Keeps the Q/A distinction via brightness (full white vs. muted)
+   and size (16px vs. 14.5px) since only weight 400 of Space Mono
+   is loaded. */
+.iv-qa-text{
+  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-weight:400;
+  font-size:16px;
+  line-height:1.7;
+  letter-spacing:0.005em;
+  color:var(--iv-fg);
+  margin:0;
+}
+
+.iv-qa-rule{
+  height:1px;
+  /* Hairline between Q and A — barely-there phosphor-ghost so the
+     rule reads as a quiet beat, not a horizontal slab competing with
+     the muted body type. */
+  background:var(--iv-phosphor-ghost);
+  margin:0;
+}
+
+.iv-qa-a{
+  display:grid;
+  grid-template-columns:64px 1fr;
+  gap:0 22px;
+  align-items:start;
+  padding-top:16px;
+}
+.iv-qa-mark{
+  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size:18px;
+  font-weight:400;
+  line-height:1.4;
+  color:var(--iv-phosphor);
+  user-select:none;
+  /* Soft phosphor halo — registers as a calibration cross, not a "+"
+     symbol. */
+  text-shadow:0 0 10px rgba(232,248,248,0.35);
+  text-align:left;
+  padding-left:2px;
+}
+.iv-qa-answer{
+  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size:14.5px;
+  line-height:2.1;
+  letter-spacing:0.005em;
+  color:var(--iv-fg-muted);
+  margin:0;
+}
+.iv-qa-answer em{font-style:normal;color:var(--iv-fg);}
+
+/* Pending answer — placeholder while awaiting response */
+.iv-qa-answer--pending{
+  display:flex;align-items:center;gap:12px;
+  color:var(--iv-fg-ghost);
+  font-size:11px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  line-height:1;
+  padding-top:8px;
+}
+.iv-qa-pending-cursor{
+  display:inline-block;
+  width:8px;height:12px;
+  background:var(--iv-phosphor-soft);
+  animation:iv-blink 1.15s steps(2,jump-none) infinite;
+}
+@keyframes iv-blink{
+  0%,50%{opacity:1;}
+  51%,100%{opacity:0;}
+}
+.iv-qa-pending-label{font-family:'Saira Condensed','Barlow',sans-serif;font-weight:500;}
+
+/* ---------- Station index — top-right, 8 tiny dots ---------------- */
+
+.iv-index{
+  position:fixed;
+  top:calc(var(--nav-height) + 28px);
+  right:var(--gutter);
+  z-index:50;
+  display:flex;flex-direction:column;align-items:flex-end;gap:10px;
+  pointer-events:auto;
+}
+.iv-index-dot{
+  display:flex;align-items:center;gap:10px;
+  text-decoration:none;
+  color:var(--iv-fg-ghost);
+  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size:10px;
+  letter-spacing:0.12em;
+  line-height:1;
+  font-variant-numeric:tabular-nums lining-nums;
+  transition:color 0.35s ease-out;
+  position:relative;
+  padding:4px 0;
+}
+.iv-index-dot::after{
+  content:"";display:block;
+  width:5px;height:5px;border-radius:50%;
+  background:var(--iv-fg-ghost);
+  transition:background 0.35s ease-out, box-shadow 0.35s ease-out, transform 0.35s ease-out;
+}
+.iv-index-num{
+  opacity:0;
+  transition:opacity 0.25s ease-out;
+}
+.iv-index-dot--active{color:var(--iv-phosphor);}
+.iv-index-dot--active::after{
+  background:var(--iv-phosphor);
+  box-shadow:0 0 10px rgba(232,248,248,0.45);
+  transform:scale(1.35);
+}
+.iv-index-dot--active .iv-index-num{opacity:1;}
+@media (hover:hover){
+  .iv-index-dot:hover{color:var(--iv-phosphor-soft);}
+  .iv-index-dot:hover::after{background:var(--iv-phosphor-soft);}
+  .iv-index-dot:hover .iv-index-num{opacity:1;}
+}
+
+/* Mobile progress rail — a thin phosphor line fills across the top */
+.iv-progress-rail{
+  position:fixed;
+  top:var(--nav-height);
+  left:0;right:0;
+  height:1px;
+  background:var(--iv-phosphor);
+  transform-origin:left center;
+  transform:scaleX(0);
+  transition:transform 0.15s linear;
+  z-index:40;
+  opacity:0.65;
+  display:none;
+}
+
+/* ---------- Responsive -------------------------------------------- */
+
+@media (max-width:720px){
+  .iv-hero{
+    min-height:calc(100vh - var(--nav-height));
+    min-height:calc(100dvh - var(--nav-height));
+  }
+  .iv-hero-inner{padding:0 var(--iv-pad) 64px;}
+  .iv-hero-title{font-size:clamp(32px,10vw,48px);}
+  .iv-hero-subtitle{font-size:clamp(18px,4.5vw,24px);}
+  .iv-break{height:46vh;min-height:300px;}
+  .iv-break-label{bottom:28px;gap:14px;}
+  .iv-break-rule{flex-basis:80px;}
+  .iv-qa-stack{padding:64px var(--iv-pad) 80px;gap:60px;}
+  .iv-qa-q{grid-template-columns:52px 1fr;gap:0 16px;}
+  .iv-qa-a{grid-template-columns:52px 1fr;gap:0 16px;}
+  .iv-qa-text{font-size:15.5px;line-height:1.5;}
+  .iv-qa-answer{font-size:13.5px;line-height:1.95;}
+  /* Hide station index, show progress rail */
+  .iv-index{display:none;}
+  .iv-progress-rail{display:block;}
+}
+
+@media (max-width:480px){
+  .iv-qa-q{grid-template-columns:1fr;gap:10px;}
+  .iv-qa-a{grid-template-columns:1fr;gap:10px;}
+  .iv-qa-idx{flex-direction:row;align-items:baseline;gap:10px;top:0;}
+  .iv-qa-mark{line-height:1;padding:0;}
+}

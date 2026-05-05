@@ -29,7 +29,11 @@ export default async function HomePage() {
     .filter((e): e is NonNullable<typeof e> => Boolean(e));
 
   const journalHero = journal[0];
-  const journalSidebar = journal.slice(1, 4);
+  // Homepage interview section is curator-locked to a single featured
+  // conversation (currently Ricky's). Other entries remain reachable via
+  // /journal but are intentionally hidden from the homepage stack so the
+  // section reads as one anchored editorial moment, not a feed.
+  const journalSidebar: typeof journal = [];
 
   return (
     <>
