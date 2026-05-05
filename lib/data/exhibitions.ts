@@ -50,7 +50,7 @@ export const exhibitions: Exhibition[] = [
         ],
       },
     ],
-    pieceGrid: Array.from({ length: 15 }, (_, i) => {
+    pieceGrid: Array.from({ length: 16 }, (_, i) => {
       const n = String(i + 1).padStart(2, "0");
       return {
         video: `/images/ricky-retouch/works/wedge-${n}.mp4`,
