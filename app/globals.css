@@ -5424,7 +5424,10 @@ html:has(.interview-root) body{background:var(--iv-bg);}
   justify-content:center;
   overflow:hidden;
   background:var(--iv-bg-deep);
-  border-bottom:1px solid var(--iv-phosphor-ghost);
+  /* No border-bottom — the bg-color transition between hero and
+     the first wedge plate carries the section change. A flat 1px
+     line across the viewport reads as a budget hr, not a refined
+     editorial break. */
 }
 
 /* Source video plays at full opacity, full quality. The blur is NOT
@@ -5575,7 +5578,9 @@ html:has(.interview-root) body{background:var(--iv-bg);}
   max-height:640px;
   overflow:hidden;
   background:var(--iv-bg-deep);
-  border-bottom:1px solid var(--iv-phosphor-ghost);
+  /* No border-bottom — same reasoning as .iv-hero. The Q/A area
+     below sits on a slightly different bg (--iv-bg vs --iv-bg-deep)
+     and the typography change carries the section transition. */
 }
 
 /* Section-break label — sits absolutely positioned along the bottom
@@ -5600,8 +5605,16 @@ html:has(.interview-root) body{background:var(--iv-bg);}
 .iv-break-rule{
   flex:0 1 120px;
   height:1px;
-  /* Same brightness register as the Q/A hairline — quiet, not a slab. */
-  background:rgba(232,248,248,0.30);
+  /* Same gradient-fade treatment as the Q/A hairline — center carries
+     a touch more opacity since the rule is short, but it still tapers
+     to almost-nothing at both ends so the line reads as a refined
+     trace, not a hard slab. */
+  background:linear-gradient(
+    to right,
+    rgba(232,248,248,0.05),
+    rgba(232,248,248,0.42),
+    rgba(232,248,248,0.05)
+  );
 }
 .iv-break-title{
   color:var(--iv-fg);
@@ -5710,10 +5723,18 @@ html:has(.interview-root) body{background:var(--iv-bg);}
 
 .iv-qa-rule{
   height:1px;
-  /* Hairline between Q and A — barely-there phosphor-ghost so the
-     rule reads as a quiet beat, not a horizontal slab competing with
-     the muted body type. */
-  background:var(--iv-phosphor-ghost);
+  /* Linear-gradient hairline that fades to transparent at the edges
+     instead of slabbing edge-to-edge. Reads as a quiet etched trace,
+     not a horizontal rule. Center opacity (0.22) carries enough weight
+     to register as a marker between Q and A; the fade keeps the line
+     from competing with the surrounding typography. */
+  background:linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(232,248,248,0.22) 18%,
+    rgba(232,248,248,0.22) 82%,
+    transparent 100%
+  );
   margin:0;
 }
 
