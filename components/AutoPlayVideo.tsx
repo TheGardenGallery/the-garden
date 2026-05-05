@@ -26,6 +26,12 @@ export function AutoPlayVideo(props: ComponentProps<"video">) {
       }
     };
 
+    // iOS Safari occasionally hangs onto a stale `paused` state across
+    // page refreshes — the video element hydrates but `.play()` is a
+    // no-op until the source is re-decoded. Force a fresh load so the
+    // media element starts from a known-good state, then try to play.
+    try { el.load(); } catch { /* ignore */ }
+
     // Try immediately (covers already-cached videos)
     tryPlay();
 

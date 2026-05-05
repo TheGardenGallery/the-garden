@@ -44,7 +44,19 @@ export default async function InterviewPage({
           context line — Hufkens-tier "subject : context" hierarchy. */}
       <header className="iv-hero">
         {interview.heroVideo && (
-          <div className="iv-hero-media" aria-hidden>
+          <div
+            className="iv-hero-media"
+            aria-hidden
+            // Fallback bg image so if iOS Safari fails to autoplay the
+            // video on a hard refresh (it sometimes caches a paused
+            // state), the glass overlay still has the wedge artwork
+            // to sample — no "stuck dark blur".
+            style={
+              interview.heroPoster
+                ? { backgroundImage: `url("${interview.heroPoster}")` }
+                : undefined
+            }
+          >
             <AutoPlayVideo
               src={interview.heroVideo}
               poster={interview.heroPoster}

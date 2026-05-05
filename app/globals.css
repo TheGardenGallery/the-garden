@@ -5436,10 +5436,17 @@ html:has(.interview-root) body{background:var(--iv-bg);}
    into a small luminance range, producing visible Mach bands; scaling
    the result amplifies them further. Instead we let the video render
    pristine and put the blur on a glass overlay above (.iv-hero-glass),
-   which uses GPU-precision backdrop-filter sampling. */
+   which uses GPU-precision backdrop-filter sampling.
+   The bg-image is set inline from the page (heroPoster) so iOS Safari's
+   occasional video-state caching on refresh doesn't leave the glass
+   sitting on a dark void — the still poster carries the wedge through
+   any autoplay miss. */
 .iv-hero-media{
   position:absolute;inset:0;
   z-index:0;
+  background-size:cover;
+  background-position:center 30%;
+  background-color:var(--iv-bg-deep);
 }
 .iv-hero-media video{
   width:100%;height:100%;
