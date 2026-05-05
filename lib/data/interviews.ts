@@ -241,8 +241,8 @@ export const interviews: Interview[] = [
         label: "SEC.08",
         title: "Perception over time",
         code: "PER",
-        breakVideo: "/images/ricky-retouch/works/wedge-15.mp4",
-        breakPoster: "/images/ricky-retouch/works/wedge-15.jpg",
+        breakVideo: "/images/ricky-retouch/works/wedge-16.mp4",
+        breakPoster: "/images/ricky-retouch/works/wedge-16.jpg",
         questions: [
           {
             code: "DBK",
