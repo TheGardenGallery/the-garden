@@ -5525,7 +5525,11 @@ html:has(.interview-root) body{background:var(--iv-bg);}
 /* Conversation-title line beneath the artist name — same Big Shoulders
    Display 800 uppercase as the artist line, smaller scale. Mirrors
    the Split Logic exhibition title-bar where artist + title share
-   the same heavy industrial face (no italic, no swap to serif). */
+   the same heavy industrial face (no italic, no swap to serif).
+   20px gap (was 14px) — at the desktop clamp where the artist name
+   reaches 84px, 14px was too tight and the two caps lines fused
+   into a single block. 20px gives the subtitle its own line of
+   breath without breaking the title-bar coupling. */
 .iv-hero-subtitle{
   font-family:'Big Shoulders Display','Inter',sans-serif;
   font-weight:800;
@@ -5534,7 +5538,7 @@ html:has(.interview-root) body{background:var(--iv-bg);}
   line-height:1.0;
   letter-spacing:0;
   color:var(--iv-fg-muted);
-  margin:14px 0 0;
+  margin:20px 0 0;
 }
 
 /* Bottom-left corner label — "CONVERSATION: SPLIT LOGIC" with the
@@ -5662,10 +5666,17 @@ html:has(.interview-root) body{background:var(--iv-bg);}
 .iv-qa-stack{
   max-width:var(--iv-max);
   margin:0 auto;
-  padding:104px var(--iv-pad);
+  /* 120px top/bottom (was 104px) — proportional to the new 96px
+     pair gap. Gives each section a touch more entrance/exit silence
+     so transitions in/out of section-break plates don't read abrupt. */
+  padding:120px var(--iv-pad);
   display:flex;
   flex-direction:column;
-  gap:72px;
+  /* 96px between Q/A pairs — pushes the page from blog-cadence
+     toward broadsheet rhythm, where the silence between turns
+     carries weight. 72px earlier read as too dense for the
+     gravitas the conversation should hold. */
+  gap:96px;
 }
 
 .iv-qa{
@@ -5698,7 +5709,10 @@ html:has(.interview-root) body{background:var(--iv-bg);}
   font-family:'Saira Condensed','Barlow',sans-serif;
   font-weight:600;
   font-size:11px;
-  letter-spacing:0.18em;
+  /* 0.22em matches the SEC.NN section-break code and the hero
+     corner label — unifies the Saira Condensed tracking
+     convention across every instrument-panel label on the page. */
+  letter-spacing:0.22em;
   text-transform:uppercase;
   color:var(--iv-phosphor);
   font-variant-numeric:tabular-nums lining-nums;
@@ -5726,20 +5740,26 @@ html:has(.interview-root) body{background:var(--iv-bg);}
   letter-spacing:0.005em;
   color:var(--iv-fg);
   margin:0;
+  /* Hang opening quotes / em-dashes into the margin so the text's
+     left edge stays optically aligned with the Q label column.
+     Progressive — Safari supports it, Chrome/Firefox ignore it
+     gracefully. */
+  hanging-punctuation:first;
 }
 
 .iv-qa-rule{
   height:1px;
   /* Linear-gradient hairline that fades to transparent at the edges
      instead of slabbing edge-to-edge. Reads as a quiet etched trace,
-     not a horizontal rule. Center opacity (0.22) carries enough weight
-     to register as a marker between Q and A; the fade keeps the line
-     from competing with the surrounding typography. */
+     not a horizontal rule. Center opacity 0.16 — dropped from 0.22
+     once the page rhythm opened up; with 96px between Q/A pairs the
+     hairline can afford to be quieter and still register as the Q/A
+     marker. Reads now as etched, not drawn. */
   background:linear-gradient(
     to right,
     transparent 0%,
-    rgba(232,248,248,0.22) 18%,
-    rgba(232,248,248,0.22) 82%,
+    rgba(232,248,248,0.16) 18%,
+    rgba(232,248,248,0.16) 82%,
     transparent 100%
   );
   margin:0;
@@ -5768,7 +5788,12 @@ html:has(.interview-root) body{background:var(--iv-bg);}
 .iv-qa-answer{
   font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size:14.5px;
-  line-height:2.1;
+  /* 1.95 (was 2.1) — once the page rhythm opened up everywhere
+     else, 2.1 made long answers accumulate too much vertical mass.
+     1.95 still keeps A's per-line spacing larger than Q's (1.7 ×
+     16px = 27.2px vs. 1.95 × 14.5px = 28.3px), preserving the
+     "artist voice is airier than question" axis. */
+  line-height:1.95;
   letter-spacing:0.005em;
   color:var(--iv-fg-muted);
   margin:0;
@@ -5871,7 +5896,7 @@ html:has(.interview-root) body{background:var(--iv-bg);}
   .iv-break{height:46vh;min-height:300px;}
   .iv-break-label{bottom:28px;gap:14px;}
   .iv-break-rule{flex-basis:80px;}
-  .iv-qa-stack{padding:64px var(--iv-pad) 80px;gap:60px;}
+  .iv-qa-stack{padding:64px var(--iv-pad) 80px;gap:80px;}
   .iv-qa-q{grid-template-columns:52px 1fr;gap:0 16px;}
   .iv-qa-a{grid-template-columns:52px 1fr;gap:0 16px;}
   .iv-qa-text{font-size:15.5px;line-height:1.5;}
