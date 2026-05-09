@@ -67,6 +67,12 @@ export const interviews: Interview[] = [
             q: "When something in the system starts to drift or break, what tells you to follow it rather than correct it?",
             a: "When it breaks beautifully. I don&rsquo;t know how to put it into words, but I just know it when I see it. I&rsquo;m always open to happy accidents.",
           },
+          {
+            code: "TR",
+            value: "5.83",
+            q: "Can you think of a specific moment where a piece started drifting in a way you wanted to keep? What did it look like, and what made you stay with it instead of pulling it back?",
+            a: "Some of the more empty pieces caught my eye. Especially the ones that don&rsquo;t have the walkers or field noise. I love how they still feel like something is being monitored, but there is no visualization of what it is.",
+          },
         ],
       },
       {
@@ -125,10 +131,22 @@ export const interviews: Interview[] = [
             a: "Yes. The dots, or &ldquo;walkers&rdquo; as I call them, have the central role in a lot of the pieces. They&rsquo;re supposed to represent the thing that&rsquo;s being measured.",
           },
           {
+            code: "VK",
+            value: "7.16",
+            q: "Do the walkers behave the same across pieces, or do different works give them different roles? When you watch one move across the screen, what is it doing to you: counting, surveying, pacing, reporting?",
+            a: "They more or less behave the same. There are influences that change from piece to piece. For example, there is an unseen chase point that is constantly changing positions and attracting the walkers very slightly.",
+          },
+          {
             code: "CR",
             value: "5.64",
             q: "The flicker and glow feel very specific, almost like phosphor lighting on older displays. What draws you to that kind of luminous surface?",
             a: "It reminds me of the screens that I grew up using, so there&rsquo;s a bit of a nostalgia to it.",
+          },
+          {
+            code: "FW",
+            value: "9.42",
+            q: "What is it about phosphor specifically: the way light holds on the surface, the slow decay, the green-on-black, that keeps you returning to it? Are there other glowing surfaces like LCDs, OLEDs, or neon that don&rsquo;t give you the same feeling?",
+            a: "Not so much. The CRT look just has a particular feel to it that I wanted to play with. This look is something a lot of people are familiar with and I wanted to be able to play with designs on a glowing screen.",
           },
           {
             code: "PSG",
@@ -150,6 +168,12 @@ export const interviews: Interview[] = [
             value: "8.49",
             q: "The typography feels tightly integrated into the system rather than laid on top. At what point does type enter the work for you?",
             a: "It&rsquo;s a central part of the collection. Before I added in the walkers or the noise fields, I had the typographic elements representing measurement.",
+          },
+          {
+            code: "MN",
+            value: "6.05",
+            q: "When type was the only element, what was it measuring or labeling? Were the words and numbers pointing to anything specific, or were they always abstract instruments?",
+            a: "The base sections were just being labeled with various combos of numbers and letters at the very beginning.",
           },
           {
             code: "VY",
@@ -182,8 +206,8 @@ export const interviews: Interview[] = [
       },
       {
         label: "SEC.07",
-        title: "Perception over time",
-        code: "PER",
+        title: "Open variables",
+        code: "VAR",
         breakVideo: "/images/ricky-retouch/interview/sec-08-perception.mp4",
         breakPoster: "/images/ricky-retouch/interview/sec-08-perception.jpg",
         questions: [
@@ -194,10 +218,22 @@ export const interviews: Interview[] = [
             a: "I would say time-based objects. I want the pieces to be seen as moments in time that are being measured.",
           },
           {
+            code: "LD",
+            value: "8.71",
+            q: "What does loop length mean to you in that sense? Does a 10-second loop hold a different kind of moment than a 30-second one? And does it matter whether someone watches it once or lets it repeat?",
+            a: "There isn&rsquo;t much meaning behind the length of each piece. I just wanted it to be long enough that the viewer could stare and wonder.",
+          },
+          {
             code: "CZE",
             value: "8.07",
             q: "Your earlier works &ldquo;Low Language&rdquo; and &ldquo;New North&rdquo; had a more paper-like surface. How did you arrive at this more screen-based, luminous direction?",
             a: "I loved the textures and the amount of detail I was able to put into those collections, so I wanted to create something similar but different. I thought about it for a bit, started playing with some ideas, and eventually settled on this CRT terminal look.",
+          },
+          {
+            code: "TRS",
+            value: "10.92",
+            q: "What is the question Split Logic is asking that you still don&rsquo;t have an answer to?",
+            a: "As I&rsquo;ve shared the pieces, one thing I&rsquo;ve wondered is: how much trust is created by visual language, specifically the visual language of technology?",
           },
         ],
       },

@@ -5575,7 +5575,8 @@ html:has(.interview-root) body{background:var(--iv-bg);}
 
 .iv-body{
   position:relative;
-  padding-bottom:40px;
+  /* No bottom padding — the colophon owns the page's closing breath. */
+  padding-bottom:0;
 }
 
 /* ---------- Section break plates ---------------------------------- */
