@@ -371,6 +371,7 @@ function MobileField({ stars }: { stars: Star[] }) {
     w: number[]; h: number[];
   } | null>(null);
   const rafRef = useRef(0);
+  const pointerRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -384,7 +385,7 @@ function MobileField({ stars }: { stars: Star[] }) {
     // Measure all items once
     let cw = container.clientWidth;
     let ch = container.clientHeight;
-    if (cw === 0 || ch === 0) return; // container not laid out yet
+    if (cw === 0 || ch === 0) return;
     const widths: number[] = [];
     const heights: number[] = [];
     for (let i = 0; i < n; i++) {
@@ -393,30 +394,40 @@ function MobileField({ stars }: { stars: Star[] }) {
       heights.push(el?.offsetHeight ?? 24);
     }
 
-    // Track container size so wall-bounce stays correct on resize
     const ro = new ResizeObserver(() => {
       cw = container.clientWidth;
       ch = container.clientHeight;
     });
     ro.observe(container);
 
-    // Initial placement — Poisson-ish seeded scatter with retries
+    // Track pointer for proximity slowdown
+    const onPointerMove = (e: PointerEvent | TouchEvent) => {
+      const rect = container.getBoundingClientRect();
+      const pt = "touches" in e ? e.touches[0] : e;
+      if (pt) pointerRef.current = { x: pt.clientX - rect.left, y: pt.clientY - rect.top };
+    };
+    const onPointerLeave = () => { pointerRef.current = null; };
+    container.addEventListener("pointermove", onPointerMove as EventListener);
+    container.addEventListener("touchmove", onPointerMove as EventListener, { passive: true });
+    container.addEventListener("pointerleave", onPointerLeave);
+
+    // Initial placement — Poisson-ish seeded scatter
     const rng = makeRng(SEED + 777);
-    const PAD_X = 8;
-    const PAD_TOP = 72;  // clear the nav bar
-    const PAD_BOT = 12;
+    const PAD_X = 16;
+    const PAD_TOP = 76;
+    const PAD_BOT = 20;
     const xs: number[] = [];
     const ys: number[] = [];
     for (let i = 0; i < n; i++) {
       let bestX = PAD_X, bestY = PAD_TOP, bestDist = -1;
-      for (let attempt = 0; attempt < 60; attempt++) {
+      for (let attempt = 0; attempt < 80; attempt++) {
         const cx = PAD_X + rng() * Math.max(0, cw - widths[i] - PAD_X * 2);
         const cy = PAD_TOP + rng() * Math.max(0, ch - heights[i] - PAD_TOP - PAD_BOT);
         let minDist = Infinity;
         let overlap = false;
         for (let j = 0; j < xs.length; j++) {
           if (cx < xs[j] + widths[j] + PAD_X && cx + widths[i] + PAD_X > xs[j] &&
-              cy < ys[j] + heights[j] + PAD_X && cy + heights[i] + PAD_X > ys[j]) {
+              cy < ys[j] + heights[j] + 6 && cy + heights[i] + 6 > ys[j]) {
             overlap = true; break;
           }
           const dx = cx - xs[j], dy = cy - ys[j];
@@ -430,15 +441,12 @@ function MobileField({ stars }: { stars: Star[] }) {
       ys.push(bestY);
     }
 
-    // Seeded velocities — slow, different directions
-    const vxs = stars.map(() => (rng() - 0.5) * 0.3);
-    const vys = stars.map(() => (rng() - 0.5) * 0.3);
+    // Seeded velocities — very slow, meditative
+    const vxs = stars.map(() => (rng() - 0.5) * 0.22);
+    const vys = stars.map(() => (rng() - 0.5) * 0.22);
 
     simRef.current = { x: xs, y: ys, vx: vxs, vy: vys, w: widths, h: heights };
 
-    // Apply initial positions — reset inline left/top to 0 so
-    // transform is the sole position authority (left/top were set
-    // as a pre-JS fallback grid in the render).
     for (let i = 0; i < n; i++) {
       const el = els[i];
       if (el) {
@@ -448,21 +456,34 @@ function MobileField({ stars }: { stars: Star[] }) {
       }
     }
 
-    // If reduced motion, stop here — items are placed but don't animate
-    if (reducedMotion) return;
+    if (reducedMotion) { ro.disconnect(); return; }
 
     let paused = document.hidden;
+    const PROXIMITY_R = 120; // pixels — items within this radius slow down
 
     const tick = () => {
       if (paused) return;
       const sim = simRef.current;
       if (!sim) return;
       const { x, y, vx, vy, w, h } = sim;
+      const ptr = pointerRef.current;
 
-      // Move
+      // Move — with pointer proximity damping
       for (let i = 0; i < n; i++) {
-        x[i] += vx[i];
-        y[i] += vy[i];
+        let damp = 1;
+        if (ptr) {
+          const cx = x[i] + w[i] / 2;
+          const cy = y[i] + h[i] / 2;
+          const dx = cx - ptr.x;
+          const dy = cy - ptr.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < PROXIMITY_R) {
+            // Smooth falloff: 1 at edge → 0.05 at centre
+            damp = 0.05 + 0.95 * (dist / PROXIMITY_R);
+          }
+        }
+        x[i] += vx[i] * damp;
+        y[i] += vy[i] * damp;
       }
 
       // Wall bounce
@@ -476,25 +497,23 @@ function MobileField({ stars }: { stars: Star[] }) {
       // Collision separation (AABB push-apart)
       for (let i = 0; i < n; i++) {
         for (let j = i + 1; j < n; j++) {
-          const gap = 2;
+          const gap = 4;
           const overlapX = (x[i] + w[i] + gap) - x[j];
           const overlapY = (y[i] + h[i] + gap) - y[j];
           const overlapXr = (x[j] + w[j] + gap) - x[i];
           const overlapYr = (y[j] + h[j] + gap) - y[i];
 
           if (overlapX > 0 && overlapXr > 0 && overlapY > 0 && overlapYr > 0) {
-            // Find minimum separation axis
             const minOX = Math.min(overlapX, overlapXr);
             const minOY = Math.min(overlapY, overlapYr);
 
             if (minOX < minOY) {
-              const push = minOX * 0.5;
+              const push = minOX * 0.52;
               if (x[i] < x[j]) { x[i] -= push; x[j] += push; }
               else { x[i] += push; x[j] -= push; }
-              // Swap X velocities for bounce effect
               const tmp = vx[i]; vx[i] = vx[j]; vx[j] = tmp;
             } else {
-              const push = minOY * 0.5;
+              const push = minOY * 0.52;
               if (y[i] < y[j]) { y[i] -= push; y[j] += push; }
               else { y[i] += push; y[j] -= push; }
               const tmp = vy[i]; vy[i] = vy[j]; vy[j] = tmp;
@@ -503,7 +522,6 @@ function MobileField({ stars }: { stars: Star[] }) {
         }
       }
 
-      // Apply transforms
       for (let i = 0; i < n; i++) {
         const el = els[i];
         if (el) el.style.transform = `translate(${x[i].toFixed(1)}px, ${y[i].toFixed(1)}px)`;
@@ -517,12 +535,14 @@ function MobileField({ stars }: { stars: Star[] }) {
       if (!paused) rafRef.current = requestAnimationFrame(tick);
     };
     document.addEventListener("visibilitychange", onVisibility);
-
     rafRef.current = requestAnimationFrame(tick);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
       document.removeEventListener("visibilitychange", onVisibility);
+      container.removeEventListener("pointermove", onPointerMove as EventListener);
+      container.removeEventListener("touchmove", onPointerMove as EventListener);
+      container.removeEventListener("pointerleave", onPointerLeave);
       ro.disconnect();
     };
   }, [stars]);
