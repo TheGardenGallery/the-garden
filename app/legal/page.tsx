@@ -26,7 +26,7 @@ export default function LegalPage() {
               these&nbsp;embeds.
             </p>
             <p>
-              The welcome overlay uses <code>localStorage</code> to remember
+              The welcome overlay uses local storage to remember
               a single dismissal. No cookies are&nbsp;set.
             </p>
           </section>
@@ -64,7 +64,7 @@ export default function LegalPage() {
             </p>
             <p>
               The site uses semantic HTML, supports keyboard navigation, and
-              respects <code>prefers-reduced-motion</code>. All images carry
+              respects reduced motion preferences. All images carry
               descriptive alt text. Video content is muted by default with
               visible poster&nbsp;frames.
             </p>
