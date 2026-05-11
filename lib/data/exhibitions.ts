@@ -288,7 +288,8 @@ export const exhibitions: Exhibition[] = [
     date: "November 2024",
     location: "Verse",
     status: "past",
-    hero: "/images/perfectl00p/trails-hero.gif",
+    hero: "/images/perfectl00p/trails-hero-poster.jpg",
+    heroVideo: "/images/perfectl00p/trails-hero.mp4",
     verseSeriesUrl: "https://verse.works/series/trails-by-perfect-l00p",
     workCount: 10,
     artistBio: "A multidisciplinary artist from Colorado in the United States. His art is high saturation, high contrast, looping works. With a retro-computing aesthetic, his work has a focus on human computer interactions and inescapable situations.",
@@ -889,7 +890,8 @@ export const exhibitions: Exhibition[] = [
     date: "March 2024",
     location: "Verse",
     status: "past",
-    hero: "/images/earthsample/gwanak-gu-hero.gif",
+    hero: "/images/earthsample/gwanak-gu-hero-poster.jpg",
+    heroVideo: "/images/earthsample/gwanak-gu-hero.mp4",
     heroTheme: "paper",
     verseSeriesUrl: "https://verse.works/series/gwanak-gu-by-earthsample",
     workCount: 10,
@@ -903,7 +905,7 @@ export const exhibitions: Exhibition[] = [
       `Boiling his experience of a place &mdash; in this series&rsquo; case Seoul &mdash; down to its essence and transforming it into compelling visual montages is earthsample&rsquo;s way. The works in <em>gwanak-gu</em> reflect the physical and mental landscapes earthsample found himself in at the point of creation, and simultaneously encourage us to partake in a moment of reflection too.`,
     ],
     details: {
-      sourceImage: "/images/earthsample/gwanak-gu-kelp.gif",
+      sourceImage: "/images/earthsample/gwanak-gu-kelp-poster.jpg",
       title: "kelp",
       verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/4137681301",
       aspectRatio: "1",
@@ -918,7 +920,8 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 1,
         items: [
           {
-            image: "/images/earthsample/gwanak-gu-a-trip-to-osaka.gif",
+            image: "/images/earthsample/gwanak-gu-a-trip-to-osaka-poster.jpg",
+            video: "/images/earthsample/gwanak-gu-a-trip-to-osaka.mp4",
             alt: "earthsample, a trip to osaka",
             title: "a trip to osaka",
             verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/687353685",
@@ -929,13 +932,15 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 2,
         items: [
           {
-            image: "/images/earthsample/gwanak-gu-worship.gif",
+            image: "/images/earthsample/gwanak-gu-worship-poster.jpg",
+            video: "/images/earthsample/gwanak-gu-worship.mp4",
             alt: "earthsample, worship",
             title: "worship",
             verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/2499525185",
           },
           {
-            image: "/images/earthsample/gwanak-gu-gyeoul.gif",
+            image: "/images/earthsample/gwanak-gu-gyeoul-poster.jpg",
+            video: "/images/earthsample/gwanak-gu-gyeoul.mp4",
             alt: "earthsample, gyeoul",
             title: "gyeoul",
             verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/2544299552",
@@ -946,13 +951,15 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 3,
         items: [
           {
-            image: "/images/earthsample/gwanak-gu-may.gif",
+            image: "/images/earthsample/gwanak-gu-may-poster.jpg",
+            video: "/images/earthsample/gwanak-gu-may.mp4",
             alt: "earthsample, may",
             title: "may",
             verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/2474689872",
           },
           {
-            image: "/images/earthsample/gwanak-gu-spirit.gif",
+            image: "/images/earthsample/gwanak-gu-spirit-poster.jpg",
+            video: "/images/earthsample/gwanak-gu-spirit.mp4",
             alt: "earthsample, spirit",
             title: "spirit",
             verseUrl: "https://verse.works/items/ethereum/0x2e7055b93c46f61f6010c83ec7ead9dff42d8de8/3089772769",
@@ -1015,7 +1022,7 @@ export const exhibitions: Exhibition[] = [
     verseSeriesUrl: "https://verse.works/series/heuristics-of-emotion-artist-curated-by-jeres",
     workCount: 1000,
     details: {
-      sourceImage: "/images/jeres/heuristics-detail-source.png",
+      sourceImage: "/images/jeres/heuristics-detail-source.jpg",
       title: "Heuristics of Emotion #105",
       verseUrl: "https://verse.works/items/solana/A2s1pgifFGm7cgBvB72TAd5xL76GEXwwMHXkNp3ZEiDo/B8zo8LwthNq7pbtWHBExBUViBi7oBNBm4zRLEFLs8Svw",
       aspectRatio: "2/3",
@@ -1037,14 +1044,14 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 0,
         items: [
           {
-            image: "/images/jeres/heuristics-inline-1.png",
+            image: "/images/jeres/heuristics-inline-1.jpg",
             alt: "Jeres, Heuristics of Emotion #152",
             title: "Heuristics of Emotion #152",
             verseUrl: "https://verse.works/items/solana/A2s1pgifFGm7cgBvB72TAd5xL76GEXwwMHXkNp3ZEiDo/BwzE7M2LsuB6eVRAdCM7JwG4ZAXRdZMhwZcaCsxWg9K5",
             unoptimized: true,
           },
           {
-            image: "/images/jeres/heuristics-inline-2.png",
+            image: "/images/jeres/heuristics-inline-2.jpg",
             alt: "Jeres, Heuristics of Emotion #50",
             title: "Heuristics of Emotion #50",
             verseUrl: "https://verse.works/items/solana/A2s1pgifFGm7cgBvB72TAd5xL76GEXwwMHXkNp3ZEiDo/7Q5UvTUJLFumFKAzmR84afDBH2saTztQwubuqrqhGvUs",
@@ -1056,14 +1063,14 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 1,
         items: [
           {
-            image: "/images/jeres/heuristics-inline-3.png",
+            image: "/images/jeres/heuristics-inline-3.jpg",
             alt: "Jeres, Heuristics of Emotion #25",
             title: "Heuristics of Emotion #25",
             verseUrl: "https://verse.works/items/solana/A2s1pgifFGm7cgBvB72TAd5xL76GEXwwMHXkNp3ZEiDo/W6z1q6AyeN3ceAZ727ZU1JotFwUAp3geYoUobSrMygX",
             unoptimized: true,
           },
           {
-            image: "/images/jeres/heuristics-inline-4.png",
+            image: "/images/jeres/heuristics-inline-4.jpg",
             alt: "Jeres, Heuristics of Emotion #555",
             title: "Heuristics of Emotion #555",
             verseUrl: "https://verse.works/items/solana/A2s1pgifFGm7cgBvB72TAd5xL76GEXwwMHXkNp3ZEiDo/9AhKFY3MwewCHHNXLV2dDobtmd8LTJ2b2Uc5kfwwCZLT",
@@ -1089,7 +1096,8 @@ export const exhibitions: Exhibition[] = [
     date: "February 2024",
     location: "Verse",
     status: "past",
-    hero: "/images/sp-gelsesmaskinen/glitch-garden-hero.gif",
+    hero: "/images/sp-gelsesmaskinen/glitch-garden-hero-poster.jpg",
+    heroVideo: "/images/sp-gelsesmaskinen/glitch-garden-hero.mp4",
     verseSeriesUrl: "https://verse.works/series/glitch-garden-by-spogelsesmaskinen",
     workCount: 25,
     artistBio: "Rune Brink Hansen (b. 1979, Odense, Denmark) is a self taught multidisciplinary artist who lives and works in Copenhagen, Denmark. He started working with digital interfaces during the early internet days. Since then he has crafted digital visuals for festivals, designed spaces for museums, and exhibited large scale light installations at various institutions and galleries. In 2021, he adopted the Spøgelsesmaskinen artist name for his 3D and NFT artwork. In the global online art community, he is known simply as “Spogel”.",
@@ -1104,7 +1112,8 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 0,
         items: [
           {
-            image: "/images/sp-gelsesmaskinen/glitch-garden-thuja.gif",
+            image: "/images/sp-gelsesmaskinen/glitch-garden-thuja-poster.jpg",
+            video: "/images/sp-gelsesmaskinen/glitch-garden-thuja.mp4",
             alt: "Spøgelsesmaskinen, Glitch Garden — Thuja occidentalis / Thuja",
             title: "Thuja occidentalis / Thuja",
             verseUrl: "https://verse.works/items/ethereum/0x740067ff706c18e1b017e43e4b3b81be787e3d50/1882203025",
@@ -1115,19 +1124,22 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 2,
         items: [
           {
-            image: "/images/sp-gelsesmaskinen/glitch-garden-common-broom.gif",
+            image: "/images/sp-gelsesmaskinen/glitch-garden-common-broom-poster.jpg",
+            video: "/images/sp-gelsesmaskinen/glitch-garden-common-broom.mp4",
             alt: "Spøgelsesmaskinen, Glitch Garden — Cytisus scoparius / Common Broom",
             title: "Cytisus scoparius / Common Broom",
             verseUrl: "https://verse.works/items/ethereum/0x740067ff706c18e1b017e43e4b3b81be787e3d50/2144032293",
           },
           {
-            image: "/images/sp-gelsesmaskinen/glitch-garden-butterfly-bush.gif",
+            image: "/images/sp-gelsesmaskinen/glitch-garden-butterfly-bush-poster.jpg",
+            video: "/images/sp-gelsesmaskinen/glitch-garden-butterfly-bush.mp4",
             alt: "Spøgelsesmaskinen, Glitch Garden — Buddleia davidi / Butterfly Bush",
             title: "Buddleia davidi / Butterfly Bush",
             verseUrl: "https://verse.works/items/ethereum/0x740067ff706c18e1b017e43e4b3b81be787e3d50/4168578279",
           },
           {
-            image: "/images/sp-gelsesmaskinen/glitch-garden-virginia-sweetspire.gif",
+            image: "/images/sp-gelsesmaskinen/glitch-garden-virginia-sweetspire-poster.jpg",
+            video: "/images/sp-gelsesmaskinen/glitch-garden-virginia-sweetspire.mp4",
             alt: "Spøgelsesmaskinen, Glitch Garden — Itea virginica / Virginia Sweetspire",
             title: "Itea virginica / Virginia Sweetspire",
             verseUrl: "https://verse.works/items/ethereum/0x740067ff706c18e1b017e43e4b3b81be787e3d50/2429716807",
@@ -1275,7 +1287,7 @@ export const exhibitions: Exhibition[] = [
     date: "November 2023",
     location: "Verse",
     status: "past",
-    hero: "/images/ves3l/solve-un-solve-hero.png",
+    hero: "/images/ves3l/solve-un-solve-hero.jpg",
     heroTheme: "paper",
     // Live generative work — Verse's S3-hosted genart for edition #75,
     // proxied through /api/genart/ves3l so we can inject a synthetic
@@ -1610,7 +1622,8 @@ export const exhibitions: Exhibition[] = [
     date: "August 2023",
     location: "Verse",
     status: "past",
-    hero: "/images/loackme/space-time-hero.gif",
+    hero: "/images/loackme/space-time-hero-poster.jpg",
+    heroVideo: "/images/loackme/space-time-hero.mp4",
     heroTheme: "paper",
     verseSeriesUrl: "https://verse.works/series/space-time-by-loackme",
     workCount: 100,
@@ -1634,7 +1647,8 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 2,
         items: [
           {
-            image: "/images/loackme/space-time-2d77dc3a-ac66-45b1-a373-5778404b1d20.gif",
+            image: "/images/loackme/space-time-2d77dc3a-ac66-45b1-a373-5778404b1d20-poster.jpg",
+            video: "/images/loackme/space-time-2d77dc3a-ac66-45b1-a373-5778404b1d20.mp4",
             alt: "loackme, SPACE\\TIME #44",
             title: "SPACE\\TIME #44",
             verseUrl: "https://verse.works/items/ethereum/0xb4a0C535564A4edc96c543e4864DDd6291a704e4/3079081754",
@@ -1645,13 +1659,15 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 3,
         items: [
           {
-            image: "/images/loackme/space-time-a852446b-cdb0-486d-ab60-8a44ab291daf.gif",
+            image: "/images/loackme/space-time-a852446b-cdb0-486d-ab60-8a44ab291daf-poster.jpg",
+            video: "/images/loackme/space-time-a852446b-cdb0-486d-ab60-8a44ab291daf.mp4",
             alt: "loackme, SPACE\\TIME #50",
             title: "SPACE\\TIME #50",
             verseUrl: "https://verse.works/items/ethereum/0xb4a0C535564A4edc96c543e4864DDd6291a704e4/799281838",
           },
           {
-            image: "/images/loackme/space-time-53d6e785-5ac3-4dc7-bc96-b294fc080e38.gif",
+            image: "/images/loackme/space-time-53d6e785-5ac3-4dc7-bc96-b294fc080e38-poster.jpg",
+            video: "/images/loackme/space-time-53d6e785-5ac3-4dc7-bc96-b294fc080e38.mp4",
             alt: "loackme, SPACE\\TIME #18",
             title: "SPACE\\TIME #18",
             verseUrl: "https://verse.works/items/ethereum/0xb4a0C535564A4edc96c543e4864DDd6291a704e4/400589723",
@@ -1662,19 +1678,22 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 4,
         items: [
           {
-            image: "/images/loackme/space-time-06bc8641-f973-45ad-83db-1455a518b0f9.gif",
+            image: "/images/loackme/space-time-06bc8641-f973-45ad-83db-1455a518b0f9-poster.jpg",
+            video: "/images/loackme/space-time-06bc8641-f973-45ad-83db-1455a518b0f9.mp4",
             alt: "loackme, SPACE\\TIME #67",
             title: "SPACE\\TIME #67",
             verseUrl: "https://verse.works/items/ethereum/0xb4a0C535564A4edc96c543e4864DDd6291a704e4/2427497049",
           },
           {
-            image: "/images/loackme/space-time-e02ffa6d-3182-48a8-b513-46301a3b84c4.gif",
+            image: "/images/loackme/space-time-e02ffa6d-3182-48a8-b513-46301a3b84c4-poster.jpg",
+            video: "/images/loackme/space-time-e02ffa6d-3182-48a8-b513-46301a3b84c4.mp4",
             alt: "loackme, SPACE\\TIME #43",
             title: "SPACE\\TIME #43",
             verseUrl: "https://verse.works/items/ethereum/0xb4a0C535564A4edc96c543e4864DDd6291a704e4/1783980217",
           },
           {
-            image: "/images/loackme/space-time-dcba5cd8-9d2b-4267-8f53-a3d7cfd05d4b.gif",
+            image: "/images/loackme/space-time-dcba5cd8-9d2b-4267-8f53-a3d7cfd05d4b-poster.jpg",
+            video: "/images/loackme/space-time-dcba5cd8-9d2b-4267-8f53-a3d7cfd05d4b.mp4",
             alt: "loackme, SPACE\\TIME #27",
             title: "SPACE\\TIME #27",
             verseUrl: "https://verse.works/items/ethereum/0xb4a0C535564A4edc96c543e4864DDd6291a704e4/2672136761",
@@ -1685,13 +1704,15 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 5,
         items: [
           {
-            image: "/images/loackme/space-time-cc0143bb-da05-49bd-8ba0-c4a5f79f464c.gif",
+            image: "/images/loackme/space-time-cc0143bb-da05-49bd-8ba0-c4a5f79f464c-poster.jpg",
+            video: "/images/loackme/space-time-cc0143bb-da05-49bd-8ba0-c4a5f79f464c.mp4",
             alt: "loackme, SPACE\\TIME #23",
             title: "SPACE\\TIME #23",
             verseUrl: "https://verse.works/items/ethereum/0xb4a0C535564A4edc96c543e4864DDd6291a704e4/538947078",
           },
           {
-            image: "/images/loackme/space-time-d40a1444-216c-4a38-adf3-d2ad535e2f4b.gif",
+            image: "/images/loackme/space-time-d40a1444-216c-4a38-adf3-d2ad535e2f4b-poster.jpg",
+            video: "/images/loackme/space-time-d40a1444-216c-4a38-adf3-d2ad535e2f4b.mp4",
             alt: "loackme, SPACE\\TIME #22",
             title: "SPACE\\TIME #22",
             verseUrl: "https://verse.works/items/ethereum/0xb4a0C535564A4edc96c543e4864DDd6291a704e4/1788913394",

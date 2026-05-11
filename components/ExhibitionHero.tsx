@@ -106,6 +106,7 @@ function HeroMedia({ exhibition }: { exhibition: Exhibition }) {
       width={1240}
       height={1550}
       priority
+      sizes="(min-width: 960px) 60vw, 90vw"
       unoptimized={exhibition.hero.endsWith(".gif")}
     />
   ) : null;

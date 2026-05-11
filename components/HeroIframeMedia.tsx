@@ -76,6 +76,8 @@ export function HeroIframeMedia({
           src={finalSrc}
           title={title}
           style={aspectStyle}
+          sandbox="allow-scripts allow-same-origin"
+          allow="autoplay"
         />
       ) : (
         <div className="ex-hero-iframe" style={aspectStyle} aria-hidden="true" />

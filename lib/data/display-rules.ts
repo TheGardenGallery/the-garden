@@ -75,7 +75,7 @@ export const artistPreviewOverrides: Record<string, ArtistPreviewOverride> = {
   // Pin to "Betula lenta / Sweet Birch" from Glitch Garden rather than
   // the generic series hero.
   "sp-gelsesmaskinen": {
-    src: "/images/sp-gelsesmaskinen/glitch-garden-sweet-birch.gif",
+    src: "/images/sp-gelsesmaskinen/glitch-garden-sweet-birch.mp4",
   },
 };
 

@@ -59,6 +59,7 @@ export function ExhibitionRow({ exhibition, variant = "card" }: ExhibitionRowPro
             alt={`${exhibition.artistName}, ${exhibition.title}`}
             width={1600}
             height={variant === "featured" ? 1067 : 1125}
+            sizes={variant === "featured" ? "100vw" : "(min-width: 960px) 50vw, 100vw"}
           />
         ) : null}
       </div>

@@ -64,12 +64,17 @@ type Star = {
 type Edge = [number, number];
 
 /* ── layout ──────────────────────────────────────────────── */
-function layoutStars(seed: number): Star[] {
+function layoutStars(seed: number, viewportW?: number): Star[] {
   const r = makeRng(seed);
   const n = ARTISTS.length;
   const stars: Star[] = [];
 
-  const MIN_DX = 0.14;
+  // Anisotropic exclusion: wider in X (labels are horizontal) than Y.
+  // On tiny screens (<390px), bump MIN_DX so dots spread further apart —
+  // the inner width is so small that 0.14 only yields ~42px, which can't
+  // separate two labels. 0.17 yields ~51px, enough for 8px font names.
+  const isTiny = (viewportW ?? 600) < 400;
+  const MIN_DX = isTiny ? 0.17 : 0.14;
   const MIN_DY = 0.065;
 
   const tooClose = (ax: number, ay: number, bx: number, by: number) =>
@@ -223,12 +228,11 @@ function placeLabels(
   const hit = (x1: number, y1: number, x2: number, y2: number) =>
     rects.some(r => x1 < r.x2 && x2 > r.x1 && y1 < r.y2 && y2 > r.y1);
 
-  // Hard in-frame: labels must fit within the canvas. The 20px bleed
-  // we previously allowed on mobile let long names get cut at the
-  // viewport edge (the SVG clips at viewBox regardless of CSS), which
-  // looked broken. With strict bounds + a smarter last-resort anchor,
-  // labels stay readable at any viewport.
-  const edgeBleed = 0;
+  // Hard in-frame: labels must fit within the canvas. On tiny screens
+  // (<390px), allow 15px bleed so edge labels aren't forced into overlap
+  // with interior names. CSS overflow:visible on .constellation-root
+  // at mobile prevents clipping.
+  const edgeBleed = cw < 400 ? -15 : 0;
 
   for (let i = 0; i < stars.length; i++) {
     const s = stars[i];
@@ -288,9 +292,18 @@ function useDrift(stars: Star[]) {
   const frame = useRef(0);
 
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     let live = true;
+    let paused = document.hidden;
+
     const tick = (t: number) => {
       if (!live) return;
+      if (paused) {
+        // Don't schedule next frame — the visibilitychange handler will
+        // restart the loop when the tab becomes visible again.
+        return;
+      }
       for (let i = 0; i < stars.length; i++) {
         const c = refs.current[i];
         if (!c) continue;
@@ -303,8 +316,24 @@ function useDrift(stars: Star[]) {
       }
       frame.current = requestAnimationFrame(tick);
     };
+
+    const onVisibility = () => {
+      paused = document.hidden;
+      if (!paused && live) {
+        // Resume the loop — the next rAF timestamp will naturally be
+        // current so the drift picks up smoothly (sin/cos are
+        // time-based, not delta-based, so no jump occurs).
+        frame.current = requestAnimationFrame(tick);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
     frame.current = requestAnimationFrame(tick);
-    return () => { live = false; cancelAnimationFrame(frame.current); };
+    return () => {
+      live = false;
+      cancelAnimationFrame(frame.current);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, [stars]);
 
   return refs;
@@ -331,7 +360,10 @@ export function ConstellationMap() {
     return () => ro.disconnect();
   }, []);
 
-  const stars = useMemo(() => layoutStars(SEED), []);
+  // Bucket viewport into a stable layout tier so stars don't re-scatter
+  // on every resize pixel — only when crossing the 400px threshold.
+  const layoutTier = dims.w > 0 ? (dims.w < 400 ? "tiny" : "normal") : null;
+  const stars = useMemo(() => layoutStars(SEED, layoutTier === "tiny" ? 320 : undefined), [layoutTier]);
   const edges = useMemo(() => buildEdges(stars, SEED + 77), [stars]);
   const adjacency = useMemo(() => buildAdjacency(edges, stars.length), [edges, stars.length]);
   const dotRefs = useDrift(stars);
@@ -341,6 +373,7 @@ export function ConstellationMap() {
 
   // Responsive margins
   const narrow = w < 600;
+  const tiny = w < 400;    // iPhone SE / Mini / any sub-400px viewport
   const mL = narrow ? 12 : Math.max(80, w * 0.10);
   const mR = narrow ? 12 : Math.max(80, w * 0.10);
   const mTop = narrow ? 72 : 120;
@@ -353,7 +386,7 @@ export function ConstellationMap() {
   // never thinks a long name like "Spøgelsesmaskinen" fits a slot it
   // doesn't really fit — under-estimating let labels run past the right
   // edge on mobile and get clipped.
-  const charW = narrow ? 6.6 : 7.4;
+  const charW = tiny ? 5.0 : narrow ? 6.6 : 7.4;
 
   const toX = useCallback((s: Star) => mL + s.x * iw, [mL, iw]);
   const toY = useCallback((s: Star) => mTop + s.y * ih, [mTop, ih]);

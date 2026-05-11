@@ -17,6 +17,32 @@ import { NextResponse, type NextRequest } from "next/server";
 const UPSTREAM_BASE =
   "https://public-bucket-verse-dev.s3.eu-west-1.amazonaws.com/genart/itsgalo-jun-2024-v4/index.html";
 
+/* ── Module-level cache ─────────────────────────────────────────────
+   The persistent-iframe strategy in PlotGrid means the bundle may be
+   requested multiple times per server instance (warm-up fetch from
+   PlotGrid's idle-time prefetch + actual iframe load). Caching the
+   upstream HTML avoids redundant S3 round-trips.  Same pattern as
+   the basalt-rt / autoscope / ves3l proxy routes. */
+let cachedUpstreamHtml: string | null = null;
+let cachedUpstreamPromise: Promise<string> | null = null;
+
+async function getUpstreamHtml(payload: string): Promise<string> {
+  if (cachedUpstreamHtml) return cachedUpstreamHtml;
+  if (cachedUpstreamPromise) return cachedUpstreamPromise;
+  cachedUpstreamPromise = (async () => {
+    const upstream = await fetch(
+      `${UPSTREAM_BASE}?payload=${encodeURIComponent(payload)}`,
+      { cache: "force-cache" },
+    );
+    if (!upstream.ok) throw new Error("upstream fetch failed");
+    const html = await upstream.text();
+    cachedUpstreamHtml = html;
+    cachedUpstreamPromise = null;
+    return html;
+  })();
+  return cachedUpstreamPromise;
+}
+
 /* Itsgalo's bundle is a small HTML loader that pulls `style.css` and
    `script.js` via RELATIVE paths, so a naive proxy breaks them
    (relative URLs resolve to OUR domain). A <base> tag pointing at
@@ -84,14 +110,13 @@ export async function GET(req: NextRequest) {
   if (!payload) {
     return new NextResponse("missing payload", { status: 400 });
   }
-  const upstream = await fetch(
-    `${UPSTREAM_BASE}?payload=${encodeURIComponent(payload)}`,
-    { cache: "force-cache" },
-  );
-  if (!upstream.ok) {
+
+  let html: string;
+  try {
+    html = await getUpstreamHtml(payload);
+  } catch {
     return new NextResponse("upstream fetch failed", { status: 502 });
   }
-  let html = await upstream.text();
   // <base> goes immediately after <head> so relative resource URLs
   // (./style.css, ./script.js) are resolved against the upstream
   // directory before any of them are encountered by the parser.

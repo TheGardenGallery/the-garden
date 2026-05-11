@@ -11,6 +11,7 @@ import { useEffect, useRef, type ComponentProps } from "react";
  *  2. Calls `.play()` once the video has enough data (`loadeddata`)
  *  3. Retries on `canplay` if the first attempt fails
  *  4. Uses IntersectionObserver to play when scrolled into view
+ *  5. **Pauses** when scrolled out of view or tab is hidden (power savings)
  */
 export function AutoPlayVideo(props: ComponentProps<"video">) {
   const ref = useRef<HTMLVideoElement | null>(null);
@@ -19,11 +20,17 @@ export function AutoPlayVideo(props: ComponentProps<"video">) {
     const el = ref.current;
     if (!el) return;
 
+    let isIntersecting = false;
+
     const tryPlay = () => {
-      if (el.paused) {
+      if (el.paused && isIntersecting && !document.hidden) {
         el.muted = true;           // Belt-and-suspenders: ensure muted
         el.play().catch(() => {});
       }
+    };
+
+    const pauseIfSafe = () => {
+      if (!el.paused) el.pause();
     };
 
     // iOS Safari occasionally hangs onto a stale `paused` state across
@@ -39,18 +46,28 @@ export function AutoPlayVideo(props: ComponentProps<"video">) {
     el.addEventListener("loadeddata", tryPlay);
     el.addEventListener("canplay", tryPlay);
 
-    // Also try when the video scrolls into view
+    // Play/pause when the video enters/exits the viewport
     const io = new IntersectionObserver(
       (entries) => {
-        if (entries[0]?.isIntersecting) tryPlay();
+        isIntersecting = entries[0]?.isIntersecting ?? false;
+        if (isIntersecting) tryPlay();
+        else pauseIfSafe();
       },
       { threshold: 0.1 }
     );
     io.observe(el);
 
+    // Pause when the tab goes hidden, resume when visible
+    const onVisibility = () => {
+      if (document.hidden) pauseIfSafe();
+      else if (isIntersecting) tryPlay();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
     return () => {
       el.removeEventListener("loadeddata", tryPlay);
       el.removeEventListener("canplay", tryPlay);
+      document.removeEventListener("visibilitychange", onVisibility);
       io.disconnect();
     };
   }, []);

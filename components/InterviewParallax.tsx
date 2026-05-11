@@ -32,8 +32,11 @@ export function InterviewParallax() {
     if (elements.length === 0) return;
 
     let raf = 0;
+    let paused = document.hidden;
+
     const update = () => {
       raf = 0;
+      if (paused) return;
       const vh = window.innerHeight;
       const center = vh / 2;
       elements.forEach((el, i) => {
@@ -56,10 +59,17 @@ export function InterviewParallax() {
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", update);
+
+    const onVisibility = () => {
+      paused = document.hidden;
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
     return () => {
       if (raf) cancelAnimationFrame(raf);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", update);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
 
