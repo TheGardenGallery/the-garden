@@ -297,9 +297,10 @@ function placeLabels(
   return labels;
 }
 
-/* ── drift (dots only) ───────────────────────────────────── */
-function useDrift(stars: Star[]) {
-  const refs = useRef<(SVGCircleElement | null)[]>([]);
+/* ── drift (dots + lines) ────────────────────────────────── */
+function useDrift(stars: Star[], edges: Edge[], toX: (s: Star) => number, toY: (s: Star) => number) {
+  const dotRefs = useRef<(SVGCircleElement | null)[]>([]);
+  const lineRefs = useRef<(SVGLineElement | null)[]>([]);
   const frame = useRef(0);
 
   useEffect(() => {
@@ -307,33 +308,56 @@ function useDrift(stars: Star[]) {
 
     let live = true;
     let paused = document.hidden;
+    // Current drift offsets so lines can track dot positions
+    const dxs = new Float64Array(stars.length);
+    const dys = new Float64Array(stars.length);
 
     const tick = (t: number) => {
       if (!live) return;
-      if (paused) {
-        // Don't schedule next frame — the visibilitychange handler will
-        // restart the loop when the tab becomes visible again.
-        return;
-      }
+      if (paused) return;
+
+      // Update dot positions
       for (let i = 0; i < stars.length; i++) {
-        const c = refs.current[i];
+        const c = dotRefs.current[i];
         if (!c) continue;
         const s = stars[i];
         const dx = Math.sin(t * s.dFx + s.dPx) * s.dAx * 0.7
           + Math.sin(t * s.dFx * 0.6 + s.dPy) * s.dAx * 0.3;
         const dy = Math.cos(t * s.dFy + s.dPy) * s.dAy * 0.7
           + Math.cos(t * s.dFy * 0.7 + s.dPx) * s.dAy * 0.3;
+        dxs[i] = dx;
+        dys[i] = dy;
         c.style.transform = `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px)`;
       }
+
+      // Update line endpoints to follow drifting dots
+      for (let e = 0; e < edges.length; e++) {
+        const ln = lineRefs.current[e];
+        if (!ln) continue;
+        const [a, b] = edges[e];
+        const ax = toX(stars[a]) + dxs[a];
+        const ay = toY(stars[a]) + dys[a];
+        const bx = toX(stars[b]) + dxs[b];
+        const by = toY(stars[b]) + dys[b];
+
+        // Shorten line so it stops DOT_CLEAR px from each dot centre
+        const ldx = bx - ax, ldy = by - ay;
+        const len = Math.sqrt(ldx * ldx + ldy * ldy);
+        if (len > DOT_CLEAR * 2) {
+          const ux = ldx / len, uy = ldy / len;
+          ln.setAttribute("x1", (ax + ux * DOT_CLEAR).toFixed(1));
+          ln.setAttribute("y1", (ay + uy * DOT_CLEAR).toFixed(1));
+          ln.setAttribute("x2", (bx - ux * DOT_CLEAR).toFixed(1));
+          ln.setAttribute("y2", (by - uy * DOT_CLEAR).toFixed(1));
+        }
+      }
+
       frame.current = requestAnimationFrame(tick);
     };
 
     const onVisibility = () => {
       paused = document.hidden;
       if (!paused && live) {
-        // Resume the loop — the next rAF timestamp will naturally be
-        // current so the drift picks up smoothly (sin/cos are
-        // time-based, not delta-based, so no jump occurs).
         frame.current = requestAnimationFrame(tick);
       }
     };
@@ -345,15 +369,16 @@ function useDrift(stars: Star[]) {
       cancelAnimationFrame(frame.current);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [stars]);
+  }, [stars, edges, toX, toY]);
 
-  return refs;
+  return { dotRefs, lineRefs };
 }
 
 /* ── component ───────────────────────────────────────────── */
 const SEED = 3141;
 const DOT_R = 2;
 const HIT_R = 22;
+const DOT_CLEAR = 6; // px gap between line end and dot centre
 
 /* ── mobile field layout ──────────────────────────────────── 
    On viewports <600px, renders a drifting field of coloured
@@ -599,7 +624,6 @@ export function ConstellationMap() {
   const stars = useMemo(() => layoutStars(SEED), []);
   const edges = useMemo(() => buildEdges(stars, SEED + 77), [stars]);
   const adjacency = useMemo(() => buildAdjacency(edges, stars.length), [edges, stars.length]);
-  const dotRefs = useDrift(stars);
 
   const w = dims.w || 1;
   const h = dims.h || 1;
@@ -617,6 +641,7 @@ export function ConstellationMap() {
 
   const toX = useCallback((s: Star) => mL + s.x * iw, [mL, iw]);
   const toY = useCallback((s: Star) => mTop + s.y * ih, [mTop, ih]);
+  const { dotRefs, lineRefs } = useDrift(stars, edges, toX, toY);
   const labels = dims.w > 0 ? placeLabels(stars, toX, toY, w, h, charW) : [];
 
   const hoverColour = hovered !== null ? stars[hovered].colour : null;
@@ -648,10 +673,21 @@ export function ConstellationMap() {
           <g mask="url(#lbl-mask)">
             {edges.map(([a, b], i) => {
               const anyHover = hovered !== null;
+              const ax = toX(stars[a]), ay = toY(stars[a]);
+              const bx = toX(stars[b]), by = toY(stars[b]);
+              // Shorten line to stop DOT_CLEAR px from each dot centre
+              const ldx = bx - ax, ldy = by - ay;
+              const len = Math.sqrt(ldx * ldx + ldy * ldy);
+              let x1 = ax, y1 = ay, x2 = bx, y2 = by;
+              if (len > DOT_CLEAR * 2) {
+                const ux = ldx / len, uy = ldy / len;
+                x1 = ax + ux * DOT_CLEAR; y1 = ay + uy * DOT_CLEAR;
+                x2 = bx - ux * DOT_CLEAR; y2 = by - uy * DOT_CLEAR;
+              }
               return (
                 <line key={`e${i}`}
-                  x1={toX(stars[a])} y1={toY(stars[a])}
-                  x2={toX(stars[b])} y2={toY(stars[b])}
+                  ref={(el) => { lineRefs.current[i] = el; }}
+                  x1={x1} y1={y1} x2={x2} y2={y2}
                   className={`c-line${anyHover ? " c-line--all" : ""}`}
                   style={anyHover ? { stroke: hoverColour! } : undefined}
                 />
