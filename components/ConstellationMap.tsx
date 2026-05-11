@@ -379,11 +379,12 @@ function MobileField({ stars }: { stars: Star[] }) {
     const n = stars.length;
     if (n === 0) return;
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // Measure all items once
     const cw = container.clientWidth;
     const ch = container.clientHeight;
+    if (cw === 0 || ch === 0) return; // container not laid out yet
     const widths: number[] = [];
     const heights: number[] = [];
     for (let i = 0; i < n; i++) {
@@ -433,6 +434,9 @@ function MobileField({ stars }: { stars: Star[] }) {
       const el = els[i];
       if (el) el.style.transform = `translate(${xs[i].toFixed(1)}px, ${ys[i].toFixed(1)}px)`;
     }
+
+    // If reduced motion, stop here — items are placed but don't animate
+    if (reducedMotion) return;
 
     let paused = document.hidden;
 
@@ -509,22 +513,35 @@ function MobileField({ stars }: { stars: Star[] }) {
     };
   }, [stars]);
 
+  // Seed a simple grid fallback so items are visible before the
+  // useEffect physics kicks in (and permanently if JS fails).
+  const fallbackRng = makeRng(SEED + 555);
+  const cols = 2;
+
   return (
     <div className="constellation-mobile-field" ref={containerRef}>
-      {stars.map((s, i) => (
-        <button
-          key={s.slug}
-          ref={(el) => { itemRefs.current[i] = el; }}
-          className="constellation-mobile-star"
-          onClick={() => router.push(`/artists/${s.slug}`)}
-        >
-          <span
-            className="constellation-mobile-dot"
-            style={{ backgroundColor: artistColourMobile(i) }}
-          />
-          <span className="constellation-mobile-name">{s.name}</span>
-        </button>
-      ))}
+      {stars.map((s, i) => {
+        // Simple grid with slight jitter — replaced by physics on mount
+        const row = Math.floor(i / cols);
+        const col = i % cols;
+        const fx = 16 + col * 170 + fallbackRng() * 20;
+        const fy = 76 + row * 36 + fallbackRng() * 8;
+        return (
+          <button
+            key={s.slug}
+            ref={(el) => { itemRefs.current[i] = el; }}
+            className="constellation-mobile-star"
+            onClick={() => router.push(`/artists/${s.slug}`)}
+            style={{ left: fx, top: fy }}
+          >
+            <span
+              className="constellation-mobile-dot"
+              style={{ backgroundColor: artistColourMobile(i) }}
+            />
+            <span className="constellation-mobile-name">{s.name}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

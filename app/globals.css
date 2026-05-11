@@ -1302,7 +1302,7 @@ html:has(.constellation-root){
   overflow:hidden;
 }
 .constellation-mobile-star{
-  position:absolute;top:0;left:0;
+  position:absolute;
   display:flex;align-items:center;gap:8px;
   background:none;border:none;
   padding:6px 10px 6px 6px;
