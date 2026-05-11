@@ -344,6 +344,43 @@ const SEED = 3141;
 const DOT_R = 2;
 const HIT_R = 22;
 
+/* ── mobile field layout ──────────────────────────────────── 
+   On viewports <600px, renders a scattered field of coloured
+   squares + artist names. No SVG, no collision algorithm — each
+   artist gets a guaranteed readable slot. */
+function MobileField({ stars }: { stars: Star[] }) {
+  const router = useRouter();
+  const rng = makeRng(SEED + 999);
+
+  // Stagger items with slight randomised offsets for organic feel
+  const items = stars.map((s) => ({
+    ...s,
+    offsetX: (rng() - 0.5) * 20,
+    offsetY: (rng() - 0.5) * 6,
+  }));
+
+  return (
+    <div className="constellation-mobile-field">
+      {items.map((s) => (
+        <button
+          key={s.slug}
+          className="constellation-mobile-star"
+          onClick={() => router.push(`/artists/${s.slug}`)}
+          style={{
+            transform: `translate(${s.offsetX.toFixed(1)}px, ${s.offsetY.toFixed(1)}px)`,
+          }}
+        >
+          <span
+            className="constellation-mobile-dot"
+            style={{ backgroundColor: s.colour }}
+          />
+          <span className="constellation-mobile-name">{s.name}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function ConstellationMap() {
   const router = useRouter();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -394,9 +431,14 @@ export function ConstellationMap() {
 
   const hoverColour = hovered !== null ? stars[hovered].colour : null;
 
+  // Mobile: render the field layout instead of the SVG constellation
+  const isMobile = w < 600 && dims.w > 0;
+
   return (
     <div className="constellation-root" ref={rootRef}>
-      {dims.w > 0 && (
+      {isMobile ? (
+        <MobileField stars={stars} />
+      ) : dims.w > 0 ? (
         <svg
           className="constellation-svg"
           viewBox={`0 0 ${w} ${h}`}
@@ -463,7 +505,7 @@ export function ConstellationMap() {
             );
           })}
         </svg>
-      )}
+      ) : null}
     </div>
   );
 }

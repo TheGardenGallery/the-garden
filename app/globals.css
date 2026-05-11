@@ -1302,6 +1302,38 @@ html:has(.constellation-root){
     letter-spacing:0.02em;
   }
 }
+
+/* ── mobile field (replaces SVG on <600px) ── */
+.constellation-mobile-field{
+  display:flex;flex-wrap:wrap;
+  align-content:flex-start;
+  gap:0;
+  padding:calc(var(--nav-height, 60px) + 32px) 20px 40px;
+  min-height:100dvh;
+}
+.constellation-mobile-star{
+  display:flex;align-items:center;gap:8px;
+  background:none;border:none;
+  padding:9px 14px 9px 10px;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:opacity 0.25s ease;
+}
+.constellation-mobile-star:active{
+  opacity:0.5;
+}
+.constellation-mobile-dot{
+  width:6px;height:6px;
+  border-radius:1px;
+  flex-shrink:0;
+}
+.constellation-mobile-name{
+  font-family:'Courier New',Courier,monospace;
+  font-size:12px;
+  letter-spacing:0.04em;
+  color:rgba(255,255,255,0.72);
+  white-space:nowrap;
+}
 @media (min-width:601px) and (max-width:900px){
   .c-label{
     font-size:10.5px;
