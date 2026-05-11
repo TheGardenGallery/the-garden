@@ -4696,6 +4696,57 @@ html:has(.constellation-root){
 /* =======================================================================
    PLACEHOLDER ROUTES — about, journal (coming soon states).
    ======================================================================= */
+
+/* ── Legal (/legal) ── */
+.legal-page{
+  min-height:100vh;min-height:100dvh;
+  background:var(--paper-warm);
+  display:flex;flex-direction:column;align-items:center;
+  padding:var(--nav-height) var(--gutter) 0;
+}
+.legal-col{
+  max-width:600px;width:100%;
+  padding:96px 0 120px;
+  display:flex;flex-direction:column;gap:20px;
+}
+.legal-heading{
+  font-family:'Barlow',sans-serif;
+  font-weight:600;font-size:11px;letter-spacing:0.6px;
+  text-transform:uppercase;
+  color:var(--ink);
+  margin:0 0 2px;
+}
+.legal-col p{
+  margin:0;
+  font-family:'Cormorant','Title CJK',serif;
+  font-weight:400;font-style:normal;
+  font-size:19px;line-height:1.7;letter-spacing:0;
+  color:var(--ink);
+  font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
+}
+.legal-col p + p{margin-top:8px;}
+.legal-col code{
+  font-family:'Space Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  font-size:0.85em;
+  color:var(--ink);
+}
+.legal-col a{
+  color:var(--ink);
+  text-decoration-color:rgba(22,20,16,0.25);
+  text-underline-offset:2px;
+}
+.legal-col a:hover{
+  text-decoration-color:var(--ink);
+}
+.legal-rule{
+  margin:50px auto 0;
+  width:100%;
+  border:0;border-top:1px solid rgba(22,20,16,0.12);
+}
+@media(max-width:720px){
+  .legal-col p{font-size:17px;}
+}
+
 .coming-soon{
   min-height:calc(100dvh - var(--nav-height));
   padding-top:var(--nav-height);
