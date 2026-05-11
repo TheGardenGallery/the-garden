@@ -21,6 +21,7 @@ import { useEffect } from "react";
 // Magnitudes vary slightly within each direction so the speeds aren't
 // uniform.
 const SPEEDS = [-0.08, 0.10, -0.07, 0.11, -0.09, 0.08, -0.10, 0.07];
+const MOBILE_SPEEDS = [-0.14, 0.17, -0.12, 0.18, -0.15, 0.14, -0.17, 0.12];
 
 export function InterviewParallax() {
   useEffect(() => {
@@ -30,6 +31,9 @@ export function InterviewParallax() {
       document.querySelectorAll<HTMLElement>(".iv-break-media"),
     );
     if (elements.length === 0) return;
+
+    const isMobile = window.innerWidth < 720;
+    const speeds = isMobile ? MOBILE_SPEEDS : SPEEDS;
 
     let raf = 0;
 
@@ -41,7 +45,7 @@ export function InterviewParallax() {
         const rect = el.getBoundingClientRect();
         const elCenter = rect.top + rect.height / 2;
         const distance = (elCenter - center) / vh;
-        const speed = SPEEDS[i % SPEEDS.length];
+        const speed = speeds[i % speeds.length];
         const raw = distance * speed * vh;
         const buffer = rect.height * 0.18;
         const offset = Math.max(-buffer, Math.min(buffer, raw));

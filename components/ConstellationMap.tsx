@@ -405,166 +405,153 @@ function MobileField({ stars }: { stars: Star[] }) {
     const n = stars.length;
     if (n === 0) return;
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let cw = 0, ch = 0;
+    let cleanedUp = false;
 
-    // Measure all items once
-    let cw = container.clientWidth;
-    let ch = container.clientHeight;
-    if (cw === 0 || ch === 0) return;
-    const widths: number[] = [];
-    const heights: number[] = [];
-    for (let i = 0; i < n; i++) {
-      const el = els[i];
-      widths.push(el?.offsetWidth ?? 100);
-      heights.push(el?.offsetHeight ?? 24);
-    }
-
-    const ro = new ResizeObserver(() => {
+    // Defer one frame so iOS Safari resolves 100dvh
+    const startId = requestAnimationFrame(() => {
+      if (cleanedUp) return;
       cw = container.clientWidth;
       ch = container.clientHeight;
-    });
-    ro.observe(container);
+      if (cw === 0 || ch === 0) return;
 
-    // Track pointer for proximity slowdown
+      // Measure items
+      const widths: number[] = [];
+      const heights: number[] = [];
+      for (let i = 0; i < n; i++) {
+        widths.push(els[i]?.offsetWidth ?? 100);
+        heights.push(els[i]?.offsetHeight ?? 24);
+      }
+
+      ro.observe(container);
+
+      // Pointer tracking
+      container.addEventListener("pointermove", onPointerMove as EventListener);
+      container.addEventListener("touchmove", onPointerMove as EventListener, { passive: true });
+      container.addEventListener("pointerleave", onPointerLeave);
+
+      // Poisson-disc placement
+      const rng = makeRng(SEED + 777);
+      const PAD_X = 16, PAD_TOP = 76, PAD_BOT = 20;
+      const xs: number[] = [], ys: number[] = [];
+      for (let i = 0; i < n; i++) {
+        let bestX = PAD_X, bestY = PAD_TOP, bestDist = -1;
+        for (let attempt = 0; attempt < 80; attempt++) {
+          const cx = PAD_X + rng() * Math.max(0, cw - widths[i] - PAD_X * 2);
+          const cy = PAD_TOP + rng() * Math.max(0, ch - heights[i] - PAD_TOP - PAD_BOT);
+          let minDist = Infinity, overlap = false;
+          for (let j = 0; j < xs.length; j++) {
+            if (cx < xs[j] + widths[j] + PAD_X && cx + widths[i] + PAD_X > xs[j] &&
+                cy < ys[j] + heights[j] + 6 && cy + heights[i] + 6 > ys[j]) {
+              overlap = true; break;
+            }
+            const d = Math.sqrt((cx - xs[j]) ** 2 + (cy - ys[j]) ** 2);
+            if (d < minDist) minDist = d;
+          }
+          if (!overlap) { bestX = cx; bestY = cy; break; }
+          if (minDist > bestDist) { bestDist = minDist; bestX = cx; bestY = cy; }
+        }
+        xs.push(bestX); ys.push(bestY);
+      }
+
+      const vxs = stars.map(() => (rng() - 0.5) * 0.22);
+      const vys = stars.map(() => (rng() - 0.5) * 0.22);
+      simRef.current = { x: xs, y: ys, vx: vxs, vy: vys, w: widths, h: heights };
+
+      // Place items (reset fallback left/top)
+      for (let i = 0; i < n; i++) {
+        const el = els[i];
+        if (el) {
+          el.style.left = "0px";
+          el.style.top = "0px";
+          el.style.transform = `translate(${xs[i].toFixed(1)}px, ${ys[i].toFixed(1)}px)`;
+        }
+      }
+
+      // Animation loop
+      let paused = document.hidden;
+      const PROXIMITY_R = 120;
+
+      const tick = () => {
+        if (paused || cleanedUp) return;
+        const sim = simRef.current;
+        if (!sim) return;
+        const { x, y, vx, vy, w, h } = sim;
+        const ptr = pointerRef.current;
+
+        for (let i = 0; i < n; i++) {
+          let damp = 1;
+          if (ptr) {
+            const dx = x[i] + w[i] / 2 - ptr.x;
+            const dy = y[i] + h[i] / 2 - ptr.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < PROXIMITY_R) damp = 0.05 + 0.95 * (dist / PROXIMITY_R);
+          }
+          x[i] += vx[i] * damp;
+          y[i] += vy[i] * damp;
+        }
+
+        for (let i = 0; i < n; i++) {
+          if (x[i] < PAD_X) { x[i] = PAD_X; vx[i] = Math.abs(vx[i]); }
+          if (x[i] + w[i] > cw - PAD_X) { x[i] = cw - PAD_X - w[i]; vx[i] = -Math.abs(vx[i]); }
+          if (y[i] < PAD_TOP) { y[i] = PAD_TOP; vy[i] = Math.abs(vy[i]); }
+          if (y[i] + h[i] > ch - PAD_BOT) { y[i] = ch - PAD_BOT - h[i]; vy[i] = -Math.abs(vy[i]); }
+        }
+
+        for (let i = 0; i < n; i++) {
+          for (let j = i + 1; j < n; j++) {
+            const gap = 4;
+            const oX = (x[i] + w[i] + gap) - x[j];
+            const oY = (y[i] + h[i] + gap) - y[j];
+            const oXr = (x[j] + w[j] + gap) - x[i];
+            const oYr = (y[j] + h[j] + gap) - y[i];
+            if (oX > 0 && oXr > 0 && oY > 0 && oYr > 0) {
+              if (Math.min(oX, oXr) < Math.min(oY, oYr)) {
+                const p = Math.min(oX, oXr) * 0.52;
+                if (x[i] < x[j]) { x[i] -= p; x[j] += p; } else { x[i] += p; x[j] -= p; }
+                const t = vx[i]; vx[i] = vx[j]; vx[j] = t;
+              } else {
+                const p = Math.min(oY, oYr) * 0.52;
+                if (y[i] < y[j]) { y[i] -= p; y[j] += p; } else { y[i] += p; y[j] -= p; }
+                const t = vy[i]; vy[i] = vy[j]; vy[j] = t;
+              }
+            }
+          }
+        }
+
+        for (let i = 0; i < n; i++) {
+          const el = els[i];
+          if (el) el.style.transform = `translate(${x[i].toFixed(1)}px, ${y[i].toFixed(1)}px)`;
+        }
+        rafRef.current = requestAnimationFrame(tick);
+      };
+
+      visHandler = () => {
+        paused = document.hidden;
+        if (!paused && !cleanedUp) rafRef.current = requestAnimationFrame(tick);
+      };
+      document.addEventListener("visibilitychange", visHandler);
+      rafRef.current = requestAnimationFrame(tick);
+    }); // end deferred rAF
+
+    // Hoisted handlers for cleanup
+    let visHandler: (() => void) | null = null;
     const onPointerMove = (e: PointerEvent | TouchEvent) => {
       const rect = container.getBoundingClientRect();
       const pt = "touches" in e ? e.touches[0] : e;
       if (pt) pointerRef.current = { x: pt.clientX - rect.left, y: pt.clientY - rect.top };
     };
     const onPointerLeave = () => { pointerRef.current = null; };
-    container.addEventListener("pointermove", onPointerMove as EventListener);
-    container.addEventListener("touchmove", onPointerMove as EventListener, { passive: true });
-    container.addEventListener("pointerleave", onPointerLeave);
-
-    // Initial placement — Poisson-ish seeded scatter
-    const rng = makeRng(SEED + 777);
-    const PAD_X = 16;
-    const PAD_TOP = 76;
-    const PAD_BOT = 20;
-    const xs: number[] = [];
-    const ys: number[] = [];
-    for (let i = 0; i < n; i++) {
-      let bestX = PAD_X, bestY = PAD_TOP, bestDist = -1;
-      for (let attempt = 0; attempt < 80; attempt++) {
-        const cx = PAD_X + rng() * Math.max(0, cw - widths[i] - PAD_X * 2);
-        const cy = PAD_TOP + rng() * Math.max(0, ch - heights[i] - PAD_TOP - PAD_BOT);
-        let minDist = Infinity;
-        let overlap = false;
-        for (let j = 0; j < xs.length; j++) {
-          if (cx < xs[j] + widths[j] + PAD_X && cx + widths[i] + PAD_X > xs[j] &&
-              cy < ys[j] + heights[j] + 6 && cy + heights[i] + 6 > ys[j]) {
-            overlap = true; break;
-          }
-          const dx = cx - xs[j], dy = cy - ys[j];
-          const d = Math.sqrt(dx * dx + dy * dy);
-          if (d < minDist) minDist = d;
-        }
-        if (!overlap) { bestX = cx; bestY = cy; break; }
-        if (minDist > bestDist) { bestDist = minDist; bestX = cx; bestY = cy; }
-      }
-      xs.push(bestX);
-      ys.push(bestY);
-    }
-
-    // Seeded velocities — very slow, meditative
-    const vxs = stars.map(() => (rng() - 0.5) * 0.22);
-    const vys = stars.map(() => (rng() - 0.5) * 0.22);
-
-    simRef.current = { x: xs, y: ys, vx: vxs, vy: vys, w: widths, h: heights };
-
-    for (let i = 0; i < n; i++) {
-      const el = els[i];
-      if (el) {
-        el.style.left = "0px";
-        el.style.top = "0px";
-        el.style.transform = `translate(${xs[i].toFixed(1)}px, ${ys[i].toFixed(1)}px)`;
-      }
-    }
-
-    if (reducedMotion) { ro.disconnect(); return; }
-
-    let paused = document.hidden;
-    const PROXIMITY_R = 120; // pixels — items within this radius slow down
-
-    const tick = () => {
-      if (paused) return;
-      const sim = simRef.current;
-      if (!sim) return;
-      const { x, y, vx, vy, w, h } = sim;
-      const ptr = pointerRef.current;
-
-      // Move — with pointer proximity damping
-      for (let i = 0; i < n; i++) {
-        let damp = 1;
-        if (ptr) {
-          const cx = x[i] + w[i] / 2;
-          const cy = y[i] + h[i] / 2;
-          const dx = cx - ptr.x;
-          const dy = cy - ptr.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < PROXIMITY_R) {
-            // Smooth falloff: 1 at edge → 0.05 at centre
-            damp = 0.05 + 0.95 * (dist / PROXIMITY_R);
-          }
-        }
-        x[i] += vx[i] * damp;
-        y[i] += vy[i] * damp;
-      }
-
-      // Wall bounce
-      for (let i = 0; i < n; i++) {
-        if (x[i] < PAD_X) { x[i] = PAD_X; vx[i] = Math.abs(vx[i]); }
-        if (x[i] + w[i] > cw - PAD_X) { x[i] = cw - PAD_X - w[i]; vx[i] = -Math.abs(vx[i]); }
-        if (y[i] < PAD_TOP) { y[i] = PAD_TOP; vy[i] = Math.abs(vy[i]); }
-        if (y[i] + h[i] > ch - PAD_BOT) { y[i] = ch - PAD_BOT - h[i]; vy[i] = -Math.abs(vy[i]); }
-      }
-
-      // Collision separation (AABB push-apart)
-      for (let i = 0; i < n; i++) {
-        for (let j = i + 1; j < n; j++) {
-          const gap = 4;
-          const overlapX = (x[i] + w[i] + gap) - x[j];
-          const overlapY = (y[i] + h[i] + gap) - y[j];
-          const overlapXr = (x[j] + w[j] + gap) - x[i];
-          const overlapYr = (y[j] + h[j] + gap) - y[i];
-
-          if (overlapX > 0 && overlapXr > 0 && overlapY > 0 && overlapYr > 0) {
-            const minOX = Math.min(overlapX, overlapXr);
-            const minOY = Math.min(overlapY, overlapYr);
-
-            if (minOX < minOY) {
-              const push = minOX * 0.52;
-              if (x[i] < x[j]) { x[i] -= push; x[j] += push; }
-              else { x[i] += push; x[j] -= push; }
-              const tmp = vx[i]; vx[i] = vx[j]; vx[j] = tmp;
-            } else {
-              const push = minOY * 0.52;
-              if (y[i] < y[j]) { y[i] -= push; y[j] += push; }
-              else { y[i] += push; y[j] -= push; }
-              const tmp = vy[i]; vy[i] = vy[j]; vy[j] = tmp;
-            }
-          }
-        }
-      }
-
-      for (let i = 0; i < n; i++) {
-        const el = els[i];
-        if (el) el.style.transform = `translate(${x[i].toFixed(1)}px, ${y[i].toFixed(1)}px)`;
-      }
-
-      rafRef.current = requestAnimationFrame(tick);
-    };
-
-    const onVisibility = () => {
-      paused = document.hidden;
-      if (!paused) rafRef.current = requestAnimationFrame(tick);
-    };
-    document.addEventListener("visibilitychange", onVisibility);
-    rafRef.current = requestAnimationFrame(tick);
+    const ro = new ResizeObserver(() => {
+      cw = container.clientWidth;
+      ch = container.clientHeight;
+    });
 
     return () => {
+      cleanedUp = true;
+      cancelAnimationFrame(startId);
       cancelAnimationFrame(rafRef.current);
-      document.removeEventListener("visibilitychange", onVisibility);
+      if (visHandler) document.removeEventListener("visibilitychange", visHandler);
       container.removeEventListener("pointermove", onPointerMove as EventListener);
       container.removeEventListener("touchmove", onPointerMove as EventListener);
       container.removeEventListener("pointerleave", onPointerLeave);
