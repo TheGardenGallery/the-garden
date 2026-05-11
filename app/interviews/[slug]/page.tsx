@@ -117,6 +117,7 @@ export default async function InterviewPage({
                       loop
                       muted
                       playsInline
+                      preload="metadata"
                     />
                   </div>
                   <div className="iv-break-label">
