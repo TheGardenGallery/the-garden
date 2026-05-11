@@ -162,7 +162,7 @@ function ExploreItem({
               loop
               muted
               playsInline
-              preload="auto"
+              preload="metadata"
               aria-label={item.alt}
               ref={(el) => {
                 if (!el) return;

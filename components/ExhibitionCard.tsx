@@ -29,7 +29,6 @@ export function ExhibitionCard({ exhibition }: { exhibition: Exhibition }) {
               muted
               loop
               playsInline
-              preload="auto"
               aria-label={`${exhibition.artistName}, ${exhibition.title}`}
             />
           ) : coverImage ? (

@@ -71,6 +71,7 @@ export function AutoPlayVideo(props: ComponentProps<"video">) {
 
   return (
     <video
+      preload="metadata"
       {...props}
       ref={ref}
       muted

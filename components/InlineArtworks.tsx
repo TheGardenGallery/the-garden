@@ -152,7 +152,7 @@ function InlineArtworkItem({
               muted
               loop
               playsInline
-              preload="auto"
+              preload="metadata"
               aria-label={item.alt}
             />
           </div>
