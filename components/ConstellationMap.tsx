@@ -345,30 +345,165 @@ const DOT_R = 2;
 const HIT_R = 22;
 
 /* ── mobile field layout ──────────────────────────────────── 
-   On viewports <600px, renders a scattered field of coloured
-   squares + artist names. No SVG, no collision algorithm — each
-   artist gets a guaranteed readable slot. */
+   On viewports <600px, renders a drifting field of coloured
+   squares + artist names. Each item floats at a slow, unique
+   velocity.  AABB collision pushes overlapping pairs apart so
+   names never touch. Items bounce off the container walls so
+   nothing leaves the frame. */
 function MobileField({ stars }: { stars: Star[] }) {
   const router = useRouter();
-  const rng = makeRng(SEED + 999);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const simRef = useRef<{
+    x: number[]; y: number[];
+    vx: number[]; vy: number[];
+    w: number[]; h: number[];
+  } | null>(null);
+  const rafRef = useRef(0);
 
-  // Stagger items with slight randomised offsets for organic feel
-  const items = stars.map((s) => ({
-    ...s,
-    offsetX: (rng() - 0.5) * 20,
-    offsetY: (rng() - 0.5) * 6,
-  }));
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const els = itemRefs.current;
+    const n = stars.length;
+    if (n === 0) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    // Measure all items once
+    const cw = container.clientWidth;
+    const ch = container.clientHeight;
+    const widths: number[] = [];
+    const heights: number[] = [];
+    for (let i = 0; i < n; i++) {
+      const el = els[i];
+      widths.push(el?.offsetWidth ?? 100);
+      heights.push(el?.offsetHeight ?? 24);
+    }
+
+    // Initial placement — Poisson-ish seeded scatter with retries
+    const rng = makeRng(SEED + 777);
+    const PAD = 4;
+    const xs: number[] = [];
+    const ys: number[] = [];
+    for (let i = 0; i < n; i++) {
+      let bestX = PAD, bestY = PAD, bestDist = -1;
+      for (let attempt = 0; attempt < 60; attempt++) {
+        const cx = PAD + rng() * Math.max(0, cw - widths[i] - PAD * 2);
+        const cy = PAD + rng() * Math.max(0, ch - heights[i] - PAD * 2);
+        let minDist = Infinity;
+        let overlap = false;
+        for (let j = 0; j < xs.length; j++) {
+          if (cx < xs[j] + widths[j] + PAD && cx + widths[i] + PAD > xs[j] &&
+              cy < ys[j] + heights[j] + PAD && cy + heights[i] + PAD > ys[j]) {
+            overlap = true; break;
+          }
+          const dx = cx - xs[j], dy = cy - ys[j];
+          const d = Math.sqrt(dx * dx + dy * dy);
+          if (d < minDist) minDist = d;
+        }
+        if (!overlap) { bestX = cx; bestY = cy; break; }
+        if (minDist > bestDist) { bestDist = minDist; bestX = cx; bestY = cy; }
+      }
+      xs.push(bestX);
+      ys.push(bestY);
+    }
+
+    // Seeded velocities — slow, different directions
+    const vxs = stars.map(() => (rng() - 0.5) * 0.3);
+    const vys = stars.map(() => (rng() - 0.5) * 0.3);
+
+    simRef.current = { x: xs, y: ys, vx: vxs, vy: vys, w: widths, h: heights };
+
+    // Apply initial positions
+    for (let i = 0; i < n; i++) {
+      const el = els[i];
+      if (el) el.style.transform = `translate(${xs[i].toFixed(1)}px, ${ys[i].toFixed(1)}px)`;
+    }
+
+    let paused = document.hidden;
+
+    const tick = () => {
+      if (paused) return;
+      const sim = simRef.current;
+      if (!sim) return;
+      const { x, y, vx, vy, w, h } = sim;
+
+      // Move
+      for (let i = 0; i < n; i++) {
+        x[i] += vx[i];
+        y[i] += vy[i];
+      }
+
+      // Wall bounce
+      for (let i = 0; i < n; i++) {
+        if (x[i] < PAD) { x[i] = PAD; vx[i] = Math.abs(vx[i]); }
+        if (x[i] + w[i] > cw - PAD) { x[i] = cw - PAD - w[i]; vx[i] = -Math.abs(vx[i]); }
+        if (y[i] < PAD) { y[i] = PAD; vy[i] = Math.abs(vy[i]); }
+        if (y[i] + h[i] > ch - PAD) { y[i] = ch - PAD - h[i]; vy[i] = -Math.abs(vy[i]); }
+      }
+
+      // Collision separation (AABB push-apart)
+      for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+          const gap = 2;
+          const overlapX = (x[i] + w[i] + gap) - x[j];
+          const overlapY = (y[i] + h[i] + gap) - y[j];
+          const overlapXr = (x[j] + w[j] + gap) - x[i];
+          const overlapYr = (y[j] + h[j] + gap) - y[i];
+
+          if (overlapX > 0 && overlapXr > 0 && overlapY > 0 && overlapYr > 0) {
+            // Find minimum separation axis
+            const minOX = Math.min(overlapX, overlapXr);
+            const minOY = Math.min(overlapY, overlapYr);
+
+            if (minOX < minOY) {
+              const push = minOX * 0.5;
+              if (x[i] < x[j]) { x[i] -= push; x[j] += push; }
+              else { x[i] += push; x[j] -= push; }
+              // Swap X velocities for bounce effect
+              const tmp = vx[i]; vx[i] = vx[j]; vx[j] = tmp;
+            } else {
+              const push = minOY * 0.5;
+              if (y[i] < y[j]) { y[i] -= push; y[j] += push; }
+              else { y[i] += push; y[j] -= push; }
+              const tmp = vy[i]; vy[i] = vy[j]; vy[j] = tmp;
+            }
+          }
+        }
+      }
+
+      // Apply transforms
+      for (let i = 0; i < n; i++) {
+        const el = els[i];
+        if (el) el.style.transform = `translate(${x[i].toFixed(1)}px, ${y[i].toFixed(1)}px)`;
+      }
+
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    const onVisibility = () => {
+      paused = document.hidden;
+      if (!paused) rafRef.current = requestAnimationFrame(tick);
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    rafRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [stars]);
 
   return (
-    <div className="constellation-mobile-field">
-      {items.map((s) => (
+    <div className="constellation-mobile-field" ref={containerRef}>
+      {stars.map((s, i) => (
         <button
           key={s.slug}
+          ref={(el) => { itemRefs.current[i] = el; }}
           className="constellation-mobile-star"
           onClick={() => router.push(`/artists/${s.slug}`)}
-          style={{
-            transform: `translate(${s.offsetX.toFixed(1)}px, ${s.offsetY.toFixed(1)}px)`,
-          }}
         >
           <span
             className="constellation-mobile-dot"
