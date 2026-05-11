@@ -80,17 +80,12 @@ type Star = {
 type Edge = [number, number];
 
 /* ── layout ──────────────────────────────────────────────── */
-function layoutStars(seed: number, viewportW?: number): Star[] {
+function layoutStars(seed: number): Star[] {
   const r = makeRng(seed);
   const n = ARTISTS.length;
   const stars: Star[] = [];
 
-  // Anisotropic exclusion: wider in X (labels are horizontal) than Y.
-  // On tiny screens (<390px), bump MIN_DX so dots spread further apart —
-  // the inner width is so small that 0.14 only yields ~42px, which can't
-  // separate two labels. 0.17 yields ~51px, enough for 8px font names.
-  const isTiny = (viewportW ?? 600) < 400;
-  const MIN_DX = isTiny ? 0.17 : 0.14;
+  const MIN_DX = 0.14;
   const MIN_DY = 0.065;
 
   const tooClose = (ax: number, ay: number, bx: number, by: number) =>
@@ -248,7 +243,7 @@ function placeLabels(
   // (<390px), allow 15px bleed so edge labels aren't forced into overlap
   // with interior names. CSS overflow:visible on .constellation-root
   // at mobile prevents clipping.
-  const edgeBleed = cw < 400 ? -15 : 0;
+  const edgeBleed = 0;
 
   for (let i = 0; i < stars.length; i++) {
     const s = stars[i];
@@ -550,10 +545,7 @@ export function ConstellationMap() {
     return () => ro.disconnect();
   }, []);
 
-  // Bucket viewport into a stable layout tier so stars don't re-scatter
-  // on every resize pixel — only when crossing the 400px threshold.
-  const layoutTier = dims.w > 0 ? (dims.w < 400 ? "tiny" : "normal") : null;
-  const stars = useMemo(() => layoutStars(SEED, layoutTier === "tiny" ? 320 : undefined), [layoutTier]);
+  const stars = useMemo(() => layoutStars(SEED), []);
   const edges = useMemo(() => buildEdges(stars, SEED + 77), [stars]);
   const adjacency = useMemo(() => buildAdjacency(edges, stars.length), [edges, stars.length]);
   const dotRefs = useDrift(stars);
@@ -561,9 +553,8 @@ export function ConstellationMap() {
   const w = dims.w || 1;
   const h = dims.h || 1;
 
-  // Responsive margins
+  // Responsive margins — only used for the SVG constellation (desktop)
   const narrow = w < 600;
-  const tiny = w < 400;    // iPhone SE / Mini / any sub-400px viewport
   const mL = narrow ? 12 : Math.max(80, w * 0.10);
   const mR = narrow ? 12 : Math.max(80, w * 0.10);
   const mTop = narrow ? 72 : 120;
@@ -571,12 +562,7 @@ export function ConstellationMap() {
   const iw = Math.max(1, w - mL - mR);
   const ih = Math.max(1, h - mTop - mBot);
 
-  // Char width estimate for label width math. Slightly OVER-estimates
-  // the rendered Courier advance (incl. letter-spacing) so the algorithm
-  // never thinks a long name like "Spøgelsesmaskinen" fits a slot it
-  // doesn't really fit — under-estimating let labels run past the right
-  // edge on mobile and get clipped.
-  const charW = tiny ? 5.0 : narrow ? 6.6 : 7.4;
+  const charW = narrow ? 6.6 : 7.4;
 
   const toX = useCallback((s: Star) => mL + s.x * iw, [mL, iw]);
   const toY = useCallback((s: Star) => mTop + s.y * ih, [mTop, ih]);

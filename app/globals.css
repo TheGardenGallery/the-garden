@@ -1285,9 +1285,6 @@ html:has(.constellation-root){
 
 /* ── mobile ── */
 @media (max-width:600px){
-  .constellation-root{
-    overflow:visible;
-  }
   .c-label{
     font-size:9.5px;
     letter-spacing:0.03em;
@@ -1296,17 +1293,12 @@ html:has(.constellation-root){
     stroke-width:0.4;
   }
 }
-@media (max-width:399px){
-  .c-label{
-    font-size:8px;
-    letter-spacing:0.02em;
-  }
-}
 
 /* ── mobile field (replaces SVG on <600px) ── */
 .constellation-mobile-field{
-  position:absolute;
-  top:0;left:0;right:0;bottom:0;
+  position:relative;
+  width:100%;
+  height:100dvh;
   overflow:hidden;
 }
 .constellation-mobile-star{
