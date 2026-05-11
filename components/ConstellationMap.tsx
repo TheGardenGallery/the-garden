@@ -382,8 +382,8 @@ function MobileField({ stars }: { stars: Star[] }) {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // Measure all items once
-    const cw = container.clientWidth;
-    const ch = container.clientHeight;
+    let cw = container.clientWidth;
+    let ch = container.clientHeight;
     if (cw === 0 || ch === 0) return; // container not laid out yet
     const widths: number[] = [];
     const heights: number[] = [];
@@ -392,6 +392,13 @@ function MobileField({ stars }: { stars: Star[] }) {
       widths.push(el?.offsetWidth ?? 100);
       heights.push(el?.offsetHeight ?? 24);
     }
+
+    // Track container size so wall-bounce stays correct on resize
+    const ro = new ResizeObserver(() => {
+      cw = container.clientWidth;
+      ch = container.clientHeight;
+    });
+    ro.observe(container);
 
     // Initial placement — Poisson-ish seeded scatter with retries
     const rng = makeRng(SEED + 777);
@@ -516,6 +523,7 @@ function MobileField({ stars }: { stars: Star[] }) {
     return () => {
       cancelAnimationFrame(rafRef.current);
       document.removeEventListener("visibilitychange", onVisibility);
+      ro.disconnect();
     };
   }, [stars]);
 
