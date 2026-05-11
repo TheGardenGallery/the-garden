@@ -396,7 +396,7 @@ function MobileField({ stars }: { stars: Star[] }) {
     w: number[]; h: number[];
   } | null>(null);
   const rafRef = useRef(0);
-  const pointerRef = useRef<{ x: number; y: number } | null>(null);
+  const pointerRef = useRef<{ x: number; y: number; strength: number } | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -427,6 +427,7 @@ function MobileField({ stars }: { stars: Star[] }) {
 
       // Pointer tracking
       container.addEventListener("pointermove", onPointerMove as EventListener);
+      container.addEventListener("touchstart", onTouchStart as EventListener, { passive: true });
       container.addEventListener("touchmove", onPointerMove as EventListener, { passive: true });
       container.addEventListener("pointerleave", onPointerLeave);
 
@@ -479,13 +480,22 @@ function MobileField({ stars }: { stars: Star[] }) {
         const { x, y, vx, vy, w, h } = sim;
         const ptr = pointerRef.current;
 
+        // Decay touch strength so the slowdown fades out after lifting
+        if (ptr) {
+          ptr.strength *= 0.97; // ~1s to fully fade at 60fps
+          if (ptr.strength < 0.01) pointerRef.current = null;
+        }
+
         for (let i = 0; i < n; i++) {
           let damp = 1;
-          if (ptr) {
+          if (ptr && ptr.strength > 0.01) {
             const dx = x[i] + w[i] / 2 - ptr.x;
             const dy = y[i] + h[i] / 2 - ptr.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < PROXIMITY_R) damp = 0.05 + 0.95 * (dist / PROXIMITY_R);
+            if (dist < PROXIMITY_R) {
+              const spatial = 0.05 + 0.95 * (dist / PROXIMITY_R);
+              damp = 1 - (1 - spatial) * ptr.strength;
+            }
           }
           x[i] += vx[i] * damp;
           y[i] += vy[i] * damp;
@@ -539,9 +549,16 @@ function MobileField({ stars }: { stars: Star[] }) {
     const onPointerMove = (e: PointerEvent | TouchEvent) => {
       const rect = container.getBoundingClientRect();
       const pt = "touches" in e ? e.touches[0] : e;
-      if (pt) pointerRef.current = { x: pt.clientX - rect.left, y: pt.clientY - rect.top };
+      if (pt) pointerRef.current = { x: pt.clientX - rect.left, y: pt.clientY - rect.top, strength: 1 };
     };
-    const onPointerLeave = () => { pointerRef.current = null; };
+    const onTouchStart = (e: TouchEvent) => {
+      const rect = container.getBoundingClientRect();
+      const pt = e.touches[0];
+      if (pt) pointerRef.current = { x: pt.clientX - rect.left, y: pt.clientY - rect.top, strength: 1 };
+    };
+    const onPointerLeave = () => {
+      // Don't clear — let the strength decay naturally in the tick loop
+    };
     const ro = new ResizeObserver(() => {
       cw = container.clientWidth;
       ch = container.clientHeight;
@@ -553,6 +570,7 @@ function MobileField({ stars }: { stars: Star[] }) {
       cancelAnimationFrame(rafRef.current);
       if (visHandler) document.removeEventListener("visibilitychange", visHandler);
       container.removeEventListener("pointermove", onPointerMove as EventListener);
+      container.removeEventListener("touchstart", onTouchStart as EventListener);
       container.removeEventListener("touchmove", onPointerMove as EventListener);
       container.removeEventListener("pointerleave", onPointerLeave);
       ro.disconnect();
