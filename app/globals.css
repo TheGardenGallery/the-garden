@@ -4714,7 +4714,10 @@ html:has(.constellation-root){
   font-weight:600;font-size:11px;letter-spacing:0.6px;
   text-transform:uppercase;
   color:var(--ink);
-  margin:0 0 2px;
+  margin:0 0 16px;
+}
+.legal-col section{
+  scroll-margin-top:calc(var(--nav-height) + 40px);
 }
 .legal-col p{
   margin:0;
