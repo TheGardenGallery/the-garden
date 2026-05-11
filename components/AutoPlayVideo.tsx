@@ -20,10 +20,13 @@ export function AutoPlayVideo(props: ComponentProps<"video">) {
     const el = ref.current;
     if (!el) return;
 
-    let isIntersecting = false;
+    // Track visibility — starts null (unknown) so the initial eager
+    // play() isn't blocked.  IO sets the real value on first callback.
+    let isVisible: boolean | null = null;
 
     const tryPlay = () => {
-      if (el.paused && isIntersecting && !document.hidden) {
+      // Allow play when: visibility unknown (first mount) OR confirmed visible
+      if (el.paused && isVisible !== false && !document.hidden) {
         el.muted = true;           // Belt-and-suspenders: ensure muted
         el.play().catch(() => {});
       }
@@ -39,7 +42,7 @@ export function AutoPlayVideo(props: ComponentProps<"video">) {
     // media element starts from a known-good state, then try to play.
     try { el.load(); } catch { /* ignore */ }
 
-    // Try immediately (covers already-cached videos)
+    // Try immediately (covers already-cached videos + iOS autoplay window)
     tryPlay();
 
     // Try again when data is ready
@@ -49,8 +52,8 @@ export function AutoPlayVideo(props: ComponentProps<"video">) {
     // Play/pause when the video enters/exits the viewport
     const io = new IntersectionObserver(
       (entries) => {
-        isIntersecting = entries[0]?.isIntersecting ?? false;
-        if (isIntersecting) tryPlay();
+        isVisible = entries[0]?.isIntersecting ?? false;
+        if (isVisible) tryPlay();
         else pauseIfSafe();
       },
       { threshold: 0.1 }
@@ -60,7 +63,7 @@ export function AutoPlayVideo(props: ComponentProps<"video">) {
     // Pause when the tab goes hidden, resume when visible
     const onVisibility = () => {
       if (document.hidden) pauseIfSafe();
-      else if (isIntersecting) tryPlay();
+      else if (isVisible !== false) tryPlay();
     };
     document.addEventListener("visibilitychange", onVisibility);
 
