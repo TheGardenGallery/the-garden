@@ -595,7 +595,7 @@ function MobileField({ stars }: { stars: Star[] }) {
           >
             <span
               className="constellation-mobile-dot"
-              style={{ backgroundColor: artistColourMobile(i) }}
+              style={{ color: artistColourMobile(i) }}
             />
             <span className="constellation-mobile-name">{s.name}</span>
           </button>
