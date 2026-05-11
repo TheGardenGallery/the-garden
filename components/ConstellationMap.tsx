@@ -43,9 +43,25 @@ const ARTISTS: { name: string; slug: string }[] = [
 /* ── colour ──────────────────────────────────────────────── */
 const GOLDEN_ANGLE = 137.508;
 const HUE_OFFSET = 210;
+
+/** Desktop constellation hover colour — single hue per artist,
+ *  uniform saturation/lightness for the line-glow effect. */
 function artistColour(i: number): string {
   const hue = (HUE_OFFSET + i * GOLDEN_ANGLE) % 360;
   return `hsl(${hue.toFixed(1)}, 55%, 62%)`;
+}
+
+/** Mobile field dot colour — varies saturation AND lightness per
+ *  artist so adjacent hues don't look the same at small size.
+ *  Alternates between warm/cool saturation bands and shifts
+ *  lightness in a 3-step cycle. */
+function artistColourMobile(i: number): string {
+  const hue = (HUE_OFFSET + i * GOLDEN_ANGLE) % 360;
+  const satBand = [58, 72, 45, 65];
+  const litBand = [58, 68, 52, 63, 72];
+  const sat = satBand[i % satBand.length];
+  const lit = litBand[i % litBand.length];
+  return `hsl(${hue.toFixed(1)}, ${sat}%, ${lit}%)`;
 }
 
 /* ── seeded PRNG ─────────────────────────────────────────── */
@@ -383,19 +399,21 @@ function MobileField({ stars }: { stars: Star[] }) {
 
     // Initial placement — Poisson-ish seeded scatter with retries
     const rng = makeRng(SEED + 777);
-    const PAD = 4;
+    const PAD_X = 8;
+    const PAD_TOP = 72;  // clear the nav bar
+    const PAD_BOT = 12;
     const xs: number[] = [];
     const ys: number[] = [];
     for (let i = 0; i < n; i++) {
-      let bestX = PAD, bestY = PAD, bestDist = -1;
+      let bestX = PAD_X, bestY = PAD_TOP, bestDist = -1;
       for (let attempt = 0; attempt < 60; attempt++) {
-        const cx = PAD + rng() * Math.max(0, cw - widths[i] - PAD * 2);
-        const cy = PAD + rng() * Math.max(0, ch - heights[i] - PAD * 2);
+        const cx = PAD_X + rng() * Math.max(0, cw - widths[i] - PAD_X * 2);
+        const cy = PAD_TOP + rng() * Math.max(0, ch - heights[i] - PAD_TOP - PAD_BOT);
         let minDist = Infinity;
         let overlap = false;
         for (let j = 0; j < xs.length; j++) {
-          if (cx < xs[j] + widths[j] + PAD && cx + widths[i] + PAD > xs[j] &&
-              cy < ys[j] + heights[j] + PAD && cy + heights[i] + PAD > ys[j]) {
+          if (cx < xs[j] + widths[j] + PAD_X && cx + widths[i] + PAD_X > xs[j] &&
+              cy < ys[j] + heights[j] + PAD_X && cy + heights[i] + PAD_X > ys[j]) {
             overlap = true; break;
           }
           const dx = cx - xs[j], dy = cy - ys[j];
@@ -437,10 +455,10 @@ function MobileField({ stars }: { stars: Star[] }) {
 
       // Wall bounce
       for (let i = 0; i < n; i++) {
-        if (x[i] < PAD) { x[i] = PAD; vx[i] = Math.abs(vx[i]); }
-        if (x[i] + w[i] > cw - PAD) { x[i] = cw - PAD - w[i]; vx[i] = -Math.abs(vx[i]); }
-        if (y[i] < PAD) { y[i] = PAD; vy[i] = Math.abs(vy[i]); }
-        if (y[i] + h[i] > ch - PAD) { y[i] = ch - PAD - h[i]; vy[i] = -Math.abs(vy[i]); }
+        if (x[i] < PAD_X) { x[i] = PAD_X; vx[i] = Math.abs(vx[i]); }
+        if (x[i] + w[i] > cw - PAD_X) { x[i] = cw - PAD_X - w[i]; vx[i] = -Math.abs(vx[i]); }
+        if (y[i] < PAD_TOP) { y[i] = PAD_TOP; vy[i] = Math.abs(vy[i]); }
+        if (y[i] + h[i] > ch - PAD_BOT) { y[i] = ch - PAD_BOT - h[i]; vy[i] = -Math.abs(vy[i]); }
       }
 
       // Collision separation (AABB push-apart)
@@ -507,7 +525,7 @@ function MobileField({ stars }: { stars: Star[] }) {
         >
           <span
             className="constellation-mobile-dot"
-            style={{ backgroundColor: s.colour }}
+            style={{ backgroundColor: artistColourMobile(i) }}
           />
           <span className="constellation-mobile-name">{s.name}</span>
         </button>
