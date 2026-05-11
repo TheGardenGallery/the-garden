@@ -429,10 +429,16 @@ function MobileField({ stars }: { stars: Star[] }) {
 
     simRef.current = { x: xs, y: ys, vx: vxs, vy: vys, w: widths, h: heights };
 
-    // Apply initial positions
+    // Apply initial positions — reset inline left/top to 0 so
+    // transform is the sole position authority (left/top were set
+    // as a pre-JS fallback grid in the render).
     for (let i = 0; i < n; i++) {
       const el = els[i];
-      if (el) el.style.transform = `translate(${xs[i].toFixed(1)}px, ${ys[i].toFixed(1)}px)`;
+      if (el) {
+        el.style.left = "0px";
+        el.style.top = "0px";
+        el.style.transform = `translate(${xs[i].toFixed(1)}px, ${ys[i].toFixed(1)}px)`;
+      }
     }
 
     // If reduced motion, stop here — items are placed but don't animate
