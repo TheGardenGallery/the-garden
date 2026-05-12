@@ -23,6 +23,27 @@ const ZONE_COUNT = 8;
 const TWO_PI = Math.PI * 2;
 const normHue = (h: number) => ((h % TWO_PI) + TWO_PI) % TWO_PI;
 
+// Rainbow pieces — multi-colour tile mosaics that span every hue
+// family at once. They have small amounts of every colour and would
+// leak into every locked-zone view if sorted by colour-similarity,
+// which destroys grid cohesion. The right behaviour is to keep them
+// as a contiguous block at the end of the grid regardless of sort.
+//
+// Identified by Ricky / curator. Heuristics (count distinct hue bins
+// with ≥10% weight) miss pieces where a single ground colour
+// dominates (e.g. sl-096 is mostly red with a multi-colour tile
+// strip — only one bin clears 10%, so the heuristic returns false).
+// Hardcoded list is the source of truth.
+const RAINBOW_IDS = new Set([
+  "sl-001",
+  "sl-002",
+  "sl-003",
+  "sl-004",
+  "sl-094",
+  "sl-095",
+  "sl-096",
+]);
+
 function computeSortedIndices(
   cells: WedgeCell[],
   lockedZoneIdx: number | null,
@@ -208,15 +229,11 @@ export function SplitLogicSystem({
   //                     colour to rank high; a stray green tile in a
   //                     yellow piece won't pull it into the green
   //                     view.
-  //   isRainbow[i]    = the piece is a multi-colour mosaic spanning
-  //                     3+ different hue families with each family
-  //                     carrying ≥10% of the piece's total cluster
-  //                     weight. These pieces (Split Logic 1, 4, 94,
-  //                     95, 96, …) have small amounts of every colour
-  //                     and would otherwise leak into every locked-
-  //                     zone view, breaking grid cohesion. They get
-  //                     bucketed together at the end of every sort.
-  const BIN_WIDTH = TWO_PI / ZONE_COUNT;
+  //   isRainbow[i]    = piece is in the curated RAINBOW_IDS set.
+  //                     These pieces have small amounts of every
+  //                     colour and would otherwise leak into every
+  //                     locked-zone view, breaking grid cohesion.
+  //                     Bucketed together at the end of every sort.
   const piecePrimaries = useMemo(() => {
     const topHueNorm: number[] = [];
     const topClusterLch: Oklch[] = [];
@@ -224,10 +241,8 @@ export function SplitLogicSystem({
     for (const cell of cells) {
       let topW = -Infinity;
       let topLch: Oklch = { L: 0, C: 0, h: 0 };
-      let totalW = 0;
       for (const cluster of cell.clusters) {
         if (isUnsuitableForBar(cluster.lch)) continue;
-        totalW += cluster.weight;
         if (cluster.weight > topW) {
           topW = cluster.weight;
           topLch = cluster.lch;
@@ -236,32 +251,13 @@ export function SplitLogicSystem({
       // Fallback for an all-neutral piece — use the first cluster.
       if (topW === -Infinity && cell.clusters.length > 0) {
         topLch = cell.clusters[0].lch;
-        for (const c of cell.clusters) totalW += c.weight;
-      }
-
-      // Rainbow detection: count distinct hue bins that hold ≥10% of
-      // the piece's total cluster weight. 3+ distinct bins → rainbow.
-      const bins = new Set<number>();
-      if (totalW > 0) {
-        for (const cluster of cell.clusters) {
-          if (isUnsuitableForBar(cluster.lch)) continue;
-          if (cluster.weight / totalW < 0.10) continue;
-          const bin =
-            Math.min(
-              ZONE_COUNT - 1,
-              Math.floor(normHue(cluster.lch.h) / BIN_WIDTH),
-            ) % ZONE_COUNT;
-          bins.add(bin);
-        }
       }
 
       topHueNorm.push(normHue(topLch.h));
       topClusterLch.push(topLch);
-      isRainbow.push(bins.size >= 3);
+      isRainbow.push(RAINBOW_IDS.has(cell.wedgeId));
     }
     return { topHueNorm, topClusterLch, isRainbow };
-  // BIN_WIDTH derives from constants — dependency unnecessary.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cells]);
 
   // Distance from each piece's TOP (dominant) cluster to the locked
