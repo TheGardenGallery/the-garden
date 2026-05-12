@@ -6,7 +6,6 @@ import {
   isUnsuitableForBar,
   kmeansWeighted,
   oklchToHex,
-  pickDistinctIndices,
   signatureFromHex,
   type WedgeCell,
   type WeightedSample,
@@ -15,45 +14,51 @@ import { SplitLogicPalette } from "./SplitLogicPalette";
 import { PieceGrid, type PieceGridItem } from "./PieceGrid";
 
 const PAGE_SIZE = 12;
-// Eight zones gives a fuller rainbow without crowding the bar — six
-// always left a gap between green and blue or between red and orange.
+// Eight 45° hue bins gives a fuller rainbow without crowding the bar.
+// The bar may show fewer cells if a bin is empty (e.g., no purple in
+// Ricky's series — better an honest 7-cell rainbow than a padded 8-cell
+// one with two near-identical blues).
 const ZONE_COUNT = 8;
+const TWO_PI = Math.PI * 2;
+const normHue = (h: number) => ((h % TWO_PI) + TWO_PI) % TWO_PI;
 
 function computeSortedIndices(
   cells: WedgeCell[],
   lockedZoneIdx: number | null,
+  topHueNorm: number[],
   inZoneWeights: number[][],
-  primaryZone: number[],
+  distToLockedZone: number[] | null,
 ): number[] {
   const n = cells.length;
   const indices = Array.from({ length: n }, (_, i) => i);
 
   if (lockedZoneIdx === null) {
-    // Default order: bucket pieces by their primary zone, then within
-    // each bucket sort by how strongly they belong (in-zone weight
-    // desc). Two pieces that both register as "blue zone" will always
-    // end up adjacent — that's the property the old single-hue sort
-    // failed to guarantee, because a piece's vibrance-weighted mean
-    // could drift hue under different ink/ground proportions even
-    // when the piece looked indistinguishable to the eye.
-    indices.sort((a, b) => {
-      const za = primaryZone[a];
-      const zb = primaryZone[b];
-      if (za !== zb) return za - zb;
-      return inZoneWeights[b][zb] - inZoneWeights[a][za];
-    });
+    // Default order: smooth rainbow gradient by each piece's
+    // top-weight cluster hue (normalized to [0, 2π)).
+    //
+    // The signal change vs. the old single-mean-hue sort: a piece's
+    // dominant cluster is the largest contiguous colour mass; it
+    // doesn't shift when ink-to-ground ratio drifts the way a
+    // vibrance-weighted RGB mean does. Two visually identical light-
+    // blue pieces both have light-blue as their top cluster → both
+    // sort to the same place in the rainbow → adjacent in the grid.
+    indices.sort((a, b) => topHueNorm[a] - topHueNorm[b]);
     return indices;
   }
 
-  // Locked-zone sort: rank by how much of each piece's colour mass
-  // lives in the locked zone. A piece that's 60% blue + 40% red
-  // beats a piece that's 30% blue + 70% red on a "blue" lock — the
-  // pieces that read most strongly as the locked colour come first,
-  // and pieces with no clusters in that zone (weight 0) fall to the
-  // end of the run. Two visually similar blue pieces will always be
-  // adjacent because their in-zone weights are similar.
+  // Locked sort: pieces with the most cluster mass in the locked
+  // zone come first. A piece that's 60% blue + 40% red beats a
+  // piece that's 30% blue + 70% red when blue is locked.
+  // Tiebreak by minimum colour distance to the zone centroid so
+  // equal-weight pieces (e.g. both have 0 weight here) still order
+  // sensibly — the closest visually-similar pieces win the tie
+  // instead of falling back to original array order.
+  const dist = distToLockedZone!;
   indices.sort((a, b) => {
-    return inZoneWeights[b][lockedZoneIdx] - inZoneWeights[a][lockedZoneIdx];
+    const wa = inZoneWeights[a][lockedZoneIdx];
+    const wb = inZoneWeights[b][lockedZoneIdx];
+    if (wa !== wb) return wb - wa;
+    return dist[a] - dist[b];
   });
   return indices;
 }
@@ -72,33 +77,31 @@ export function SplitLogicSystem({
   const total = gridItems.length;
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
-  // Bar zones — Material-You / Vibrant.js-inspired pipeline:
+  // Bar zones — pipeline:
   //   1. POOL every wedge's per-image clusters (5 per piece) into one
-  //      weighted sample set. Population × chroma per cluster —
-  //      saturated tones pull harder than dim ones. The key shift
-  //      from the old single-mean-per-piece input: a red+blue piece
-  //      contributes both red and blue clusters instead of muddying
-  //      the pool with their average.
-  //   2. FILTER aggressively — drop neutrals (C < 0.10), browns,
-  //      and extreme luminance (near-black/white). The bar should be
-  //      firmly chromatic; a dusty grey-blue or charcoal in the row
-  //      reads as a gap.
-  //   3. WEIGHTED K-MEANS on the filtered pool, OVER-CLUSTERED at
-  //      k = ZONE_COUNT * 2. K-means alone clumps centroids in dense
-  //      regions — when the series leans heavily on green, two
-  //      centroids land side-by-side in the green family and the bar
-  //      gets two near-identical green buttons.
-  //   4. FARTHEST-FIRST PICK ZONE_COUNT from the over-clustered set.
-  //      Guarantees the chosen zones are mutually perceptually
-  //      distinct — a button is also a UI control, and two cells the
-  //      eye can't tell apart make for two clicks that confuse the
-  //      user. Representativeness comes from k-means; distinctness
-  //      comes from farthest-first.
-  //   5. HUE SORT the chosen zones, normalized to [0, 2π) so the
-  //      rainbow anchors at red and proceeds red → orange → yellow →
-  //      green → cyan → blue → purple → magenta. Without
-  //      normalization the raw atan2 range (-π, π] splits the wheel
-  //      between magenta and cyan at the bar's two ends.
+  //      weighted sample set. Population × chroma per cluster — a
+  //      red+blue piece contributes both red and blue clusters
+  //      instead of being collapsed to a muddy average.
+  //   2. FILTER — drop neutrals (C < 0.10), browns, and extreme
+  //      luminance. The bar must read as firmly chromatic.
+  //   3. OVER-CLUSTER with weighted k-means (k = ZONE_COUNT * 2 = 16),
+  //      so the colour space is finely sampled.
+  //   4. PARTITION the pool to nearest centroid and accumulate the
+  //      true total weight per centroid (population × chroma sum).
+  //   5. WEIGHT-ORDERED GREEDY PICK with a minimum-distance gate.
+  //      Walk centroids heaviest-first; accept each only if it's at
+  //      least MIN_DIST from every already-picked centroid. This
+  //      gives both representativeness (heaviest = real colour mass)
+  //      and distinctness (gate rejects the second forest-green when
+  //      a brighter lime already sits in the bar). Farthest-first
+  //      would have done the opposite — picking edge cases nobody
+  //      could click meaningfully on.
+  //      If the gate is too tight to fill ZONE_COUNT slots, relax
+  //      it iteratively until we do.
+  //   6. HUE SORT, normalized to [0, 2π) so the rainbow anchors at
+  //      red and proceeds red → orange → yellow → green → cyan →
+  //      blue → purple → magenta. Raw atan2 (-π, π] would split the
+  //      wheel between magenta and cyan at the bar's two ends.
   const zoneCells = useMemo<WedgeCell[]>(() => {
     const pool: WeightedSample[] = [];
     for (const cell of cells) {
@@ -108,14 +111,67 @@ export function SplitLogicSystem({
       }
     }
     if (pool.length === 0) return [];
+
     const overK = Math.min(ZONE_COUNT * 2, pool.length);
     const overCentroids = kmeansWeighted(pool, overK);
-    const pickedIdxs = pickDistinctIndices(overCentroids, ZONE_COUNT);
-    const picked = pickedIdxs.map((i) => overCentroids[i]);
-    const TWO_PI = Math.PI * 2;
-    const norm = (h: number) => ((h % TWO_PI) + TWO_PI) % TWO_PI;
-    picked.sort((a, b) => norm(a.h) - norm(b.h));
-    return picked.map((lch, i) => {
+
+    // Compute true weight per centroid by partitioning the pool.
+    const centroidWeights = new Array(overCentroids.length).fill(0);
+    for (const sample of pool) {
+      let nearest = 0;
+      let minD = Infinity;
+      for (let i = 0; i < overCentroids.length; i++) {
+        const d = colorDistance(sample.lch, overCentroids[i]);
+        if (d < minD) { minD = d; nearest = i; }
+      }
+      centroidWeights[nearest] += sample.weight;
+    }
+
+    // Hue-binning: divide the colour wheel into ZONE_COUNT (= 8)
+    // equal 45° bins, then pick the heaviest centroid in each bin.
+    //
+    // Why bins instead of a greedy hue-distance gate: a relaxing gate
+    // sneaks duplicates back in whenever it can't fill 8 cells with
+    // the tight gate. Fixed bins are categorical — two greens at 135°
+    // and 145° both land in the same bin, only the heavier one wins;
+    // there's no "oops, we needed more cells, let's lower the gate"
+    // failure mode. The bar may end up with fewer than ZONE_COUNT
+    // cells if a bin is empty (e.g., no purple in this series), and
+    // that's the right answer: better an honest 7-cell bar than a
+    // padded 8-cell one with two near-identical blues.
+    //
+    // Bin layout (45° each):
+    //   0 [  0°,  45°): reds + coral
+    //   1 [ 45°,  90°): orange / amber
+    //   2 [ 90°, 135°): yellow / yellow-green
+    //   3 [135°, 180°): green
+    //   4 [180°, 225°): cyan / teal
+    //   5 [225°, 270°): blue
+    //   6 [270°, 315°): purple / violet
+    //   7 [315°, 360°): magenta / pink
+    const BIN_WIDTH = TWO_PI / ZONE_COUNT;
+    const binPicks: (typeof overCentroids[number] | null)[] =
+      new Array(ZONE_COUNT).fill(null);
+    const binWeights = new Array(ZONE_COUNT).fill(-Infinity);
+    for (let i = 0; i < overCentroids.length; i++) {
+      const bin = Math.min(
+        ZONE_COUNT - 1,
+        Math.floor(normHue(overCentroids[i].h) / BIN_WIDTH),
+      );
+      if (centroidWeights[i] > binWeights[bin]) {
+        binWeights[bin] = centroidWeights[i];
+        binPicks[bin] = overCentroids[i];
+      }
+    }
+
+    const pickedLch: typeof overCentroids = [];
+    for (let b = 0; b < ZONE_COUNT; b++) {
+      const p = binPicks[b];
+      if (p !== null) pickedLch.push(p);
+    }
+    // pickedLch is already in bin (= hue) order by construction.
+
+    return pickedLch.map((lch, i) => {
       const hex = oklchToHex(lch);
       return {
         hex,
@@ -127,54 +183,76 @@ export function SplitLogicSystem({
     });
   }, [cells]);
 
-  // Per-piece zone-membership profile.
-  //   inZoneWeights[pieceIdx][zoneIdx] = sum of cluster weights in
-  //     that piece whose nearest zone is `zoneIdx`.
-  //   primaryZone[pieceIdx] = argmax over zones of the above.
-  //
-  // This is what pairs visually similar pieces: two pieces dominated
-  // by light blue both have their cluster mass land nearest the
-  // "blue" zone centroid → both get primaryZone = blue → both end up
-  // adjacent in the default sort. The old sort, which used each
-  // piece's single vibrance-weighted mean, would split them apart
-  // whenever their mean hues drifted slightly (e.g. one piece's blue
-  // ground had more black ink mixed in than the other's).
-  const pieceZoneInfo = useMemo(() => {
+  // Per-piece colour profile used by both the default rainbow sort
+  // and the locked-zone sort.
+  //   topHueNorm[i]  = hue of piece i's heaviest cluster, normalized
+  //                    to [0, 2π) so the rainbow anchors at red.
+  //   inZoneWeights[i][z] = sum of cluster weights in piece i whose
+  //                    nearest zone centroid is z. Drives the locked
+  //                    sort — pieces with most blue cluster mass come
+  //                    first when the blue zone is locked.
+  const piecePrimaries = useMemo(() => {
     const numZones = zoneCells.length;
+    const topHueNorm: number[] = [];
     const inZoneWeights: number[][] = [];
-    const primaryZone: number[] = [];
     for (const cell of cells) {
+      let topW = -Infinity;
+      let topH = 0;
       const w = new Array(numZones).fill(0);
       for (const cluster of cell.clusters) {
         if (isUnsuitableForBar(cluster.lch)) continue;
-        let nearest = 0;
-        let minD = Infinity;
-        for (let z = 0; z < numZones; z++) {
-          const d = colorDistance(cluster.lch, zoneCells[z].clusters[0].lch);
-          if (d < minD) { minD = d; nearest = z; }
+        if (cluster.weight > topW) {
+          topW = cluster.weight;
+          topH = cluster.lch.h;
         }
-        w[nearest] += cluster.weight;
+        if (numZones > 0) {
+          let nearest = 0;
+          let minD = Infinity;
+          for (let z = 0; z < numZones; z++) {
+            const d = colorDistance(cluster.lch, zoneCells[z].clusters[0].lch);
+            if (d < minD) { minD = d; nearest = z; }
+          }
+          w[nearest] += cluster.weight;
+        }
       }
-      let bestZ = 0;
-      let bestW = -Infinity;
-      for (let z = 0; z < numZones; z++) {
-        if (w[z] > bestW) { bestW = w[z]; bestZ = z; }
+      // Fallback for an all-neutral piece: use cell.hex's hue, which
+      // is the single vibrance-weighted mean — better than 0.
+      if (topW === -Infinity && cell.clusters.length > 0) {
+        topH = cell.clusters[0].lch.h;
       }
+      topHueNorm.push(normHue(topH));
       inZoneWeights.push(w);
-      primaryZone.push(bestZ);
     }
-    return { inZoneWeights, primaryZone };
+    return { topHueNorm, inZoneWeights };
   }, [cells, zoneCells]);
+
+  // Per-piece distance to the currently-locked zone (used as the
+  // locked-sort tiebreak so equal-weight pieces still order sensibly).
+  // Recomputed when the lock changes; null when nothing is locked.
+  const distToLockedZone = useMemo<number[] | null>(() => {
+    if (lockedZoneIdx === null) return null;
+    if (zoneCells.length === 0) return null;
+    const targetLch = zoneCells[lockedZoneIdx].clusters[0].lch;
+    return cells.map((cell) => {
+      let minD = Infinity;
+      for (const cluster of cell.clusters) {
+        const d = colorDistance(cluster.lch, targetLch);
+        if (d < minD) minD = d;
+      }
+      return minD === Infinity ? 999 : minD;
+    });
+  }, [cells, zoneCells, lockedZoneIdx]);
 
   const sortedIndices = useMemo(
     () =>
       computeSortedIndices(
         cells,
         lockedZoneIdx,
-        pieceZoneInfo.inZoneWeights,
-        pieceZoneInfo.primaryZone,
+        piecePrimaries.topHueNorm,
+        piecePrimaries.inZoneWeights,
+        distToLockedZone,
       ),
-    [cells, lockedZoneIdx, pieceZoneInfo],
+    [cells, lockedZoneIdx, piecePrimaries, distToLockedZone],
   );
 
   const pageItems = useMemo(() => {
