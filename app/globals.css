@@ -3333,8 +3333,8 @@ html:has(.constellation-root){
   border-top:1px solid rgba(255,255,255,0.06);
   /* scroll-reveal */
   opacity:0;
-  transform:translateY(10px);
-  transition:opacity 0.9s ease-out, transform 0.9s ease-out;
+  transform:translateY(6px);
+  transition:opacity 0.5s ease-out, transform 0.5s ease-out;
 }
 .broadsheet--visible{
   opacity:1;
@@ -3412,7 +3412,7 @@ html:has(.constellation-root){
 .broadsheet-attribution::before{content:"— ";}
 
 @media (max-width:720px){
-  .broadsheet{padding:72px var(--gutter) 88px;}
+  .broadsheet{padding:48px var(--gutter) 72px;}
   .broadsheet-heading{margin-bottom:40px;}
   .broadsheet-body{gap:36px;}
   .broadsheet-entry{
