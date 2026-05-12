@@ -58,6 +58,14 @@ export const exhibitions: Exhibition[] = [
         alt: `Split Logic, wedge ${i + 1}`,
       };
     }),
+    pieceGridFull: Array.from({ length: 100 }, (_, i) => {
+      const n = String(i + 1).padStart(3, "0");
+      return {
+        video: `/images/ricky-retouch/works/sl-${n}.mp4`,
+        poster: `/images/ricky-retouch/works/sl-${n}.jpg`,
+        alt: `Split Logic ${i + 1}`,
+      };
+    }),
   },
   // === CURRENT ===
   {

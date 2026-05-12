@@ -16,7 +16,7 @@ import { Reveal } from "@/components/Reveal";
 import { SplitLogicMagnifier } from "@/components/SplitLogicMagnifier";
 import { ArtistBroadsheet } from "@/components/ArtistBroadsheet";
 import {
-  getSplitLogicPalette,
+  getSplitLogicFullPalette,
   getSplitLogicMagnifierTones,
 } from "@/lib/split-logic-palette";
 import type { Exhibition } from "@/lib/types";
@@ -76,6 +76,7 @@ export default async function ExhibitionDetailPage({
     ...heroItem,
     ...inlineItemsFlat,
     ...(exhibition.pieceGrid ?? []),
+    ...(exhibition.pieceGridFull ?? []),
   ];
 
   return (
@@ -118,8 +119,8 @@ export default async function ExhibitionDetailPage({
         exhibition.slug === "split-logic" ? (
           <Reveal>
             <SplitLogicSystem
-              cells={await getSplitLogicPalette()}
-              gridItems={exhibition.pieceGrid}
+              cells={await getSplitLogicFullPalette()}
+              gridItems={exhibition.pieceGridFull ?? exhibition.pieceGrid}
             />
           </Reveal>
         ) : (
@@ -131,6 +132,8 @@ export default async function ExhibitionDetailPage({
         <ArtistBroadsheet
           paragraphs={RICKY_TEXT}
           attribution="Ricky Retouch"
+          pins={RICKY_PINS}
+          anchor={RICKY_ANCHOR}
         />
       )}
 
@@ -182,12 +185,155 @@ export default async function ExhibitionDetailPage({
 }
 
 // ── Ricky's artist description of the series ──────────────────────────
-const RICKY_TEXT = [
-  `<em>Split Logic</em> is a collection of procedural terminal works built from screen partitions, grid structures, moving fields, coded labels, and rule-based color. The series begins with layout as a kind of logic, dividing the frame into zones that hold fragments of data, measurements, symbols, and empty space.`,
-  `Across the works, motion is found through grid walkers, directional noise, and shifting points that respond to various constraints within the algorithm. Some pieces feel like transit diagrams or stock tickers. Others resemble diagnostic screens or monitoring systems from an imagined machine. The information is partly legible and partly invented, sitting somewhere between data, interface, and decoration.`,
-  `The series moves away from the paper-like texture of my earlier collections and toward a more digital surface. Its imperfections come from glow, blur, density, compression, and instability. It suggests a functioning system designed for clarity, but still shaped by drift, interference, and human selection.`,
-  `The pieces are meant to feel like screens from an unknown system that could have existed in a more advanced version of the 1980s, where modern computation is filtered through older display language.`,
+// Structured as annotated runs so pinned words can be wrapped in
+// interactable spans by ArtistBroadsheet. Each `pin` references a
+// region on the anchor artwork below; the rest is plain text or `em`
+// for italics.
+const RICKY_TEXT: import("@/components/ArtistBroadsheet").BroadsheetParagraph[] = [
+  [
+    { em: "Split Logic" },
+    " is a collection of procedural terminal works built from ",
+    { pin: "scr", text: "screen partitions" },
+    ", ",
+    { pin: "grd", text: "grid structures" },
+    ", ",
+    { pin: "mvf", text: "moving fields" },
+    ", ",
+    { pin: "cod", text: "coded labels" },
+    ", and rule-based color. The series begins with layout as a kind of logic, dividing the frame into ",
+    { pin: "zon", text: "zones" },
+    " that hold fragments of data, ",
+    { pin: "msr", text: "measurements" },
+    ", ",
+    { pin: "sym", text: "symbols" },
+    ", and ",
+    { pin: "emp", text: "empty space" },
+    ".",
+  ],
+  [
+    "Across the works, motion is found through ",
+    { pin: "wlk", text: "grid walkers" },
+    ", directional noise, and ",
+    { pin: "shf", text: "shifting points" },
+    " that respond to various constraints within the algorithm. Some pieces feel like transit diagrams or stock tickers. Others resemble diagnostic screens or monitoring systems from an imagined machine. The information is partly legible and partly invented, sitting somewhere between data, interface, and decoration.",
+  ],
+  [
+    "The series moves away from the paper-like texture of my earlier collections and toward a more digital surface. Its imperfections come from ",
+    { pin: "glw", text: "glow" },
+    ", blur, ",
+    { pin: "dns", text: "density" },
+    ", compression, and instability. It suggests a functioning system designed for clarity, but still shaped by drift, interference, and human selection.",
+  ],
+  [
+    "The pieces are meant to feel like screens from an unknown system that could have existed in a more advanced version of the 1980s, where modern computation is filtered through older display language.",
+  ],
 ];
+
+// Pin regions on the anchor artwork (sl-099 — large distorted
+// wireframe web on the right, column of coded labels on the left,
+// "+" symbols and a domino-bar pattern in the bottom strip). Each pin
+// is matched to the literal visual feature the word names, not to a
+// vague nearby region.
+const RICKY_PINS: Record<
+  string,
+  { region: { x: number; y: number; w: number; h: number }; code: string }
+> = {
+  // Wireframe's outer left-edge line — the most obvious partition on
+  // the piece. Coords derived from detected wireframe-edge letters
+  // (C/B/AM/N at source x≈400-440), the wireframe outer edge sits
+  // ~px=395 source, frame x≈0.271; SCR is a thin vertical strip
+  // straddling that seam.
+  scr: { region: { x: 0.262, y: 0.034, w: 0.022, h: 0.604 }, code: "SCR" },
+  // The wireframe panel itself — bounding box of the outer rectangle
+  // at source (~395–1400) × (~85–945), padded outward for the corner
+  // brackets to land in clean dark space.
+  grd: { region: { x: 0.262, y: 0.034, w: 0.706, h: 0.604 }, code: "GRD" },
+  // The three horizontal-bar instrument blocks stacked mid-left,
+  // detected at source (273,504)-(322,522), (271,569)-(352,589),
+  // (271,630)-(352,651). Combined bounding box covers all three.
+  mvf: { region: { x: 0.180, y: 0.325, w: 0.068, h: 0.115 }, code: "MVF" },
+  // "LDP" coded label at top-left of the left column. Detected at
+  // source (117,115)-(170,146) → frame x≈0.080 y≈0.064, padded for
+  // bracket clearance.
+  cod: { region: { x: 0.072, y: 0.054, w: 0.052, h: 0.040 }, code: "COD" },
+  // The bottom strip zone, encompassing the "+F" row down through
+  // "IK·XOW" — detected labels span source y≈1015-1385 (frame
+  // 0.682-0.937), full image width.
+  zon: { region: { x: 0.018, y: 0.678, w: 0.964, h: 0.265 }, code: "ZON" },
+  // The "5.683" measurement reading next to RH — detected component
+  // at source (273,504)-(322,522), frame (0.188, 0.331).
+  msr: { region: { x: 0.181, y: 0.323, w: 0.048, h: 0.029 }, code: "MSR" },
+  // The cycle visits each prominent letter GLYPH individually (not
+  // the cluster as a single rectangle) — so AM becomes A then M,
+  // KVV becomes K → V → V, MUB becomes M → U → B, UU becomes U → U.
+  // Every box is the same uniform 0.034 × 0.034 perfect square,
+  // centred on each letter's optical centre. Reading order is
+  // top-down, left-right across the artwork.
+  sym: {
+    region: { x: 0.276, y: 0.064, w: 0.041, h: 0.041 },
+    code: "SYM",
+    // Coordinates from sharp-based pixel detection (scripts/detect-
+    // sl099-letters.mjs) — connected-component scan of bright pixels
+    // in the source image, then converted to frame coords accounting
+    // for object-fit:cover's 22-px vertical crop. Each entry is a
+    // perfect square wrapping the detected letterform's bounding box
+    // with ~6px padding. The earlier visual-estimation coords were
+    // off by 15-25px on multiple letters.
+    cycle: [
+      // C — wireframe interior top-left. Detected (418,124)—(443,165).
+      { x: 0.276, y: 0.064, w: 0.041, h: 0.041 },
+      // B — wireframe upper-left edge. Detected (426,248)—(442,275).
+      { x: 0.279, y: 0.146, w: 0.040, h: 0.040 },
+      // AM — wireframe mid-left edge, A+M combined. Detected
+      // (383,449)—(442,490).
+      { x: 0.257, y: 0.281, w: 0.053, h: 0.053 },
+      // N — wireframe lower-left edge. Detected (416,705)—(441,744).
+      { x: 0.274, y: 0.463, w: 0.040, h: 0.040 },
+      // KVV — left-mid cluster. Detected (96,706)—(163,745).
+      { x: 0.060, y: 0.455, w: 0.059, h: 0.059 },
+      // MUB — bottom-right of wireframe. Detected (1308,959)—(1386,998).
+      { x: 0.892, y: 0.624, w: 0.066, h: 0.066 },
+    ],
+  },
+  // The clean horizontal band between the F row (source y≈1015-1030,
+  // frame 0.682-0.692) and the D·T·RKX·SO row (source y≈1085+,
+  // frame 0.730+). Detection showed no bright components in source
+  // y=1035-1080, frame 0.696-0.726. Box biased right where the
+  // emptiness is most contiguous (D row labels live on the left).
+  emp: { region: { x: 0.500, y: 0.694, w: 0.420, h: 0.040 }, code: "EMP" },
+  // Bright walker dots at grid intersections across the upper half of
+  // the wireframe. Box covers the cluster spanning (0.32, 0.12),
+  // (0.52, 0.10), (0.74, 0.12), (0.61, 0.18) etc. `tint:true` turns
+  // those bright dots red on hover via mix-blend-multiply on the
+  // video — the walkers actively glow red while the pin is active.
+  wlk: {
+    region: { x: 0.300, y: 0.090, w: 0.550, h: 0.140 },
+    code: "WLK",
+    tint: true,
+  },
+  // The domino dot-matrix block at bottom-centre. Detected columns:
+  // (468,1205)-(489,1248), (468,1274)-(489,1317), (525,1183)-(546,1225)
+  // — combined bbox source x=468-546, y=1183-1320 → frame
+  // (0.321-0.375, 0.797-0.891), padded outward.
+  shf: { region: { x: 0.315, y: 0.790, w: 0.066, h: 0.108 }, code: "SHF" },
+  // The "MUB" letterform — the most distinctly luminous tag on the
+  // piece, sitting in isolation against the dark band below the
+  // wireframe's bottom-right corner. Detected at source
+  // (1308,959)-(1386,998) → frame (0.898, 0.644, 0.054×0.027), padded.
+  glw: { region: { x: 0.890, y: 0.636, w: 0.068, h: 0.042 }, code: "GLW" },
+  // The central convergent "lens" of the wireframe — the inner
+  // rounded rectangle where radial mesh lines bend most tightly.
+  // Box edges sit on the outer lines that bound this central shape.
+  // Wireframe centre is at source (898, 512) → frame (0.617, 0.337);
+  // lens extends roughly ±230 source-px horizontally and ±170
+  // vertically from there.
+  dns: { region: { x: 0.460, y: 0.220, w: 0.314, h: 0.245 }, code: "DNS" },
+};
+
+const RICKY_ANCHOR = {
+  video: "/images/ricky-retouch/works/sl-099.mp4",
+  poster: "/images/ricky-retouch/works/sl-099.jpg",
+} as const;
 
 function WorksSection({ works }: { works: NonNullable<Exhibition["works"]> }) {
   return (

@@ -25,18 +25,19 @@ export function PieceGrid({
   cellOrder?: number[];
 }) {
   const [expanded, setExpanded] = useState<number | null>(null);
-  const [hovered, setHovered] = useState<number | null>(null);
-  // Once a cell has been hovered (or focused), its <video> mounts and
-  // stays mounted — pause/resume across hover cycles preserves the
-  // current frame so the viewer can pick up where they left off, not
-  // restart from t=0 every time.
-  const [mounted, setMounted] = useState<Set<number>>(new Set());
+  // Hover/mount state is keyed by the piece's stable video URL rather
+  // than its current array index. The Split Logic system reshuffles
+  // the items array when a colour zone is locked; tracking by index
+  // would mean the cell at slot 0 inherits whatever was last hovered
+  // there, even though it's now a completely different piece.
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [mounted, setMounted] = useState<Set<string>>(new Set());
   // Mirror the homepage hero's left/right arrow zones — the prev/next
   // controls fade in only when the mouse is near the corresponding
   // edge of the overlay.
   const [arrowZone, setArrowZone] = useState<null | "left" | "right">(null);
   const reduced = useReducedMotion();
-  const videoRefs = useRef<Map<number, HTMLVideoElement>>(new Map());
+  const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
 
   const prev = useCallback(() => {
     setExpanded((cur) =>
@@ -109,8 +110,8 @@ export function PieceGrid({
   // hovered cell plays; everything else stays paused at its last
   // frame. While anything is expanded, all cells pause.
   useEffect(() => {
-    videoRefs.current.forEach((video, i) => {
-      if (expanded === null && hovered === i) {
+    videoRefs.current.forEach((video, key) => {
+      if (expanded === null && hovered === key) {
         const playPromise = video.play();
         if (playPromise && typeof playPromise.catch === "function") {
           playPromise.catch(() => {});
@@ -121,73 +122,89 @@ export function PieceGrid({
     });
   }, [hovered, expanded]);
 
-  const handleEnter = (i: number) => {
+  const handleEnter = (key: string) => {
     if (reduced) return;
     setMounted((prev) => {
-      if (prev.has(i)) return prev;
+      if (prev.has(key)) return prev;
       const next = new Set(prev);
-      next.add(i);
+      next.add(key);
       return next;
     });
-    setHovered(i);
+    setHovered(key);
   };
   const handleLeave = () => setHovered(null);
 
   return (
     <section className="piece-grid-section" aria-label="Series works">
       <div className="piece-grid">
-        {items.map((item, i) => {
-          const isMounted = mounted.has(i);
-          const cellStyle: React.CSSProperties = {};
-          if (cellOrder !== undefined) cellStyle.order = cellOrder[i];
-          return (
-            <motion.button
-              key={i}
-              type="button"
-              layout
-              transition={{ layout: { duration: 0.55, ease: [0.22, 0.61, 0.36, 1] } }}
-              className="piece-cell"
-              data-zoom-src={item.video}
-              style={cellStyle}
-              onClick={() => setExpanded(i)}
-              onMouseEnter={() => handleEnter(i)}
-              onMouseLeave={handleLeave}
-              onFocus={() => handleEnter(i)}
-              onBlur={handleLeave}
-              aria-label={item.alt ?? `View artwork ${i + 1} in full`}
-              disabled={expanded !== null}
-            >
-              <div className="piece-folder-art-wrap">
-                <div className="piece-folder-art">
-                  {isMounted ? (
-                    <video
-                      ref={(el) => {
-                        if (el) videoRefs.current.set(i, el);
-                        else videoRefs.current.delete(i);
-                      }}
-                      src={item.video}
-                      poster={item.poster}
-                      muted
-                      loop
-                      playsInline
-                      preload="auto"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={item.poster}
-                      alt=""
-                      draggable={false}
-                      loading="lazy"
-                    />
-                  )}
+        {/* popLayout removes exiting cells from layout flow immediately
+            so the entering cells can FLIP to their final positions
+            without being blocked by their own slot. Combined with
+            keying by item.video, this gives the Split Logic system
+            its "shuffle" character when the locked colour zone
+            changes: shared pieces glide between positions while new
+            pieces fade into place. */}
+        <AnimatePresence mode="popLayout" initial={false}>
+          {items.map((item, i) => {
+            const cellKey = item.video;
+            const isMounted = mounted.has(cellKey);
+            const cellStyle: React.CSSProperties = {};
+            if (cellOrder !== undefined) cellStyle.order = cellOrder[i];
+            return (
+              <motion.button
+                key={cellKey}
+                type="button"
+                layout
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  layout: { duration: 0.55, ease: [0.22, 0.61, 0.36, 1] },
+                  opacity: { duration: 0.32, ease: "easeOut" },
+                }}
+                className="piece-cell"
+                data-zoom-src={item.video}
+                style={cellStyle}
+                onClick={() => setExpanded(i)}
+                onMouseEnter={() => handleEnter(cellKey)}
+                onMouseLeave={handleLeave}
+                onFocus={() => handleEnter(cellKey)}
+                onBlur={handleLeave}
+                aria-label={item.alt ?? `View artwork ${i + 1} in full`}
+                disabled={expanded !== null}
+              >
+                <div className="piece-folder-art-wrap">
+                  <div className="piece-folder-art">
+                    {isMounted ? (
+                      <video
+                        ref={(el) => {
+                          if (el) videoRefs.current.set(cellKey, el);
+                          else videoRefs.current.delete(cellKey);
+                        }}
+                        src={item.video}
+                        poster={item.poster}
+                        muted
+                        loop
+                        playsInline
+                        preload="auto"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={item.poster}
+                        alt=""
+                        draggable={false}
+                        loading="lazy"
+                      />
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="piece-folder-pocket" aria-hidden="true" />
-            </motion.button>
-          );
-        })}
+                <div className="piece-folder-pocket" aria-hidden="true" />
+              </motion.button>
+            );
+          })}
+        </AnimatePresence>
       </div>
 
       <AnimatePresence>

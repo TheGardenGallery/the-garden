@@ -20,16 +20,38 @@ export type WedgeCell = {
   /** Wedge id, e.g. "wedge-04" */
   wedgeId: string;
   /**
-   * Multi-colour palette used for similarity matching: typically the
-   * "ground band" and the "ink band" of the wedge. The grid sort
-   * uses min(distance) over this set, so a dark-ground piece with
-   * saturated ink ranks correctly against the ink's hue rather than
-   * the muddy mean of dark + ink.
+   * Multi-colour palette used for legacy compatibility / debugging.
+   * The actual sort runs against `signature` below, which is a fixed-
+   * size embedding of the piece's whole chromatic distribution.
    */
   palette: string[];
+  /**
+   * Color-distribution embedding: 12-bin hue histogram (normalised to
+   * sum to 1) + mean L/C of the chromatic pixels. Used by the grid
+   * sort to rank pieces by *overall colour feel* rather than nearest
+   * single-pixel match — a sage-leaning piece beats a brick-and-jade
+   * piece when the locked zone is sage, even if the brick piece has
+   * one near-identical pixel.
+   */
+  signature: ColorSignature;
 };
 
 export type Oklch = { L: number; C: number; h: number };
+
+/** Number of hue bins in the signature embedding. 12 = 30° per bin —
+ *  fine enough to separate red/orange/yellow/lime/etc. as distinct
+ *  cells, coarse enough that scanning noise doesn't fragment a coherent
+ *  hue across multiple bins. */
+export const HUE_BINS = 12;
+
+export type ColorSignature = {
+  /** Length-HUE_BINS array, sums to 1. */
+  hueHist: number[];
+  /** Vibrance-weighted mean OKLCh lightness across chromatic pixels. */
+  meanL: number;
+  /** Vibrance-weighted mean OKLCh chroma across chromatic pixels. */
+  meanC: number;
+};
 
 /** sRGB hex → OKLab (Björn Ottosson, 2020). */
 export function hexToOklab(hex: string): [number, number, number] {
@@ -103,6 +125,148 @@ export function legibleOnDark(hex: string, minL = 0.78): string {
 }
 
 /**
+ * Brown / tan / khaki test in OKLCh. Brown sits in the orange-yellow
+ * hue band (~40°–95°) but at low chroma and middling lightness — i.e.
+ * the muted/dark corner of orange. Saturated yellows (#E5F448-ish)
+ * stay above the chroma floor and pass through; saturated oranges
+ * likewise.
+ */
+export function isBrownish(lch: Oklch): boolean {
+  const hueDeg = ((lch.h * 180) / Math.PI + 360) % 360;
+  const inOrangeYellowBand = hueDeg >= 40 && hueDeg <= 95;
+  const mutedOrDark = lch.L < 0.82 && lch.C < 0.14;
+  return inOrangeYellowBand && mutedOrDark;
+}
+
+/**
+ * Near-neutral test — greys, beiges, dusty off-whites, anything whose
+ * chroma is too low to read as a colour identity. The colour bar uses
+ * this together with isBrownish to keep the row firmly chromatic; a
+ * pale grey-blue or warm beige in the middle of saturated zones reads
+ * as a gap rather than a colour.
+ */
+export function isNeutral(lch: Oklch): boolean {
+  return lch.C < 0.07;
+}
+
+/**
+ * Combined gate used by the colour bar — true if a candidate wedge
+ * tone should be skipped when picking distinct zones. Centralised so
+ * the rules can grow (or be relaxed) in one place.
+ */
+export function isUnsuitableForBar(lch: Oklch): boolean {
+  return isBrownish(lch) || isNeutral(lch);
+}
+
+/**
+ * K-means clustering in OKLCh space. Used to find the *main* colour
+ * families across the series — each cluster centroid is the mean of
+ * all wedges whose dominant tone falls into that group. Unlike
+ * farthest-first selection (which surfaces maximally-diverse points,
+ * including rare ones), k-means weights centroids by member count, so
+ * the resulting palette reflects what colours the series actually
+ * leans on.
+ *
+ * Initialisation uses k-means++: first centroid is the most-saturated
+ * point (acts as a stable anchor across runs), each subsequent
+ * centroid is chosen weighted toward the point farthest from any
+ * existing centroid. Then Lloyd's algorithm runs to convergence.
+ *
+ * Hue averaging uses a vector mean (cos/sin × chroma) so the wraparound
+ * at ±π is handled correctly — naive arithmetic mean of hues at 350°
+ * and 10° would give 180° (cyan), not 0° (red), which is what we want.
+ */
+export function kmeansClusters(
+  lchs: Oklch[],
+  k: number,
+  maxIter: number = 40
+): Oklch[] {
+  if (lchs.length === 0 || k === 0) return [];
+  const effK = Math.min(k, lchs.length);
+
+  // Seed with the highest-chroma point — most distinctive starting anchor.
+  let seedIdx = 0;
+  let maxC = -Infinity;
+  for (let i = 0; i < lchs.length; i++) {
+    if (lchs[i].C > maxC) {
+      maxC = lchs[i].C;
+      seedIdx = i;
+    }
+  }
+  const centroids: Oklch[] = [{ ...lchs[seedIdx] }];
+
+  // k-means++: each subsequent centroid maximises minimum distance to
+  // the existing centroids — spreads seeds across the colour space.
+  while (centroids.length < effK) {
+    let bestIdx = -1;
+    let bestMinD = -Infinity;
+    for (let i = 0; i < lchs.length; i++) {
+      let minD = Infinity;
+      for (const c of centroids) {
+        const d = colorDistance(lchs[i], c);
+        if (d < minD) minD = d;
+      }
+      if (minD > bestMinD) {
+        bestMinD = minD;
+        bestIdx = i;
+      }
+    }
+    if (bestIdx < 0) break;
+    centroids.push({ ...lchs[bestIdx] });
+  }
+
+  // Lloyd's algorithm.
+  for (let iter = 0; iter < maxIter; iter++) {
+    const buckets: Oklch[][] = Array.from({ length: effK }, () => []);
+    for (const lch of lchs) {
+      let nearest = 0;
+      let minD = Infinity;
+      for (let i = 0; i < effK; i++) {
+        const d = colorDistance(lch, centroids[i]);
+        if (d < minD) {
+          minD = d;
+          nearest = i;
+        }
+      }
+      buckets[nearest].push(lch);
+    }
+    let shifted = 0;
+    for (let i = 0; i < effK; i++) {
+      const bucket = buckets[i];
+      if (bucket.length === 0) continue;
+      let sumL = 0;
+      let sumX = 0;
+      let sumY = 0;
+      let sumC = 0;
+      for (const p of bucket) {
+        sumL += p.L;
+        sumC += p.C;
+        // Vector mean for hue: weight each direction by chroma so
+        // grey-ish points (low C) don't tug the hue with their
+        // arbitrary direction.
+        sumX += Math.cos(p.h) * p.C;
+        sumY += Math.sin(p.h) * p.C;
+      }
+      const n = bucket.length;
+      const newL = sumL / n;
+      const newC = sumC / n;
+      const newH = Math.atan2(sumY, sumX);
+      if (
+        Math.abs(newL - centroids[i].L) > 0.0008 ||
+        Math.abs(newC - centroids[i].C) > 0.0008 ||
+        Math.abs(newH - centroids[i].h) > 0.005
+      ) {
+        shifted++;
+      }
+      centroids[i] = { L: newL, C: newC, h: newH };
+    }
+    if (shifted === 0) break;
+  }
+
+  return centroids;
+}
+
+/**
  * Greedy farthest-first selection over OKLCh-distance. Used to thin a
  * full series palette down to a small set of mutually-distinct
  * representatives — so the bar shows colour *zones* rather than every
@@ -154,6 +318,93 @@ export function pickDistinctIndices(lchs: Oklch[], n: number): number[] {
   // rather than the order farthest-first happened to discover them.
   selected.sort((a, b) => lchs[b].L - lchs[a].L);
   return selected;
+}
+
+/** Builder for a signature accumulator — call addPixel per chromatic
+ *  pixel during image extraction, then finalize() to get the
+ *  normalised ColorSignature. The same accumulator is used to build
+ *  a target signature from the locked zone's single hex (one synthetic
+ *  pixel with full vibrance), so target and artwork live in the same
+ *  embedding space. */
+export function newSignatureAccumulator() {
+  const hueHist = new Array<number>(HUE_BINS).fill(0);
+  let lSum = 0;
+  let cSum = 0;
+  let total = 0;
+
+  return {
+    addPixel(L: number, C: number, hRad: number, weight: number) {
+      // Convert hue (radians, [-π, π]) to bin index [0, HUE_BINS).
+      let deg = (hRad * 180) / Math.PI;
+      if (deg < 0) deg += 360;
+      const bin = Math.floor((deg / 360) * HUE_BINS) % HUE_BINS;
+      // Smooth across ±1 bin so a piece whose hue sits on the seam
+      // between two bins reads as occupying both, not one cliff-edge
+      // bin. Total mass per pixel = weight * (1 + 0.5 + 0.5).
+      hueHist[bin] += weight;
+      hueHist[(bin + 1) % HUE_BINS] += weight * 0.4;
+      hueHist[(bin + HUE_BINS - 1) % HUE_BINS] += weight * 0.4;
+      lSum += L * weight;
+      cSum += C * weight;
+      total += weight;
+    },
+    finalize(): ColorSignature {
+      // Pure-grey image (no chromatic pixels) — return a flat
+      // distribution so distance to any locked zone is finite and
+      // similar.
+      if (total <= 0) {
+        return {
+          hueHist: new Array<number>(HUE_BINS).fill(1 / HUE_BINS),
+          meanL: 0.5,
+          meanC: 0,
+        };
+      }
+      const sum = hueHist.reduce((s, v) => s + v, 0);
+      return {
+        hueHist: hueHist.map((v) => v / sum),
+        meanL: lSum / total,
+        meanC: cSum / total,
+      };
+    },
+  };
+}
+
+/** Build a synthetic signature from a single colour — used for the
+ *  locked zone's target. One pixel through the same accumulator gives
+ *  a smoothed three-bin spike around the zone's hue. */
+export function signatureFromHex(hex: string): ColorSignature {
+  const lch = hexToOklch(hex);
+  const acc = newSignatureAccumulator();
+  acc.addPixel(lch.L, lch.C, lch.h, 1);
+  return acc.finalize();
+}
+
+/** Distance between two colour signatures. Hue similarity uses cosine
+ *  distance on the histogram (handles wraparound naturally because the
+ *  smoothing in addPixel already bridges adjacent bins). Lightness is
+ *  a separate Euclidean term so a dark sage is ranked closer to a
+ *  light sage than to a dark brick. Chroma weighting is gentle —
+ *  a muted vs. saturated mismatch should nudge, not dominate. */
+export function signatureDistance(
+  a: ColorSignature,
+  target: ColorSignature
+): number {
+  let dot = 0;
+  let magA = 0;
+  let magT = 0;
+  for (let i = 0; i < HUE_BINS; i++) {
+    dot += a.hueHist[i] * target.hueHist[i];
+    magA += a.hueHist[i] * a.hueHist[i];
+    magT += target.hueHist[i] * target.hueHist[i];
+  }
+  const denom = Math.sqrt(magA) * Math.sqrt(magT) + 1e-9;
+  const hueCos = 1 - dot / denom;
+  const dL = a.meanL - target.meanL;
+  const dC = a.meanC - target.meanC;
+  // Weights tuned so hue identity dominates (the "is this green?"
+  // signal carries the locked zone), L is a real but secondary
+  // refinement, and chroma only nudges.
+  return hueCos * 1.6 + Math.abs(dL) * 0.8 + Math.abs(dC) * 0.2;
 }
 
 /**

@@ -1,42 +1,57 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import {
-  colorDistance,
   hexToOklch,
+  isUnsuitableForBar,
+  kmeansClusters,
+  oklchToHex,
+  pickDistinctIndices,
+  signatureDistance,
+  signatureFromHex,
   type WedgeCell,
+  type Oklch,
 } from "@/lib/split-logic-color";
 import { SplitLogicPalette } from "./SplitLogicPalette";
 import { PieceGrid, type PieceGridItem } from "./PieceGrid";
 
-/**
- * Hand-picked bar zones — one representative per cluster, ordered
- * light → dark. Replaces farthest-first selection so the bar always
- * spans the full palette family (white, yellow, pink, blue, green,
- * mauve, coral, deep blue) instead of doubling up on close greens.
- */
-const ZONE_WEDGE_IDS = [
-  "wedge-03", // HTX  — yellow
-  "wedge-07", // HEK  — pink
-  "wedge-04", // CI   — sage green
-  "wedge-15", // maze — mauve
-  "wedge-10", // MJG  — coral / red
-  "wedge-16", // EL   — deep blue
-];
+const PAGE_SIZE = 12;
+const ZONE_COUNT = 6;
 
-/**
- * Split Logic — palette + piece grid, wired together.
- *
- * The full series is 16 wedges, but several share near-identical
- * grounds, so the bar would read as redundant if it showed all of
- * them. Instead, the bar shows N=8 most-distinct colour zones picked
- * via farthest-first traversal in OKLCh space — a compact spectrum
- * that spans the system without repeating itself.
- *
- * Click a zone to lock; the piece grid re-ranks all 16 pieces by
- * perceptual distance to that zone's colour. Click the same zone
- * again to release.
- */
+function computeSortedIndices(
+  cells: WedgeCell[],
+  lchs: Oklch[],
+  lockedZoneIdx: number | null,
+  zoneCells: WedgeCell[],
+): number[] {
+  const n = cells.length;
+  const indices = Array.from({ length: n }, (_, i) => i);
+
+  if (lockedZoneIdx === null) {
+    // Default order: a coherent hue spectrum, dark to light within
+    // each hue. Reads as a rainbow rather than a random shuffle when
+    // the page first loads.
+    indices.sort((a, b) => {
+      const ha = lchs[a].h;
+      const hb = lchs[b].h;
+      if (Math.abs(ha - hb) > 0.01) return ha - hb;
+      return lchs[b].L - lchs[a].L;
+    });
+    return indices;
+  }
+
+  // Locked-zone sort: rank by distance between each piece's full
+  // colour-distribution embedding and a synthetic single-pixel
+  // embedding of the locked zone's hex. The shared hue histogram +
+  // L/C means a sage-leaning piece beats a brick-and-jade piece for
+  // a "sage" lock, even if the brick piece has one near-identical
+  // pixel — which the old min-distance metric would have rewarded.
+  const target = signatureFromHex(zoneCells[lockedZoneIdx].hex);
+  const distances = cells.map((c) => signatureDistance(c.signature, target));
+  indices.sort((a, b) => distances[a] - distances[b]);
+  return indices;
+}
+
 export function SplitLogicSystem({
   cells,
   gridItems,
@@ -45,171 +60,232 @@ export function SplitLogicSystem({
   gridItems: PieceGridItem[];
 }) {
   const [lockedZoneIdx, setLockedZoneIdx] = useState<number | null>(null);
+  const [page, setPage] = useState(0);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
-  // Bar zones come from the characteristic colour per wedge.
-  const characteristicLchs = useMemo(
-    () => cells.map((c) => hexToOklch(c.hex)),
-    [cells]
-  );
-  // Each wedge also exposes its full matching palette (typically the
-  // ground band + ink band). The grid sort uses min-distance across
-  // these so a dark-ground / saturated-ink piece ranks against its
-  // ink colour, not the muddy black-plus-ink mean.
-  const palettesLch = useMemo(
-    () =>
-      cells.map((c) =>
-        (c.palette.length > 0 ? c.palette : [c.hex]).map(hexToOklch)
-      ),
-    [cells]
-  );
+  const total = gridItems.length;
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
-  // Map ZONE_WEDGE_IDS → indices into the live cells array. Filters
-  // out any IDs that aren't in the current cells (defensive).
-  const zoneIndices = useMemo(
-    () =>
-      ZONE_WEDGE_IDS.map((id) =>
-        cells.findIndex((c) => c.wedgeId === id)
-      ).filter((i) => i >= 0),
-    [cells]
-  );
-  const zoneCells = useMemo(
-    () => zoneIndices.map((i) => cells[i]),
-    [zoneIndices, cells]
-  );
-
-  const cellOrder = useMemo(() => {
-    // Hand-mapped clusters — matches the artist's intended visual
-    // groupings exactly, no algorithm guessing. Each wedge maps to
-    // a cluster name; clusters never split, only their order
-    // changes between locked and unlocked states.
-    const CLUSTER_BY_WEDGE: Record<string, string> = {
-      "wedge-01": "pink",
-      "wedge-02": "white",
-      "wedge-03": "yellow",
-      "wedge-04": "green",
-      "wedge-05": "white",
-      "wedge-06": "yellow",
-      "wedge-07": "pink",
-      "wedge-08": "pink",
-      "wedge-09": "green",
-      "wedge-10": "red",
-      "wedge-11": "green",
-      "wedge-12": "dark-cream",
-      "wedge-13": "green",
-      "wedge-14": "yellow",
-      "wedge-15": "blue",
-      "wedge-16": "blue",
-    };
-    // Default cluster ordering when no zone is locked — follows the
-    // artist's reference layout (top-to-bottom in their screenshot).
-    const DEFAULT_CLUSTER_ORDER = [
-      "yellow",
-      "pink",
-      "white",
-      "blue",
-      "dark-cream",
-      "red",
-      "green",
-    ];
-
-    const n = cells.length;
-    const clusterOf = (wedgeId: string) =>
-      CLUSTER_BY_WEDGE[wedgeId] ?? "other";
-
-    const clusterMembers: Record<string, number[]> = {};
-    for (let i = 0; i < n; i++) {
-      const c = clusterOf(cells[i].wedgeId);
-      (clusterMembers[c] ??= []).push(i);
+  const lchs = useMemo(() => cells.map((c) => hexToOklch(c.hex)), [cells]);
+  // Bar zones — hybrid of k-means (representativeness) and
+  // farthest-first (mutual distinctness). K-means alone tends to drop
+  // two centroids in the same dense region (e.g. two near-identical
+  // greens if the series leans heavily on green), which makes the bar
+  // read as "two cells the same colour." Over-clustering to k=12 then
+  // picking the 6 most mutually-distant centroids gives the bar both
+  // properties: every cell is the mean of a real colour family AND no
+  // two cells are perceptually duplicates. Sorted dark→light.
+  const zoneCells = useMemo<WedgeCell[]>(() => {
+    const eligibleLchs: Oklch[] = [];
+    for (let i = 0; i < lchs.length; i++) {
+      if (isUnsuitableForBar(lchs[i])) continue;
+      eligibleLchs.push(lchs[i]);
     }
-
-    if (lockedZoneIdx === null) {
-      // Default order — by DEFAULT_CLUSTER_ORDER, within cluster
-      // light → dark.
-      const ranking: number[] = [];
-      for (const name of DEFAULT_CLUSTER_ORDER) {
-        const members = clusterMembers[name];
-        if (!members) continue;
-        const sorted = [...members].sort(
-          (a, b) => characteristicLchs[b].L - characteristicLchs[a].L
-        );
-        ranking.push(...sorted);
-      }
-      // Stragglers (any wedge not in DEFAULT_CLUSTER_ORDER).
-      for (const name of Object.keys(clusterMembers)) {
-        if (DEFAULT_CLUSTER_ORDER.includes(name)) continue;
-        ranking.push(...clusterMembers[name]);
-      }
-      const order = new Array<number>(n);
-      ranking.forEach((origIdx, sortedPos) => {
-        order[origIdx] = sortedPos;
-      });
-      return order;
-    }
-
-    // Locked: locked cluster first, then other clusters ordered by
-    // min perceptual distance from cluster member to locked colour.
-    // Within each cluster, sort by per-piece distance.
-    const targetWedgeIdx = zoneIndices[lockedZoneIdx];
-    const target = characteristicLchs[targetWedgeIdx];
-    const lockedCluster = clusterOf(cells[targetWedgeIdx].wedgeId);
-
-    const distances = palettesLch.map((palette) => {
-      let minD = Infinity;
-      for (const lch of palette) {
-        const d = colorDistance(lch, target);
-        if (d < minD) minD = d;
-      }
-      return minD;
-    });
-
-    const clusterEntries = Object.entries(clusterMembers).map(
-      ([name, members]) => {
-        let minD = Infinity;
-        for (const i of members) {
-          if (distances[i] < minD) minD = distances[i];
-        }
-        return { name, members, minD };
-      }
+    const overClusters = kmeansClusters(eligibleLchs, ZONE_COUNT * 2);
+    const picked = pickDistinctIndices(overClusters, ZONE_COUNT).map(
+      (i) => overClusters[i]
     );
-
-    const sorted = clusterEntries.sort((a, b) => {
-      // Locked cluster always first.
-      if (a.name === lockedCluster && b.name !== lockedCluster) return -1;
-      if (b.name === lockedCluster && a.name !== lockedCluster) return 1;
-      return a.minD - b.minD;
+    picked.sort((a, b) => b.L - a.L);
+    return picked.map((lch, i) => {
+      const hex = oklchToHex(lch);
+      return {
+        hex,
+        palette: [hex],
+        signature: signatureFromHex(hex),
+        wedgeId: `cluster-${i}`,
+      };
     });
+  }, [lchs]);
 
-    for (const entry of sorted) {
-      entry.members.sort((a, b) => distances[a] - distances[b]);
-    }
+  const sortedIndices = useMemo(
+    () => computeSortedIndices(cells, lchs, lockedZoneIdx, zoneCells),
+    [cells, lchs, lockedZoneIdx, zoneCells]
+  );
 
-    const ranking: number[] = [];
-    for (const entry of sorted) ranking.push(...entry.members);
-    const order = new Array<number>(n);
-    ranking.forEach((origIdx, sortedPos) => {
-      order[origIdx] = sortedPos;
-    });
-    return order;
-  }, [
-    cells,
-    characteristicLchs,
-    palettesLch,
-    zoneIndices,
-    lockedZoneIdx,
-  ]);
+  const pageItems = useMemo(() => {
+    const start = page * PAGE_SIZE;
+    const end = Math.min(start + PAGE_SIZE, total);
+    return sortedIndices.slice(start, end).map((i) => gridItems[i]);
+  }, [page, total, sortedIndices, gridItems]);
 
   const handleZoneClick = (i: number) => {
     setLockedZoneIdx((cur) => (cur === i ? null : i));
+    setPage(0);
+  };
+
+  // Both directions wrap — paging through the series is a loop, not a
+  // bounded list with dead ends. From page 0 the left arrow takes you
+  // to the last page; from the last page the right arrow returns to 0.
+  // No auto-scroll: if the user is using the pager, they're already
+  // looking at the grid; scrollIntoView would only push the colour
+  // bar under the page nav and disorient them.
+  const goPrev = useCallback(() => {
+    setPage((p) => (p - 1 + totalPages) % totalPages);
+  }, [totalPages]);
+
+  const goNext = useCallback(() => {
+    setPage((p) => (p + 1) % totalPages);
+  }, [totalPages]);
+
+  // Track whether the section is in view so the global keyboard
+  // listener only fires when the user is actually looking at the
+  // grid — pressing arrows from way up in the hero shouldn't shuffle
+  // pages they can't see.
+  const inViewRef = useRef(false);
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        inViewRef.current = entry.isIntersecting;
+      },
+      { threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // Drives the fixed-position chevrons on mobile. Uses a ratio
+  // threshold (≥40% of the pager region in viewport) so the chevrons
+  // only appear once the grid actually dominates the screen — not
+  // when only the top edge is peeking up from below or sliding off
+  // the bottom past the colour bar above.
+  const pagerRef = useRef<HTMLDivElement>(null);
+  const [pagerInView, setPagerInView] = useState(false);
+  useEffect(() => {
+    const el = pagerRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setPagerInView(entry.intersectionRatio >= 0.4),
+      { threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // Keyboard pagination — ArrowLeft/Right move between pages while the
+  // grid is in view. Skip when the lightbox overlay is mounted (it has
+  // its own ArrowLeft/Right handler for prev/next artwork) and skip
+  // when the user is typing in a form field.
+  useEffect(() => {
+    if (totalPages <= 1) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      if (!inViewRef.current) return;
+      if (document.querySelector(".piece-grid-overlay")) return;
+      const t = document.activeElement as HTMLElement | null;
+      if (
+        t &&
+        (t.tagName === "INPUT" ||
+          t.tagName === "TEXTAREA" ||
+          t.tagName === "SELECT" ||
+          t.isContentEditable)
+      )
+        return;
+      e.preventDefault();
+      if (e.key === "ArrowLeft") goPrev();
+      else goNext();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [goPrev, goNext, totalPages]);
+
+  // Touch pagination — horizontal swipe across the grid changes pages.
+  // Same gesture envelope as the lightbox swipe in PieceGrid (>48px,
+  // dx >> dy, under 900ms) so the muscle memory transfers. Skipped
+  // when the lightbox is open since that surface owns swipes there.
+  const swipeRef = useRef<{ active: boolean; x: number; y: number; t: number }>(
+    { active: false, x: 0, y: 0, t: 0 }
+  );
+  const onSwipeStart = (e: React.TouchEvent) => {
+    if (e.touches.length !== 1) return;
+    if (document.querySelector(".piece-grid-overlay")) return;
+    const t = e.touches[0];
+    swipeRef.current = { active: true, x: t.clientX, y: t.clientY, t: Date.now() };
+  };
+  const onSwipeEnd = (e: React.TouchEvent) => {
+    if (!swipeRef.current.active) return;
+    swipeRef.current.active = false;
+    const t = e.changedTouches[0];
+    if (!t) return;
+    const dx = t.clientX - swipeRef.current.x;
+    const dy = t.clientY - swipeRef.current.y;
+    const elapsed = Date.now() - swipeRef.current.t;
+    if (
+      Math.abs(dx) > 48 &&
+      Math.abs(dx) > Math.abs(dy) * 1.3 &&
+      elapsed < 900
+    ) {
+      if (dx > 0) goPrev();
+      else goNext();
+    }
   };
 
   return (
-    <>
+    <div ref={sectionRef}>
       <SplitLogicPalette
         cells={zoneCells}
         lockedIdx={lockedZoneIdx}
         onCellClick={handleZoneClick}
       />
-      <PieceGrid items={gridItems} cellOrder={cellOrder} />
-    </>
+
+      {/* Relative wrapper — arrows position:absolute in the margins,
+          grid stays exactly its original width. Touch handlers here
+          turn a horizontal swipe across the grid into pagination. The
+          `is-in-view` class is toggled by the IntersectionObserver
+          above; CSS uses it at mobile widths to show the fixed-
+          position chevrons only while the grid is on screen. */}
+      <div
+        className={`sl-pager-region${pagerInView ? " is-in-view" : ""}`}
+        ref={pagerRef}
+        onTouchStart={onSwipeStart}
+        onTouchEnd={onSwipeEnd}
+      >
+        {totalPages > 1 && (
+          <button
+            type="button"
+            className="sl-pager-step sl-pager-prev"
+            onClick={(e) => {
+              // Blur after click so the button doesn't keep the
+              // post-click focus state — which on some browsers
+              // reads visually identical to the hover halo and
+              // looks "stuck" until the user moves the mouse.
+              e.currentTarget.blur();
+              goPrev();
+            }}
+            aria-label="Previous page"
+          >
+            ‹
+          </button>
+        )}
+
+        <PieceGrid items={pageItems} />
+
+        {totalPages > 1 && (
+          <button
+            type="button"
+            className="sl-pager-step sl-pager-next"
+            onClick={(e) => {
+              e.currentTarget.blur();
+              goNext();
+            }}
+            aria-label="Next page"
+          >
+            ›
+          </button>
+        )}
+
+        {totalPages > 1 && (
+          <span
+            className="sl-pager-pos"
+            aria-label={`Page ${page + 1} of ${totalPages}`}
+          >
+            {String(page + 1).padStart(2, "0")}
+            <span className="sl-pager-sep">/</span>
+            {String(totalPages).padStart(2, "0")}
+          </span>
+        )}
+      </div>
+    </div>
   );
 }

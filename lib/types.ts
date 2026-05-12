@@ -128,6 +128,9 @@ export type Exhibition = {
       above a manila pocket. Click a cell to expand that piece into the
       full grid area as a playing video. */
   pieceGrid?: { video: string; poster: string; alt?: string }[];
+  /** Full series (e.g. all 100 Split Logic works). Shown when the
+      viewer expands past the curated pieceGrid. Same shape. */
+  pieceGridFull?: { video: string; poster: string; alt?: string }[];
   /** Horizontal row of other works from the series, shown below the
       editorial overview. Meant for "explore more from this series"
       pieces; thumbnails link out to the work on Verse. */

@@ -9,52 +9,56 @@ export const metadata = {
 export default function JournalPage() {
   return (
     <div className="journal-index">
-      <h1 className="sr-only">Interview &mdash; The Garden</h1>
+      {/* Page label is carried by the nav (Interview is the current
+          item); the page itself opens straight into the archive. The
+          sr-only h1 keeps the document outline correct for screen
+          readers without a visible title. */}
+      <h1 className="sr-only">Interview — The Garden</h1>
 
-      <div className="journal-index-list">
+      <ol className="journal-index-list">
         {interviews.map((iv) => (
-          <Link
-            key={iv.slug}
-            href={`/interviews/${iv.slug}`}
-            className="journal-index-row"
-          >
-            {/* Ambient artwork — the hero video/poster bleeds behind the
-                row at reduced opacity so each entry carries the tonal
-                register of its interview without us writing per-artist CSS. */}
-            <div className="journal-index-media" aria-hidden>
-              {iv.heroVideo ? (
-                <AutoPlayVideo
-                  src={iv.heroVideo}
-                  poster={iv.heroPoster}
-                  loop
-                  muted
-                  playsInline
-                />
-              ) : iv.heroPoster ? (
-                <img src={iv.heroPoster} alt="" />
-              ) : null}
-            </div>
+          <li key={iv.slug} className="journal-index-li">
+            <Link
+              href={`/interviews/${iv.slug}`}
+              className="journal-index-row"
+            >
+              <div className="journal-index-meta-top" aria-hidden>
+                <span>Issue {iv.number}</span>
+                <span className="journal-index-sep"> · </span>
+                <span>{iv.date}</span>
+                {iv.exhibitionTitle ? (
+                  <>
+                    <span className="journal-index-sep"> · </span>
+                    <span>{iv.exhibitionTitle}</span>
+                  </>
+                ) : null}
+              </div>
 
-            <div className="journal-index-content">
-              <span className="journal-index-number">{iv.number}</span>
-              <div className="journal-index-text">
-                <h2 className="journal-index-artist">{iv.artistName}</h2>
-                <div className="journal-index-title">{iv.title}</div>
-                <p className="journal-index-preamble">{iv.preamble}</p>
-                <div className="journal-index-meta">
-                  <span>{iv.date}</span>
-                  {iv.exhibitionTitle && (
-                    <>
-                      <span className="journal-index-sep">&middot;</span>
-                      <span>{iv.exhibitionTitle}</span>
-                    </>
-                  )}
+              <div className="journal-index-cover">
+                <div className="journal-index-media">
+                  {iv.heroVideo ? (
+                    <AutoPlayVideo
+                      src={iv.heroVideo}
+                      poster={iv.heroPoster}
+                      loop
+                      muted
+                      playsInline
+                    />
+                  ) : iv.heroPoster ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={iv.heroPoster} alt="" />
+                  ) : null}
                 </div>
               </div>
-            </div>
-          </Link>
+
+              <div className="journal-index-caption">
+                <h2 className="journal-index-headline">{iv.title}</h2>
+                <span className="journal-index-byline">{iv.artistName}</span>
+              </div>
+            </Link>
+          </li>
         ))}
-      </div>
+      </ol>
     </div>
   );
 }

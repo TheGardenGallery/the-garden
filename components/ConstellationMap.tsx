@@ -219,7 +219,17 @@ type Label = {
 
 const LBL_H = 12;
 const LBL_PAD = 6;
-const DOT_GAP = 5;
+const DOT_GAP = 3;
+
+type LabelPlacement = {
+  labels: Label[];
+  /** Count of stars whose label couldn't fit any of the 12 ideal slots
+   *  and had to use the last-resort placement (which lets the label
+   *  drift past the edge / overlap neighbours). The parent uses this
+   *  as the "this layout is cramped, switch to the floating field"
+   *  signal. */
+  fallbackCount: number;
+};
 
 function placeLabels(
   stars: Star[],
@@ -227,8 +237,9 @@ function placeLabels(
   toY: (s: Star) => number,
   cw: number, ch: number,
   charW: number,
-): Label[] {
+): LabelPlacement {
   const labels: Label[] = [];
+  let fallbackCount = 0;
   const rects: { x1: number; y1: number; x2: number; y2: number }[] = [];
 
   for (const s of stars) {
@@ -251,19 +262,21 @@ function placeLabels(
     const tw = s.name.length * charW;
 
     const g = DOT_GAP;
+    // Keep labels visually tethered to their dot — max ~16px above /
+    // below. If none of these tight slots clear the neighbours, the
+    // label falls back, and the parent flips the whole map to the
+    // floating-field view (which can place labels anywhere). So
+    // "label that has to drift far from its dot" is no longer a
+    // possible outcome: either it sits close, or we render the field.
     const tries: { x: number; y: number; a: "start" | "end" }[] = [
       { x: cx + g, y: cy + 4,  a: "start" },
       { x: cx - g, y: cy + 4,  a: "end" },
-      { x: cx + g, y: cy - 10, a: "start" },
-      { x: cx - g, y: cy - 10, a: "end" },
-      { x: cx + g, y: cy + 18, a: "start" },
-      { x: cx - g, y: cy + 18, a: "end" },
-      { x: cx + g, y: cy - 22, a: "start" },
-      { x: cx - g, y: cy - 22, a: "end" },
-      { x: cx + g, y: cy + 30, a: "start" },
-      { x: cx - g, y: cy + 30, a: "end" },
-      { x: cx + g, y: cy - 34, a: "start" },
-      { x: cx - g, y: cy + 42, a: "end" },
+      { x: cx + g, y: cy - 8,  a: "start" },
+      { x: cx - g, y: cy - 8,  a: "end" },
+      { x: cx + g, y: cy + 14, a: "start" },
+      { x: cx - g, y: cy + 14, a: "end" },
+      { x: cx + g, y: cy - 16, a: "start" },
+      { x: cx - g, y: cy - 16, a: "end" },
     ];
 
     let placed = false;
@@ -282,69 +295,99 @@ function placeLabels(
       }
     }
     if (!placed) {
-      // Last resort — place below the dot, anchored to whichever side
-      // has more room. Hardcoding "start" (right of dot) used to push
-      // labels far past the right edge for any dot in the right half.
+      fallbackCount++;
+      // Last resort — place tight to the dot anyway, on whichever side
+      // has more room. This placement may overlap a neighbour or sit
+      // past the edge, but the parent watches fallbackCount and flips
+      // to the floating-field view as soon as it's non-zero, so this
+      // branch only renders for a frame at most. Keeping the offset
+      // small means the brief flash before the switch still reads as
+      // "label near dot", not "label adrift."
       const anchor: "start" | "end" = cx > cw / 2 ? "end" : "start";
       const tx = anchor === "start" ? cx + g : cx - g;
-      const ty = cy + 48;
+      const ty = cy + 4;
       const lx1 = anchor === "start" ? tx - LBL_PAD : tx - tw - LBL_PAD;
       const bw = tw + LBL_PAD * 2;
       labels.push({ x: tx, y: ty, anchor, bx: lx1, by: ty - LBL_H, bw, bh: LBL_H + LBL_PAD });
       rects.push({ x1: lx1, y1: ty - LBL_H, x2: lx1 + bw, y2: ty + LBL_PAD });
     }
   }
-  return labels;
+  return { labels, fallbackCount };
 }
 
 /* ── drift (dots + lines) ────────────────────────────────── */
-function useDrift(stars: Star[], edges: Edge[], toX: (s: Star) => number, toY: (s: Star) => number) {
+function useDrift(
+  stars: Star[],
+  edges: Edge[],
+  toX: (s: Star) => number,
+  toY: (s: Star) => number
+) {
   const dotRefs = useRef<(SVGCircleElement | null)[]>([]);
   const lineRefs = useRef<(SVGLineElement | null)[]>([]);
   const frame = useRef(0);
+  // Mirror toX/toY through refs so the loop reads the latest mapping
+  // each frame without the effect re-arming on every resize. Previously
+  // toX/toY were in the effect deps, which tore down + re-armed the
+  // entire rAF loop on every pixel of viewport change.
+  const toXRef = useRef(toX);
+  const toYRef = useRef(toY);
+  toXRef.current = toX;
+  toYRef.current = toY;
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let live = true;
     let paused = document.hidden;
-    // Current drift offsets so lines can track dot positions
+    let startT = 0;
     const dxs = new Float64Array(stars.length);
     const dys = new Float64Array(stars.length);
 
     const tick = (t: number) => {
       if (!live) return;
       if (paused) return;
+      if (startT === 0) startT = t;
+      // Ease drift amplitude from 0 → 1 over the first ~1.4s so the
+      // dots emerge from their layout position and "begin breathing"
+      // rather than snapping into mid-motion on the first frame
+      // (sin(huge_t) is effectively random). Cubic ease-out so the
+      // initial expansion is gentle.
+      const elapsed = t - startT;
+      const p = Math.min(1, elapsed / 1400);
+      const ease = 1 - Math.pow(1 - p, 3);
 
-      // Update dot positions
+      const tx = toXRef.current;
+      const ty = toYRef.current;
+
       for (let i = 0; i < stars.length; i++) {
         const c = dotRefs.current[i];
         if (!c) continue;
         const s = stars[i];
-        const dx = Math.sin(t * s.dFx + s.dPx) * s.dAx * 0.7
-          + Math.sin(t * s.dFx * 0.6 + s.dPy) * s.dAx * 0.3;
-        const dy = Math.cos(t * s.dFy + s.dPy) * s.dAy * 0.7
-          + Math.cos(t * s.dFy * 0.7 + s.dPx) * s.dAy * 0.3;
+        const dx =
+          (Math.sin(t * s.dFx + s.dPx) * s.dAx * 0.7 +
+            Math.sin(t * s.dFx * 0.6 + s.dPy) * s.dAx * 0.3) * ease;
+        const dy =
+          (Math.cos(t * s.dFy + s.dPy) * s.dAy * 0.7 +
+            Math.cos(t * s.dFy * 0.7 + s.dPx) * s.dAy * 0.3) * ease;
         dxs[i] = dx;
         dys[i] = dy;
         c.style.transform = `translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px)`;
       }
 
-      // Update line endpoints to follow drifting dots
       for (let e = 0; e < edges.length; e++) {
         const ln = lineRefs.current[e];
         if (!ln) continue;
         const [a, b] = edges[e];
-        const ax = toX(stars[a]) + dxs[a];
-        const ay = toY(stars[a]) + dys[a];
-        const bx = toX(stars[b]) + dxs[b];
-        const by = toY(stars[b]) + dys[b];
-
-        // Shorten line so it stops DOT_CLEAR px from each dot centre
-        const ldx = bx - ax, ldy = by - ay;
+        const ax = tx(stars[a]) + dxs[a];
+        const ay = ty(stars[a]) + dys[a];
+        const bx = tx(stars[b]) + dxs[b];
+        const by = ty(stars[b]) + dys[b];
+        const ldx = bx - ax,
+          ldy = by - ay;
         const len = Math.sqrt(ldx * ldx + ldy * ldy);
         if (len > DOT_CLEAR * 2) {
-          const ux = ldx / len, uy = ldy / len;
+          const ux = ldx / len,
+            uy = ldy / len;
           ln.setAttribute("x1", (ax + ux * DOT_CLEAR).toFixed(1));
           ln.setAttribute("y1", (ay + uy * DOT_CLEAR).toFixed(1));
           ln.setAttribute("x2", (bx - ux * DOT_CLEAR).toFixed(1));
@@ -358,6 +401,9 @@ function useDrift(stars: Star[], edges: Edge[], toX: (s: Star) => number, toY: (
     const onVisibility = () => {
       paused = document.hidden;
       if (!paused && live) {
+        // Reset the ease-in anchor so re-entering the tab doesn't
+        // jolt the amplitude back to full mid-stride.
+        startT = 0;
         frame.current = requestAnimationFrame(tick);
       }
     };
@@ -369,7 +415,9 @@ function useDrift(stars: Star[], edges: Edge[], toX: (s: Star) => number, toY: (
       cancelAnimationFrame(frame.current);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [stars, edges, toX, toY]);
+    // Only re-arm when the graph identity changes — viewport size
+    // updates flow through the toX/toY refs above.
+  }, [stars, edges]);
 
   return { dotRefs, lineRefs };
 }
@@ -405,8 +453,15 @@ function MobileField({ stars }: { stars: Star[] }) {
     const n = stars.length;
     if (n === 0) return;
 
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     let cw = 0, ch = 0;
     let cleanedUp = false;
+    // Hoisted so the ResizeObserver callback can scale positions
+    // against the same padding budget used during initial placement.
+    const PAD_X = 16, PAD_TOP = 76, PAD_BOT = 20;
 
     // Defer one frame so iOS Safari resolves 100dvh
     const startId = requestAnimationFrame(() => {
@@ -425,15 +480,16 @@ function MobileField({ stars }: { stars: Star[] }) {
 
       ro.observe(container);
 
-      // Pointer tracking
-      container.addEventListener("pointermove", onPointerMove as EventListener);
-      container.addEventListener("touchstart", onTouchStart as EventListener, { passive: true });
-      container.addEventListener("touchmove", onPointerMove as EventListener, { passive: true });
-      container.addEventListener("pointerleave", onPointerLeave);
+      // Pointer tracking (skip in reduced-motion since we won't animate)
+      if (!reduced) {
+        container.addEventListener("pointermove", onPointerMove as EventListener);
+        container.addEventListener("touchstart", onTouchStart as EventListener, { passive: true });
+        container.addEventListener("touchmove", onPointerMove as EventListener, { passive: true });
+        container.addEventListener("pointerleave", onPointerLeave);
+      }
 
       // Poisson-disc placement
       const rng = makeRng(SEED + 777);
-      const PAD_X = 16, PAD_TOP = 76, PAD_BOT = 20;
       const xs: number[] = [], ys: number[] = [];
       for (let i = 0; i < n; i++) {
         let bestX = PAD_X, bestY = PAD_TOP, bestDist = -1;
@@ -469,6 +525,10 @@ function MobileField({ stars }: { stars: Star[] }) {
         }
       }
 
+      // Reduced motion: place items at their seeded positions and
+      // stop here — no rAF loop, no pointer slowdown, no drift.
+      if (reduced) return;
+
       // Animation loop
       let paused = document.hidden;
       const PROXIMITY_R = 120;
@@ -480,9 +540,11 @@ function MobileField({ stars }: { stars: Star[] }) {
         const { x, y, vx, vy, w, h } = sim;
         const ptr = pointerRef.current;
 
-        // Decay touch strength so the slowdown fades out after lifting
+        // Decay touch strength so the slowdown fades out after lifting.
+        // 0.94^60 ≈ 0.024, so strength crosses the 0.01 cutoff in
+        // roughly 60 frames ≈ 1s at 60fps — matching the comment.
         if (ptr) {
-          ptr.strength *= 0.97; // ~1s to fully fade at 60fps
+          ptr.strength *= 0.94;
           if (ptr.strength < 0.01) pointerRef.current = null;
         }
 
@@ -560,8 +622,25 @@ function MobileField({ stars }: { stars: Star[] }) {
       // Don't clear — let the strength decay naturally in the tick loop
     };
     const ro = new ResizeObserver(() => {
-      cw = container.clientWidth;
-      ch = container.clientHeight;
+      const newCw = container.clientWidth;
+      const newCh = container.clientHeight;
+      // Proportionally rescale item positions to the new bounds so a
+      // narrow→wide resize doesn't leave everything clustered against
+      // the left edge, and wide→narrow doesn't squish items off-screen
+      // (the wall-bounce would eventually correct it, but visibly).
+      const sim = simRef.current;
+      if (sim && cw > 0 && ch > 0 && newCw > 0 && newCh > 0) {
+        const wRange = Math.max(1, cw - PAD_X * 2);
+        const hRange = Math.max(1, ch - PAD_TOP - PAD_BOT);
+        const sx = Math.max(1, newCw - PAD_X * 2) / wRange;
+        const sy = Math.max(1, newCh - PAD_TOP - PAD_BOT) / hRange;
+        for (let i = 0; i < sim.x.length; i++) {
+          sim.x[i] = PAD_X + (sim.x[i] - PAD_X) * sx;
+          sim.y[i] = PAD_TOP + (sim.y[i] - PAD_TOP) * sy;
+        }
+      }
+      cw = newCw;
+      ch = newCh;
     });
 
     return () => {
@@ -619,11 +698,28 @@ export function ConstellationMap() {
   useEffect(() => {
     const el = rootRef.current;
     if (!el) return;
-    const measure = () => setDims({ w: el.clientWidth, h: el.clientHeight });
-    measure();
-    const ro = new ResizeObserver(measure);
+    // Coalesce resize callbacks through rAF — a drag-resize fires the
+    // observer per frame, and each measure cascades into label layout
+    // and a render. Without coalescing the page thrashes; with it the
+    // measure runs at most once per frame regardless of how many
+    // observer callbacks queue up.
+    let rafId = 0;
+    let pending = false;
+    const schedule = () => {
+      if (pending) return;
+      pending = true;
+      rafId = requestAnimationFrame(() => {
+        pending = false;
+        setDims({ w: el.clientWidth, h: el.clientHeight });
+      });
+    };
+    schedule();
+    const ro = new ResizeObserver(schedule);
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      cancelAnimationFrame(rafId);
+      ro.disconnect();
+    };
   }, []);
 
   const stars = useMemo(() => layoutStars(SEED), []);
@@ -647,12 +743,27 @@ export function ConstellationMap() {
   const toX = useCallback((s: Star) => mL + s.x * iw, [mL, iw]);
   const toY = useCallback((s: Star) => mTop + s.y * ih, [mTop, ih]);
   const { dotRefs, lineRefs } = useDrift(stars, edges, toX, toY);
-  const labels = dims.w > 0 ? placeLabels(stars, toX, toY, w, h, charW) : [];
+  // Label placement is the heaviest pass each render (12 tries × N
+  // labels × AABB scan). Memoise it so hover / drift / focus state
+  // changes don't re-run it. Only viewport + star set + char metric
+  // can invalidate the placement.
+  const placement: LabelPlacement = useMemo(() => {
+    if (dims.w === 0) return { labels: [], fallbackCount: 0 };
+    return placeLabels(stars, toX, toY, w, h, charW);
+  }, [stars, toX, toY, w, h, charW, dims.w]);
+  const labels = placement.labels;
 
   const hoverColour = hovered !== null ? stars[hovered].colour : null;
 
-  // Mobile: render the field layout instead of the SVG constellation
-  const isMobile = w < 600 && dims.w > 0;
+  // Switch to the floating-field view either at the canonical narrow
+  // breakpoint OR when the constellation labels can't all fit cleanly:
+  // any fallback placement means at least one name had to push past
+  // the edge or sit awkwardly under its dot — at that point the
+  // floating field (which uses physics to avoid every overlap) reads
+  // far better than a compromised constellation. Hysteresis isn't
+  // needed since the cramped-ness is monotonic in viewport width.
+  const isMobile =
+    dims.w > 0 && (w < 600 || placement.fallbackCount > 0);
 
   return (
     <div className="constellation-root" ref={rootRef}>
@@ -678,9 +789,10 @@ export function ConstellationMap() {
           <g mask="url(#lbl-mask)">
             {edges.map(([a, b], i) => {
               const anyHover = hovered !== null;
+              const isAdjacent =
+                hovered !== null && (a === hovered || b === hovered);
               const ax = toX(stars[a]), ay = toY(stars[a]);
               const bx = toX(stars[b]), by = toY(stars[b]);
-              // Shorten line to stop DOT_CLEAR px from each dot centre
               const ldx = bx - ax, ldy = by - ay;
               const len = Math.sqrt(ldx * ldx + ldy * ldy);
               let x1 = ax, y1 = ay, x2 = bx, y2 = by;
@@ -689,11 +801,20 @@ export function ConstellationMap() {
                 x1 = ax + ux * DOT_CLEAR; y1 = ay + uy * DOT_CLEAR;
                 x2 = bx - ux * DOT_CLEAR; y2 = by - uy * DOT_CLEAR;
               }
+              // Three states per edge during hover:
+              //   - adjacent to hovered star  → --lit (solid, animated)
+              //   - elsewhere in the graph    → --all (tinted, calm)
+              //   - no hover                  → default (dim dashed)
+              const cls = isAdjacent
+                ? "c-line c-line--lit"
+                : anyHover
+                  ? "c-line c-line--all"
+                  : "c-line";
               return (
                 <line key={`e${i}`}
                   ref={(el) => { lineRefs.current[i] = el; }}
                   x1={x1} y1={y1} x2={x2} y2={y2}
-                  className={`c-line${anyHover ? " c-line--all" : ""}`}
+                  className={cls}
                   style={anyHover ? { stroke: hoverColour! } : undefined}
                 />
               );

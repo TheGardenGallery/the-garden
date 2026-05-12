@@ -1242,16 +1242,20 @@ html:has(.constellation-root){
   stroke-dasharray:2 4;
   opacity:0.18;
   stroke-linecap:round;
-  transition:stroke 500ms ease-out, opacity 500ms ease-out, stroke-width 500ms ease-out;
+  transition:stroke 260ms ease-out, opacity 260ms ease-out, stroke-width 260ms ease-out;
 }
+/* Hovered star's adjacent edges — solid stroke at full opacity with
+   a slow flowing dash; reads as "the artist's connections are live."
+   The dash animation only runs on these (not on all bare-lit lines)
+   so the hovered cluster pulses gently while the rest stays calm. */
 .c-line--lit{
-  opacity:0.70;
-  stroke-width:0.9;
-  stroke-dasharray:none;
-  animation:c-flow 2.4s linear infinite;
+  opacity:0.85;
+  stroke-width:1.0;
+  stroke-dasharray:3 3;
+  animation:c-flow 1.6s linear infinite;
 }
 .c-line--all{
-  opacity:0.55;
+  opacity:0.42;
   stroke-width:0.7;
   stroke-dasharray:2 4;
 }
@@ -1260,13 +1264,16 @@ html:has(.constellation-root){
 }
 @keyframes c-flow{
   from{stroke-dashoffset:0;}
-  to{stroke-dashoffset:-11;}
+  to{stroke-dashoffset:-12;}
 }
 
 /* ── dots ── */
 .c-dot{
   fill:#fff;
-  transition:fill 400ms ease-out, r 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Tighter fade on colour change; standard ease-out on the radius
+     grow (no overshoot — the previous bounce read as a glitch at
+     these small dot sizes). */
+  transition:fill 240ms ease-out, r 220ms cubic-bezier(0.22,0.61,0.36,1);
 }
 
 /* ── label ── */
@@ -1277,7 +1284,7 @@ html:has(.constellation-root){
   fill:#fff;
   opacity:0.72;
   font-weight:400;
-  transition:fill 400ms ease-out, opacity 400ms ease-out;
+  transition:fill 220ms ease-out, opacity 220ms ease-out;
   pointer-events:none;
 }
 
@@ -2993,6 +3000,11 @@ html:has(.constellation-root){
    the canonical 16px gap. */
 .exhibition-detail[data-slug="solve-un-solve"] .ex-inline-figure{gap:0;}
 .exhibition-detail[data-slug="solve-un-solve"] .ex-inline-figure .ex-inline-caption{margin-top:-48px;}
+/* Mirror the caption's -48 pull on the iframe's top so the artwork's
+   internal cream margin at the top is absorbed the same way it is at
+   the bottom — without it the top gap (margin + cream) reads ~50px
+   bigger than the bottom gap. */
+.exhibition-detail[data-slug="solve-un-solve"] .ex-inline-figure .ex-inline-iframe{margin-top:-48px;}
 /* Live-rendered generative artwork (iframe) — mirrors the hero's
    container/canvas logic so inline editions sit on the same plate
    structure as the lead piece: a size-container wrapper, an iframe
@@ -3432,6 +3444,264 @@ html:has(.constellation-root){
   }
 }
 
+/* ── Annotated broadsheet (Split Logic) ───────────────────────────────
+   Side-by-side layout: prose on the left, the anchor artwork sticky
+   on the right. Pinned words in the prose are interactable buttons —
+   hover/focus previews the corresponding reticle on the artwork,
+   click locks it. Visual language matches the colour bar's phosphor
+   amber (--phosphor token, defined locally below since this section
+   is paper-themed and doesn't inherit the bar's dark scope). */
+.broadsheet--annotated{
+  /* Editorial red — used as both the interactable-word colour on the
+     cream prose side and the reticle phosphor on the dark artwork
+     side. The amber tone the bar uses bled into the warm paper too
+     much; a measured brick-red gives the same "terminal highlight"
+     read without smearing the cream tone. */
+  --bs-phosphor:#c2402e;
+  --bs-phosphor-soft:rgba(194,64,46,0.55);
+  --bs-phosphor-deep:rgba(194,64,46,0.22);
+}
+.broadsheet-inner--annotated{
+  display:grid;
+  /* Two named rows: heading spans both columns so the prose and the
+     anchor share the same content baseline below it; column heights
+     stretch (default) so the sticky anchor has scrollable room within
+     its column. */
+  grid-template-columns:minmax(0, 1.05fr) minmax(0, 1fr);
+  grid-template-areas:
+    "head head"
+    "prose anchor";
+  column-gap:clamp(48px, 6vw, 96px);
+  row-gap:clamp(40px, 4vw, 64px);
+  max-width:1240px;
+  margin:0 auto;
+}
+.broadsheet-heading--annotated{
+  grid-area:head;
+  margin:0;
+}
+.broadsheet-prose{
+  grid-area:prose;
+  display:flex;flex-direction:column;
+}
+.broadsheet-prose .broadsheet-body{
+  margin:0;
+}
+
+/* Pinned word — a deep brick-red that reads as deliberate editorial
+   interactive type. Slightly brighter on hover/active, but stays in
+   the same hue family so the cream prose never loses its centre. */
+.broadsheet-pinword{
+  display:inline;
+  appearance:none;border:0;background:transparent;
+  padding:0;margin:0;
+  font:inherit;
+  color:#8a2e21;
+  cursor:pointer;
+  text-decoration:underline dotted rgba(138,46,33,0.38);
+  text-decoration-thickness:1px;
+  text-underline-offset:3px;
+  transition:color 220ms ease, text-decoration-color 220ms ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.broadsheet-pinword:hover,
+.broadsheet-pinword:focus-visible,
+.broadsheet-pinword[data-active="true"]{
+  color:#b03a2a;
+  text-decoration-color:var(--bs-phosphor);
+  outline:none;
+}
+.broadsheet-pinword[data-locked="true"]{
+  text-decoration-thickness:1.5px;
+}
+
+/* Anchor column — sticks so the artwork stays in view as the reader
+   scrolls through the prose. Width of the artwork itself is capped
+   by what fits vertically in the viewport when stuck, so on shorter
+   windows the bottom of the artwork never gets clipped off-screen.
+   On taller windows the artwork takes the column's full width. */
+.broadsheet-anchor{
+  grid-area:anchor;
+  position:relative;
+}
+.broadsheet-anchor-sticky{
+  position:sticky;
+  top:calc(var(--nav-height) + 40px);
+}
+.broadsheet-anchor-frame{
+  position:relative;
+  /* min(column-width, viewport-vertical-budget) — artwork is square
+     (aspect-ratio:1), so capping width by available vertical space
+     also caps height to fit when stuck. The 100px subtraction = nav
+     + 40 sticky offset + ~24 bottom breath. */
+  width:min(100%, calc(100vh - var(--nav-height) - 104px));
+  aspect-ratio:1 / 1;
+  /* overflow:visible so reticle code labels positioned above the
+     reticle box can extend past the frame's top edge when a pin sits
+     near the top of the artwork. The media itself is clipped by its
+     own wrapper below. */
+  background:#0a0a0a;
+  box-shadow:0 14px 40px -22px rgba(20,16,8,0.22);
+}
+.broadsheet-anchor-media{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+}
+.broadsheet-anchor-media video,
+.broadsheet-anchor-media img{
+  width:100%;height:100%;display:block;
+  object-fit:cover;
+}
+
+/* Reticle — phosphor amber corner-bracket frame over a region of the
+   artwork. Default state is invisible; `data-active="true"` fades it
+   in and reveals the corner brackets + code label. No border around
+   the rectangle itself — only the four corners are drawn, so the
+   reticle reads as a targeting frame, not a UI box. */
+.broadsheet-reticle{
+  position:absolute;
+  pointer-events:none;
+  opacity:0;
+  /* Thin outline along the box's full perimeter — corner brackets
+     alone leave the edges between them implied, which read as
+     "interior marks inside an invisible box." A subtle border makes
+     the box's actual edges visible as red lines. */
+  border:1px solid rgba(194,64,46,0.32);
+  /* Cycling pins (SYM) update inline left/top/width/height to slide
+     between letterforms; transition those properties so the move is
+     a glide rather than a teleport. Opacity stays on its own faster
+     curve for hover-in/out. */
+  transition:
+    opacity 320ms cubic-bezier(0.22,0.61,0.36,1),
+    left 720ms cubic-bezier(0.22,0.61,0.36,1),
+    top 720ms cubic-bezier(0.22,0.61,0.36,1),
+    width 720ms cubic-bezier(0.22,0.61,0.36,1),
+    height 720ms cubic-bezier(0.22,0.61,0.36,1);
+}
+.broadsheet-reticle[data-active="true"]{
+  opacity:1;
+}
+/* Corner brackets — four small L-shaped marks inside the reticle's
+   corners, arms running inward along the reticle's interior edges.
+   Clean-alignment with the highlighted feature comes from the pin
+   coordinates themselves being padded slightly outside the feature,
+   not from offsetting the brackets here. */
+.broadsheet-reticle-corner{
+  --c-size:12px;
+  --c-stroke:1px;
+  position:absolute;
+  width:var(--c-size);
+  height:var(--c-size);
+  box-shadow:0 0 5px var(--bs-phosphor-soft);
+}
+.broadsheet-reticle-corner--tl{
+  top:0;left:0;
+  border-top:var(--c-stroke) solid var(--bs-phosphor);
+  border-left:var(--c-stroke) solid var(--bs-phosphor);
+}
+.broadsheet-reticle-corner--tr{
+  top:0;right:0;
+  border-top:var(--c-stroke) solid var(--bs-phosphor);
+  border-right:var(--c-stroke) solid var(--bs-phosphor);
+}
+.broadsheet-reticle-corner--bl{
+  bottom:0;left:0;
+  border-bottom:var(--c-stroke) solid var(--bs-phosphor);
+  border-left:var(--c-stroke) solid var(--bs-phosphor);
+}
+.broadsheet-reticle-corner--br{
+  bottom:0;right:0;
+  border-bottom:var(--c-stroke) solid var(--bs-phosphor);
+  border-right:var(--c-stroke) solid var(--bs-phosphor);
+}
+
+/* Red multiply-blend wash, scoped to reticles with `pin.tint:true`.
+   Sits as a SIBLING of the reticle inside the anchor frame so the
+   blend lives in the frame's stacking context and reaches the video.
+   Transitions `background-color` (transparent → phosphor) instead of
+   `opacity` — keeps the element at opacity:1 throughout, so it never
+   becomes its own opacity-isolated stacking context that would briefly
+   render the red as a solid block before the blend kicks in. */
+.broadsheet-reticle-tint{
+  position:absolute;
+  pointer-events:none;
+  background-color:transparent;
+  mix-blend-mode:multiply;
+  transition:background-color 320ms cubic-bezier(0.22,0.61,0.36,1);
+}
+.broadsheet-reticle-tint[data-active="true"]{
+  background-color:var(--bs-phosphor);
+}
+/* Code label — Saira-condensed phosphor tag at the top-left corner.
+   Slightly lighter colour (mixing with white) and a wider tracking
+   so the label reads as a calm registration tag, not a bright sticker. */
+.broadsheet-reticle-code{
+  position:absolute;
+  top:-20px;
+  left:0;
+  font-family:'Saira Condensed','Barlow',sans-serif;
+  font-weight:500;font-size:10px;letter-spacing:0.26em;
+  color:var(--bs-phosphor);
+  text-shadow:0 0 4px rgba(0,0,0,0.78);
+  font-variant-numeric:tabular-nums lining-nums;
+  white-space:nowrap;
+  user-select:none;
+  opacity:0.88;
+}
+
+/* Faint scrim pulse on the reticle's interior — adds the sense that
+   the region is "energised" without obscuring the artwork beneath.
+   Uses inset shadow rather than a background so the underlying video
+   reads through unchanged. */
+.broadsheet-reticle::before{
+  content:"";
+  position:absolute;inset:0;
+  pointer-events:none;
+  box-shadow:inset 0 0 0 1px rgba(255,201,122,0.06);
+  opacity:0;
+  transition:opacity 320ms ease;
+}
+.broadsheet-reticle[data-active="true"]::before{
+  opacity:1;
+}
+
+@media (max-width:880px){
+  /* Below ~880px the side-by-side gets too cramped — collapse to
+     stacked, artwork above the prose. Sticky is dropped (no room for
+     long prose to scroll past a sticky image) and the reticle code
+     labels shrink. */
+  .broadsheet-inner--annotated{
+    grid-template-columns:1fr;
+    gap:32px;
+  }
+  .broadsheet-anchor-sticky{
+    position:relative;top:auto;
+  }
+  .broadsheet-anchor-frame{
+    max-width:520px;margin:0 auto;
+  }
+  .broadsheet-reticle-corner{ --c-size:10px; }
+  .broadsheet-reticle-code{ font-size:9px; top:-18px; }
+
+  /* Touch devices have no hover, so the pre-coloured red pinwords
+     read as broken affordances. Demote them to plain prose at this
+     width — the pin/reticle layer is desktop-only enhancement. The
+     artwork below the prose serves as a static reference. */
+  .broadsheet-pinword{
+    color:inherit;
+    cursor:default;
+    text-decoration:none;
+    pointer-events:none;
+  }
+  .broadsheet-pinword:hover,
+  .broadsheet-pinword:focus-visible,
+  .broadsheet-pinword[data-active="true"]{
+    color:inherit;
+    text-decoration:none;
+  }
+}
+
 /* Explore — 5 works from the series, structured to mirror the Details
    section exactly: no top padding (spacing comes from .ex-overview's
    bottom padding), 1040px inner, header with a hairline rule below.
@@ -3730,7 +4000,7 @@ html:has(.constellation-root){
   --phosphor-deep: rgba(255, 201, 122, 0.30);
   max-width:var(--content-max);
   margin:0 auto;
-  padding:64px var(--gutter) 32px;
+  padding:28px var(--gutter) 12px;
   background:#000;
   color:var(--on-dark-fg-soft);
   font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -3740,7 +4010,7 @@ html:has(.constellation-root){
   position:relative;
   display:grid;
   grid-template-columns:repeat(16, 1fr);
-  height:68px;
+  height:56px;
   max-width:1289px;
   margin:0 auto;
   isolation:isolate;
@@ -3932,7 +4202,7 @@ html:has(.constellation-root){
    blinking phosphor block sits at the end as a terminal cursor. */
 .sl-palette-readout{
   max-width:1289px;
-  margin:20px auto 0;
+  margin:14px auto 0;
   display:flex;
   flex-wrap:wrap;
   align-items:baseline;
@@ -4225,6 +4495,14 @@ html:has(.constellation-root){
    black hero/grid above paper colophon. Scoped to the slug so other
    exhibitions stay paper. */
 .exhibition-detail[data-slug="split-logic"]{
+  /* Pager arrows + their radial halo pseudos sit at left/right:-42 with
+     inset:-56 halos, which intentionally bleed past the grid section
+     edge. Without clipping at the exhibition root those bleed pixels
+     extend the page's content box past the viewport, which the browser
+     responds to with a horizontal scrollbar / two-finger swipe-back
+     gesture. `overflow-x:clip` cuts the off-viewport bleed without
+     creating a scrollable context (unlike `hidden`). */
+  overflow-x:clip;
   color:var(--on-dark-fg);
   /* Match the hero artwork's letter color (cool cyan-tinted white,
      ≈ #e8f8f8 — sampled from the wedge_32 letterforms). All on-dark
@@ -4277,7 +4555,11 @@ html:has(.constellation-root){
    rather than the section's bg flashing through as it animates. */
 .exhibition-detail[data-slug="split-logic"] .piece-grid-section{
   background:transparent;
-  padding-top:32px;
+  padding-top:14px;
+  /* No bottom padding — the counter owns its own offset from the
+     grid (margin-top) and from the next section (margin-bottom),
+     matching the chevrons' 42px standoff on the horizontal axis. */
+  padding-bottom:0;
 }
 /* Overview keeps a solid bg behind its prose column for readability —
    running mono body text directly over the lattice would noise it up. */
@@ -4560,6 +4842,191 @@ html:has(.constellation-root){
   }
 }
 
+/* ---- Split Logic: series pager ---------------------------------- */
+/* Region is position:relative. Arrows sit absolute in the left/right
+   margins — the grid inside stays exactly its original width.
+   On viewports too narrow for margins the arrows tuck inside. The
+   --pg-* vars below also drive the grid's max-width so a single
+   width budget governs both the cells and the arrow positioning. */
+.sl-pager-region{
+  position:relative;
+}
+.exhibition-detail[data-slug="split-logic"] .sl-pager-region{
+  /* Vertical budget — chrome above (page nav + colour bar + readout
+     + section pad) and below (section pad + counter plate). Numbers
+     reflect the actual measured chrome after the bar/section padding
+     trims so cells get the maximum possible row height while still
+     fitting bar + grid + counter in a single viewport. */
+  --pg-top:222px;
+  --pg-bottom:106px;
+  --pg-gap:18px;
+  --pg-row:max(230px, calc((100vh - var(--pg-top) - var(--pg-bottom) - 2 * var(--pg-gap)) / 3));
+  /* Three caps on the grid width:
+     1. 1289px — the original design ceiling
+     2. 4 cols × square cells given the viewport-height-derived row
+     3. 100vw minus enough room for the chevron's console plate + air. */
+  --pg-arrow-clearance:64px;
+  --pg-grid-w:min(
+    1289px,
+    calc(4 * var(--pg-row) + 3 * var(--pg-gap)),
+    calc(100vw - 2 * var(--pg-arrow-clearance))
+  );
+  max-width:var(--pg-grid-w);
+  margin:0 auto;
+}
+.exhibition-detail[data-slug="split-logic"] .piece-grid{
+  max-width:var(--pg-grid-w);
+}
+
+.sl-pager-step{
+  appearance:none;border:0;background:transparent;
+  position:absolute;
+  top:50%;
+  font-family:'Saira Condensed','Barlow',sans-serif;
+  font-weight:300;font-size:30px;
+  line-height:1;
+  color:rgba(232,248,248,0.72);
+  cursor:pointer;
+  padding:6px 10px;
+  user-select:none;
+  z-index:2;
+}
+/* Console-panel chrome — same vocabulary as the colour bar cells:
+   a top specular highlight, a bottom seam, a hairline outline, and
+   a soft outer halo that bleeds into the dot lattice so the lattice
+   "fades to black" right around the control instead of cutting at a
+   hard plate edge. Snug to the grid edge so the chevrons read as part
+   of the grid hardware, not a floating margin button. */
+.exhibition-detail[data-slug="split-logic"] .sl-pager-prev{
+  left:-42px;
+}
+.exhibition-detail[data-slug="split-logic"] .sl-pager-next{
+  right:-42px;
+}
+.exhibition-detail[data-slug="split-logic"] .sl-pager-step{
+  background:rgba(0,0,0,0.86);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  border-radius:3px;
+  /* Plate chrome only — the dot-lattice kill halo is delegated to a
+     ::before pseudo-element below, which uses a radial gradient
+     (precise alpha control vs. box-shadow's blur falloff) to fully
+     erase dots in a wide ring around the chevron. */
+  box-shadow:
+    inset 0 1px 0 rgba(232,248,248,0.08),
+    inset 0 -1px 0 rgba(0,0,0,0.55),
+    0 0 0 1px rgba(232,248,248,0.05);
+  transition:
+    color 220ms ease, background 220ms ease,
+    transform 280ms cubic-bezier(0.22,0.61,0.36,1);
+}
+.exhibition-detail[data-slug="split-logic"] .sl-pager-step::before{
+  content:"";
+  position:absolute;
+  inset:-56px;
+  z-index:-1;
+  pointer-events:none;
+  /* Solid black at the centre, ≥0.92 alpha out to ~45px, soft fade
+     to fully transparent by ~90px. The lattice dot brightness is
+     ~40% white, so anything ≥0.88 black on top hides them; the
+     gradient holds that threshold out far enough to clear the
+     visually-adjacent ring of dots. */
+  background:radial-gradient(
+    ellipse 92px 72px at center,
+    #000 0%,
+    rgba(0,0,0,0.96) 45%,
+    rgba(0,0,0,0.55) 78%,
+    rgba(0,0,0,0) 100%
+  );
+}
+.exhibition-detail[data-slug="split-logic"] .sl-pager-step:hover:not(:disabled){
+  color:rgba(232,248,248,0.98);
+  background:rgba(0,0,0,0.92);
+  box-shadow:
+    inset 0 1px 0 rgba(232,248,248,0.14),
+    inset 0 -1px 0 rgba(0,0,0,0.55),
+    0 0 0 1px rgba(232,248,248,0.10);
+}
+.sl-pager-step:focus-visible{outline:1px solid rgba(232,248,248,0.35);outline-offset:2px;}
+
+/* Page counter — Space Mono telemetry in the same console plate as
+   the chevrons, so the pager reads as one matched set of controls
+   below the grid. Mono format echoes the readout above the bar
+   (>> 0xE5F448 :: zone 03/6) so the page brackets the artwork grid
+   with two terminal lines from the same instrument. */
+.sl-pager-pos{
+  display:block;
+  width:fit-content;
+  /* 42px above + 42px below = same standoff as the chevrons sit
+     from the left/right grid edges. The counter reads as the third
+     control in a matched set. */
+  margin:42px auto 42px;
+  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-weight:400;font-size:11px;letter-spacing:0.06em;
+  color:rgba(232,248,248,0.82);
+  font-variant-numeric:tabular-nums;
+  user-select:none;
+  background:rgba(0,0,0,0.86);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  border-radius:3px;
+  padding:5px 11px;
+  position:relative;
+  z-index:1;
+  /* Plate chrome only — kill-halo via ::before pseudo, same as the
+     chevrons. */
+  box-shadow:
+    inset 0 1px 0 rgba(232,248,248,0.08),
+    inset 0 -1px 0 rgba(0,0,0,0.55),
+    0 0 0 1px rgba(232,248,248,0.05);
+}
+/* Radial halo — sized horizontally generous (lots of empty lattice
+   to either side of the centred plate), vertically capped at 38px
+   each side so it stays inside the 42px standoff above the divider
+   and below the grid. */
+.sl-pager-pos::before{
+  content:"";
+  position:absolute;
+  inset:-38px -64px;
+  z-index:-1;
+  pointer-events:none;
+  background:radial-gradient(
+    ellipse 110px 60px at center,
+    #000 0%,
+    rgba(0,0,0,0.96) 48%,
+    rgba(0,0,0,0.55) 78%,
+    rgba(0,0,0,0) 100%
+  );
+}
+.sl-pager-sep{color:rgba(232,248,248,0.32);margin:0 0.18em;}
+
+@media (max-width:760px){
+  /* Mobile chevrons follow the scroll via position:fixed — but only
+     while the grid is in view. The pager region carries an
+     `is-in-view` class toggled by an IntersectionObserver in
+     SplitLogicSystem. Without that gate the fixed chevrons would
+     appear on top of every following section (artist's note, etc.)
+     where they have nothing to navigate. */
+  .exhibition-detail[data-slug="split-logic"] .sl-pager-prev,
+  .exhibition-detail[data-slug="split-logic"] .sl-pager-next{
+    display:none;
+  }
+  .exhibition-detail[data-slug="split-logic"] .sl-pager-region.is-in-view .sl-pager-prev,
+  .exhibition-detail[data-slug="split-logic"] .sl-pager-region.is-in-view .sl-pager-next{
+    display:block;
+    position:fixed;
+    top:50%;
+    transform:translateY(-50%);
+    z-index:20;
+  }
+  .exhibition-detail[data-slug="split-logic"] .sl-pager-region.is-in-view .sl-pager-prev{
+    left:8px;right:auto;
+  }
+  .exhibition-detail[data-slug="split-logic"] .sl-pager-region.is-in-view .sl-pager-next{
+    right:8px;left:auto;
+  }
+}
+
 .ex-colophon{
   border-top:1px solid var(--rule-thin);background:var(--paper);
   padding:80px var(--gutter) 96px;
@@ -4766,132 +5233,205 @@ html:has(.constellation-root){
    JOURNAL INDEX — /journal
    Each row is a full-width band themed by the interview's own hero media.
    ======================================================================= */
+/* Editorial archive in the Hufkens / catalogue lineage. The image is
+   the object — full-bleed, at full opacity, allowed to breathe. The
+   text is a caption underneath, restrained to two moves: an italic
+   serif title with an animated rule, and a single byline. Everything
+   else is whisper meta in a thin label band above the image. Spacing
+   does almost all the work — the rhythm is one or two issues per
+   viewport, never a list. */
 .journal-index{
   padding-top:var(--nav-height);
   min-height:100dvh;
   background:var(--paper);
-  display:flex;flex-direction:column;
+  color:var(--ink);
 }
+
+/* --- List -------------------------------------------------------------- */
 .journal-index-list{
-  display:flex;flex-direction:column;
-  flex:1;
+  list-style:none;padding:0;margin:0;
+  max-width:1280px;
+  margin-left:auto;margin-right:auto;
+}
+.journal-index-li{
+  /* No interior border-bottom — the rhythm of negative space between
+     rows carries the separation. Last row has natural page-end space. */
 }
 
 /* --- Row --------------------------------------------------------------- */
+/* Asymmetric two-column spread — cover anchored on the left, caption
+   sitting flush against its right edge, vertically centred to the
+   image. This is the key differentiator from the exhibitions index
+   (which uses centred image-above-caption plates): same content
+   primitives, a fundamentally different composition. */
 .journal-index-row{
   position:relative;
-  display:flex;align-items:flex-end;
-  min-height:clamp(280px, 42vh, 520px);
-  flex:1;
-  overflow:hidden;
+  display:grid;
+  grid-template-columns:1.25fr 1fr;
+  grid-template-areas:
+    "meta meta"
+    "cover caption";
+  /* Split row vs column gap so the masthead sits close to the cover,
+     while the cover and caption have more horizontal breathing room
+     between them. Single `gap` would coupling these unnecessarily. */
+  column-gap:clamp(40px, 5vw, 80px);
+  row-gap:clamp(20px, 2.4vw, 32px);
   text-decoration:none;color:inherit;
-  border-bottom:1px solid rgba(0,0,0,0.06);
-  transition:border-color 0.4s ease;
+  padding:clamp(48px, 7vh, 88px) var(--gutter);
 }
-.journal-index-row:first-child{
-  border-top:none;
+.journal-index-li:first-child .journal-index-row{
+  padding-top:clamp(32px, 5vh, 56px);
 }
 
-/* Ambient artwork behind the row */
+/* Whisper meta band sitting above the image — issue + date/exhibition
+   sit on the same line, justified to opposite sides like a publication
+   masthead. Width-matched to the cover plate below so the row reads
+   as one composition rather than two stacked rectangles of different
+   widths. */
+.journal-index-meta-top{
+  grid-area:meta;
+  /* Single editorial line on the left — issue, date, and exhibition
+     read as one running label, with mid-dot separators. The earlier
+     edge-justified split read as a template move; one continuous
+     left-aligned line is the genuinely refined choice. */
+  display:block;
+  margin:0;
+  font-family:'Saira Condensed','Barlow',sans-serif;
+  font-weight:500;font-size:11px;letter-spacing:0.26em;
+  text-transform:uppercase;
+  color:var(--ink-whisper, rgba(0,0,0,0.4));
+  font-variant-numeric:tabular-nums lining-nums;
+}
+.journal-index-meta-issue{ flex-shrink:0; }
+.journal-index-meta-line{ text-align:right; }
+.journal-index-sep{
+  opacity:0.5;
+  /* The mid-dot needs breathing room when the meta line uses
+     letter-spacing 0.26em — without explicit margins the dot tightens
+     uncomfortably against adjacent words. */
+  margin:0 0.6em;
+}
+
+/* --- Cover (the artwork as object) ------------------------------------ */
+.journal-index-cover{
+  grid-area:cover;
+  position:relative;
+  width:100%;
+  /* 1:1 matches Ricky's square source material so the artwork shows
+     in its native proportions — earlier 3:2 was cropping ~33% of the
+     piece's vertical, which is what read as "weird." */
+  aspect-ratio:1 / 1;
+  overflow:hidden;
+  background:#0a0a0a;
+  /* Whisper of elevation off the cream page — a single soft drop
+     shadow with negative spread so the shadow only shows below the
+     plate, not as a halo around it. */
+  box-shadow:0 14px 40px -22px rgba(20,16,8,0.22);
+}
 .journal-index-media{
   position:absolute;inset:0;
-  z-index:0;pointer-events:none;
 }
 .journal-index-media video,
 .journal-index-media img{
-  width:100%;height:100%;
+  width:100%;height:100%;display:block;
   object-fit:cover;
-  opacity:0.12;
-  transition:opacity 0.6s ease;
-}
-.journal-index-row:hover .journal-index-media video,
-.journal-index-row:hover .journal-index-media img{
-  opacity:0.22;
-}
-
-/* Content overlay */
-.journal-index-content{
-  position:relative;z-index:1;
-  display:flex;align-items:flex-start;gap:40px;
-  width:100%;max-width:900px;
-  margin:0 auto;
-  padding:60px var(--gutter) 72px;
+  /* Hover-scale anchored at 1.012 so static state is already lightly
+     "leaning in" — on hover the media settles back to 1.0, like a
+     held breath releasing. The reverse direction of most hover-zooms
+     reads more cinematic than aggressive. */
+  transform:scale(1.012);
+  transition:transform 1100ms cubic-bezier(0.22,0.61,0.36,1);
+  will-change:transform;
 }
 
-/* Issue number — left gutter annotation */
-.journal-index-number{
-  font-family:'Saira Condensed',Barlow,sans-serif;
-  font-weight:500;font-size:11px;letter-spacing:0.2em;
-  color:rgba(0,0,0,0.28);
-  flex-shrink:0;
-  padding-top:6px;
+/* --- Caption (the editorial pull) ------------------------------------- */
+.journal-index-caption{
+  grid-area:caption;
+  align-self:center;
+  max-width:480px;
 }
-
-/* Text stack */
-.journal-index-text{
-  display:flex;flex-direction:column;gap:10px;
-}
-.journal-index-artist{
-  font-family:'Barlow',sans-serif;
-  font-weight:600;font-size:13px;letter-spacing:0.5px;
-  text-transform:uppercase;
-  color:var(--ink);
-  margin:0;
-}
-.journal-index-title{
+.journal-index-headline{
   font-family:'Cormorant','Title CJK',serif;
-  font-style:italic;font-weight:400;
-  font-size:clamp(28px, 3.2vw, 42px);
-  letter-spacing:-0.3px;
-  line-height:1.15;
+  /* Upright Cormorant at a measured size — earlier large italic
+     read as decorative cursive. Roman serif at this scale reads as
+     editorial/institutional, which is the register we want. */
+  font-weight:500;
+  font-style:normal;
+  font-size:clamp(28px, 3.4vw, 44px);
+  letter-spacing:-0.4px;
+  line-height:1.12;
   color:var(--ink);
-  transition:color 0.3s ease;
+  /* Title + byline are one editorial unit; their internal gap should
+     be tighter than the cover→title gap so the caption reads as a
+     single block under the image instead of two stacked lines. */
+  margin:0 0 8px;
+  hyphens:none;
+  /* Kerning + standard ligatures at this size make the visible
+     difference between "fine" and "refined" type — particularly on
+     Cormorant pairings like "Tt", "fi", "fl". */
+  font-feature-settings:"kern" 1, "liga" 1;
+  text-rendering:optimizeLegibility;
 }
-.journal-index-row:hover .journal-index-title{
-  color:rgba(0,0,0,0.65);
-}
-.journal-index-preamble{
+.journal-index-byline{
+  display:block;
   font-family:'Cormorant','Title CJK',serif;
-  font-size:17px;line-height:1.55;
+  font-style:normal;
+  font-weight:400;
+  font-size:17px;line-height:1.4;
   color:var(--ink-soft);
-  max-width:560px;
-  margin:4px 0 0;
 }
-.journal-index-meta{
-  display:flex;align-items:center;gap:8px;
-  font-family:'Saira Condensed',Barlow,sans-serif;
-  font-weight:500;font-size:11px;letter-spacing:0.15em;
-  text-transform:uppercase;
-  color:rgba(0,0,0,0.32);
-  margin-top:4px;
-}
-.journal-index-sep{
-  opacity:0.5;
+
+/* --- Hover ------------------------------------------------------------- */
+@media (hover:hover){
+  .journal-index-row:hover .journal-index-media video,
+  .journal-index-row:hover .journal-index-media img{
+    transform:scale(1.0);
+  }
 }
 
 /* --- Mobile ------------------------------------------------------------ */
-@media(max-width:720px){
+@media(max-width:900px){
   .journal-index-row{
-    min-height:clamp(240px, 50vh, 400px);
+    grid-template-columns:1.6fr 1fr;
+    gap:clamp(28px, 4vw, 48px);
   }
-  .journal-index-content{
-    gap:24px;
-    padding:48px var(--gutter);
+  .journal-index-caption{ max-width:none; }
+}
+@media(max-width:720px){
+  /* Below ~720px the side-by-side composition gets too cramped — cover
+     stacks above caption again, but the masthead's edge-justified meta
+     stays as the distinguishing horizontal motif. */
+  .journal-index-row{
+    grid-template-columns:1fr;
+    grid-template-areas:
+      "meta"
+      "cover"
+      "caption";
+    /* Row-gap explicit so the masthead never collapses onto the cover.
+       column-gap zeroed since we're single-column now. */
+    column-gap:0;
+    row-gap:20px;
+    padding:clamp(40px, 6vh, 72px) var(--gutter);
   }
-  .journal-index-title{
-    font-size:clamp(24px, 6vw, 34px);
+  .journal-index-cover{
+    margin-top:0;
+    aspect-ratio:4 / 3;
   }
-  .journal-index-preamble{
-    font-size:15px;
+  .journal-index-caption{
+    align-self:start;
+    /* Already handled by row-gap; no margin-top needed. */
+    margin-top:8px;
+    max-width:none;
   }
 }
-@media(max-width:480px){
-  .journal-index-content{
-    flex-direction:column;gap:0;
+@media(max-width:600px){
+  .journal-index-meta-top{
+    font-size:10px;letter-spacing:0.22em;
   }
-  .journal-index-number{
-    padding-top:0;margin-bottom:8px;
+  .journal-index-headline{
+    font-size:clamp(28px, 7.5vw, 38px);
   }
+  .journal-index-byline{ font-size:16px; }
 }
 .artist-page-name{
   font-family:'Cormorant','Title CJK',serif;font-weight:500;font-size:40px;letter-spacing:-0.25px;

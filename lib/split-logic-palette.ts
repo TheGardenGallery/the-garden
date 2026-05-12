@@ -14,7 +14,12 @@ import { promises as fs } from "node:fs";
 import { unstable_cache } from "next/cache";
 import sharp from "sharp";
 
-import type { WedgeCell } from "./split-logic-color";
+import {
+  hexToOklch,
+  newSignatureAccumulator,
+  type ColorSignature,
+  type WedgeCell,
+} from "./split-logic-color";
 export type { WedgeCell } from "./split-logic-color";
 
 function rgbToHex(r: number, g: number, b: number): string {
@@ -30,10 +35,16 @@ type WedgeExtraction = {
   /** The wedge's dominant chromatic colour — what the bar shows
    *  and what the sort matches against. */
   characteristic: string;
-  /** Same colour, wrapped as a single-entry palette (kept as an
-   *  array for the SplitLogicSystem sort, which still iterates a
-   *  per-wedge palette via min-distance). */
+  /** Same colour, wrapped as a single-entry palette. Retained for
+   *  legacy compatibility / debugging; the live sort runs against
+   *  `signature` instead. */
   palette: string[];
+  /** Per-pixel hue/L/C distribution embedding — see ColorSignature in
+   *  split-logic-color.ts. The same chromatic-pixel pass that yields
+   *  `characteristic` also feeds the signature accumulator, so we get
+   *  both the "what colour is this piece" headline and the full
+   *  distribution vector in a single image read. */
+  signature: ColorSignature;
 };
 
 const VIBRANCE_THRESHOLD = 0.12;
@@ -67,6 +78,7 @@ const extractWedgeData = unstable_cache(
     const { channels } = info;
 
     let sumR = 0, sumG = 0, sumB = 0, sumW = 0;
+    const sig = newSignatureAccumulator();
     for (let i = 0; i < data.length; i += channels) {
       const r = data[i], g = data[i + 1], b = data[i + 2];
       const max = Math.max(r, g, b);
@@ -79,6 +91,11 @@ const extractWedgeData = unstable_cache(
       sumG += g * v;
       sumB += b * v;
       sumW += v;
+      // Same vibrance weight feeds the embedding so a piece's hue
+      // histogram reflects "where the chroma actually lives" rather
+      // than counting every grey pixel equally.
+      const lch = hexToOklch(rgbToHex(r, g, b));
+      sig.addPixel(lch.L, lch.C, lch.h, v);
     }
 
     const dominant =
@@ -90,9 +107,13 @@ const extractWedgeData = unstable_cache(
           )
         : "#808080";
 
-    return { characteristic: dominant, palette: [dominant] };
+    return {
+      characteristic: dominant,
+      palette: [dominant],
+      signature: sig.finalize(),
+    };
   },
-  ["split-logic-wedge-data-v6"],
+  ["split-logic-wedge-data-v7"],
   { revalidate: false }
 );
 
@@ -113,7 +134,31 @@ export async function getSplitLogicPalette(): Promise<WedgeCell[]> {
       return {
         hex: data.characteristic,
         palette: data.palette,
+        signature: data.signature,
         wedgeId: `wedge-${n}`,
+      };
+    })
+  );
+}
+
+/**
+ * Returns colour data for all 100 sl-* items in the full series.
+ * Same extraction as getSplitLogicPalette but covering sl-001..sl-100.
+ */
+export async function getSplitLogicFullPalette(): Promise<WedgeCell[]> {
+  const ids = Array.from({ length: 100 }, (_, i) =>
+    String(i + 1).padStart(3, "0")
+  );
+  return Promise.all(
+    ids.map(async (n) => {
+      const data = await extractWedgeData(
+        `/images/ricky-retouch/works/sl-${n}.jpg`
+      );
+      return {
+        hex: data.characteristic,
+        palette: data.palette,
+        signature: data.signature,
+        wedgeId: `sl-${n}`,
       };
     })
   );
@@ -154,6 +199,7 @@ export async function getSplitLogicMagnifierTones(): Promise<
   Record<string, string>
 > {
   const wedges = await getSplitLogicPalette();
+  const fullItems = await getSplitLogicFullPalette();
   const artwork = await getSplitLogicArtworkColors();
   const map: Record<string, string> = {};
 
@@ -167,8 +213,14 @@ export async function getSplitLogicMagnifierTones(): Promise<
     map[`/images/ricky-retouch/inline/inline-${i + 1}.jpg`] = artwork.inline[i];
   }
 
-  // Wedges (piece grid)
+  // Curated wedges (piece grid)
   for (const w of wedges) {
+    map[`/images/ricky-retouch/works/${w.wedgeId}.mp4`] = w.hex;
+    map[`/images/ricky-retouch/works/${w.wedgeId}.jpg`] = w.hex;
+  }
+
+  // Full series (sl-001..sl-100)
+  for (const w of fullItems) {
     map[`/images/ricky-retouch/works/${w.wedgeId}.mp4`] = w.hex;
     map[`/images/ricky-retouch/works/${w.wedgeId}.jpg`] = w.hex;
   }
