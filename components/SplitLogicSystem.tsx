@@ -7,6 +7,7 @@ import {
   kmeansWeighted,
   oklchToHex,
   signatureFromHex,
+  type Oklch,
   type WedgeCell,
   type WeightedSample,
 } from "@/lib/split-logic-color";
@@ -26,38 +27,51 @@ function computeSortedIndices(
   cells: WedgeCell[],
   lockedZoneIdx: number | null,
   topHueNorm: number[],
-  inZoneWeights: number[][],
-  distToLockedZone: number[] | null,
+  topClusterDistToLocked: number[] | null,
+  isRainbow: boolean[],
 ): number[] {
   const n = cells.length;
   const indices = Array.from({ length: n }, (_, i) => i);
 
+  // Rainbow pieces (multi-colour mosaics that span 3+ hue families)
+  // always cluster together at the end of the grid, regardless of
+  // sort. They're a "rainbow trait" that breaks cohesion if
+  // interleaved — a piece that's 20% red, 20% green, 20% blue, 20%
+  // yellow has no business appearing inside the run of red-dominant
+  // pieces just because it has some red. Better to have them as a
+  // distinct block the eye can read as "and these are the
+  // multicolour ones."
+  const partition = (a: number, b: number) => {
+    if (isRainbow[a] !== isRainbow[b]) return isRainbow[a] ? 1 : -1;
+    return 0;
+  };
+
   if (lockedZoneIdx === null) {
-    // Default order: smooth rainbow gradient by each piece's
-    // top-weight cluster hue (normalized to [0, 2π)).
-    //
-    // The signal change vs. the old single-mean-hue sort: a piece's
-    // dominant cluster is the largest contiguous colour mass; it
-    // doesn't shift when ink-to-ground ratio drifts the way a
-    // vibrance-weighted RGB mean does. Two visually identical light-
-    // blue pieces both have light-blue as their top cluster → both
-    // sort to the same place in the rainbow → adjacent in the grid.
-    indices.sort((a, b) => topHueNorm[a] - topHueNorm[b]);
+    // Default: rainbow pieces last; non-rainbow sorted by top-weight
+    // cluster hue for a smooth gradient. The top cluster doesn't
+    // drift the way a vibrance-weighted single mean does, so two
+    // visually similar light-blue pieces sort adjacent.
+    indices.sort((a, b) => {
+      const p = partition(a, b);
+      if (p !== 0) return p;
+      return topHueNorm[a] - topHueNorm[b];
+    });
     return indices;
   }
 
-  // Locked sort: pieces with the most cluster mass in the locked
-  // zone come first. A piece that's 60% blue + 40% red beats a
-  // piece that's 30% blue + 70% red when blue is locked.
-  // Tiebreak by minimum colour distance to the zone centroid so
-  // equal-weight pieces (e.g. both have 0 weight here) still order
-  // sensibly — the closest visually-similar pieces win the tie
-  // instead of falling back to original array order.
-  const dist = distToLockedZone!;
+  // Locked: rank non-rainbow pieces by distance from their TOP
+  // cluster (their dominant colour) to the locked zone centroid.
+  // The earlier in-zone-weight ranking gave a piece credit for
+  // having one tiny green tile in an otherwise red composition —
+  // the "wrong" piece showed up second when locking on green. Using
+  // the top cluster instead means a piece must be DOMINATED by the
+  // locked colour to rank high; a yellow-dominant piece with a
+  // green tile sits with the other yellow-dominant pieces, far
+  // from the head of the green-locked view.
+  const dist = topClusterDistToLocked!;
   indices.sort((a, b) => {
-    const wa = inZoneWeights[a][lockedZoneIdx];
-    const wb = inZoneWeights[b][lockedZoneIdx];
-    if (wa !== wb) return wb - wa;
+    const p = partition(a, b);
+    if (p !== 0) return p;
     return dist[a] - dist[b];
   });
   return indices;
@@ -183,65 +197,83 @@ export function SplitLogicSystem({
     });
   }, [cells]);
 
-  // Per-piece colour profile used by both the default rainbow sort
-  // and the locked-zone sort.
-  //   topHueNorm[i]  = hue of piece i's heaviest cluster, normalized
-  //                    to [0, 2π) so the rainbow anchors at red.
-  //   inZoneWeights[i][z] = sum of cluster weights in piece i whose
-  //                    nearest zone centroid is z. Drives the locked
-  //                    sort — pieces with most blue cluster mass come
-  //                    first when the blue zone is locked.
+  // Per-piece colour profile.
+  //   topHueNorm[i]   = hue of piece i's heaviest chromatic cluster,
+  //                     normalized to [0, 2π) for the rainbow gradient.
+  //   topClusterLch[i] = the full Oklch of that heaviest cluster —
+  //                     used by the locked sort for distance-to-zone
+  //                     ranking. Using the dominant colour (not the
+  //                     piece's full pixel distribution) means a piece
+  //                     must actually be dominated by the locked
+  //                     colour to rank high; a stray green tile in a
+  //                     yellow piece won't pull it into the green
+  //                     view.
+  //   isRainbow[i]    = the piece is a multi-colour mosaic spanning
+  //                     3+ different hue families with each family
+  //                     carrying ≥10% of the piece's total cluster
+  //                     weight. These pieces (Split Logic 1, 4, 94,
+  //                     95, 96, …) have small amounts of every colour
+  //                     and would otherwise leak into every locked-
+  //                     zone view, breaking grid cohesion. They get
+  //                     bucketed together at the end of every sort.
+  const BIN_WIDTH = TWO_PI / ZONE_COUNT;
   const piecePrimaries = useMemo(() => {
-    const numZones = zoneCells.length;
     const topHueNorm: number[] = [];
-    const inZoneWeights: number[][] = [];
+    const topClusterLch: Oklch[] = [];
+    const isRainbow: boolean[] = [];
     for (const cell of cells) {
       let topW = -Infinity;
-      let topH = 0;
-      const w = new Array(numZones).fill(0);
+      let topLch: Oklch = { L: 0, C: 0, h: 0 };
+      let totalW = 0;
       for (const cluster of cell.clusters) {
         if (isUnsuitableForBar(cluster.lch)) continue;
+        totalW += cluster.weight;
         if (cluster.weight > topW) {
           topW = cluster.weight;
-          topH = cluster.lch.h;
-        }
-        if (numZones > 0) {
-          let nearest = 0;
-          let minD = Infinity;
-          for (let z = 0; z < numZones; z++) {
-            const d = colorDistance(cluster.lch, zoneCells[z].clusters[0].lch);
-            if (d < minD) { minD = d; nearest = z; }
-          }
-          w[nearest] += cluster.weight;
+          topLch = cluster.lch;
         }
       }
-      // Fallback for an all-neutral piece: use cell.hex's hue, which
-      // is the single vibrance-weighted mean — better than 0.
+      // Fallback for an all-neutral piece — use the first cluster.
       if (topW === -Infinity && cell.clusters.length > 0) {
-        topH = cell.clusters[0].lch.h;
+        topLch = cell.clusters[0].lch;
+        for (const c of cell.clusters) totalW += c.weight;
       }
-      topHueNorm.push(normHue(topH));
-      inZoneWeights.push(w);
-    }
-    return { topHueNorm, inZoneWeights };
-  }, [cells, zoneCells]);
 
-  // Per-piece distance to the currently-locked zone (used as the
-  // locked-sort tiebreak so equal-weight pieces still order sensibly).
-  // Recomputed when the lock changes; null when nothing is locked.
-  const distToLockedZone = useMemo<number[] | null>(() => {
+      // Rainbow detection: count distinct hue bins that hold ≥10% of
+      // the piece's total cluster weight. 3+ distinct bins → rainbow.
+      const bins = new Set<number>();
+      if (totalW > 0) {
+        for (const cluster of cell.clusters) {
+          if (isUnsuitableForBar(cluster.lch)) continue;
+          if (cluster.weight / totalW < 0.10) continue;
+          const bin =
+            Math.min(
+              ZONE_COUNT - 1,
+              Math.floor(normHue(cluster.lch.h) / BIN_WIDTH),
+            ) % ZONE_COUNT;
+          bins.add(bin);
+        }
+      }
+
+      topHueNorm.push(normHue(topLch.h));
+      topClusterLch.push(topLch);
+      isRainbow.push(bins.size >= 3);
+    }
+    return { topHueNorm, topClusterLch, isRainbow };
+  // BIN_WIDTH derives from constants — dependency unnecessary.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cells]);
+
+  // Distance from each piece's TOP (dominant) cluster to the locked
+  // zone's centroid. Recomputed when the lock changes; null otherwise.
+  const topClusterDistToLocked = useMemo<number[] | null>(() => {
     if (lockedZoneIdx === null) return null;
     if (zoneCells.length === 0) return null;
     const targetLch = zoneCells[lockedZoneIdx].clusters[0].lch;
-    return cells.map((cell) => {
-      let minD = Infinity;
-      for (const cluster of cell.clusters) {
-        const d = colorDistance(cluster.lch, targetLch);
-        if (d < minD) minD = d;
-      }
-      return minD === Infinity ? 999 : minD;
-    });
-  }, [cells, zoneCells, lockedZoneIdx]);
+    return piecePrimaries.topClusterLch.map((lch) =>
+      colorDistance(lch, targetLch),
+    );
+  }, [piecePrimaries, zoneCells, lockedZoneIdx]);
 
   const sortedIndices = useMemo(
     () =>
@@ -249,10 +281,10 @@ export function SplitLogicSystem({
         cells,
         lockedZoneIdx,
         piecePrimaries.topHueNorm,
-        piecePrimaries.inZoneWeights,
-        distToLockedZone,
+        topClusterDistToLocked,
+        piecePrimaries.isRainbow,
       ),
-    [cells, lockedZoneIdx, piecePrimaries, distToLockedZone],
+    [cells, lockedZoneIdx, piecePrimaries, topClusterDistToLocked],
   );
 
   const pageItems = useMemo(() => {
