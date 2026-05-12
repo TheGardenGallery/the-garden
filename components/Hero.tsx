@@ -70,9 +70,23 @@ export function Hero({ slides }: HeroProps) {
   // below force decode too. Without this, the FIRST switch is choppy
   // (asset fetched + decoded as it animates in); subsequent switches
   // are smooth because everything's cached.
+  //
+  // On slow / metered connections this bulk-preload would be punitive
+  // (multiple multi-MB videos pulled before the user can do anything),
+  // so we read NetworkInformation and skip non-active slides — they
+  // load lazily as the carousel reaches them.
   useEffect(() => {
+    const conn = (navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string };
+    }).connection;
+    const constrained =
+      conn?.saveData === true ||
+      (conn?.effectiveType !== undefined &&
+        ["slow-2g", "2g", "3g"].includes(conn.effectiveType));
+
     const links: HTMLLinkElement[] = [];
-    for (const s of slides) {
+    const preloadList = constrained ? slides.slice(0, 1) : slides;
+    for (const s of preloadList) {
       const ex = s.exhibition;
       const video = ex.homepageHeroVideo;
       const image = ex.homepageHero ?? ex.hero;

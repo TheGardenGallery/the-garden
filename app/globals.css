@@ -118,7 +118,29 @@
 
 /* ---- RESET ---------------------------------------------------------- */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-html{font-size:16px;-webkit-font-smoothing:antialiased;scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:gray transparent;background:var(--paper);}
+/* iOS' default tap highlight is a chunky dark-blue rectangle that
+   flashes on every <a>/<button> tap and clashes with the site's own
+   hover/active states. Suppressing globally — interactive elements
+   provide their own tactile feedback through hover and active styles. */
+a,button,[role="button"],summary,label{
+  -webkit-tap-highlight-color:transparent;
+}
+html{
+  font-size:16px;
+  /* Antialiased smoothing on both webkit and Firefox-on-macOS — without
+     -moz-osx-font-smoothing, Firefox renders serif type heavier than
+     Safari/Chrome on the same Mac, breaking visual parity. */
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  /* Force kerning + ligatures everywhere (older browsers default
+     "auto" only applies them to large type). Negligible perf cost for
+     a site of this prose volume. */
+  text-rendering:optimizeLegibility;
+  scroll-behavior:smooth;
+  scrollbar-width:thin;
+  scrollbar-color:gray transparent;
+  background:var(--paper);
+}
 /* Match the html background to whichever surface the current page
    is presenting, so the native rubber-band overscroll always
    reveals a coherent color rather than a mismatched white slab on
@@ -1355,6 +1377,10 @@ html:has(.constellation-root){
    generously gapped so each plant reads as its own specimen. */
 .principles-page{
   min-height:100vh;
+  /* dvh override so iOS Safari's address-bar show/hide doesn't jolt
+     the layout — without it, the page reflows every time the URL
+     bar appears/disappears during scroll. */
+  min-height:100dvh;
   background:var(--paper-warm);
   padding:calc(var(--nav-height) + 96px) var(--gutter) 96px;
   display:flex;align-items:center;justify-content:center;

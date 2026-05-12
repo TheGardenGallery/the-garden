@@ -186,7 +186,11 @@ export function PieceGrid({
                         muted
                         loop
                         playsInline
-                        preload="auto"
+                        // metadata, not auto — cells mount on hover but the
+                        // user may never play many of them; aggressive
+                        // preload chews bandwidth on cells that get one
+                        // brief hover. play() handles buffering on demand.
+                        preload="metadata"
                         aria-hidden="true"
                       />
                     ) : (
@@ -196,6 +200,11 @@ export function PieceGrid({
                         alt=""
                         draggable={false}
                         loading="lazy"
+                        // Async decoding pushes image decode off the
+                        // main thread — meaningful for a grid where
+                        // ~12 posters can decode concurrently on first
+                        // paint.
+                        decoding="async"
                       />
                     )}
                   </div>

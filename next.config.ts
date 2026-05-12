@@ -17,6 +17,14 @@ const nextConfig: NextConfig = {
   outputFileTracingExcludes: {
     "*": ["public/images/**"],
   },
+  // Several call sites pass `quality={90}` to next/image (the artwork
+  // posters, in particular). Next 16 will require these qualities to be
+  // declared up-front; registering both the default 75 and the 90 we
+  // actually use clears the dev-server warning and keeps production
+  // forward-compatible.
+  images: {
+    qualities: [75, 90],
+  },
 };
 
 export default nextConfig;

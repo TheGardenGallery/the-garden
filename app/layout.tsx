@@ -32,6 +32,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* The site mixes paper and dark surfaces page-to-page; declaring
+            both schemes lets the browser style native UI (scrollbars,
+            form controls, autofill) appropriately on either surface
+            instead of always rendering with the system default. */}
+        <meta name="color-scheme" content="light dark" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
