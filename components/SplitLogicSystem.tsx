@@ -44,6 +44,16 @@ const RAINBOW_IDS = new Set([
   "sl-096",
 ]);
 
+// Pieces that must always appear adjacent in the grid, regardless of
+// sort. Use when two pieces are visually a pair or call-and-response
+// and the colour-similarity sort would split them by even a small
+// hue drift. After the primary sort runs, the post-pass below moves
+// every group member to sit immediately after the group's first
+// occurrence, preserving their relative order.
+const ADJACENCY_GROUPS: string[][] = [
+  ["sl-007", "sl-012"],
+];
+
 function computeSortedIndices(
   cells: WedgeCell[],
   lockedZoneIdx: number | null,
@@ -271,17 +281,36 @@ export function SplitLogicSystem({
     );
   }, [piecePrimaries, zoneCells, lockedZoneIdx]);
 
-  const sortedIndices = useMemo(
-    () =>
-      computeSortedIndices(
-        cells,
-        lockedZoneIdx,
-        piecePrimaries.topHueNorm,
-        topClusterDistToLocked,
-        piecePrimaries.isRainbow,
-      ),
-    [cells, lockedZoneIdx, piecePrimaries, topClusterDistToLocked],
-  );
+  const sortedIndices = useMemo(() => {
+    const sorted = computeSortedIndices(
+      cells,
+      lockedZoneIdx,
+      piecePrimaries.topHueNorm,
+      topClusterDistToLocked,
+      piecePrimaries.isRainbow,
+    );
+    // Adjacency post-pass — pull every group member into a contiguous
+    // run, anchored at the position of the first member found in the
+    // current sort. Members later in the sort are spliced out and
+    // re-inserted right after the anchor, preserving relative order.
+    if (ADJACENCY_GROUPS.length === 0) return sorted;
+    const result = sorted.slice();
+    for (const group of ADJACENCY_GROUPS) {
+      const positions: number[] = [];
+      for (let i = 0; i < result.length; i++) {
+        if (group.includes(cells[result[i]].wedgeId)) positions.push(i);
+      }
+      if (positions.length < 2) continue;
+      const anchor = positions[0];
+      const movers: number[] = [];
+      for (let i = positions.length - 1; i > 0; i--) {
+        movers.unshift(result[positions[i]]);
+        result.splice(positions[i], 1);
+      }
+      result.splice(anchor + 1, 0, ...movers);
+    }
+    return result;
+  }, [cells, lockedZoneIdx, piecePrimaries, topClusterDistToLocked]);
 
   const pageItems = useMemo(() => {
     const start = page * PAGE_SIZE;
