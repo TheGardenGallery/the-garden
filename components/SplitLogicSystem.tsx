@@ -4,19 +4,21 @@ import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import {
   hexToOklch,
   isUnsuitableForBar,
-  kmeansClusters,
+  kmeansWeighted,
   oklchToHex,
-  pickDistinctIndices,
   signatureDistance,
   signatureFromHex,
   type WedgeCell,
   type Oklch,
+  type WeightedSample,
 } from "@/lib/split-logic-color";
 import { SplitLogicPalette } from "./SplitLogicPalette";
 import { PieceGrid, type PieceGridItem } from "./PieceGrid";
 
 const PAGE_SIZE = 12;
-const ZONE_COUNT = 6;
+// Eight zones gives a fuller rainbow without crowding the bar — six
+// always left a gap between green and blue or between red and orange.
+const ZONE_COUNT = 8;
 
 function computeSortedIndices(
   cells: WedgeCell[],
@@ -67,35 +69,52 @@ export function SplitLogicSystem({
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const lchs = useMemo(() => cells.map((c) => hexToOklch(c.hex)), [cells]);
-  // Bar zones — hybrid of k-means (representativeness) and
-  // farthest-first (mutual distinctness). K-means alone tends to drop
-  // two centroids in the same dense region (e.g. two near-identical
-  // greens if the series leans heavily on green), which makes the bar
-  // read as "two cells the same colour." Over-clustering to k=12 then
-  // picking the 6 most mutually-distant centroids gives the bar both
-  // properties: every cell is the mean of a real colour family AND no
-  // two cells are perceptually duplicates. Sorted dark→light.
+  // Bar zones — Material-You / Vibrant.js-inspired pipeline:
+  //   1. POOL every wedge's per-image clusters (5 per piece) into one
+  //      weighted sample set. Each cluster carries its piece's
+  //      population × chroma — saturated tones pull harder than dim
+  //      ones. This is the key shift from the old single-mean-per-piece
+  //      input: a red+blue piece now contributes both red and blue
+  //      clusters instead of muddying the pool with their average.
+  //   2. FILTER aggressively — drop neutrals (C < 0.10), browns,
+  //      and extreme luminance (near-black/white). The bar should be
+  //      firmly chromatic; a dusty grey-blue or charcoal in the row
+  //      reads as a gap.
+  //   3. WEIGHTED K-MEANS on the filtered pool, k = ZONE_COUNT (8).
+  //      Each cluster's pull is scaled by its weight so the centroids
+  //      land where the series' colour mass actually concentrates.
+  //   4. HUE SORT the centroids — produces a true left-to-right
+  //      rainbow rather than a dark→light gradient. Reds on one end,
+  //      violets on the other, no neutrals anywhere.
   const zoneCells = useMemo<WedgeCell[]>(() => {
-    const eligibleLchs: Oklch[] = [];
-    for (let i = 0; i < lchs.length; i++) {
-      if (isUnsuitableForBar(lchs[i])) continue;
-      eligibleLchs.push(lchs[i]);
+    const pool: WeightedSample[] = [];
+    for (const cell of cells) {
+      for (const cluster of cell.clusters) {
+        if (isUnsuitableForBar(cluster.lch)) continue;
+        pool.push({ lch: cluster.lch, weight: cluster.weight });
+      }
     }
-    const overClusters = kmeansClusters(eligibleLchs, ZONE_COUNT * 2);
-    const picked = pickDistinctIndices(overClusters, ZONE_COUNT).map(
-      (i) => overClusters[i]
-    );
-    picked.sort((a, b) => b.L - a.L);
-    return picked.map((lch, i) => {
+    if (pool.length === 0) return [];
+    const centroids = kmeansWeighted(pool, ZONE_COUNT);
+    // Sort by hue, normalized to [0, 2π) so the rainbow anchors at
+    // red (~0.5 rad) and proceeds red → orange → yellow → green →
+    // cyan → blue → purple → magenta. Without normalization the raw
+    // atan2 range (-π, π] would split the wheel between magenta and
+    // cyan and put them at opposite ends of the bar — visually wrong.
+    const TWO_PI = Math.PI * 2;
+    const norm = (h: number) => ((h % TWO_PI) + TWO_PI) % TWO_PI;
+    centroids.sort((a, b) => norm(a.h) - norm(b.h));
+    return centroids.map((lch, i) => {
       const hex = oklchToHex(lch);
       return {
         hex,
         palette: [hex],
         signature: signatureFromHex(hex),
+        clusters: [{ lch, weight: 1 }],
         wedgeId: `cluster-${i}`,
       };
     });
-  }, [lchs]);
+  }, [cells]);
 
   const sortedIndices = useMemo(
     () => computeSortedIndices(cells, lchs, lockedZoneIdx, zoneCells),

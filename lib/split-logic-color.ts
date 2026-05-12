@@ -34,6 +34,14 @@ export type WedgeCell = {
    * one near-identical pixel.
    */
   signature: ColorSignature;
+  /**
+   * Top-N colour clusters for this piece (k-means on the chromatic
+   * pixels). Each carries population × chroma weight. The colour bar
+   * pools every wedge's clusters and runs weighted k-means over the
+   * pool to derive the global zones — so a piece contributes its
+   * *actual palette* (multiple distinct colours), not a muddied mean.
+   */
+  clusters: ColorCluster[];
 };
 
 export type Oklch = { L: number; C: number; h: number };
@@ -143,10 +151,22 @@ export function isBrownish(lch: Oklch): boolean {
  * chroma is too low to read as a colour identity. The colour bar uses
  * this together with isBrownish to keep the row firmly chromatic; a
  * pale grey-blue or warm beige in the middle of saturated zones reads
- * as a gap rather than a colour.
+ * as a gap rather than a colour. Threshold raised to 0.10 so dusty
+ * pastels also fail the gate — the bar should be firmly saturated.
  */
 export function isNeutral(lch: Oklch): boolean {
-  return lch.C < 0.07;
+  return lch.C < 0.10;
+}
+
+/**
+ * Extreme-luminance test — near-black or near-white. These are
+ * edge tones that read as background ground, not chromatic identity,
+ * even when chroma squeaks past the neutral threshold (a near-white
+ * with a slight tint, for example). Filtered out of bar candidates so
+ * the row stays in the meaty middle of the lightness range.
+ */
+export function isExtremeLuminance(lch: Oklch): boolean {
+  return lch.L < 0.18 || lch.L > 0.92;
 }
 
 /**
@@ -155,7 +175,130 @@ export function isNeutral(lch: Oklch): boolean {
  * the rules can grow (or be relaxed) in one place.
  */
 export function isUnsuitableForBar(lch: Oklch): boolean {
-  return isBrownish(lch) || isNeutral(lch);
+  return isBrownish(lch) || isNeutral(lch) || isExtremeLuminance(lch);
+}
+
+/** A single colour cluster extracted from an image — the centroid in
+ *  OKLCh space plus a population-derived weight. Multiple per piece;
+ *  the pool of all clusters across the series feeds the global
+ *  weighted k-means that drives the colour bar. */
+export type ColorCluster = {
+  lch: Oklch;
+  /** Population × mean-chroma. Saturated colours pull harder, sparse
+   *  ones pull less, but every cluster contributes something. */
+  weight: number;
+};
+
+/** Generic weighted sample for the weighted k-means below. */
+export type WeightedSample = {
+  lch: Oklch;
+  weight: number;
+};
+
+/**
+ * Weighted k-means clustering in OKLCh space. Same Lloyd's algorithm
+ * as `kmeansClusters`, but each sample carries a weight that scales
+ * its pull on its assigned centroid. Used to aggregate the per-image
+ * cluster pool into the small global palette: a "red" cluster from
+ * a 90%-red piece pulls 9× harder than a "red" cluster from a piece
+ * with one stray red pixel.
+ *
+ * Hue averaging uses a chroma-weighted vector mean — points near the
+ * grey axis (low C) shouldn't tug the centroid hue with their noisy
+ * angular position, which they don't here because they barely
+ * contribute to the (cos×C, sin×C) sum.
+ */
+export function kmeansWeighted(
+  samples: WeightedSample[],
+  k: number,
+  maxIter: number = 40
+): Oklch[] {
+  if (samples.length === 0 || k === 0) return [];
+  const effK = Math.min(k, samples.length);
+
+  // k-means++ seeding: start with the highest-chroma sample, then each
+  // next centroid maximises the minimum (weighted) distance from any
+  // existing centroid. Spreads seeds across the colour space without
+  // depending on shuffle order.
+  let seedIdx = 0;
+  let maxC = -Infinity;
+  for (let i = 0; i < samples.length; i++) {
+    if (samples[i].lch.C > maxC) {
+      maxC = samples[i].lch.C;
+      seedIdx = i;
+    }
+  }
+  const centroids: Oklch[] = [{ ...samples[seedIdx].lch }];
+
+  while (centroids.length < effK) {
+    let bestIdx = -1;
+    let bestMinD = -Infinity;
+    for (let i = 0; i < samples.length; i++) {
+      let minD = Infinity;
+      for (const c of centroids) {
+        const d = colorDistance(samples[i].lch, c);
+        if (d < minD) minD = d;
+      }
+      if (minD > bestMinD) {
+        bestMinD = minD;
+        bestIdx = i;
+      }
+    }
+    if (bestIdx < 0) break;
+    centroids.push({ ...samples[bestIdx].lch });
+  }
+
+  // Lloyd's with weighted means.
+  for (let iter = 0; iter < maxIter; iter++) {
+    const buckets: WeightedSample[][] = Array.from({ length: effK }, () => []);
+    for (const s of samples) {
+      let nearest = 0;
+      let minD = Infinity;
+      for (let i = 0; i < effK; i++) {
+        const d = colorDistance(s.lch, centroids[i]);
+        if (d < minD) {
+          minD = d;
+          nearest = i;
+        }
+      }
+      buckets[nearest].push(s);
+    }
+    let shifted = 0;
+    for (let i = 0; i < effK; i++) {
+      const bucket = buckets[i];
+      if (bucket.length === 0) continue;
+      let totalW = 0;
+      let sumL = 0;
+      let sumC = 0;
+      let sumX = 0;
+      let sumY = 0;
+      for (const s of bucket) {
+        const w = s.weight;
+        totalW += w;
+        sumL += s.lch.L * w;
+        sumC += s.lch.C * w;
+        // Chroma-weighted vector mean for hue (cos/sin × C × w) so
+        // grey-ish points contribute negligibly to the angular pull.
+        sumX += Math.cos(s.lch.h) * s.lch.C * w;
+        sumY += Math.sin(s.lch.h) * s.lch.C * w;
+      }
+      if (totalW <= 0) continue;
+      const newL = sumL / totalW;
+      const newC = sumC / totalW;
+      const newH = Math.atan2(sumY, sumX);
+      if (
+        Math.abs(newL - centroids[i].L) > 0.0008 ||
+        Math.abs(newC - centroids[i].C) > 0.0008 ||
+        Math.abs(newH - centroids[i].h) > 0.005
+      ) {
+        shifted++;
+      }
+      centroids[i] = { L: newL, C: newC, h: newH };
+    }
+    if (shifted === 0) break;
+  }
+
+  return centroids;
 }
 
 /**

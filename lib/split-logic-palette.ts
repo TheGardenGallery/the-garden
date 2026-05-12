@@ -15,9 +15,13 @@ import { unstable_cache } from "next/cache";
 import sharp from "sharp";
 
 import {
+  colorDistance,
   hexToOklch,
+  kmeansWeighted,
   newSignatureAccumulator,
+  type ColorCluster,
   type ColorSignature,
+  type Oklch,
   type WedgeCell,
 } from "./split-logic-color";
 export type { WedgeCell } from "./split-logic-color";
@@ -45,9 +49,17 @@ type WedgeExtraction = {
    *  both the "what colour is this piece" headline and the full
    *  distribution vector in a single image read. */
   signature: ColorSignature;
+  /** Top-N k-means clusters over the chromatic pixels — the piece's
+   *  actual palette, not its mean. The colour bar pools all wedges'
+   *  clusters and runs weighted k-means over the pool. */
+  clusters: ColorCluster[];
 };
 
 const VIBRANCE_THRESHOLD = 0.12;
+/** Per-image cluster count. Vibrant.js extracts 6 named swatches; we
+ *  use 5 since the wedges are simpler in palette than typical photos —
+ *  more than 5 starts producing redundant near-duplicates per piece. */
+const PER_IMAGE_CLUSTERS = 5;
 
 /**
  * Threshold-based dominant-colour extraction.
@@ -79,6 +91,10 @@ const extractWedgeData = unstable_cache(
 
     let sumR = 0, sumG = 0, sumB = 0, sumW = 0;
     const sig = newSignatureAccumulator();
+    // Chromatic pixels in OKLCh — fed to per-image k-means so the
+    // piece contributes its actual palette to the global pool, not a
+    // muddy single mean.
+    const chromaticLchs: Oklch[] = [];
     for (let i = 0; i < data.length; i += channels) {
       const r = data[i], g = data[i + 1], b = data[i + 2];
       const max = Math.max(r, g, b);
@@ -96,6 +112,7 @@ const extractWedgeData = unstable_cache(
       // than counting every grey pixel equally.
       const lch = hexToOklch(rgbToHex(r, g, b));
       sig.addPixel(lch.L, lch.C, lch.h, v);
+      chromaticLchs.push(lch);
     }
 
     const dominant =
@@ -107,13 +124,62 @@ const extractWedgeData = unstable_cache(
           )
         : "#808080";
 
+    // Per-image cluster extraction. K-means(k=5) on the chromatic
+    // pixels finds the piece's distinct colour groups, then we
+    // partition the pixels by nearest centroid and weight each
+    // centroid by population × mean-chroma. Saturated colours pull
+    // harder downstream (in the global pool); muted colours still
+    // contribute but don't dominate.
+    const clusters: ColorCluster[] = [];
+    if (chromaticLchs.length >= PER_IMAGE_CLUSTERS) {
+      const centroids = kmeansWeighted(
+        chromaticLchs.map((lch) => ({ lch, weight: 1 })),
+        PER_IMAGE_CLUSTERS
+      );
+      // Partition pixels to centroids to compute per-cluster weight.
+      const populations = new Array(centroids.length).fill(0);
+      const chromaSum = new Array(centroids.length).fill(0);
+      for (const lch of chromaticLchs) {
+        let nearest = 0;
+        let minD = Infinity;
+        for (let i = 0; i < centroids.length; i++) {
+          const d = colorDistance(lch, centroids[i]);
+          if (d < minD) {
+            minD = d;
+            nearest = i;
+          }
+        }
+        populations[nearest]++;
+        chromaSum[nearest] += lch.C;
+      }
+      for (let i = 0; i < centroids.length; i++) {
+        const pop = populations[i];
+        if (pop === 0) continue;
+        const meanC = chromaSum[i] / pop;
+        clusters.push({
+          lch: centroids[i],
+          // Weight = population × (mean chroma + small floor). The
+          // floor ensures even an entirely-pastel cluster contributes
+          // something — without it, a piece with no saturated cluster
+          // would have weight 0 and be invisible to the global pool.
+          weight: pop * (meanC + 0.05),
+        });
+      }
+    } else if (chromaticLchs.length > 0) {
+      // Tiny piece — just emit each chromatic pixel as its own cluster.
+      for (const lch of chromaticLchs) {
+        clusters.push({ lch, weight: lch.C + 0.05 });
+      }
+    }
+
     return {
       characteristic: dominant,
       palette: [dominant],
       signature: sig.finalize(),
+      clusters,
     };
   },
-  ["split-logic-wedge-data-v7"],
+  ["split-logic-wedge-data-v8"],
   { revalidate: false }
 );
 
@@ -135,6 +201,7 @@ export async function getSplitLogicPalette(): Promise<WedgeCell[]> {
         hex: data.characteristic,
         palette: data.palette,
         signature: data.signature,
+        clusters: data.clusters,
         wedgeId: `wedge-${n}`,
       };
     })
@@ -158,6 +225,7 @@ export async function getSplitLogicFullPalette(): Promise<WedgeCell[]> {
         hex: data.characteristic,
         palette: data.palette,
         signature: data.signature,
+        clusters: data.clusters,
         wedgeId: `sl-${n}`,
       };
     })
