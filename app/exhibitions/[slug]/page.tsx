@@ -236,7 +236,12 @@ const RICKY_TEXT: import("@/components/ArtistBroadsheet").BroadsheetParagraph[] 
 // vague nearby region.
 const RICKY_PINS: Record<
   string,
-  { region: { x: number; y: number; w: number; h: number }; code: string }
+  {
+    region: { x: number; y: number; w: number; h: number };
+    code: string;
+    cycle?: { x: number; y: number; w: number; h: number }[];
+    tint?: boolean;
+  }
 > = {
   // Wireframe's outer left-edge line — the most obvious partition on
   // the piece. Coords derived from detected wireframe-edge letters
