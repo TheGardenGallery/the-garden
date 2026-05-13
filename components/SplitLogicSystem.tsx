@@ -56,6 +56,7 @@ const ADJACENCY_GROUPS: string[][] = [
   ["sl-013", "sl-093"],
   ["sl-078", "sl-070", "sl-020"],
   ["sl-060", "sl-046", "sl-050", "sl-063"],
+  ["sl-015", "sl-008"],
 ];
 
 function computeSortedIndices(
