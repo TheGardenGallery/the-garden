@@ -266,29 +266,47 @@ const RICKY_PINS: Record<
   // 0.682-0.937), full image width.
   zon: { region: { x: 0.018, y: 0.710, w: 0.964, h: 0.290 }, code: "ZON" },
   // Numerical measurement readings scattered across the left column —
-  // small decimal values (e.g. 5.683, 4.499, 8.693) next to the letter
-  // labels. The cycle visits each reading in top-to-bottom order,
-  // sweeping through the artwork the way `sym` visits letterforms.
+  // small decimal values next to the letter labels. Coordinates from
+  // connected-component detection (scripts/detect-sl099-measurements.mjs)
+  // — bright-pixel flood-fill filtered for number-shaped blobs (aspect
+  // >1.2, area <1000, left 40% of image). The cycle visits each reading
+  // top-to-bottom, same sweeping-readout as `sym` visits letterforms.
   msr: {
-    region: { x: 0.015, y: 0.034, w: 0.044, h: 0.020 },
+    region: { x: 0.045, y: 0.089, w: 0.031, h: 0.019 },
     code: "MSR",
     cycle: [
-      // 6.001 — top-left, near LDP
-      { x: 0.015, y: 0.034, w: 0.044, h: 0.020 },
-      // 4.499 — upper area, near Z
-      { x: 0.166, y: 0.041, w: 0.047, h: 0.020 },
-      // 8.693 — mid-left, near RH
-      { x: 0.166, y: 0.206, w: 0.047, h: 0.020 },
-      // 8.604 — left-mid, near KVV
-      { x: 0.130, y: 0.330, w: 0.046, h: 0.020 },
-      // 8.865 — lower-left
-      { x: 0.015, y: 0.440, w: 0.044, h: 0.020 },
-      // 7.288 — below grid
-      { x: 0.229, y: 0.453, w: 0.049, h: 0.020 },
-      // 4.903 — near RKX
-      { x: 0.178, y: 0.515, w: 0.046, h: 0.020 },
-      // 5.318 — bottom-left, near IK
-      { x: 0.015, y: 0.611, w: 0.044, h: 0.020 },
+      // Detected (71,158)—(103,172) 33×15
+      { x: 0.045, y: 0.089, w: 0.031, h: 0.019 },
+      // Detected (276,184)—(329,204) 54×21
+      { x: 0.185, y: 0.107, w: 0.045, h: 0.023 },
+      // Detected (69,253)—(101,266) 33×14
+      { x: 0.043, y: 0.155, w: 0.031, h: 0.018 },
+      // Detected (275,285)—(307,299) 33×15
+      { x: 0.185, y: 0.177, w: 0.031, h: 0.019 },
+      // Detected (68,349)—(100,361) 33×13
+      { x: 0.043, y: 0.220, w: 0.031, h: 0.017 },
+      // Detected (66,443)—(99,457) 34×15
+      { x: 0.041, y: 0.285, w: 0.032, h: 0.019 },
+      // Detected (273,503)—(322,522) 50×20
+      { x: 0.183, y: 0.326, w: 0.043, h: 0.022 },
+      // Detected (272,759)—(321,777) 50×19
+      { x: 0.183, y: 0.502, w: 0.043, h: 0.021 },
+      // Detected (66,764)—(97,778) 32×15
+      { x: 0.041, y: 0.505, w: 0.030, h: 0.019 },
+      // Detected (337,976)—(376,986) 40×11
+      { x: 0.227, y: 0.651, w: 0.036, h: 0.016 },
+      // Detected (483,1015)—(517,1033) 35×19
+      { x: 0.328, y: 0.678, w: 0.032, h: 0.021 },
+      // Detected (66,1016)—(98,1030) 33×15
+      { x: 0.041, y: 0.679, w: 0.031, h: 0.019 },
+      // Detected (329,1144)—(358,1159) 30×16
+      { x: 0.222, y: 0.766, w: 0.029, h: 0.019 },
+      // Detected (469,1149)—(493,1160) 25×12
+      { x: 0.318, y: 0.770, w: 0.025, h: 0.016 },
+      // Detected (73,1392)—(104,1405) 32×14
+      { x: 0.046, y: 0.937, w: 0.030, h: 0.018 },
+      // Detected (573,1398)—(606,1412) 34×15
+      { x: 0.389, y: 0.941, w: 0.032, h: 0.019 },
     ],
   },
   // The cycle visits each prominent letter GLYPH individually (not
