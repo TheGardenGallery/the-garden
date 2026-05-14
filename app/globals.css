@@ -2835,7 +2835,12 @@ html:has(.constellation-root){
    off the wall — kept restrained, no hairline edge. Lining numerals on
    the captions sidestep any font-feature glitches with the edition
    numbers, which collide with onum + italic em. */
+.exhibition-detail[data-slug="autoscope"] .ex-inline-iframe{
+  overflow:hidden;
+}
 .exhibition-detail[data-slug="autoscope"] .ex-inline-iframe iframe{
+  transform:scale(calc(100 / var(--art-width-num, 100)));
+  transform-origin:center center;
   filter:
     drop-shadow(0 13px 28px rgba(40,35,25,0.10))
     drop-shadow(0 3px 6px rgba(40,35,25,0.06));

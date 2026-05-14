@@ -76,5 +76,8 @@ export function iframeMeasurementCssVars(
     "--art-inset-bottom": `${m.percent.insetBottom.toFixed(2)}%`,
     "--art-width": `${m.percent.artWidth.toFixed(2)}%`,
     "--art-height": `${m.percent.artHeight.toFixed(2)}%`,
+    // Unitless versions for use in scale() transforms where CSS
+    // calc(100 / <percentage>) is invalid — needs a plain number.
+    "--art-width-num": `${m.percent.artWidth.toFixed(2)}`,
   };
 }
