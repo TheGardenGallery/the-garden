@@ -340,12 +340,6 @@ const RICKY_PINS: Record<
       { x: 0.119, y: 0.647, w: 0.022, h: 0.022 },
       // + near RKX area — src center (319,1108)
       { x: 0.208, y: 0.735, w: 0.022, h: 0.022 },
-      // + bottom — src center (209,1403)
-      { x: 0.133, y: 0.937, w: 0.022, h: 0.022 },
-      // Bar instrument block near N — src (148,368)–(272,448)
-      { x: 0.096, y: 0.232, w: 0.096, h: 0.066 },
-      // Domino dot-matrix block near UU — src (388,795)–(462,948)
-      { x: 0.261, y: 0.525, w: 0.062, h: 0.116 },
     ],
   },
   // The clean horizontal band between the F row (source y≈1015-1030,
