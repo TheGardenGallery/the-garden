@@ -264,7 +264,7 @@ const RICKY_PINS: Record<
   // The bottom strip zone, encompassing the "+F" row down through
   // "IK·XOW" — detected labels span source y≈1015-1385 (frame
   // 0.682-0.937), full image width.
-  zon: { region: { x: 0.018, y: 0.700, w: 0.964, h: 0.300 }, code: "ZON" },
+  zon: { region: { x: 0.018, y: 0.710, w: 0.964, h: 0.290 }, code: "ZON" },
   // The "5.683" measurement reading next to RH — detected component
   // at source (273,504)-(322,522), frame (0.188, 0.331).
   msr: { region: { x: 0.181, y: 0.323, w: 0.048, h: 0.029 }, code: "MSR" },
