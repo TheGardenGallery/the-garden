@@ -249,8 +249,8 @@ const RICKY_PINS: Record<
     cycle: [
       // Left data column — right edge lands between the moving fields bars
       { x: 0.000, y: 0.039, w: 0.181, h: 0.595 },
-      // Mid strip — from the right edge of box 1 to just before the grid composition
-      { x: 0.181, y: 0.039, w: 0.260, h: 0.595 },
+      // Mid strip — from the right edge of box 1 to just before the wireframe labels
+      { x: 0.181, y: 0.039, w: 0.089, h: 0.595 },
       // Bottom label zone — src (0,1010)–(1456,1500)
       { x: 0.000, y: 0.674, w: 1.000, h: 0.326 },
     ],
