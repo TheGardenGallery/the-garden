@@ -329,10 +329,10 @@ const RICKY_PINS: Record<
   // The central convergent "lens" of the wireframe — the inner
   // rounded rectangle where radial mesh lines bend most tightly.
   // Box edges sit on the outer lines that bound this central shape.
-  // Wireframe centre is at source (898, 512) → frame (0.617, 0.337);
-  // lens extends roughly ±230 source-px horizontally and ±170
-  // vertically from there.
-  dns: { region: { x: 0.460, y: 0.220, w: 0.314, h: 0.245 }, code: "DNS" },
+  // Inner rect source pixels: (640,270)–(1020,590) in 1456×1500
+  // source; after 22-px vertical cover-crop → frame (640,248)–
+  // (1020,568) in the 1456×1456 visible square.
+  dns: { region: { x: 0.430, y: 0.160, w: 0.281, h: 0.240 }, code: "DNS" },
 };
 
 const RICKY_ANCHOR = {
