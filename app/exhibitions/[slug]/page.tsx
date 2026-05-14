@@ -252,7 +252,7 @@ const RICKY_PINS: Record<
   // The wireframe panel itself — bounding box of the outer rectangle
   // at source (~395–1400) × (~85–945), padded outward for the corner
   // brackets to land in clean dark space.
-  grd: { region: { x: 0.282, y: 0.034, w: 0.686, h: 0.604 }, code: "GRD" },
+  grd: { region: { x: 0.282, y: 0.020, w: 0.686, h: 0.618 }, code: "GRD" },
   // The three horizontal-bar instrument blocks stacked mid-left,
   // detected at source (273,504)-(322,522), (271,569)-(352,589),
   // (271,630)-(352,651). Combined bounding box covers all three.
