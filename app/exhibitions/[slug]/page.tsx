@@ -325,7 +325,7 @@ const RICKY_PINS: Record<
   // piece, sitting in isolation against the dark band below the
   // wireframe's bottom-right corner. Detected at source
   // (1308,959)-(1386,998) → frame (0.898, 0.644, 0.054×0.027), padded.
-  glw: { region: { x: 0.890, y: 0.636, w: 0.068, h: 0.042 }, code: "GLW" },
+  glw: { region: { x: 0.891, y: 0.636, w: 0.068, h: 0.042 }, code: "GLW" },
   // The central convergent "lens" of the wireframe — the inner
   // rounded rectangle where radial mesh lines bend most tightly.
   // Box edges sit on the outer lines that bound this central shape.
