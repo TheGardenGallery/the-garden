@@ -243,12 +243,22 @@ const RICKY_PINS: Record<
     tint?: boolean;
   }
 > = {
-  // Wireframe's outer left-edge line — the most obvious partition on
-  // the piece. Coords derived from detected wireframe-edge letters
-  // (C/B/AM/N at source x≈400-440), the wireframe outer edge sits
-  // ~px=395 source, frame x≈0.271; SCR is a thin vertical strip
-  // straddling that seam.
-  scr: { region: { x: 0.2634, y: 0.034, w: 0.022, h: 0.604 }, code: "SCR" },
+  // Screen partitions — the major spatial divisions of the composition.
+  // The cycle highlights each zone in turn: left data column, wireframe
+  // panel, bottom label strip. Gives a sense of the underlying layout
+  // logic that organises the piece.
+  scr: {
+    region: { x: 0.000, y: 0.039, w: 0.280, h: 0.609 },
+    code: "SCR",
+    cycle: [
+      // Left data column — src (0,85)–(395,960)
+      { x: 0.000, y: 0.039, w: 0.280, h: 0.609 },
+      // Wireframe panel — src (395,85)–(1400,960)
+      { x: 0.267, y: 0.039, w: 0.698, h: 0.609 },
+      // Bottom label zone — src (0,1010)–(1456,1500)
+      { x: 0.000, y: 0.674, w: 1.000, h: 0.326 },
+    ],
+  },
   // The wireframe panel itself — bounding box of the outer rectangle
   // at source (~395–1400) × (~85–945), padded outward for the corner
   // brackets to land in clean dark space.
@@ -257,10 +267,28 @@ const RICKY_PINS: Record<
   // detected at source (273,504)-(322,522), (271,569)-(352,589),
   // (271,630)-(352,651). Combined bounding box covers all three.
   mvf: { region: { x: 0.180, y: 0.352, w: 0.068, h: 0.088 }, code: "MVF" },
-  // "LDP" coded label at top-left of the left column. Detected at
-  // source (117,115)-(170,146) → frame x≈0.080 y≈0.064, padded for
-  // bracket clearance.
-  cod: { region: { x: 0.072, y: 0.054, w: 0.052, h: 0.040 }, code: "COD" },
+  // Coded labels — the letter glyphs scattered across the piece (C, B,
+  // AM, N, KVV, MUB). The cycle visits each letterform individually,
+  // sweeping top-down, left-right. Coordinates from connected-component
+  // detection (scripts/detect-sl099-letters.mjs).
+  cod: {
+    region: { x: 0.276, y: 0.064, w: 0.041, h: 0.041 },
+    code: "COD",
+    cycle: [
+      // C — wireframe interior top-left. Detected (418,124)—(443,165).
+      { x: 0.276, y: 0.064, w: 0.041, h: 0.041 },
+      // B — wireframe upper-left edge. Detected (426,248)—(442,275).
+      { x: 0.279, y: 0.146, w: 0.040, h: 0.040 },
+      // AM — wireframe mid-left edge. Detected (383,449)—(442,490).
+      { x: 0.257, y: 0.281, w: 0.053, h: 0.053 },
+      // N — wireframe lower-left edge. Detected (416,705)—(441,744).
+      { x: 0.274, y: 0.463, w: 0.040, h: 0.040 },
+      // KVV — left-mid cluster. Detected (96,706)—(163,745).
+      { x: 0.060, y: 0.455, w: 0.059, h: 0.059 },
+      // MUB — bottom-right of wireframe. Detected (1308,959)—(1386,998).
+      { x: 0.892, y: 0.624, w: 0.066, h: 0.066 },
+    ],
+  },
   // The bottom strip zone, encompassing the "+F" row down through
   // "IK·XOW" — detected labels span source y≈1015-1385 (frame
   // 0.682-0.937), full image width.
@@ -295,36 +323,29 @@ const RICKY_PINS: Record<
       { x: 0.041, y: 0.505, w: 0.030, h: 0.019 },
     ],
   },
-  // The cycle visits each prominent letter GLYPH individually (not
-  // the cluster as a single rectangle) — so AM becomes A then M,
-  // KVV becomes K → V → V, MUB becomes M → U → B, UU becomes U → U.
-  // Every box is the same uniform 0.034 × 0.034 perfect square,
-  // centred on each letter's optical centre. Reading order is
-  // top-down, left-right across the artwork.
+  // Symbols — the non-textual graphical marks: plus signs (+) scattered
+  // across the composition, the horizontal-bar instrument blocks, and
+  // the domino dot-matrix pattern. Distinct from the letter codes (COD).
+  // Coordinates from connected-component detection
+  // (scripts/detect-sl099-symbols.mjs).
   sym: {
-    region: { x: 0.276, y: 0.064, w: 0.041, h: 0.041 },
+    region: { x: 0.123, y: 0.065, w: 0.022, h: 0.022 },
     code: "SYM",
-    // Coordinates from sharp-based pixel detection (scripts/detect-
-    // sl099-letters.mjs) — connected-component scan of bright pixels
-    // in the source image, then converted to frame coords accounting
-    // for object-fit:cover's 22-px vertical crop. Each entry is a
-    // perfect square wrapping the detected letterform's bounding box
-    // with ~6px padding. The earlier visual-estimation coords were
-    // off by 15-25px on multiple letters.
     cycle: [
-      // C — wireframe interior top-left. Detected (418,124)—(443,165).
-      { x: 0.276, y: 0.064, w: 0.041, h: 0.041 },
-      // B — wireframe upper-left edge. Detected (426,248)—(442,275).
-      { x: 0.279, y: 0.146, w: 0.040, h: 0.040 },
-      // AM — wireframe mid-left edge, A+M combined. Detected
-      // (383,449)—(442,490).
-      { x: 0.257, y: 0.281, w: 0.053, h: 0.053 },
-      // N — wireframe lower-left edge. Detected (416,705)—(441,744).
-      { x: 0.274, y: 0.463, w: 0.040, h: 0.040 },
-      // KVV — left-mid cluster. Detected (96,706)—(163,745).
-      { x: 0.060, y: 0.455, w: 0.059, h: 0.059 },
-      // MUB — bottom-right of wireframe. Detected (1308,959)—(1386,998).
-      { x: 0.892, y: 0.624, w: 0.066, h: 0.066 },
+      // + near LDP — src center (195,132)
+      { x: 0.123, y: 0.065, w: 0.022, h: 0.022 },
+      // + near F — src center (67,980)
+      { x: 0.035, y: 0.647, w: 0.022, h: 0.022 },
+      // + near F row — src center (190,980)
+      { x: 0.119, y: 0.647, w: 0.022, h: 0.022 },
+      // + near RKX area — src center (319,1108)
+      { x: 0.208, y: 0.735, w: 0.022, h: 0.022 },
+      // + bottom — src center (209,1403)
+      { x: 0.133, y: 0.937, w: 0.022, h: 0.022 },
+      // Bar instrument block near N — src (148,368)–(272,448)
+      { x: 0.096, y: 0.232, w: 0.096, h: 0.066 },
+      // Domino dot-matrix block near UU — src (388,795)–(462,948)
+      { x: 0.261, y: 0.525, w: 0.062, h: 0.116 },
     ],
   },
   // The clean horizontal band between the F row (source y≈1015-1030,
