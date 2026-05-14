@@ -2848,6 +2848,10 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="autoscope"] .ex-inline-caption{
   font-variant-numeric:lining-nums;
   font-feature-settings:"lnum" 1;
+  /* The iframe scale fix (overflow:hidden + scale) makes the canvas
+     fill the wrapper edge-to-edge, so --art-inset-left no longer
+     applies — caption aligns to the wrapper's left edge directly. */
+  margin-left:0;
 }
 /* Erik Swahn / Autoscope: full-bleed installation hero — image fills
    the entire hero edge-to-edge (no plate matte, no drop-shadow), with
