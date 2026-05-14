@@ -244,11 +244,11 @@ const RICKY_PINS: Record<
   // panel, bottom label strip. Gives a sense of the underlying layout
   // logic that organises the piece.
   scr: {
-    region: { x: 0.000, y: 0.039, w: 0.188, h: 0.609 },
+    region: { x: 0.000, y: 0.039, w: 0.186, h: 0.609 },
     code: "SCR",
     cycle: [
       // Left data column — right edge lands between the moving fields bars
-      { x: 0.000, y: 0.039, w: 0.188, h: 0.609 },
+      { x: 0.000, y: 0.039, w: 0.186, h: 0.609 },
       // Wireframe panel — src (395,85)–(1400,960)
       { x: 0.267, y: 0.039, w: 0.698, h: 0.609 },
       // Bottom label zone — src (0,1010)–(1456,1500)
