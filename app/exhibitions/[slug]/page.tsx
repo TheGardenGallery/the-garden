@@ -248,7 +248,7 @@ const RICKY_PINS: Record<
   // (C/B/AM/N at source x≈400-440), the wireframe outer edge sits
   // ~px=395 source, frame x≈0.271; SCR is a thin vertical strip
   // straddling that seam.
-  scr: { region: { x: 0.2627, y: 0.034, w: 0.022, h: 0.604 }, code: "SCR" },
+  scr: { region: { x: 0.2634, y: 0.034, w: 0.022, h: 0.604 }, code: "SCR" },
   // The wireframe panel itself — bounding box of the outer rectangle
   // at source (~395–1400) × (~85–945), padded outward for the corner
   // brackets to land in clean dark space.
