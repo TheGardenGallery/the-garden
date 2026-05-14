@@ -2817,14 +2817,14 @@ html:has(.constellation-root){
   height:100% !important;
   object-fit:cover !important;
 }
-/* Erik Swahn / Autoscope: solo iframes at flat max-widths
-   (707 → 742 → 848), auto-centered via `margin: auto` from the base
-   `.ex-inline-artworks` rule. The whole artwork box — iframe + caption
-   together — is constrained to one max-width, so the caption naturally
-   sits at the artwork's left edge. */
+/* Erik Swahn / Autoscope: solo iframes sized so the artwork commands
+   the page — wider than the ~640px text column (≈1.4×) so each piece
+   reads as a featured work, not an inline illustration. Generous
+   vertical margins give every work its own moment before the essay
+   resumes. #83 stays wider (different internal aspect). */
 .exhibition-detail[data-slug="autoscope"] .ex-inline-artworks:has(> :only-child){
-  max-width:707px;
-  margin-block:40px;
+  max-width:900px;
+  margin-block:64px 48px;
 }
 .exhibition-detail[data-slug="autoscope"] .ex-inline-artworks:has(iframe[title$="#83"]){
   max-width:967px;
