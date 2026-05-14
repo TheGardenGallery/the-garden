@@ -332,7 +332,7 @@ const RICKY_PINS: Record<
   // Inner rect source pixels: (640,270)–(1020,590) in 1456×1500
   // source; after 22-px vertical cover-crop → frame (640,248)–
   // (1020,568) in the 1456×1456 visible square.
-  dns: { region: { x: 0.480, y: 0.210, w: 0.281, h: 0.240 }, code: "DNS" },
+  dns: { region: { x: 0.500, y: 0.210, w: 0.281, h: 0.240 }, code: "DNS" },
 };
 
 const RICKY_ANCHOR = {
