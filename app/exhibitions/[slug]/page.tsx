@@ -200,9 +200,7 @@ const RICKY_TEXT: import("@/components/ArtistBroadsheet").BroadsheetParagraph[] 
     { pin: "mvf", text: "moving fields" },
     ", ",
     { pin: "cod", text: "coded labels" },
-    ", and rule-based color. The series begins with layout as a kind of logic, dividing the frame into ",
-    { pin: "zon", text: "zones" },
-    " that hold fragments of data, ",
+    ", and rule-based color. The series begins with layout as a kind of logic, dividing the frame into zones that hold fragments of data, ",
     { pin: "msr", text: "measurements" },
     ", ",
     { pin: "sym", text: "symbols" },
@@ -218,9 +216,7 @@ const RICKY_TEXT: import("@/components/ArtistBroadsheet").BroadsheetParagraph[] 
     " that respond to various constraints within the algorithm. Some pieces feel like transit diagrams or stock tickers. Others resemble diagnostic screens or monitoring systems from an imagined machine. The information is partly legible and partly invented, sitting somewhere between data, interface, and decoration.",
   ],
   [
-    "The series moves away from the paper-like texture of my earlier collections and toward a more digital surface. Its imperfections come from ",
-    { pin: "glw", text: "glow" },
-    ", blur, ",
+    "The series moves away from the paper-like texture of my earlier collections and toward a more digital surface. Its imperfections come from glow, blur, ",
     { pin: "dns", text: "density" },
     ", compression, and instability. It suggests a functioning system designed for clarity, but still shaped by drift, interference, and human selection.",
   ],
@@ -248,11 +244,11 @@ const RICKY_PINS: Record<
   // panel, bottom label strip. Gives a sense of the underlying layout
   // logic that organises the piece.
   scr: {
-    region: { x: 0.000, y: 0.039, w: 0.280, h: 0.609 },
+    region: { x: 0.000, y: 0.039, w: 0.190, h: 0.609 },
     code: "SCR",
     cycle: [
-      // Left data column — src (0,85)–(395,960)
-      { x: 0.000, y: 0.039, w: 0.280, h: 0.609 },
+      // Left data column — right edge lands between the moving fields bars
+      { x: 0.000, y: 0.039, w: 0.190, h: 0.609 },
       // Wireframe panel — src (395,85)–(1400,960)
       { x: 0.267, y: 0.039, w: 0.698, h: 0.609 },
       // Bottom label zone — src (0,1010)–(1456,1500)
@@ -289,10 +285,6 @@ const RICKY_PINS: Record<
       { x: 0.892, y: 0.624, w: 0.066, h: 0.066 },
     ],
   },
-  // The bottom strip zone, encompassing the "+F" row down through
-  // "IK·XOW" — detected labels span source y≈1015-1385 (frame
-  // 0.682-0.937), full image width.
-  zon: { region: { x: 0.018, y: 0.710, w: 0.964, h: 0.290 }, code: "ZON" },
   // Numerical measurement readings scattered across the left column —
   // small decimal values next to the letter labels. Coordinates from
   // connected-component detection (scripts/detect-sl099-measurements.mjs)
@@ -363,11 +355,6 @@ const RICKY_PINS: Record<
   // — combined bbox source x=468-546, y=1183-1320 → frame
   // (0.321-0.375, 0.797-0.891), padded outward.
   shf: { region: { x: 0.3157, y: 0.790, w: 0.066, h: 0.108 }, code: "SHF" },
-  // The "MUB" letterform — the most distinctly luminous tag on the
-  // piece, sitting in isolation against the dark band below the
-  // wireframe's bottom-right corner. Detected at source
-  // (1308,959)-(1386,998) → frame (0.898, 0.644, 0.054×0.027), padded.
-  glw: { region: { x: 0.891, y: 0.636, w: 0.068, h: 0.042 }, code: "GLW" },
   // The central convergent "lens" of the wireframe — the inner
   // rounded rectangle where radial mesh lines bend most tightly.
   // Box edges sit on the outer lines that bound this central shape.
