@@ -249,8 +249,6 @@ const RICKY_PINS: Record<
     cycle: [
       // Left data column — right edge lands between the moving fields bars
       { x: 0.000, y: 0.039, w: 0.181, h: 0.595 },
-      // Wireframe panel — src (395,85)–(1400,960)
-      { x: 0.267, y: 0.039, w: 0.698, h: 0.609 },
       // Bottom label zone — src (0,1010)–(1456,1500)
       { x: 0.000, y: 0.674, w: 1.000, h: 0.326 },
     ],
