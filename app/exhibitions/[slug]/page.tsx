@@ -320,7 +320,7 @@ const RICKY_PINS: Record<
   // (468,1205)-(489,1248), (468,1274)-(489,1317), (525,1183)-(546,1225)
   // — combined bbox source x=468-546, y=1183-1320 → frame
   // (0.321-0.375, 0.797-0.891), padded outward.
-  shf: { region: { x: 0.315, y: 0.790, w: 0.066, h: 0.108 }, code: "SHF" },
+  shf: { region: { x: 0.3157, y: 0.790, w: 0.066, h: 0.108 }, code: "SHF" },
   // The "MUB" letterform — the most distinctly luminous tag on the
   // piece, sitting in isolation against the dark band below the
   // wireframe's bottom-right corner. Detected at source
