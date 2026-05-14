@@ -256,7 +256,7 @@ const RICKY_PINS: Record<
   // The three horizontal-bar instrument blocks stacked mid-left,
   // detected at source (273,504)-(322,522), (271,569)-(352,589),
   // (271,630)-(352,651). Combined bounding box covers all three.
-  mvf: { region: { x: 0.180, y: 0.380, w: 0.068, h: 0.115 }, code: "MVF" },
+  mvf: { region: { x: 0.180, y: 0.345, w: 0.068, h: 0.095 }, code: "MVF" },
   // "LDP" coded label at top-left of the left column. Detected at
   // source (117,115)-(170,146) → frame x≈0.080 y≈0.064, padded for
   // bracket clearance.
