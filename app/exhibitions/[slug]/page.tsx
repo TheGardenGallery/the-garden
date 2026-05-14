@@ -305,7 +305,7 @@ const RICKY_PINS: Record<
   // frame 0.730+). Detection showed no bright components in source
   // y=1035-1080, frame 0.696-0.726. Box biased right where the
   // emptiness is most contiguous (D row labels live on the left).
-  emp: { region: { x: 0.500, y: 0.694, w: 0.420, h: 0.054 }, code: "EMP" },
+  emp: { region: { x: 0.500, y: 0.694, w: 0.420, h: 0.070 }, code: "EMP" },
   // Bright walker dots at grid intersections across the upper half of
   // the wireframe. Box covers the cluster spanning (0.32, 0.12),
   // (0.52, 0.10), (0.74, 0.12), (0.61, 0.18) etc. `tint:true` turns
