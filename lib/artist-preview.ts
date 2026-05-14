@@ -56,13 +56,13 @@ function detectType(src: string): "image" | "video" | "iframe" {
  * the hover preview gets a smaller / lower-quality variant instead of
  * the full hero file. GIFs and videos are passed through unchanged —
  * Next doesn't re-encode animated formats and only handles images.
- * 640 is the next allowed Next bucket up from the 440px MAX_DIMENSION
- * cap (covers retina); q=45 keeps the bytes small.
+ * 828 is the Next bucket that covers 480px CSS-cap × 2 DPR; q=75
+ * balances sharpness and byte-size on retina hover previews.
  */
 export function optimizeImageSrc(
   src: string,
-  width = 640,
-  quality = 45,
+  width = 828,
+  quality = 75,
 ): string {
   if (/\.gif(\?|$)/i.test(src)) return src;
   if (detectType(src) === "video") return src;
