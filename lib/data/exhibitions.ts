@@ -1303,7 +1303,7 @@ export const exhibitions: Exhibition[] = [
     // (the genart waits for a click by design, and cross-origin embeds
     // can't dispatch events into the iframe).
     heroIframe:
-      "/api/genart/ves3l?payload=eyJoYX...ifX0%3D",
+      "/api/genart/ves3l?payload=eyJoYXNoIjoiMHg3ZWQ3Njk2NTY4N2RhMTc5MDU2MzM5MmFjZTI2OWI2N2NiM2EyYjc3MmM3MmQ4ZDRhYWE0NmY4ZDUzMjI1ODUxIiwiZWRpdGlvbk51bWJlciI6MTY2LCJ0b3RhbEVkaXRpb25zIjoxODksImlucHV0Ijp7IiR1c2VybmFtZSI6ImNoZW44ODEyIn19",
 
     // Re-roll the artwork's hash on every page load and on every
     // refresh-button click. Edition #75 is the SSR seed; once the
