@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { VisitMarker } from "@/components/VisitMarker";
@@ -22,19 +22,6 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
   title: "The Garden",
   description: "An online gallery for digital art.",
-};
-
-// Match Safari's surrounding UI (the strip between the page's bottom
-// edge and the iOS home-indicator URL bar) to the footer's surface.
-// Without this, Safari paints that area in the system-theme default —
-// white on a light-mode iPhone — leaving a visible white sliver below
-// the black footer when the user scrolls to the bottom. With
-// `themeColor: #000` the chrome is ink, matching the footer, so the
-// page reads as one grounded column straight through the safe-area.
-// Next 15 moved `themeColor` from `metadata` to the separate `viewport`
-// export — putting it on `metadata` silently no-ops and emits no tag.
-export const viewport: Viewport = {
-  themeColor: "#000000",
 };
 
 export default function RootLayout({

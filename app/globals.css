@@ -139,20 +139,13 @@ html{
   scroll-behavior:smooth;
   scrollbar-width:thin;
   scrollbar-color:gray transparent;
-  /* Match the html background to the footer's surface so iOS rubber-band
-     overscroll at the bottom of the page reveals coherent ink-black
-     rather than a mismatched white slab. The paper-coloured content
-     area lives on `body`; everything past the page's bounds (overscroll,
-     short-content footer halo) reads as the same dark surface the
-     footer already establishes. Gallery-standard: don't disable the
-     OS gesture — just give it the right backdrop. Per-page overrides
-     below still apply where the visual chrome differs. */
-  background:#000;
+  background:var(--paper);
 }
-/* Pages that already render a dark hero treatment keep html dark too
-   (no change from previous behaviour — kept explicit so the rule stays
-   greppable and so removing the default above wouldn't silently break
-   these pages). */
+/* Match the html background to whichever surface the current page
+   is presenting, so the native rubber-band overscroll always
+   reveals a coherent color rather than a mismatched white slab on
+   a dark page (or vice versa). Gallery-standard: don't disable the
+   OS gesture — just give it the right backdrop. */
 html:has(.artist-reveal:not([data-theme="paper"])),
 html:has(.hero[data-theme="dark"]),
 html:has(.ex-hero[data-theme="dark"]){
@@ -229,23 +222,10 @@ img{-webkit-user-select:none;user-select:none;-webkit-user-drag:none;user-drag:n
 .ex-works,
 .plot-wrap{-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;}
 body{
-  background:#000;
+  background:var(--paper);
   color:#000;
   font-family:'Barlow',sans-serif;
   font-weight:400;
-  /* Body is ink-black to match the footer (and html). Every content
-     page already provides its own paper-coloured surface on a root
-     element (.about-page, .legal-page, .principles-page, .journal-index,
-     .exhibitions-page, .plot-wrap on /artists, .exhibitions-hybrid on
-     the homepage), so the page interior reads identically. The black
-     body matters in two places only:
-       (1) the strip iOS Safari samples to tint its bottom URL bar — now
-           ink-black, matching the footer (was white before, causing the
-           visible white URL toolbar on light-mode iPhones);
-       (2) any sliver between flex-items where body shows through (rare,
-           and now intentional dark frame rather than mismatched white).
-     min-height: 100dvh keeps the page filling the viewport so Safari's
-     overscroll never reveals a coloured strip below the page. */
   min-height:100vh;
   min-height:100dvh;
   display:flex;
@@ -5583,6 +5563,7 @@ html:has(.constellation-root){
    viewport, never a list. */
 .journal-index{
   padding-top:var(--nav-height);
+  min-height:100dvh;
   background:var(--paper);
   color:var(--ink);
 }
@@ -5640,17 +5621,13 @@ html:has(.constellation-root){
      3. Override the first-child top-padding rule that applies by
         default to the lone <li>.
    Self-disables when a second interview is published. */
-/* Single-entry layout: the only journal item sits at the natural top
-   of the page rather than vertically centered in a viewport-height
-   container. Centering looked composed in theory but in practice (most
-   visibly on mobile) produced a large white slab below the entry as
-   the user scrolled toward the footer — symmetric whitespace reading
-   as a layout bug. Drop the flex-centering + viewport min-height; let
-   the entry hug the top of its block, footer follow the entry, html's
-   ink-black surface fill anything past the page's bottom edge. */
 .journal-index:has(.journal-index-li:only-child){
+  display:flex;
+  align-items:center;
+  justify-content:center;
   padding-top:var(--nav-height);
   padding-bottom:var(--nav-height);
+  min-height:100dvh;
 }
 .journal-index:has(.journal-index-li:only-child) .journal-index-list{
   width:100%;
