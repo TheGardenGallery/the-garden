@@ -229,24 +229,29 @@ img{-webkit-user-select:none;user-select:none;-webkit-user-drag:none;user-drag:n
 .ex-works,
 .plot-wrap{-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;}
 body{
-  background:var(--paper);
+  background:#000;
   color:#000;
   font-family:'Barlow',sans-serif;
   font-weight:400;
-  /* Removed `min-height: 100dvh` + `main { flex: 1 0 auto }`. Those
-     two rules together forced every page to fill the viewport, which
-     painted a large white slab between the last content row and the
-     black footer on any short page (most visibly /journal, but it
-     happens on every light page where content ends above the fold).
-     Now the layout collapses to its natural height: footer hugs the
-     last content row. Anything past the page's bottom edge reads as
-     html's ink-black surface (set above), which already matches the
-     footer — so the page reads as one grounded column, not as a
-     content card floating in an unintentional white void. */
+  /* Body is ink-black to match the footer (and html). Every content
+     page already provides its own paper-coloured surface on a root
+     element (.about-page, .legal-page, .principles-page, .journal-index,
+     .exhibitions-page, .plot-wrap on /artists, .exhibitions-hybrid on
+     the homepage), so the page interior reads identically. The black
+     body matters in two places only:
+       (1) the strip iOS Safari samples to tint its bottom URL bar — now
+           ink-black, matching the footer (was white before, causing the
+           visible white URL toolbar on light-mode iPhones);
+       (2) any sliver between flex-items where body shows through (rare,
+           and now intentional dark frame rather than mismatched white).
+     min-height: 100dvh keeps the page filling the viewport so Safari's
+     overscroll never reveals a coloured strip below the page. */
+  min-height:100vh;
+  min-height:100dvh;
   display:flex;
   flex-direction:column;
 }
-main{flex:0 0 auto;}
+main{flex:1 0 auto;}
 footer{flex-shrink:0;}
 a{color:inherit;text-decoration:none;}
 
