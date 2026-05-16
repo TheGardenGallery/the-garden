@@ -25,13 +25,64 @@ type Props = {
    *  current colour, so the bar reads as the system actively tuning
    *  rather than a decorative cursor. */
   onWalkerChange?: (idx: number) => void;
+  /** Active scrubbed hue in radians, when the user is scrubbing the
+   *  rainbow swatch. Used to position the on-bar indicator. */
+  lockedHueRad?: number | null;
+  /** Called when the user clicks or drags on the rainbow swatch to
+   *  pick a continuous hue. Receives radians in [0, 2π) — or null to
+   *  release the lock. */
+  onScrubRainbow?: (hueRad: number | null) => void;
 };
+
+// Rainbow gradient stops mapped to OKLCh hues (radians). The bar
+// gradient runs left-to-right from red to purple; positions are
+// interpolated between these anchors when the user scrubs. Hues are
+// approximations of the sRGB colour at that gradient stop, expressed
+// in radians for parity with the rest of the system.
+const RAINBOW_SCRUB_STOPS: Array<{ x: number; hueDeg: number }> = [
+  { x: 0.00, hueDeg: 25 },   // #e44a4a
+  { x: 0.16, hueDeg: 55 },   // #e8893a
+  { x: 0.33, hueDeg: 95 },   // #eccc6b
+  { x: 0.50, hueDeg: 145 },  // #5fcf6d
+  { x: 0.67, hueDeg: 215 },  // #3aa8d8
+  { x: 0.83, hueDeg: 265 },  // #5a76e8
+  { x: 1.00, hueDeg: 320 },  // #b367e0
+];
+
+function scrubXToHueRad(x: number): number {
+  const clamped = Math.max(0, Math.min(1, x));
+  for (let i = 1; i < RAINBOW_SCRUB_STOPS.length; i++) {
+    const lo = RAINBOW_SCRUB_STOPS[i - 1];
+    const hi = RAINBOW_SCRUB_STOPS[i];
+    if (clamped <= hi.x) {
+      const t = (clamped - lo.x) / (hi.x - lo.x);
+      const deg = lo.hueDeg + t * (hi.hueDeg - lo.hueDeg);
+      return (deg * Math.PI) / 180;
+    }
+  }
+  return (RAINBOW_SCRUB_STOPS[RAINBOW_SCRUB_STOPS.length - 1].hueDeg * Math.PI) / 180;
+}
+
+function hueRadToScrubX(hueRad: number): number {
+  const deg = ((hueRad * 180) / Math.PI + 360) % 360;
+  for (let i = 1; i < RAINBOW_SCRUB_STOPS.length; i++) {
+    const lo = RAINBOW_SCRUB_STOPS[i - 1];
+    const hi = RAINBOW_SCRUB_STOPS[i];
+    if (deg >= lo.hueDeg && deg <= hi.hueDeg) {
+      const t = (deg - lo.hueDeg) / (hi.hueDeg - lo.hueDeg);
+      return lo.x + t * (hi.x - lo.x);
+    }
+  }
+  return deg < RAINBOW_SCRUB_STOPS[0].hueDeg ? 0 : 1;
+}
 
 export function SplitLogicPalette({
   cells,
   lockedIdx,
   onCellClick,
   onWalkerChange,
+  lockedHueRad = null,
+  onScrubRainbow,
 }: Props) {
   const [walkerIdx, setWalkerIdx] = useState(0);
   const [fadingIdx, setFadingIdx] = useState<number | null>(null);
@@ -148,8 +199,10 @@ export function SplitLogicPalette({
           const isHoverHere = hoveredIdx === i;
           const isFadeHere =
             fadingIdx === i && !isWalkerHere && !isLockHere && !isHovering;
+          const isRainbow = c.wedgeId === "category-rainbow";
           const classes = [
             "sl-palette-cell",
+            isRainbow && "is-rainbow",
             isWalkerHere && "is-walker",
             isLockHere && "is-locked",
             isHoverHere && "is-hovered",
@@ -157,19 +210,80 @@ export function SplitLogicPalette({
           ]
             .filter(Boolean)
             .join(" ");
+          // Rainbow cell handlers — when present, the swatch is a
+          // scrubber. Click anywhere on it to lock to that hue;
+          // drag updates the lock live so the grid re-ranks as the
+          // pointer moves. A second click on the locked position
+          // (no movement) releases. Touchpoints fire the same path.
+          const scrubFromEvent = (clientX: number, target: HTMLElement) => {
+            const r = target.getBoundingClientRect();
+            const x = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+            return scrubXToHueRad(x);
+          };
+          const rainbowPointerDown = isRainbow && onScrubRainbow
+            ? (e: React.PointerEvent<HTMLButtonElement>) => {
+                e.preventDefault();
+                e.currentTarget.setPointerCapture(e.pointerId);
+                onScrubRainbow(scrubFromEvent(e.clientX, e.currentTarget));
+              }
+            : undefined;
+          const rainbowPointerMove = isRainbow && onScrubRainbow
+            ? (e: React.PointerEvent<HTMLButtonElement>) => {
+                if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
+                onScrubRainbow(scrubFromEvent(e.clientX, e.currentTarget));
+              }
+            : undefined;
+          const rainbowPointerUp = isRainbow && onScrubRainbow
+            ? (e: React.PointerEvent<HTMLButtonElement>) => {
+                if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+                  e.currentTarget.releasePointerCapture(e.pointerId);
+                }
+              }
+            : undefined;
+
+          const showScrubIndicator =
+            isRainbow && lockedIdx === i && lockedHueRad !== null;
+          const scrubX = showScrubIndicator
+            ? hueRadToScrubX(lockedHueRad)
+            : 0;
+
           return (
             <button
               key={c.wedgeId}
               type="button"
               className={classes}
-              style={{ backgroundColor: c.hex }}
-              onClick={() => onCellClick(i)}
+              // Rainbow swatch is applied via .is-rainbow in CSS so
+              // the existing CRT scanline + sheen layers (in
+              // background-image) still composite over it. Setting
+              // `background` inline would wipe those layers out.
+              style={isRainbow ? undefined : { backgroundColor: c.hex }}
+              onClick={
+                isRainbow && onScrubRainbow
+                  ? undefined
+                  : () => onCellClick(i)
+              }
+              onPointerDown={rainbowPointerDown}
+              onPointerMove={rainbowPointerMove}
+              onPointerUp={rainbowPointerUp}
+              onPointerCancel={rainbowPointerUp}
               onMouseEnter={() => setHoveredIdx(i)}
               onFocus={() => setHoveredIdx(i)}
               onBlur={() => setHoveredIdx(null)}
-              aria-label={`Tune to zone ${cellNum}, ${c.hex}`}
+              aria-label={
+                isRainbow
+                  ? `Scrub across the spectrum to lock the grid to a hue`
+                  : `Tune to zone ${cellNum}, ${c.hex}`
+              }
               aria-pressed={i === lockedIdx}
-            />
+            >
+              {showScrubIndicator && (
+                <span
+                  className="sl-palette-scrub-indicator"
+                  style={{ left: `${scrubX * 100}%` }}
+                  aria-hidden="true"
+                />
+              )}
+            </button>
           );
         })}
       </div>

@@ -50,7 +50,12 @@ export function ArtistQuote({ quote }: { quote: Quote }) {
   );
 }
 
-const WORD_STAGGER_MS = 40;
+// Per-word stagger for the "writing in" reveal. Earlier 40ms made a
+// 125-word quote (cydr) take >5s to finish — the tail of the
+// statement felt sluggish on a quick scroll-through. 22ms keeps the
+// gesture (each word still arrives a tick after the last) while
+// bringing the total reveal under ~3s for typical quote lengths.
+const WORD_STAGGER_MS = 22;
 
 /** Tokenize an HTML paragraph into a sequence of {word | whitespace | <em>}.
     Each word and each <em>...</em> group becomes one span — so the em

@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
   // actually use clears the dev-server warning and keeps production
   // forward-compatible.
   images: {
-    qualities: [45, 75, 90],
+    qualities: [45, 75, 90, 100],
   },
 };
 

@@ -209,27 +209,72 @@ export async function getSplitLogicPalette(): Promise<WedgeCell[]> {
 }
 
 /**
+ * Per-piece CLIP-ViT-B/32 image embeddings, mean-pooled across the
+ * 10 frames sampled per .mp4. L2-normalised so cosine similarity is
+ * a dot product. Used by SplitLogicSystem to sort within each
+ * chromatic bar bucket by visual-identity similarity to the bucket
+ * archetype — pieces that look most like the rest of the bucket lead.
+ *
+ * Built by:
+ *   npm run build-sl-embeddings  (one-time, ~3 min on first run for
+ *                                 model download + inference)
+ */
+export async function getSplitLogicEmbeddings(): Promise<
+  Record<string, number[]>
+> {
+  const filePath = path.join(process.cwd(), "data/sl-embeddings.json");
+  try {
+    const raw = await fs.readFile(filePath, "utf8");
+    const entries = JSON.parse(raw) as Array<{
+      wedgeId: string;
+      embedding: number[];
+    }>;
+    const out: Record<string, number[]> = {};
+    for (const e of entries) out[e.wedgeId] = e.embedding;
+    return out;
+  } catch {
+    // Embeddings are optional — sort falls back to hue-distance
+    // ordering if the file isn't present.
+    return {};
+  }
+}
+
+/**
  * Returns colour data for all 100 sl-* items in the full series.
- * Same extraction as getSplitLogicPalette but covering sl-001..sl-100.
+ *
+ * Uses the precomputed JSON written by scripts/build-sl-palette.ts,
+ * which samples 10 frames per .mp4 and pools the chromatic pixels
+ * across the loop. Earlier single-frame poster extraction missed
+ * temporal colour identity in generative pieces — a piece whose
+ * loop is mostly cyan would surface its yellow accent-frame as the
+ * dominant family because that frame happened to be the poster.
+ *
+ * Re-run the script whenever videos change:
+ *   npx tsx scripts/build-sl-palette.ts
  */
 export async function getSplitLogicFullPalette(): Promise<WedgeCell[]> {
-  const ids = Array.from({ length: 100 }, (_, i) =>
-    String(i + 1).padStart(3, "0")
-  );
-  return Promise.all(
-    ids.map(async (n) => {
-      const data = await extractWedgeData(
-        `/images/ricky-retouch/works/sl-${n}.jpg`
-      );
-      return {
-        hex: data.characteristic,
-        palette: data.palette,
-        signature: data.signature,
-        clusters: data.clusters,
-        wedgeId: `sl-${n}`,
-      };
-    })
-  );
+  const filePath = path.join(process.cwd(), "data/sl-palette.json");
+  const raw = await fs.readFile(filePath, "utf8");
+  const entries = JSON.parse(raw) as Array<{
+    wedgeId: string;
+    characteristic: string;
+    palette: string[];
+    signature: ColorSignature;
+    clusters: ColorCluster[];
+    dominant?: Oklch | null;
+    dominantStrength?: number;
+    chromaticFraction?: number;
+  }>;
+  return entries.map((e) => ({
+    hex: e.characteristic,
+    palette: e.palette,
+    signature: e.signature,
+    clusters: e.clusters,
+    wedgeId: e.wedgeId,
+    dominant: e.dominant ?? undefined,
+    dominantStrength: e.dominantStrength ?? 0,
+    chromaticFraction: e.chromaticFraction ?? 1,
+  }));
 }
 
 /**

@@ -33,3 +33,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# transformers.js / Xenova model weights downloaded at build/runtime
+/.cache/

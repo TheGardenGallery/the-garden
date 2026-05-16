@@ -42,6 +42,31 @@ export type WedgeCell = {
    * *actual palette* (multiple distinct colours), not a muddied mean.
    */
   clusters: ColorCluster[];
+  /**
+   * Per-piece dominant identity colour, computed from a 72-bin
+   * (5° wide) hue histogram weighted by chroma² so saturated pixels
+   * count quadratically more than washed-out ones. Picks the
+   * histogram peak's centre-of-mass — independent of pixel count,
+   * so a piece dominated by a black ground with a small saturated
+   * accent still surfaces the accent as identity. Optional for
+   * backward compat with surfaces that don't yet build this field.
+   */
+  dominant?: Oklch;
+  /**
+   * Fraction of the piece's chromatic mass that lives within the
+   * dominant hue band (peak ±5° each side). Range [0, 1]. Drives
+   * the within-bucket sort so wall-to-wall yellow ranks ahead of
+   * yellow-accent-on-dark.
+   */
+  dominantStrength?: number;
+  /**
+   * Fraction of sampled pixels that cleared the vibrance gate — i.e.
+   * how chromatic the piece is, full stop. White-on-black diagnostic
+   * pieces land ~0.02 here; saturated-ground pieces are ≥ 0.3. Used
+   * to classify monochrome pieces independently of what hue the
+   * rare chromatic noise drifts to.
+   */
+  chromaticFraction?: number;
 };
 
 export type Oklch = { L: number; C: number; h: number };

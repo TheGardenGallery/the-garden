@@ -19,7 +19,6 @@ const PAGE_SIZE = 12;
 // The bar may show fewer cells if a bin is empty (e.g., no purple in
 // Ricky's series — better an honest 7-cell rainbow than a padded 8-cell
 // one with two near-identical blues).
-const ZONE_COUNT = 8;
 const TWO_PI = Math.PI * 2;
 const normHue = (h: number) => ((h % TWO_PI) + TWO_PI) % TWO_PI;
 
@@ -52,64 +51,241 @@ const RAINBOW_IDS = new Set([
 // occurrence, preserving their relative order.
 const ADJACENCY_GROUPS: string[][] = [
   ["sl-007", "sl-012"],
-  ["sl-049", "sl-037", "sl-027", "sl-087"],
-  ["sl-013", "sl-093"],
+  ["sl-098", "sl-037", "sl-027", "sl-087", "sl-049"],
+  ["sl-093", "sl-013"],
   ["sl-078", "sl-070", "sl-020"],
   ["sl-060", "sl-046", "sl-050", "sl-063"],
-  ["sl-015", "sl-008"],
-  ["sl-034", "sl-033"],
+  ["sl-038", "sl-008", "sl-015"],
+  ["sl-033", "sl-034", "sl-044"],
+  ["sl-075", "sl-045", "sl-042"],
+  ["sl-099", "sl-085", "sl-047", "sl-017", "sl-051", "sl-043", "sl-079", "sl-065", "sl-058", "sl-092", "sl-018", "sl-025"],
+  ["sl-009", "sl-056", "sl-053", "sl-068", "sl-090"],
+  ["sl-057", "sl-022", "sl-088"],
+  ["sl-086", "sl-080", "sl-036"],
+  ["sl-024", "sl-035"],
+  ["sl-062", "sl-055", "sl-021"],
+  ["sl-059", "sl-071"],
+  ["sl-083", "sl-039"],
+  ["sl-005", "sl-006", "sl-011", "sl-010"],
+  ["sl-030", "sl-040", "sl-029", "sl-041"],
+  ["sl-089", "sl-031", "sl-032", "sl-081"],
+  ["sl-084", "sl-048"],
+  ["sl-069", "sl-061", "sl-019", "sl-100"],
 ];
 
+// Bar design — two curated specials + four algorithmic centroids:
+//   WHITE      surfaces if enough bright-monochrome pieces (top cluster
+//              L ≥ MONO_BRIGHT_L_MIN, C < MONO_C_MAX). Always first.
+//   CHROMATIC  weighted k-means k=4 over every piece's dominant
+//              chromatic cluster (chroma-weighted so saturated pieces
+//              pull harder than washed-out ones). The four centroids
+//              are sorted by hue and become the four chromatic
+//              buttons; centroids adapt to whatever palette the series
+//              actually contains rather than being forced into named
+//              hue ranges.
+//   RAINBOW    surfaces if RAINBOW_IDS has ≥1 match. Always last.
+//
+// Each piece gets exactly one assignment: "white", "rainbow", or a
+// chromatic centroid index (0..k-1, hue-sorted). Default sort respects
+// this assignment; locked sort floats matching pieces to the head and
+// ranks within them by distance to the centroid so the closest match
+// to the clicked button leads.
+type PieceAssignment = "white" | "rainbow" | number;
+
+const CHROMATIC_BUTTON_COUNT = 7;
+const MIN_WHITE_PIECES = 3;
+const MIN_CHROMATIC_BUCKET = 2;
+const MONO_BRIGHT_L_MIN = 0.65;
+const MONO_C_MAX = 0.10;
+
+// Designed display targets — every chromatic button renders at the
+// same L and C floor so the bar reads as a cohesive set rather than
+// a row of mismatched saturations. Hue is the only extracted axis;
+// L and C are designed for visual energy parity.
+const BUTTON_L_TARGET = 0.7;
+const BUTTON_C_FLOOR = 0.20;
+const BUTTON_C_CAP = 0.28;
+const WHITE_BUTTON_L = 0.94;
+const WHITE_BUTTON_C = 0.015;
+
+function findTopCluster(
+  clusters: { lch: Oklch; weight: number }[],
+): Oklch | null {
+  let bestW = -Infinity;
+  let bestLch: Oklch | null = null;
+  for (const c of clusters) {
+    if (c.weight > bestW) {
+      bestW = c.weight;
+      bestLch = c.lch;
+    }
+  }
+  return bestLch;
+}
+
+function findDominantChromatic(
+  clusters: { lch: Oklch; weight: number }[],
+): Oklch | null {
+  // Strict gate first — pieces with a confidently chromatic dominant
+  // (C ≥ 0.10) contribute their actual colour identity. Looser
+  // fallback for pieces whose only chromatic content is faint, so
+  // dim-tinted pieces still get assigned to a chromatic bucket
+  // rather than collapsing into white.
+  let bestScore = -Infinity;
+  let bestLch: Oklch | null = null;
+  for (const c of clusters) {
+    if (c.lch.C < 0.1) continue;
+    const score = c.lch.C * c.weight;
+    if (score > bestScore) {
+      bestScore = score;
+      bestLch = c.lch;
+    }
+  }
+  if (bestLch) return bestLch;
+  for (const c of clusters) {
+    if (c.lch.C < 0.04) continue;
+    const score = c.lch.C * c.weight;
+    if (score > bestScore) {
+      bestScore = score;
+      bestLch = c.lch;
+    }
+  }
+  return bestLch;
+}
+
+function isWhitePiece(
+  clusters: { lch: Oklch; weight: number }[],
+): boolean {
+  const top = findTopCluster(clusters);
+  return !!top && top.L >= MONO_BRIGHT_L_MIN && top.C < MONO_C_MAX;
+}
+
+function designButtonLch(centroid: Oklch): Oklch {
+  // Yellow reads visually more "loud" than other hues at the same
+  // OKLCh chroma — at L=0.72 C=0.22 it sits in acidic/highlighter
+  // territory. The yellow band (≈ 80°-115° in OKLCh) gets a softer
+  // treatment: higher L, lower C, so it lands buttery-warm rather
+  // than neon. The L bump also helps it sit alongside white on the
+  // bar without one drowning the other.
+  const deg = ((centroid.h * 180) / Math.PI + 360) % 360;
+  const isYellowBand = deg >= 80 && deg < 115;
+  const L = isYellowBand ? 0.8 : BUTTON_L_TARGET;
+  const C = isYellowBand
+    ? Math.min(0.17, Math.max(0.13, centroid.C))
+    : Math.min(BUTTON_C_CAP, Math.max(BUTTON_C_FLOOR, centroid.C));
+  return { h: centroid.h, L, C };
+}
+
+function rankPriority(a: PieceAssignment): number {
+  if (a === "white") return 0;
+  if (a === "rainbow") return 1e6;
+  return 1 + a;
+}
+
+function hueDistance(a: number, b: number): number {
+  let d = a - b;
+  if (d > Math.PI) d -= 2 * Math.PI;
+  else if (d < -Math.PI) d += 2 * Math.PI;
+  return Math.abs(d);
+}
+
+function cosineSim(a: number[], b: number[]): number {
+  if (a.length === 0 || b.length === 0) return 0;
+  let s = 0;
+  const n = Math.min(a.length, b.length);
+  for (let i = 0; i < n; i++) s += a[i] * b[i];
+  return s;
+}
+
 function computeSortedIndices(
-  cells: WedgeCell[],
-  lockedZoneIdx: number | null,
-  topHueNorm: number[],
-  topClusterDistToLocked: number[] | null,
-  isRainbow: boolean[],
+  pieceAssignment: PieceAssignment[],
+  topClusterLch: Oklch[],
+  centroids: Oklch[],
+  dominantHues: number[],
+  dominantStrength: number[],
+  bucketMass: number[],
+  pieceEmbeddings: (number[] | null)[],
+  bucketArchetypes: (number[] | null)[],
+  lockedAssignment: PieceAssignment | null,
+  lockedHueRad: number | null,
 ): number[] {
-  const n = cells.length;
+  const n = pieceAssignment.length;
   const indices = Array.from({ length: n }, (_, i) => i);
 
-  // Rainbow pieces (multi-colour mosaics that span 3+ hue families)
-  // always cluster together at the end of the grid, regardless of
-  // sort. They're a "rainbow trait" that breaks cohesion if
-  // interleaved — a piece that's 20% red, 20% green, 20% blue, 20%
-  // yellow has no business appearing inside the run of red-dominant
-  // pieces just because it has some red. Better to have them as a
-  // distinct block the eye can read as "and these are the
-  // multicolour ones."
-  const partition = (a: number, b: number) => {
-    if (isRainbow[a] !== isRainbow[b]) return isRainbow[a] ? 1 : -1;
-    return 0;
-  };
-
-  if (lockedZoneIdx === null) {
-    // Default: rainbow pieces last; non-rainbow sorted by top-weight
-    // cluster hue for a smooth gradient. The top cluster doesn't
-    // drift the way a vibrance-weighted single mean does, so two
-    // visually similar light-blue pieces sort adjacent.
-    indices.sort((a, b) => {
-      const p = partition(a, b);
-      if (p !== 0) return p;
-      return topHueNorm[a] - topHueNorm[b];
-    });
-    return indices;
+  // Distance to assigned centroid — used as tiebreak only. The
+  // primary within-bucket key is dominantStrength so a piece that's
+  // wall-to-wall yellow leads the yellow bucket regardless of how
+  // its dominant hue offsets from the centroid's exact placement.
+  const distToOwn = new Array<number>(n).fill(0);
+  for (let i = 0; i < n; i++) {
+    const a = pieceAssignment[i];
+    if (typeof a === "number") {
+      distToOwn[i] = colorDistance(topClusterLch[i], centroids[a]);
+    }
   }
 
-  // Locked: rank non-rainbow pieces by distance from their TOP
-  // cluster (their dominant colour) to the locked zone centroid.
-  // The earlier in-zone-weight ranking gave a piece credit for
-  // having one tiny green tile in an otherwise red composition —
-  // the "wrong" piece showed up second when locking on green. Using
-  // the top cluster instead means a piece must be DOMINATED by the
-  // locked colour to rank high; a yellow-dominant piece with a
-  // green tile sits with the other yellow-dominant pieces, far
-  // from the head of the green-locked view.
-  const dist = topClusterDistToLocked!;
   indices.sort((a, b) => {
-    const p = partition(a, b);
-    if (p !== 0) return p;
-    return dist[a] - dist[b];
+    // Rainbow scrub overrides categorical lock: continuous hue mode
+    // ranks every chromatic piece by hue distance to the scrubbed
+    // target. White and rainbow pieces drop behind chromatic ones
+    // (they don't have a single hue to match against).
+    if (lockedHueRad !== null) {
+      const aH = pieceAssignment[a];
+      const bH = pieceAssignment[b];
+      const aChrom = typeof aH === "number";
+      const bChrom = typeof bH === "number";
+      if (aChrom !== bChrom) return aChrom ? -1 : 1;
+      if (!aChrom) return rankPriority(aH) - rankPriority(bH);
+      const da = hueDistance(dominantHues[a], lockedHueRad);
+      const db = hueDistance(dominantHues[b], lockedHueRad);
+      if (da !== db) return da - db;
+      // Tiebreak: prefer pieces with stronger dominance — wall-to-
+      // wall sits ahead of an accent at identical hue.
+      if (dominantStrength[a] !== dominantStrength[b]) {
+        return dominantStrength[b] - dominantStrength[a];
+      }
+      return topClusterLch[a].L - topClusterLch[b].L;
+    }
+    if (lockedAssignment !== null) {
+      const am = pieceAssignment[a] === lockedAssignment ? 0 : 1;
+      const bm = pieceAssignment[b] === lockedAssignment ? 0 : 1;
+      if (am !== bm) return am - bm;
+    }
+    const pa = rankPriority(pieceAssignment[a]);
+    const pb = rankPriority(pieceAssignment[b]);
+    if (pa !== pb) return pa - pb;
+    const aa = pieceAssignment[a];
+    if (aa === "white") {
+      // White pieces: dim → bright (L ascending).
+      return topClusterLch[a].L - topClusterLch[b].L;
+    }
+    if (aa === "rainbow") {
+      return a - b;
+    }
+    // Chromatic bucket — primary signal is "how much of THIS colour
+    // is in this piece," i.e. the sum of cluster weights whose hue
+    // sits within the bucket's hue band. A wall-to-wall green field
+    // has order-of-magnitude more chromatic mass at green than a
+    // black-ground piece with a thin green grid; it ranks first.
+    // Fallbacks: dominantStrength (concentration), then visual-
+    // identity similarity to the archetype (CLIP), then distance
+    // to centroid, then L.
+    if (bucketMass[a] !== bucketMass[b]) {
+      return bucketMass[b] - bucketMass[a];
+    }
+    if (dominantStrength[a] !== dominantStrength[b]) {
+      return dominantStrength[b] - dominantStrength[a];
+    }
+    const aa2 = pieceAssignment[a] as number;
+    const archetype = bucketArchetypes[aa2];
+    const aE = pieceEmbeddings[a];
+    const bE = pieceEmbeddings[b];
+    if (archetype && aE && bE) {
+      const aSim = cosineSim(aE, archetype);
+      const bSim = cosineSim(bE, archetype);
+      if (aSim !== bSim) return bSim - aSim;
+    }
+    if (distToOwn[a] !== distToOwn[b]) return distToOwn[a] - distToOwn[b];
+    return topClusterLch[a].L - topClusterLch[b].L;
   });
   return indices;
 }
@@ -117,143 +293,40 @@ function computeSortedIndices(
 export function SplitLogicSystem({
   cells,
   gridItems,
+  embeddings = {},
 }: {
   cells: WedgeCell[];
   gridItems: PieceGridItem[];
+  /**
+   * Per-piece CLIP-ViT-B/32 mean-pooled embedding, L2-normalised.
+   * Used to refine within-bucket sort: each chromatic bucket has an
+   * archetype (mean of member embeddings) and pieces sort by cosine
+   * distance to it — visually-similar pieces float to the top of
+   * the locked view, even when their dominant-hue alignment to the
+   * centroid is identical. Optional: if absent, sort falls back to
+   * dominantStrength then distance-to-centroid.
+   */
+  embeddings?: Record<string, number[]>;
 }) {
   const [lockedZoneIdx, setLockedZoneIdx] = useState<number | null>(null);
+  // When the user scrubs the rainbow swatch, this carries the
+  // continuously-locked hue (radians). It coexists with the rainbow
+  // lockedZoneIdx so the swatch reads as "this is the active
+  // category" while the sort uses the scrubbed hue instead of the
+  // categorical match-all.
+  const [lockedHueRad, setLockedHueRad] = useState<number | null>(null);
   const [page, setPage] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
 
-  const total = gridItems.length;
-  const totalPages = Math.ceil(total / PAGE_SIZE);
 
-  // Bar zones — pipeline:
-  //   1. POOL every wedge's per-image clusters (5 per piece) into one
-  //      weighted sample set. Population × chroma per cluster — a
-  //      red+blue piece contributes both red and blue clusters
-  //      instead of being collapsed to a muddy average.
-  //   2. FILTER — drop neutrals (C < 0.10), browns, and extreme
-  //      luminance. The bar must read as firmly chromatic.
-  //   3. OVER-CLUSTER with weighted k-means (k = ZONE_COUNT * 2 = 16),
-  //      so the colour space is finely sampled.
-  //   4. PARTITION the pool to nearest centroid and accumulate the
-  //      true total weight per centroid (population × chroma sum).
-  //   5. WEIGHT-ORDERED GREEDY PICK with a minimum-distance gate.
-  //      Walk centroids heaviest-first; accept each only if it's at
-  //      least MIN_DIST from every already-picked centroid. This
-  //      gives both representativeness (heaviest = real colour mass)
-  //      and distinctness (gate rejects the second forest-green when
-  //      a brighter lime already sits in the bar). Farthest-first
-  //      would have done the opposite — picking edge cases nobody
-  //      could click meaningfully on.
-  //      If the gate is too tight to fill ZONE_COUNT slots, relax
-  //      it iteratively until we do.
-  //   6. HUE SORT, normalized to [0, 2π) so the rainbow anchors at
-  //      red and proceeds red → orange → yellow → green → cyan →
-  //      blue → purple → magenta. Raw atan2 (-π, π] would split the
-  //      wheel between magenta and cyan at the bar's two ends.
-  const zoneCells = useMemo<WedgeCell[]>(() => {
-    const pool: WeightedSample[] = [];
-    for (const cell of cells) {
-      for (const cluster of cell.clusters) {
-        if (isUnsuitableForBar(cluster.lch)) continue;
-        pool.push({ lch: cluster.lch, weight: cluster.weight });
-      }
-    }
-    if (pool.length === 0) return [];
-
-    const overK = Math.min(ZONE_COUNT * 2, pool.length);
-    const overCentroids = kmeansWeighted(pool, overK);
-
-    // Compute true weight per centroid by partitioning the pool.
-    const centroidWeights = new Array(overCentroids.length).fill(0);
-    for (const sample of pool) {
-      let nearest = 0;
-      let minD = Infinity;
-      for (let i = 0; i < overCentroids.length; i++) {
-        const d = colorDistance(sample.lch, overCentroids[i]);
-        if (d < minD) { minD = d; nearest = i; }
-      }
-      centroidWeights[nearest] += sample.weight;
-    }
-
-    // Hue-binning: divide the colour wheel into ZONE_COUNT (= 8)
-    // equal 45° bins, then pick the heaviest centroid in each bin.
-    //
-    // Why bins instead of a greedy hue-distance gate: a relaxing gate
-    // sneaks duplicates back in whenever it can't fill 8 cells with
-    // the tight gate. Fixed bins are categorical — two greens at 135°
-    // and 145° both land in the same bin, only the heavier one wins;
-    // there's no "oops, we needed more cells, let's lower the gate"
-    // failure mode. The bar may end up with fewer than ZONE_COUNT
-    // cells if a bin is empty (e.g., no purple in this series), and
-    // that's the right answer: better an honest 7-cell bar than a
-    // padded 8-cell one with two near-identical blues.
-    //
-    // Bin layout (45° each):
-    //   0 [  0°,  45°): reds + coral
-    //   1 [ 45°,  90°): orange / amber
-    //   2 [ 90°, 135°): yellow / yellow-green
-    //   3 [135°, 180°): green
-    //   4 [180°, 225°): cyan / teal
-    //   5 [225°, 270°): blue
-    //   6 [270°, 315°): purple / violet
-    //   7 [315°, 360°): magenta / pink
-    const BIN_WIDTH = TWO_PI / ZONE_COUNT;
-    const binPicks: (typeof overCentroids[number] | null)[] =
-      new Array(ZONE_COUNT).fill(null);
-    const binWeights = new Array(ZONE_COUNT).fill(-Infinity);
-    for (let i = 0; i < overCentroids.length; i++) {
-      const bin = Math.min(
-        ZONE_COUNT - 1,
-        Math.floor(normHue(overCentroids[i].h) / BIN_WIDTH),
-      );
-      if (centroidWeights[i] > binWeights[bin]) {
-        binWeights[bin] = centroidWeights[i];
-        binPicks[bin] = overCentroids[i];
-      }
-    }
-
-    const pickedLch: typeof overCentroids = [];
-    for (let b = 0; b < ZONE_COUNT; b++) {
-      const p = binPicks[b];
-      if (p !== null) pickedLch.push(p);
-    }
-    // pickedLch is already in bin (= hue) order by construction.
-
-    return pickedLch.map((lch, i) => {
-      const hex = oklchToHex(lch);
-      return {
-        hex,
-        palette: [hex],
-        signature: signatureFromHex(hex),
-        clusters: [{ lch, weight: 1 }],
-        wedgeId: `cluster-${i}`,
-      };
-    });
-  }, [cells]);
-
-  // Per-piece colour profile.
-  //   topHueNorm[i]   = hue of piece i's heaviest chromatic cluster,
-  //                     normalized to [0, 2π) for the rainbow gradient.
-  //   topClusterLch[i] = the full Oklch of that heaviest cluster —
-  //                     used by the locked sort for distance-to-zone
-  //                     ranking. Using the dominant colour (not the
-  //                     piece's full pixel distribution) means a piece
-  //                     must actually be dominated by the locked
-  //                     colour to rank high; a stray green tile in a
-  //                     yellow piece won't pull it into the green
-  //                     view.
-  //   isRainbow[i]    = piece is in the curated RAINBOW_IDS set.
-  //                     These pieces have small amounts of every
-  //                     colour and would otherwise leak into every
-  //                     locked-zone view, breaking grid cohesion.
-  //                     Bucketed together at the end of every sort.
+  // Per-piece colour profile. topClusterLch is each piece's top
+  // chromatic cluster (after isUnsuitableForBar) — used for
+  // within-bucket sort refinement (distance to centroid, L tiebreak).
+  // For all-neutral pieces, falls back to the first raw cluster so
+  // they still have a stable Oklch reference.
   const piecePrimaries = useMemo(() => {
     const topHueNorm: number[] = [];
     const topClusterLch: Oklch[] = [];
-    const isRainbow: boolean[] = [];
     for (const cell of cells) {
       let topW = -Infinity;
       let topLch: Oklch = { L: 0, C: 0, h: 0 };
@@ -264,41 +337,259 @@ export function SplitLogicSystem({
           topLch = cluster.lch;
         }
       }
-      // Fallback for an all-neutral piece — use the first cluster.
       if (topW === -Infinity && cell.clusters.length > 0) {
         topLch = cell.clusters[0].lch;
       }
-
       topHueNorm.push(normHue(topLch.h));
       topClusterLch.push(topLch);
-      isRainbow.push(RAINBOW_IDS.has(cell.wedgeId));
     }
-    return { topHueNorm, topClusterLch, isRainbow };
+    return { topHueNorm, topClusterLch };
   }, [cells]);
 
-  // Distance from each piece's TOP (dominant) cluster to the locked
-  // zone's centroid. Recomputed when the lock changes; null otherwise.
-  const topClusterDistToLocked = useMemo<number[] | null>(() => {
-    if (lockedZoneIdx === null) return null;
-    if (zoneCells.length === 0) return null;
-    const targetLch = zoneCells[lockedZoneIdx].clusters[0].lch;
-    return piecePrimaries.topClusterLch.map((lch) =>
-      colorDistance(lch, targetLch),
+  // Bar zones — full pipeline.
+  //   1. Specials: classify each piece as white / rainbow / chromatic.
+  //   2. Collect chromatic pieces' dominant chromatic clusters into a
+  //      weighted-sample pool (sample weight = cluster chroma, so
+  //      saturated pieces pull centroids harder than washed-out ones).
+  //   3. Run weighted k-means k=4. Centroids adapt to whatever
+  //      palette the series contains; no hardcoded hue ranges.
+  //   4. Sort centroids by hue → renders left-to-right as a rainbow
+  //      sweep on the bar.
+  //   5. Assign each chromatic piece to the nearest centroid.
+  //   6. Emit zone cells in bar order: white (if ≥3 whites), the
+  //      surviving centroids (≥2 pieces each), rainbow (if any).
+  //   7. Each chromatic/rainbow button renders with extracted hue
+  //      but normalised L/C so the bar reads as a cohesive set.
+  const { zoneCells, zoneKeys, pieceAssignment, centroids } = useMemo<{
+    zoneCells: WedgeCell[];
+    zoneKeys: PieceAssignment[];
+    pieceAssignment: PieceAssignment[];
+    centroids: Oklch[];
+  }>(() => {
+    const assignment: PieceAssignment[] = new Array(cells.length);
+    const chromaticIdx: number[] = [];
+    const chromaticDom: Oklch[] = [];
+
+    for (let i = 0; i < cells.length; i++) {
+      const cell = cells[i];
+      if (RAINBOW_IDS.has(cell.wedgeId)) {
+        assignment[i] = "rainbow";
+        continue;
+      }
+      if (isWhitePiece(cell.clusters)) {
+        assignment[i] = "white";
+        continue;
+      }
+      const dom = cell.dominant ?? findDominantChromatic(cell.clusters);
+      if (dom) {
+        chromaticIdx.push(i);
+        chromaticDom.push(dom);
+      } else {
+        assignment[i] = "white";
+      }
+    }
+
+    const samples: WeightedSample[] = chromaticDom.map((lch) => ({
+      lch,
+      weight: lch.C,
+    }));
+    const k = Math.min(CHROMATIC_BUTTON_COUNT, samples.length);
+    const rawCentroids: Oklch[] = k > 0 ? kmeansWeighted(samples, k) : [];
+
+    // Sort centroids by hue (left-to-right rainbow sweep on the bar).
+    const order = Array.from({ length: rawCentroids.length }, (_, i) => i).sort(
+      (a, b) => normHue(rawCentroids[a].h) - normHue(rawCentroids[b].h),
     );
-  }, [piecePrimaries, zoneCells, lockedZoneIdx]);
+    const sortedCentroids = order.map((i) => rawCentroids[i]);
+    const oldToNew = new Array<number>(rawCentroids.length);
+    order.forEach((origIdx, newIdx) => {
+      oldToNew[origIdx] = newIdx;
+    });
+
+    // Assign each chromatic piece to the nearest centroid (in the
+    // sorted order so the index lines up with bar position).
+    for (let j = 0; j < chromaticIdx.length; j++) {
+      const dom = chromaticDom[j];
+      let bestIdx = 0;
+      let bestDist = Infinity;
+      for (let c = 0; c < sortedCentroids.length; c++) {
+        const d = colorDistance(dom, sortedCentroids[c]);
+        if (d < bestDist) {
+          bestDist = d;
+          bestIdx = c;
+        }
+      }
+      assignment[chromaticIdx[j]] = bestIdx;
+    }
+
+    // Bucket counts for the surfacing gates.
+    let whiteCount = 0;
+    let rainbowCount = 0;
+    const chromCounts = new Array<number>(sortedCentroids.length).fill(0);
+    for (const a of assignment) {
+      if (a === "white") whiteCount++;
+      else if (a === "rainbow") rainbowCount++;
+      else chromCounts[a]++;
+    }
+
+    const zc: WedgeCell[] = [];
+    const zk: PieceAssignment[] = [];
+
+    if (whiteCount >= MIN_WHITE_PIECES) {
+      const lch: Oklch = { L: WHITE_BUTTON_L, C: WHITE_BUTTON_C, h: 0 };
+      const hex = oklchToHex(lch);
+      zc.push({
+        hex,
+        palette: [hex],
+        signature: signatureFromHex(hex),
+        clusters: [{ lch, weight: 1 }],
+        wedgeId: "category-white",
+      });
+      zk.push("white");
+    }
+
+    for (let i = 0; i < sortedCentroids.length; i++) {
+      if (chromCounts[i] < MIN_CHROMATIC_BUCKET) continue;
+      const lch = designButtonLch(sortedCentroids[i]);
+      const hex = oklchToHex(lch);
+      zc.push({
+        hex,
+        palette: [hex],
+        signature: signatureFromHex(hex),
+        clusters: [{ lch, weight: 1 }],
+        wedgeId: `category-chrom-${i}`,
+      });
+      zk.push(i);
+    }
+
+    if (rainbowCount >= 1) {
+      // Render rainbow button using the most vivid hue found across
+      // the rainbow pieces — a single hex can't BE rainbow, but a
+      // saturated standout hue reads as "the multi-colour group"
+      // better than a desaturated mean.
+      let peakScore = -Infinity;
+      let peakHue = 0;
+      for (let i = 0; i < cells.length; i++) {
+        if (assignment[i] !== "rainbow") continue;
+        for (const c of cells[i].clusters) {
+          if (c.lch.C < 0.1) continue;
+          const s = c.lch.C * c.weight;
+          if (s > peakScore) {
+            peakScore = s;
+            peakHue = c.lch.h;
+          }
+        }
+      }
+      const lch: Oklch =
+        peakScore > 0
+          ? designButtonLch({ L: BUTTON_L_TARGET, C: BUTTON_C_FLOOR, h: peakHue })
+          : { L: 0.55, C: 0.08, h: 0 };
+      const hex = oklchToHex(lch);
+      zc.push({
+        hex,
+        palette: [hex],
+        signature: signatureFromHex(hex),
+        clusters: [{ lch, weight: 1 }],
+        wedgeId: "category-rainbow",
+      });
+      zk.push("rainbow");
+    }
+
+    return {
+      zoneCells: zc,
+      zoneKeys: zk,
+      pieceAssignment: assignment,
+      centroids: sortedCentroids,
+    };
+  }, [cells]);
+
+  const lockedAssignment: PieceAssignment | null =
+    lockedZoneIdx !== null && lockedZoneIdx < zoneKeys.length
+      ? zoneKeys[lockedZoneIdx]
+      : null;
+
+  const pieceEmbeddings = useMemo<(number[] | null)[]>(
+    () => cells.map((c) => embeddings[c.wedgeId] ?? null),
+    [cells, embeddings],
+  );
+
+  // Per-chromatic-bucket archetype = L2-normalised mean of member
+  // CLIP embeddings. Distance to archetype drives the within-bucket
+  // sort so a yellow lock surfaces the most-archetypal yellow piece
+  // first, with visual outliers (washy yellow, busy yellow) ranked
+  // by their proximity to the same archetype.
+  const bucketArchetypes = useMemo<(number[] | null)[]>(() => {
+    const archetypes: (number[] | null)[] = [];
+    for (let c = 0; c < centroids.length; c++) {
+      let dim = 0;
+      for (let i = 0; i < cells.length; i++) {
+        if (pieceAssignment[i] === c && pieceEmbeddings[i]) {
+          dim = pieceEmbeddings[i]!.length;
+          break;
+        }
+      }
+      if (dim === 0) { archetypes.push(null); continue; }
+      const sum = new Array<number>(dim).fill(0);
+      let count = 0;
+      for (let i = 0; i < cells.length; i++) {
+        if (pieceAssignment[i] !== c) continue;
+        const e = pieceEmbeddings[i];
+        if (!e) continue;
+        for (let d = 0; d < dim; d++) sum[d] += e[d];
+        count++;
+      }
+      if (count === 0) { archetypes.push(null); continue; }
+      for (let d = 0; d < dim; d++) sum[d] /= count;
+      let norm = 0;
+      for (const v of sum) norm += v * v;
+      norm = Math.sqrt(norm) || 1;
+      for (let d = 0; d < dim; d++) sum[d] /= norm;
+      archetypes.push(sum);
+    }
+    return archetypes;
+  }, [cells, centroids, pieceAssignment, pieceEmbeddings]);
 
   const sortedIndices = useMemo(() => {
+    const dominantStrength = cells.map((c) => c.dominantStrength ?? 0);
+    const dominantHues = cells.map(
+      (c, i) => c.dominant?.h ?? piecePrimaries.topClusterLch[i].h,
+    );
+    // For each piece in a chromatic bucket: sum of its cluster
+    // weights whose hue sits within ±25° of the bucket centroid's
+    // hue. This is the "literal amount of this colour in the piece"
+    // signal that drives the within-bucket sort — a full-frame
+    // green ground beats a thin-line green grid by ~10×.
+    const HUE_BAND_RAD = (25 * Math.PI) / 180;
+    const bucketMass = cells.map((c, i) => {
+      const a = pieceAssignment[i];
+      if (typeof a !== "number") return 0;
+      const target = centroids[a].h;
+      let m = 0;
+      for (const cl of c.clusters) {
+        let dh = cl.lch.h - target;
+        if (dh > Math.PI) dh -= 2 * Math.PI;
+        else if (dh < -Math.PI) dh += 2 * Math.PI;
+        if (Math.abs(dh) <= HUE_BAND_RAD) m += cl.weight;
+      }
+      return m;
+    });
     const sorted = computeSortedIndices(
-      cells,
-      lockedZoneIdx,
-      piecePrimaries.topHueNorm,
-      topClusterDistToLocked,
-      piecePrimaries.isRainbow,
+      pieceAssignment,
+      piecePrimaries.topClusterLch,
+      centroids,
+      dominantHues,
+      dominantStrength,
+      bucketMass,
+      pieceEmbeddings,
+      bucketArchetypes,
+      lockedAssignment,
+      lockedHueRad,
     );
     // Adjacency post-pass — pull every group member into a contiguous
-    // run, anchored at the position of the first member found in the
-    // current sort. Members later in the sort are spliced out and
-    // re-inserted right after the anchor, preserving relative order.
+    // run, anchored at the position of the earliest-sorting member.
+    // In-cluster order follows ADJACENCY_GROUPS array order, so pairs
+    // listed adjacent in the group definition stay adjacent in the
+    // rendered cluster regardless of hue-sort ranking.
     if (ADJACENCY_GROUPS.length === 0) return sorted;
     const result = sorted.slice();
     for (const group of ADJACENCY_GROUPS) {
@@ -307,27 +598,93 @@ export function SplitLogicSystem({
         if (group.includes(cells[result[i]].wedgeId)) positions.push(i);
       }
       if (positions.length < 2) continue;
-      const anchor = positions[0];
-      const movers: number[] = [];
-      for (let i = positions.length - 1; i > 0; i--) {
-        movers.unshift(result[positions[i]]);
+      const anchorPos = positions[0];
+      // Re-emit in group-array order so the curator's chosen sequence
+      // is preserved. Build the ordered cell list from the group def,
+      // skipping members that aren't present in the current result.
+      const presentIds = new Set(
+        positions.map((p) => cells[result[p]].wedgeId),
+      );
+      const ordered = group
+        .filter((id) => presentIds.has(id))
+        .map((id) => {
+          const p = positions.find(
+            (q) => cells[result[q]].wedgeId === id,
+          )!;
+          return result[p];
+        });
+      // Remove all member positions in descending order so earlier
+      // indices stay valid, then reinsert at the anchor's slot. Since
+      // anchorPos is positions[0] (smallest), removals at higher
+      // indices don't shift it, so anchorPos remains valid as the
+      // insertion index after the splices.
+      for (let i = positions.length - 1; i >= 0; i--) {
         result.splice(positions[i], 1);
       }
-      result.splice(anchor + 1, 0, ...movers);
+      result.splice(anchorPos, 0, ...ordered);
     }
     return result;
-  }, [cells, lockedZoneIdx, piecePrimaries, topClusterDistToLocked]);
+  }, [cells, pieceAssignment, piecePrimaries, centroids, pieceEmbeddings, bucketArchetypes, lockedAssignment, lockedHueRad]);
+
+  // When a category is locked (rainbow scrub OR a regular category
+  // button), the grid shows ONLY matching pieces. Without this filter
+  // the grid falls back to non-matching pieces just to fill out the
+  // PAGE_SIZE slots, which causes "click blue, see mostly whites"
+  // behaviour when the matching bucket is smaller than a page.
+  const filteredIndices = useMemo(() => {
+    if (lockedHueRad !== null) {
+      // Rainbow scrub — every chromatic piece is fair game (they all
+      // have *some* hue distance to the scrubbed target), but white
+      // and rainbow pieces have no single hue and are dropped.
+      return sortedIndices.filter(
+        (i) => typeof pieceAssignment[i] === "number",
+      );
+    }
+    if (lockedAssignment !== null) {
+      return sortedIndices.filter(
+        (i) => pieceAssignment[i] === lockedAssignment,
+      );
+    }
+    return sortedIndices;
+  }, [sortedIndices, pieceAssignment, lockedAssignment, lockedHueRad]);
+
+  const filteredTotal = filteredIndices.length;
+  const totalPages = Math.max(1, Math.ceil(filteredTotal / PAGE_SIZE));
+
+  // If the filtered set shrank past the current page (e.g. a new
+  // lock just kicked in), pull `page` back into bounds.
+  useEffect(() => {
+    if (page >= totalPages) setPage(0);
+  }, [page, totalPages]);
 
   const pageItems = useMemo(() => {
     const start = page * PAGE_SIZE;
-    const end = Math.min(start + PAGE_SIZE, total);
-    return sortedIndices.slice(start, end).map((i) => gridItems[i]);
-  }, [page, total, sortedIndices, gridItems]);
+    const end = Math.min(start + PAGE_SIZE, filteredTotal);
+    return filteredIndices.slice(start, end).map((i) => gridItems[i]);
+  }, [page, filteredTotal, filteredIndices, gridItems]);
 
   const handleZoneClick = (i: number) => {
     setLockedZoneIdx((cur) => (cur === i ? null : i));
+    // Releasing any chromatic lock also drops the rainbow scrub hue —
+    // they're conceptually one lock.
+    setLockedHueRad(null);
     setPage(0);
   };
+
+  // Rainbow swatch scrub — sets the scrubbed hue AND parks the lock
+  // on the rainbow zone so the swatch reads as active. Passing null
+  // clears the scrub.
+  const rainbowIdx = zoneKeys.findIndex((k) => k === "rainbow");
+  const handleScrubRainbow = useCallback(
+    (hueRad: number | null) => {
+      setLockedHueRad(hueRad);
+      if (hueRad !== null && rainbowIdx >= 0) {
+        setLockedZoneIdx(rainbowIdx);
+        setPage(0);
+      }
+    },
+    [rainbowIdx],
+  );
 
   // Both directions wrap — paging through the series is a loop, not a
   // bounded list with dead ends. From page 0 the left arrow takes you
@@ -443,6 +800,8 @@ export function SplitLogicSystem({
         cells={zoneCells}
         lockedIdx={lockedZoneIdx}
         onCellClick={handleZoneClick}
+        lockedHueRad={lockedHueRad}
+        onScrubRainbow={handleScrubRainbow}
       />
 
       {/* Relative wrapper — arrows position:absolute in the margins,

@@ -1842,26 +1842,31 @@ html:has(.constellation-root){
 .ex-section-inner{
   max-width:var(--content-max);
   margin:0 auto;
-  display:flex;flex-direction:column;gap:24px;
+  /* Larger title→content gap so the section label sits in air rather
+     than locked next to the grid. Hufkens precedent: editorial space
+     is what separates sections, not graphic furniture. */
+  display:flex;flex-direction:column;gap:clamp(40px, 5vw, 56px);
 }
 .ex-section + .ex-section{padding-top:0;}
 .ex-section:first-of-type{padding-top:40px;}
-/* Section title: italic Cormorant with a hairline rule beneath. Reads
-   as a curatorial section marker — like the headers in a printed
-   gallery catalogue — instead of a tracked-out UI label.
-   Title text fades in subtly on load (0.2em) — same gesture as the
-   year-block label. The wrapper holds the border statically; only
-   the inline text animates. */
+/* Section title: italic Cormorant, no rule. A horizontal hairline
+   under a section heading reads as a UI divider — fine for software,
+   wrong for a gallery page. Section division is carried by the
+   substantial whitespace from `gap` above and `padding` on the
+   section itself. The label is a quiet caption sitting above the
+   content, not a header bar across the page.
+   Subtle fade-in on load matches the year-block label gesture. */
 .ex-section-title{
   font-family:'Cormorant','Title CJK',serif;
   font-weight:400;font-style:italic;
-  font-size:18px;letter-spacing:-0.15px;
+  font-size:19px;letter-spacing:-0.18px;
   color:var(--ink);
-  line-height:1;
+  /* Line-height accommodates the italic Cormorant descender on
+     letters like g/p/y — line-height:1 was clipping at the
+     baseline. The old overflow:hidden masked the animation but
+     also chopped descenders; removed so the type renders intact. */
+  line-height:1.25;
   margin:0;
-  padding-bottom:16px;
-  border-bottom:1px solid var(--rule-warm);
-  overflow:hidden;
 }
 .ex-section-title > *,
 .ex-section-title{display:block;}
@@ -2270,18 +2275,31 @@ html:has(.constellation-root){
   max-width:85%;
   max-height:85%;
 }
-/* cydr / New-life, to Still-life: bump the solo inline artwork ~21%
-   above the global :only-child cap (420px → 510px) so the square
-   works read at gallery scale within the prose flow. */
+/* cydr / New-life, to Still-life — Hufkens-tier refinement.
+   Square 1:1 works, four solo inline plates spread across the prose.
+   Moves match Drift / Khwampa / loackme:
+     - SCALE 510 → 720px. The 510 was a cautious "illustration"
+       scale; 720 lands the work at the same width as the prose
+       column, which makes each inline appearance read as a
+       deliberate editorial pause — the artwork interrupting the
+       text at the same measure rather than threading through it.
+     - BREATHING ROOM clamp(80, 9vw, 128px) top/bottom so each
+       solo lands on the page with quiet space around it.
+     - SHADOW the same single 4 % whisper used on the other pages.
+     - CAPTION 18px top margin for the legend feel.
+   Aspect-ratio:auto continues to override the shared <Image>'s
+   4:5 CLS reservation so the 1:1 squares aren't squeezed portrait. */
 .exhibition-detail[data-slug="new-life-to-still-life"] .ex-inline-artworks:has(> :only-child){
-  max-width:510px;
+  max-width:720px;
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
 }
-/* The shared <Image> declares width=1200 height=1500 (4:5 portrait) for
-   CLS reservation. cydr's works are 1:1 square, so the implicit 4:5
-   aspect was vertically stretching them into portrait boxes. Force
-   intrinsic so the square is honoured. */
 .exhibition-detail[data-slug="new-life-to-still-life"] .ex-inline-artworks:has(> :only-child) .ex-inline-image img{
   aspect-ratio:auto;
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="new-life-to-still-life"] .ex-inline-caption{
+  margin-top:18px;
 }
 /* Closing artist statement matches the description column width
    (~720px / 68ch) so prose → inline → prose → quote reads as a single
@@ -2333,19 +2351,48 @@ html:has(.constellation-root){
   margin:56px auto;
 }
 
-/* loackme / SPACE\TIME: mirror Verse's exhibition layout. The trio
-   group renders 3-up (default grid is 2 cols, which would strand the
-   third item alone on the second row). On mobile, fall back to 1 col
-   so each gif gets full width to read at scale. */
+/* loackme / SPACE\TIME — Hufkens-tier refinement. Three moves:
+     1. KILL THE PLATE WRAPPER. The default video branch in
+        InlineArtworks renders a 4:5 grey-matted card with interior
+        padding — designed for Yoshi's unframed videos but wrong for
+        loackme's GIFs, which already have a baked-in white frame.
+        Result was a double-frame (white inside grey). Strip the
+        plate down to the artwork's true 1:1 aspect with a
+        transparent background and no padding, and pass the soft
+        drop-shadow to the video itself the same way the image
+        branch does.
+     2. SCALE. Bump every group's max-width — solo 445 → 560, pair
+        (default 960) → 1080, trio 1000 → 1200. The works finally
+        claim the page presence their craft deserves.
+     3. BREATHING ROOM. Vertical margin clamp(80, 9vw, 128px) so
+        each group lands on the page with the same air we gave
+        Drift and Khwampa. */
+.exhibition-detail[data-slug="space-time"] .ex-inline-plate{
+  aspect-ratio:1;
+  background:transparent;
+  padding:0;
+  overflow:visible;
+}
+.exhibition-detail[data-slug="space-time"] .ex-inline-media video{
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="space-time"] .ex-inline-artworks{
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+  gap:clamp(40px, 4vw, 56px);
+}
+.exhibition-detail[data-slug="space-time"] .ex-inline-artworks:has(> :only-child){
+  max-width:560px;
+}
+.exhibition-detail[data-slug="space-time"] .ex-inline-artworks:has(> :nth-child(2)):not(:has(> :nth-child(3))){
+  max-width:1080px;
+}
 .exhibition-detail[data-slug="space-time"] .ex-inline-artworks:has(> :nth-child(3)){
   grid-template-columns:repeat(3, 1fr);
-  max-width:1000px;
+  max-width:1200px;
 }
-/* loackme / SPACE\TIME: bump the first inline plate (solo #44) ~6%
-   above the global :only-child cap (420px → 445px) so the gif reads
-   slightly larger as the page's opening visual beat. */
-.exhibition-detail[data-slug="space-time"] .ex-inline-artworks:has(> :only-child){
-  max-width:445px;
+.exhibition-detail[data-slug="space-time"] .ex-inline-caption{
+  margin-top:18px;
 }
 @media (max-width:720px){
   .exhibition-detail[data-slug="space-time"] .ex-inline-artworks:has(> :nth-child(3)){
@@ -2372,17 +2419,48 @@ html:has(.constellation-root){
    nudged ~8% up from the shared 1100 default for more presence on the
    explore row). The page reads as a clean three-tier rhythm:
    hero (~1328px) → mid (1190px) → prose (~720px). */
+/* Khwampa / Simple Thoughts — Hufkens-tier refinement, panorama
+   variant. Source images are 3:1 wide horizontals; the binding
+   constraint is width, not height, so the moves invert what we did
+   for Drift's portraits:
+     - HERO frame: trim side padding hard (56 → 32) so the panorama
+       claims more horizontal real estate. Top padding tightens
+       slightly. Title clearance drops from 96 → 40 since panoramas
+       don't have a busy "bottom edge" needing a wide cushion.
+     - INLINE artwork: bump max-width 1190 → 1280px, add generous
+       vertical breathing room (matching Drift's clamp), and soften
+       the drop-shadow from the default two-pass plate to a single
+       4 % whisper.
+     - EXPLORE grid: more vertical breathing room above and below
+       so the 6-piece grid lands as a deliberate spread, not the
+       default tight stack. */
+.exhibition-detail[data-slug="simple-thoughts"] .ex-hero{
+  --ex-title-clearance:40px;
+}
+.exhibition-detail[data-slug="simple-thoughts"] .ex-hero-frame{
+  padding:40px 32px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
+}
 .exhibition-detail[data-slug="simple-thoughts"] .ex-inline-artworks:has(> :only-child){
-  max-width:1190px;
+  max-width:1280px;
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
 }
 /* The shared <Image> declares width=1200 height=1500 (4:5 portrait) for
    CLS reservation. That implicit aspect squeezes the 3:1 panorama into
    a portrait box. Force intrinsic so the file's true 3:1 is honoured. */
 .exhibition-detail[data-slug="simple-thoughts"] .ex-inline-artworks:has(> :only-child) .ex-inline-image img{
   aspect-ratio:auto;
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="simple-thoughts"] .ex-inline-caption{
+  margin-top:18px;
+}
+.exhibition-detail[data-slug="simple-thoughts"] .ex-explore{
+  padding-top:clamp(80px, 9vw, 128px);
+  padding-bottom:clamp(80px, 9vw, 128px);
 }
 .exhibition-detail[data-slug="simple-thoughts"] .ex-explore-inner{
-  max-width:1190px;
+  max-width:1280px;
 }
 .exhibition-detail[data-slug="simple-thoughts"] .ex-details-inner{
   max-width:1190px;
@@ -2391,6 +2469,20 @@ html:has(.constellation-root){
    1040 so the three 3:4 crops sit at a more intimate scale. Force the
    grid to 3 columns on desktop (the standard auto-fit min-width of
    240px would drop to 2 columns at this narrower 760px container). */
+/* Drift hero — source is 3:4 portrait, so the canonical 64/56/160
+   frame padding makes the image height-bound and renders it at only
+   ~38 % of viewport width. Tightening the frame padding (and trimming
+   the title-clearance reservation) lets the artwork claim a presence
+   closer to the gallery-print scale Hufkens shows. The title-bar
+   still sits at its canonical bottom-left position; we just narrow
+   the safe-zone above it from 96 → 40px since Drift's bottom edge
+   isn't visually busy enough to need a wide cushion. */
+.exhibition-detail[data-slug="drift"] .ex-hero{
+  --ex-title-clearance:40px;
+}
+.exhibition-detail[data-slug="drift"] .ex-hero-frame{
+  padding:32px 36px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
+}
 .exhibition-detail[data-slug="drift"] .ex-details-inner{
   max-width:900px;
 }
@@ -2401,6 +2493,38 @@ html:has(.constellation-root){
   .exhibition-detail[data-slug="drift"] .ex-details-grid{
     grid-template-columns:repeat(3, minmax(0, 1fr));
   }
+}
+/* Drift inline pair — Hufkens-tier refinement. The artwork is the
+   subject, so it gets generous presence on the page:
+     1. SCALE — max-width bumped from 960 → 1180px. The pair now
+        breaks out of the reading column (≈ 720px), which is the
+        editorial signal that "these are not illustrations, they
+        are the work."
+     2. BREATHING ROOM — vertical margin bumped from 56 → clamp(80,
+        9vw, 128px) so the artwork lands on the page with quiet
+        space above and below. Hufkens convention: the gallery
+        leaves room for the eye to settle before and after.
+     3. GAP — pair gap bumped from 32 → clamp(40, 4vw, 56px). The
+        two works read as a deliberate diptych rather than two
+        thumbnails on a shared rule.
+     4. SHADOW — drop-shadow softened from the default (10/24 +
+        1/4 with 8/5 % opacity) to a single whisper (8/22 at 4 %).
+        Hufkens galleries shoot artwork on flat cream paper — the
+        plate-shadow effect reads as web furniture; minimal shadow
+        keeps the work flush with the page surface. */
+.exhibition-detail[data-slug="drift"] .ex-inline-artworks{
+  max-width:1180px;
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+  gap:clamp(40px, 4vw, 56px);
+}
+.exhibition-detail[data-slug="drift"] .ex-inline-image img{
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="drift"] .ex-inline-caption{
+  /* Caption gets a touch more top margin so it reads as a quiet
+     legend below the work rather than a hard-attached label. */
+  margin-top:18px;
 }
 /* The shared <Image> component declares width=1200 height=1500 (4:5
    portrait) for CLS reservation. That HTML-attr default aspect can
@@ -2466,26 +2590,65 @@ html:has(.constellation-root){
 .ex-hero[data-slug="haha-over-time"] .ex-title-headline{
   align-items:center;
 }
-/* Eric Andwer: the two Constraint features are compositional twins
-   but their palettes clash, so tighten the frame to read as a diptych —
-   narrower max-width and smaller gap make the pairing feel deliberate
-   even when the colors don't agree. */
+/* Eric Andwer / Constraint — Hufkens-tier refinement.
+   Single inline pair (Constraint #145 + #160), both 4:5 portrait,
+   compositional twins with clashing palettes. Earlier instinct was
+   to TIGHTEN the frame to "make the pairing feel deliberate" — but
+   tight crops amplify dissonance instead of resolving it. Hufkens
+   hangs visually clashing pairs with MORE wall between them, not
+   less, so the eye absorbs each work individually before reading
+   the diptych as a whole.
+     - SCALE 880 → 1180px (same as Drift's diptych).
+     - GAP 20px → clamp(40, 4vw, 56px) — the two palettes get
+       breathing room between them.
+     - BREATHING ROOM clamp(80, 9vw, 128px) vertical margin so the
+       pair lands as a curated diptych spread, not as illustrations
+       wedged into the prose.
+     - SHADOW WHISPER 4 % single-pass on each plate.
+     - CAPTION 18px top margin. */
 .exhibition-detail[data-slug="constraint"] .ex-inline-artworks{
-  max-width:880px;
-  gap:20px;
+  max-width:1180px;
+  gap:clamp(40px, 4vw, 56px);
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="constraint"] .ex-inline-image img{
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="constraint"] .ex-inline-caption{
+  margin-top:18px;
 }
 
-/* John Provencher: the installation pair reads a touch too wide next
-   to the surrounding prose column. Trim inline-artwork blocks by 8%
-   so the pair sits more comfortably within the page rhythm. */
+/* John Provencher / HAHA, over-time — Hufkens-tier refinement.
+   Four distinct inline groups (pair, wide solo, tall solo, iframe
+   trio). Same philosophy as Drift / Khwampa / loackme / cydr:
+     - SCALE. Every group's max-width bumped to claim gallery
+       presence over the prose column (~720px). Pair 883 → 1180,
+       wide solo 798 → 1280, tall solo 386 → 460, iframe trio
+       918 → 1200.
+     - BREATHING ROOM. clamp(80, 9vw, 128px) top/bottom on every
+       inline group so each lands with quiet air.
+     - SHADOW WHISPER. Images get the single 4 % drop-shadow that
+       Drift/Khwampa/cydr use, replacing the default two-pass plate
+       (8 % + 5 %). Iframes keep their own shadow stack since the
+       live render needs the heavier separation from the cream
+       paper to read as a discrete plate.
+     - CAPTION 18px top margin.
+   Hero stays full-bleed (already its own refinement). */
 .exhibition-detail[data-slug="haha-over-time"] .ex-inline-artworks{
-  max-width:883px;
+  max-width:1180px;
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+  gap:clamp(40px, 4vw, 56px);
+}
+.exhibition-detail[data-slug="haha-over-time"] .ex-inline-image img{
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
 }
 .exhibition-detail[data-slug="haha-over-time"] .ex-inline-artworks:has(> :only-child){
-  max-width:386px;
+  max-width:460px;
 }
 /* Solo inline artworks on this page include a 720x1600 portrait
-   (haha-artwork) that would run past the viewport at the 386px cell
+   (haha-artwork) that would run past the viewport at the cell
    width. Cap image height so it fits on screen with a little
    whitespace top and bottom, and shrink the wrapping link to the
    image's actual width so the caption stays flush with its left edge. */
@@ -2499,27 +2662,30 @@ html:has(.constellation-root){
   max-width:100%;
   max-height:85vh;
 }
-/* Wide over-time gallery photo: sized to read as a wide figure
-   without dominating the prose column. Disable click-through since
-   this image isn't tied to a single artwork page. */
+/* Wide over-time gallery photo — at Hufkens-tier scale this needs
+   to read as the room itself, not a thumbnail. Click-through stays
+   off since this image isn't tied to a single artwork page. */
 .exhibition-detail[data-slug="haha-over-time"] .ex-inline-artworks:has(img[src*="over-time-installation-wide"]){
-  max-width:798px;
+  max-width:1280px;
 }
 .exhibition-detail[data-slug="haha-over-time"] .ex-inline-artworks:has(img[src*="over-time-installation-wide"]) .ex-inline-artwork{
   pointer-events:none;
 }
 /* Three-up row of over-time artwork variants after HAHA's generative
    process block: 3 columns instead of the default 2, at editorial
-   width. Items are live iframes, so target by :has(iframe). */
-/* Progressive-complexity row: the over-time script ties grid density
+   width. Items are live iframes, so target by :has(iframe).
+   Progressive-complexity row: the over-time script ties grid density
    to iframe width (floor(width / 16.5) cells per side), so giving
    the three cells increasing width produces a left-simpler →
    right-more-intricate visual progression. Ratios sum to 3 to keep
    the row the same total width as an even split. */
 .exhibition-detail[data-slug="haha-over-time"] .ex-inline-artworks:has(iframe){
   grid-template-columns:0.8fr 1fr 1.2fr;
-  max-width:918px;
+  max-width:1200px;
   align-items:start;
+}
+.exhibition-detail[data-slug="haha-over-time"] .ex-inline-caption{
+  margin-top:18px;
 }
 /* Collapse an empty paragraph body between two inline-artworks blocks
    that share the same afterParagraphIndex, so back-to-back blocks sit
@@ -2670,6 +2836,21 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="heuristics-of-emotion"] .ex-details-inner{
   max-width:890px;
 }
+/* Paolo Čerić / Drift: source is a tall 4:5 portrait (1298×1730). The
+   default plate is `width:100%;height:100%` of the frame's content box,
+   which yields a wide landscape ~2.8:1 — far wider than the artwork.
+   With `object-fit:contain` the image clamps to the plate's height and
+   reads as a thin portrait strip floating in vast empty space. Constrain
+   the plate to the image's native aspect so it sizes as the largest
+   4:5 portrait that fits inside the frame: width grows with available
+   height, capped by the frame's content width. The image then fills
+   the plate edge-to-edge with no letterboxing. */
+.ex-hero[data-slug="drift"] .ex-hero-plate{
+  width:auto;
+  height:100%;
+  aspect-ratio:1298/1730;
+  max-width:100%;
+}
 /* Live generative artwork hero — pixel-rendered HTML/canvas piece.
    Iframes have no intrinsic dimensions, so we size the box from the
    parent plate's container query units: width = min(plate_w, plate_h
@@ -2681,19 +2862,38 @@ html:has(.constellation-root){
 .ex-hero-plate .ex-hero-iframe{
   display:block;border:0;background:transparent;
   --hero-iframe-aspect:1;
-  width:min(100cqw, calc(100cqh * var(--hero-iframe-aspect)));
-  height:min(100cqh, calc(100cqw / var(--hero-iframe-aspect)));
+  /* Parens group the ratio so a `4/3` token stream survives substitution.
+     Without them, `calc(100cqw / 4/3)` parses left-associatively as
+     `(100cqw / 4) / 3` and collapses the iframe to a thin horizontal
+     strip. */
+  width:min(100cqw, calc(100cqh * (var(--hero-iframe-aspect))));
+  height:min(100cqh, calc(100cqw / (var(--hero-iframe-aspect))));
   filter:drop-shadow(0 11px 26px rgba(40,35,25,0.075)) drop-shadow(0 2px 5px rgba(40,35,25,0.045));
 }
 .ex-hero[data-theme="dark"] .ex-hero-plate .ex-hero-iframe{
   filter:drop-shadow(0 14px 38px rgba(0,0,0,0.42)) drop-shadow(0 2px 5px rgba(0,0,0,0.26));
 }
-/* VES3L / Solve-Un-Solve: the genart bakes a margin around the puzzle,
-   so even at 100% plate-fill the structure reads a little small. Scale
-   the iframe 6% so the puzzle commands the frame; minor overflow is
-   safely clipped by the hero's `overflow:hidden`. */
-.ex-hero[data-slug="solve-un-solve"] .ex-hero-plate .ex-hero-iframe{
-  transform:scale(1.06);
+/* VES3L / Solve-Un-Solve — hero plate sized as the largest 13:10
+   rectangle that fits inside the frame, matching the bundle's
+   hard-coded `canvas.style.width = 1.3 * innerHeight` sizing. The
+   frame is set as a size container so the plate's `min()`-on-both-
+   axes sizing resolves against the frame's actual content box —
+   robust at every viewport aspect, unlike the prior `height:100%`/
+   `width:auto` combo which silently broke when the frame happened
+   to be wider. Capped at 92% of the frame so the artwork reads as a
+   gallery work with breathing room rather than viewport-spanning
+   wallpaper. Bottom padding is bumped so the refresh affordance has
+   its own quiet strip below the plate rather than sitting on top of
+   the artwork. The iframe inside renders natively at the plate's
+   dimensions (no transform, no crop). */
+.ex-hero[data-slug="solve-un-solve"] .ex-hero-frame{
+  container-type:size;
+  padding-bottom:calc(var(--ex-title-bottom) + var(--ex-title-clearance) + 48px);
+}
+.ex-hero[data-slug="solve-un-solve"] .ex-hero-plate{
+  width:min(92cqw, calc(92cqh * 13 / 10));
+  height:min(92cqh, calc(92cqw * 10 / 13));
+  max-width:none;
 }
 /* Itsgalo / BASALT RT: opposite of ves3l — the explore-row cells show
    the bundle's painted canvas with comfortable colored breathing room
@@ -2727,7 +2927,7 @@ html:has(.constellation-root){
    subtle physical surface against the page. */
 .exhibition-detail[data-slug="solve-un-solve"] .ex-hero-plate .ex-hero-iframe-refresh{
   width:34px;height:34px;
-  transform:translate(-50%, calc(100% - 4px));
+  transform:translate(-50%, calc(100% + 20px));
   background:linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.30) 100%);
   backdrop-filter:blur(6px);
   -webkit-backdrop-filter:blur(6px);
@@ -2754,11 +2954,23 @@ html:has(.constellation-root){
       inset 0 -1px 1px rgba(0,0,0,0.03);
   }
 }
-/* VES3L inline artworks: bump the only-child plate width above the
-   global 420px cap (now 589px). Iframe aspect is set in the data so
-   the genart fills the canvas without letterboxing. */
+/* VES3L / Solve-Un-Solve — Hufkens-tier refinement.
+   Three solo inline iframes (locked specimens of the series). With
+   `fit=1` in the iframe URL the bundle's body margin is zeroed and
+   DPR is capped at 1 — eliminates the cream "wrapper" around the
+   canvas AND ~4× speeds up first paint on retina displays.
+   Refinement moves match Drift / Khwampa / cydr / Provencher:
+     - SCALE 589 → 720px. The puzzles finally claim presence at
+       the same measure as the prose column.
+     - BREATHING ROOM clamp(80, 9vw, 128px) vertical margin.
+     - CAPTION 18px legend margin. */
 .exhibition-detail[data-slug="solve-un-solve"] .ex-inline-artworks:has(> :only-child){
-  max-width:589px;
+  max-width:720px;
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="solve-un-solve"] .ex-inline-caption{
+  margin-top:18px;
 }
 /* Earthsample / gwanak-gu: solo "a trip to osaka" plate scaled ~25%
    above the global 420px cap (now 526px) so it carries enough weight
@@ -3028,18 +3240,12 @@ html:has(.constellation-root){
   transition:color 0.3s ease-out;
 }
 .ex-inline-figure{margin:0;display:flex;flex-direction:column;gap:16px;}
-/* VES3L's inline iframes carry a cream margin at the bottom of each
-   plate, so the caption can sit right inside that empty zone instead
-   of stranding 16px below the iframe's edge. Scoped to the slug so
-   other exhibitions (haha-over-time iframes fill edge-to-edge) keep
-   the canonical 16px gap. */
-.exhibition-detail[data-slug="solve-un-solve"] .ex-inline-figure{gap:0;}
-.exhibition-detail[data-slug="solve-un-solve"] .ex-inline-figure .ex-inline-caption{margin-top:-48px;}
-/* Mirror the caption's -48 pull on the iframe's top so the artwork's
-   internal cream margin at the top is absorbed the same way it is at
-   the bottom — without it the top gap (margin + cream) reads ~50px
-   bigger than the bottom gap. */
-.exhibition-detail[data-slug="solve-un-solve"] .ex-inline-figure .ex-inline-iframe{margin-top:-48px;}
+/* (Earlier this slug had -48px pulls on the figure/caption to absorb
+   the genart bundle's internal cream margin. With `fit=1` now in
+   the inline iframe URL the body margin is zeroed at the source —
+   the canvas fills the iframe edge-to-edge — so the caption sits
+   on the canonical 16px gap from the figure. No special-case
+   needed.) */
 /* Live-rendered generative artwork (iframe) — mirrors the hero's
    container/canvas logic so inline editions sit on the same plate
    structure as the lead piece: a size-container wrapper, an iframe
@@ -3343,8 +3549,11 @@ html:has(.constellation-root){
   will-change:opacity, transform;
 }
 .ex-artist-quote.is-writing .ex-artist-quote-word{
-  animation:ex-artist-quote-word-in 480ms ease-out both;
-  animation-delay:calc(var(--idx, 0) * 40ms);
+  /* Stagger mirrors WORD_STAGGER_MS in components/ArtistQuote.tsx —
+     keep these two values in sync so the attribution's lag-time
+     (computed in JSX) matches the actual reveal pace. */
+  animation:ex-artist-quote-word-in 360ms ease-out both;
+  animation-delay:calc(var(--idx, 0) * 22ms);
 }
 @keyframes ex-artist-quote-word-in{
   to{opacity:1;transform:translateY(0);}
@@ -4102,6 +4311,57 @@ html:has(.constellation-root){
     inset 0 -1px 0 rgba(0,0,0,0.46),
     inset 0 -10px 16px -12px rgba(0,0,0,0.45);
 }
+/* Scrub indicator — a thin vertical phosphor line that marks the
+   active hue within the rainbow swatch when the user has scrubbed
+   to lock at a continuous hue position. Same phosphor colour as
+   the walker reticle so the bar reads as one instrument. */
+.sl-palette-scrub-indicator{
+  position:absolute;top:-6px;bottom:-6px;
+  width:2px;
+  transform:translateX(-50%);
+  pointer-events:none;
+  background:linear-gradient(180deg,
+    color-mix(in srgb, var(--phosphor) 0%, transparent) 0%,
+    var(--phosphor) 22%,
+    var(--phosphor) 78%,
+    color-mix(in srgb, var(--phosphor) 0%, transparent) 100%);
+  box-shadow:
+    0 0 6px color-mix(in srgb, var(--phosphor) 70%, transparent),
+    0 0 14px color-mix(in srgb, var(--phosphor) 32%, transparent);
+  z-index:4;
+}
+.sl-palette-cell.is-rainbow{
+  cursor:ew-resize;
+}
+/* Rainbow zone — multi-colour family can't be honestly represented
+   by a single swatch, so it gets a horizontal spectrum sweep layered
+   *under* the existing CRT scanlines + sheen so it reads as part of
+   the same CRT bar instead of a bare gradient strip. */
+.sl-palette-cell.is-rainbow{
+  background-image:
+    linear-gradient(180deg,
+      rgba(255,255,255,0.10) 0%,
+      rgba(255,255,255,0.02) 18%,
+      transparent 60%,
+      rgba(0,0,0,0.20) 100%),
+    radial-gradient(ellipse 65% 80% at 50% 42%,
+      rgba(255,255,255,0.08) 0%,
+      rgba(255,255,255,0.02) 55%,
+      transparent 85%),
+    repeating-linear-gradient(0deg,
+      transparent 0,
+      transparent 2px,
+      rgba(0,0,0,0.16) 3px,
+      rgba(0,0,0,0.16) 3px),
+    linear-gradient(90deg,
+      #e44a4a 0%,
+      #e8893a 16%,
+      #eccc6b 33%,
+      #5fcf6d 50%,
+      #3aa8d8 67%,
+      #5a76e8 83%,
+      #b367e0 100%);
+}
 /* Hover: the lifted tile catches more light at the top edge, casts a
    small dark "lift shadow" directly beneath, and sheds a soft tonal
    halo into the surrounding panel. */
@@ -4421,6 +4681,31 @@ html:has(.constellation-root){
   }
   .piece-cell:not(:disabled):hover .piece-folder-art{
     transform:translateY(-0.8%);
+  }
+}
+/* Piece number — sits centered over each cell, invisible at rest,
+   eases in on hover. Pure overlay; pointer-events stay off so the
+   number never intercepts the click that opens the lightbox. */
+.piece-cell-number{
+  position:absolute;left:0;top:0;
+  width:100%;
+  aspect-ratio:1;
+  display:flex;align-items:center;justify-content:center;
+  z-index:3;
+  pointer-events:none;
+  font-family:var(--font-serif, "Cormorant Garamond", serif);
+  font-style:italic;
+  font-size:clamp(2.2rem, 5vw, 3.8rem);
+  color:#fff;
+  letter-spacing:0.02em;
+  text-shadow:0 1px 2px rgba(0,0,0,0.35);
+  opacity:0;
+  transition:opacity 320ms var(--ease-slow);
+}
+@media (hover:hover){
+  .piece-cell:not(:disabled):hover .piece-cell-number,
+  .piece-cell:not(:disabled):focus-visible .piece-cell-number{
+    opacity:0.55;
   }
 }
 /* Expanded overlay: viewport-fixed so the artwork sits centered on the
@@ -5304,19 +5589,55 @@ html:has(.constellation-root){
   position:relative;
   display:grid;
   grid-template-columns:1.25fr 1fr;
+  /* Meta line sits above the cover only — its measure now matches
+     the cover's width, which reads as anchored editorial signage
+     rather than a line that runs out into the gutter. The caption
+     starts at the cover's top edge (align-self:start below) so
+     meta → title → byline stack as one masthead under the same
+     baseline as the image's top. */
   grid-template-areas:
-    "meta meta"
+    "meta ."
     "cover caption";
-  /* Split row vs column gap so the masthead sits close to the cover,
-     while the cover and caption have more horizontal breathing room
-     between them. Single `gap` would coupling these unnecessarily. */
   column-gap:clamp(40px, 5vw, 80px);
-  row-gap:clamp(20px, 2.4vw, 32px);
+  row-gap:clamp(16px, 2vw, 24px);
   text-decoration:none;color:inherit;
   padding:clamp(48px, 7vh, 88px) var(--gutter);
 }
 .journal-index-li:first-child .journal-index-row{
   padding-top:clamp(32px, 5vh, 56px);
+}
+
+/* Solo-interview composition — when the archive holds exactly one
+   entry, treat the page as a single editorial feature centred in
+   the viewport on both axes. Three things to get right for true
+   centring:
+     1. Symmetric vertical padding (var(--nav-height) top AND bottom)
+        so the content box's centre lands at exactly 50dvh — the
+        default padding-top with no matching bottom shifts content
+        downward.
+     2. Zero the row's own vertical padding, since the container is
+        now responsible for spacing. Padding inside the centred
+        block would push the cover off the visual midpoint.
+     3. Override the first-child top-padding rule that applies by
+        default to the lone <li>.
+   Self-disables when a second interview is published. */
+.journal-index:has(.journal-index-li:only-child){
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding-top:var(--nav-height);
+  padding-bottom:var(--nav-height);
+  min-height:100dvh;
+}
+.journal-index:has(.journal-index-li:only-child) .journal-index-list{
+  width:100%;
+}
+.journal-index-li:only-child .journal-index-row,
+.journal-index-li:only-child:first-child .journal-index-row{
+  max-width:960px;
+  margin-left:auto;margin-right:auto;
+  padding-top:0;
+  padding-bottom:0;
 }
 
 /* Whisper meta band sitting above the image — issue + date/exhibition
@@ -5411,7 +5732,10 @@ html:has(.constellation-root){
 .journal-index-byline{
   display:block;
   font-family:'Cormorant','Title CJK',serif;
-  font-style:normal;
+  /* Italic byline beneath roman title — the editorial convention
+     for a "by NAME" caption. Gives hierarchy without size
+     escalation. */
+  font-style:italic;
   font-weight:400;
   font-size:17px;line-height:1.4;
   color:var(--ink-soft);

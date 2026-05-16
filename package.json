@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "measure-iframes": "tsx scripts/measure-iframes.ts"
+    "measure-iframes": "tsx scripts/measure-iframes.ts",
+    "build-sl-palette": "tsx scripts/build-sl-palette.ts",
+    "build-sl-embeddings": "tsx scripts/build-sl-embeddings.ts",
+    "build-sl-clusters": "tsx scripts/build-sl-clusters.ts"
   },
   "dependencies": {
     "@chenglou/pretext": "^0.0.6",
@@ -22,7 +25,9 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@xenova/transformers": "^2.17.2",
     "better-sqlite3": "^12.9.0",
+    "ffmpeg-static": "^5.3.0",
     "playwright": "^1.59.1",
     "tsx": "^4.21.0",
     "typescript": "^5"

@@ -208,6 +208,19 @@ export function PieceGrid({
                       />
                     )}
                   </div>
+                  {(() => {
+                    // Derive the piece number from the video filename
+                    // (e.g. /images/ricky-retouch/works/sl-042.mp4 → 042).
+                    // Falls back to the slot index + 1 if the URL doesn't
+                    // match the expected sl-NNN pattern.
+                    const m = item.video.match(/sl-(\d+)\.[a-z0-9]+$/i);
+                    const label = m ? m[1] : String(i + 1).padStart(3, "0");
+                    return (
+                      <span className="piece-cell-number" aria-hidden="true">
+                        {label}
+                      </span>
+                    );
+                  })()}
                 </div>
                 <div className="piece-folder-pocket" aria-hidden="true" />
               </motion.button>

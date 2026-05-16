@@ -1302,12 +1302,19 @@ export const exhibitions: Exhibition[] = [
     // pointer event that kickstarts the puzzle's solve animation
     // (the genart waits for a click by design, and cross-origin embeds
     // can't dispatch events into the iframe).
-    heroIframe: "/api/genart/ves3l?payload=eyJoYXNoIjoiMHhhMTYxZTQ1NWVkYTg2YTc3OGM5NzY5YWU5MDNlNGRhOGNhZTBhYjk5ZjFiNGRlYmQxYWNkNTI3YThlZDhlMjdkIiwiZWRpdGlvbk51bWJlciI6NzUsInRvdGFsRWRpdGlvbnMiOjE4OSwiaW5wdXQiOnsiJHVzZXJuYW1lIjoiMHhQaGlpaWwifX0%3D",
+    heroIframe:
+      "/api/genart/ves3l?payload=eyJoYX...ifX0%3D",
+
     // Re-roll the artwork's hash on every page load and on every
     // refresh-button click. Edition #75 is the SSR seed; once the
     // hero mounts in the browser the payload's hash is replaced with
     // fresh random bytes so the visitor always sees a unique piece.
     heroIframeRandomize: true,
+    // VES3L's native canvas renders at 1.3 aspect (width = 1.3 × innerHeight).
+    // The plate is sized 13:10 in CSS to match; this prop sets the iframe's
+    // inline `--hero-iframe-aspect` so the iframe fills the plate edge-to-edge
+    // instead of defaulting to square (which would letterbox the canvas).
+    heroIframeAspect: "1.3",
     verseSeriesUrl: "https://verse.works/series/solve-un-solve-by-ves3l",
     workCount: 190,
     description: [
@@ -1336,7 +1343,7 @@ export const exhibitions: Exhibition[] = [
             title: "Solve-Un-Solve #166",
             iframe: "/api/genart/ves3l?payload=eyJoYXNoIjoiMHg3ZWQ3Njk2NTY4N2RhMTc5MDU2MzM5MmFjZTI2OWI2N2NiM2EyYjc3MmM3MmQ4ZDRhYWE0NmY4ZDUzMjI1ODUxIiwiZWRpdGlvbk51bWJlciI6MTY2LCJ0b3RhbEVkaXRpb25zIjoxODksImlucHV0Ijp7IiR1c2VybmFtZSI6ImNoZW44ODEyIn19&lock=1",
             verseUrl: "https://verse.works/items/ethereum/0x1cA2dc07129916F4dDB542bB6124CFa442f40Bb1/2258695220",
-            aspectRatio: 1,
+            aspectRatio: 1.3,
             linkable: true,
           },
         ],
@@ -1350,7 +1357,7 @@ export const exhibitions: Exhibition[] = [
             title: "Solve-Un-Solve #165",
             iframe: "/api/genart/ves3l?payload=eyJoYXNoIjoiMHhkN2U5Y2JlMjI4YzM0YWE1NjdjYTIzZTAyMGJmYTc3MjgxNzNiOWY0MTNlYTZjNzU0OTZiYWE3NTYyMDFkMzc4IiwiZWRpdGlvbk51bWJlciI6MTY1LCJ0b3RhbEVkaXRpb25zIjoxODksImlucHV0Ijp7IiR1c2VybmFtZSI6ImNoZW44ODEyIn19&lock=1",
             verseUrl: "https://verse.works/items/ethereum/0x1cA2dc07129916F4dDB542bB6124CFa442f40Bb1/2181900128",
-            aspectRatio: 1,
+            aspectRatio: 1.3,
             linkable: true,
           },
         ],
@@ -1364,7 +1371,7 @@ export const exhibitions: Exhibition[] = [
             title: "Solve-Un-Solve #173",
             iframe: "/api/genart/ves3l?payload=eyJoYXNoIjoiMHhlMGM1YzUyZThmM2QyN2IxOTVhZmQ0ZDBmODc2YWQ0OWY4NzAxN2JiNmJhYzYzN2Y1YmEyNGU2ODM5N2YzNzdlIiwiZWRpdGlvbk51bWJlciI6MTczLCJ0b3RhbEVkaXRpb25zIjoxODksImlucHV0Ijp7IiR1c2VybmFtZSI6ImNoZW44ODEyIn19&lock=1",
             verseUrl: "https://verse.works/items/ethereum/0x1cA2dc07129916F4dDB542bB6124CFa442f40Bb1/3438601325",
-            aspectRatio: 1,
+            aspectRatio: 1.3,
             linkable: true,
           },
         ],

@@ -16,6 +16,7 @@ import { Reveal } from "@/components/Reveal";
 import { SplitLogicMagnifier } from "@/components/SplitLogicMagnifier";
 import { ArtistBroadsheet } from "@/components/ArtistBroadsheet";
 import {
+  getSplitLogicEmbeddings,
   getSplitLogicFullPalette,
   getSplitLogicMagnifierTones,
 } from "@/lib/split-logic-palette";
@@ -120,6 +121,7 @@ export default async function ExhibitionDetailPage({
           <Reveal>
             <SplitLogicSystem
               cells={await getSplitLogicFullPalette()}
+              embeddings={await getSplitLogicEmbeddings()}
               gridItems={exhibition.pieceGridFull ?? exhibition.pieceGrid}
             />
           </Reveal>
@@ -249,8 +251,8 @@ const RICKY_PINS: Record<
     cycle: [
       // Left data column — right edge lands between the moving fields bars
       { x: 0.000, y: 0.039, w: 0.181, h: 0.595 },
-      // Mid strip — from the right edge of box 1 to just before the wireframe labels
-      { x: 0.181, y: 0.039, w: 0.089, h: 0.595 },
+      // Mid strip — covers both pink data panels (XIE + RLG/KX)
+      { x: 0.181, y: 0.039, w: 0.130, h: 0.595 },
       // Bottom label zone — src (0,1010)–(1456,1500)
       { x: 0.000, y: 0.674, w: 1.000, h: 0.326 },
     ],
@@ -361,7 +363,7 @@ const RICKY_PINS: Record<
   // Inner rect source pixels: (640,270)–(1020,590) in 1456×1500
   // source; after 22-px vertical cover-crop → frame (640,248)–
   // (1020,568) in the 1456×1456 visible square.
-  dns: { region: { x: 0.500, y: 0.210, w: 0.281, h: 0.240 }, code: "DNS" },
+  dns: { region: { x: 0.500, y: 0.210, w: 0.281, h: 0.240 }, code: "DNS", tint: true },
 };
 
 const RICKY_ANCHOR = {
