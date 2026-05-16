@@ -233,12 +233,20 @@ body{
   color:#000;
   font-family:'Barlow',sans-serif;
   font-weight:400;
-  min-height:100vh;
-  min-height:100dvh;
+  /* Removed `min-height: 100dvh` + `main { flex: 1 0 auto }`. Those
+     two rules together forced every page to fill the viewport, which
+     painted a large white slab between the last content row and the
+     black footer on any short page (most visibly /journal, but it
+     happens on every light page where content ends above the fold).
+     Now the layout collapses to its natural height: footer hugs the
+     last content row. Anything past the page's bottom edge reads as
+     html's ink-black surface (set above), which already matches the
+     footer — so the page reads as one grounded column, not as a
+     content card floating in an unintentional white void. */
   display:flex;
   flex-direction:column;
 }
-main{flex:1 0 auto;}
+main{flex:0 0 auto;}
 footer{flex-shrink:0;}
 a{color:inherit;text-decoration:none;}
 
@@ -5570,7 +5578,6 @@ html:has(.constellation-root){
    viewport, never a list. */
 .journal-index{
   padding-top:var(--nav-height);
-  min-height:100dvh;
   background:var(--paper);
   color:var(--ink);
 }
@@ -5628,13 +5635,17 @@ html:has(.constellation-root){
      3. Override the first-child top-padding rule that applies by
         default to the lone <li>.
    Self-disables when a second interview is published. */
+/* Single-entry layout: the only journal item sits at the natural top
+   of the page rather than vertically centered in a viewport-height
+   container. Centering looked composed in theory but in practice (most
+   visibly on mobile) produced a large white slab below the entry as
+   the user scrolled toward the footer — symmetric whitespace reading
+   as a layout bug. Drop the flex-centering + viewport min-height; let
+   the entry hug the top of its block, footer follow the entry, html's
+   ink-black surface fill anything past the page's bottom edge. */
 .journal-index:has(.journal-index-li:only-child){
-  display:flex;
-  align-items:center;
-  justify-content:center;
   padding-top:var(--nav-height);
   padding-bottom:var(--nav-height);
-  min-height:100dvh;
 }
 .journal-index:has(.journal-index-li:only-child) .journal-index-list{
   width:100%;
