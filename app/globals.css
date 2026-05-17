@@ -325,6 +325,19 @@ body:has(.artist-reveal:not([data-theme="paper"])){
   background:#000;
 }
 
+/* Paper-themed artist pages: paint `main` paper so the page's own
+   surface extends from the artist-reveal box all the way to the
+   footer's top edge. Without this, body's ink bg (set by the iOS
+   URL-bar tint fix) leaks through `main` below short-content
+   artist-reveal boxes — most visibly on Khwampa, whose landscape
+   hero renders ~120px tall on mobile, leaving the rest of `main`
+   transparent against ink. Dark-themed artist pages don't need
+   this — the existing body { background: #000 } rule above
+   already paints the right surface through transparent main. */
+body:has(.artist-reveal[data-theme="paper"]) main{
+  background:var(--paper);
+}
+
 /* Nav theme adaptation applies to any page with a dark canvas at
    the fold (dark artist reveal, dark hero, dark ex-hero, interview).
    The header reads as part of the dark surface rather than a bright
@@ -7023,22 +7036,18 @@ html:has(.constellation-root){
      bio length fits. */
   .artist-reveal{
     height:auto;
-    /* Fill at least the visible viewport below the nav so the page's
-       paper/ink surface extends all the way to the footer — without
-       this, short-content pages leave a gap inside main where the
-       body's ink bg leaks through between the artwork and the footer
-       on paper-themed pages, or merges the dark artwork into the
-       footer with no visible boundary. */
-    min-height:calc(100vh - var(--nav-height));
-    min-height:calc(100dvh - var(--nav-height));
-    /* Guaranteed band of the page's own surface between the artwork
-       and the footer. Padding (not margin) because the artwork's own
-       margin-bottom can collapse up through .artist-reveal-stage /
-       -track / -reveal — which doesn't create a block formatting
-       context on mobile — so it doesn't reliably show as gap above
-       the footer. 2.5rem (40px) reads as editorial breathing room
-       without the overdone 190px the earlier padding+margin stack
-       produced. */
+    /* No min-height on mobile. Forcing the deck to fill the viewport
+       creates massive paper voids on pages where the showcase artwork
+       is short — Khwampa's landscape hero (3500×1142) only renders
+       ~120px tall on a phone, which the min-height then padded out
+       to a 400px empty band below it. The body-bg-leak the min-height
+       was working around is now handled by giving `main` a matching
+       paper surface on paper-themed artist pages (see
+       `body:has(.artist-reveal[data-theme="paper"]) main` rule
+       above), so the page can collapse to its content height and the
+       whitespace below the artwork is consistently the artwork's own
+       margin plus this padding-bottom — no per-artist stretching
+       inconsistency. */
     padding-bottom:2.5rem;
     overflow:visible;
     /* Keep margin-top: var(--nav-height) from desktop so the deck
