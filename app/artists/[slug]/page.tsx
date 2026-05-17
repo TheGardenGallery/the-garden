@@ -98,7 +98,16 @@ export default async function ArtistDetailPage({
       showcaseVideo={showcaseVideo}
       showcaseImage={showcaseImage}
       showcasePoster={
-        artist.showcaseVideoPoster ?? showcase?.heroVideoPoster
+        // Fall back to the exhibition's `hero` (static frame) when
+        // `heroVideoPoster` isn't set — for many video-driven
+        // exhibitions the `hero` field IS the poster image
+        // (gwanak-gu, glitch-garden, space-time, etc.), so without
+        // this fallback the artist page emits <video poster="">,
+        // leaving a blank rectangle on mobile until the .mp4
+        // metadata loads (or forever if iOS Safari blocks autoplay).
+        artist.showcaseVideoPoster ??
+        showcase?.heroVideoPoster ??
+        showcase?.hero
       }
       showcaseIframe={showcaseIframe}
       showcaseIframeAspect={
