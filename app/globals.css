@@ -7036,20 +7036,22 @@ html:has(.constellation-root){
      bio length fits. */
   .artist-reveal{
     height:auto;
-    /* No min-height on mobile. Forcing the deck to fill the viewport
-       creates massive paper voids on pages where the showcase artwork
-       is short — Khwampa's landscape hero (3500×1142) only renders
-       ~120px tall on a phone, which the min-height then padded out
-       to a 400px empty band below it. The body-bg-leak the min-height
-       was working around is now handled by giving `main` a matching
-       paper surface on paper-themed artist pages (see
-       `body:has(.artist-reveal[data-theme="paper"]) main` rule
-       above), so the page can collapse to its content height and the
-       whitespace below the artwork is consistently the artwork's own
-       margin plus this padding-bottom — no per-artist stretching
-       inconsistency. */
-    padding-bottom:2.5rem;
+    /* Fill the visible viewport below the nav so the artwork can be
+       pinned to a fixed distance above the footer regardless of bio
+       length. Without min-height the box collapses to content height,
+       and short-content pages (Khwampa) end with the artwork close
+       to the bio but far from the footer, while long-content pages
+       end with the artwork close to the footer — breaking cohesion
+       across the artist directory. Combined with `margin-top: auto`
+       on the artwork below, the artwork now ALWAYS sits at
+       artwork.margin-bottom (5rem) above the footer, and the
+       elastic space lives above the artwork (between bio and
+       artwork) where length variation is less visually disruptive. */
+    min-height:calc(100vh - var(--nav-height));
+    min-height:calc(100dvh - var(--nav-height));
     overflow:visible;
+    display:flex;
+    flex-direction:column;
     /* Keep margin-top: var(--nav-height) from desktop so the deck
        starts below the sticky main nav — without it the artist
        name slides under the nav at the top of the page. */
@@ -7057,12 +7059,18 @@ html:has(.constellation-root){
   .artist-reveal-track{
     width:100%;
     height:auto;
+    flex:1;
+    display:flex;
+    flex-direction:column;
   }
   .artist-reveal-stage{
     position:static;
     width:100%;
     height:auto;
     pointer-events:auto;
+    flex:1;
+    display:flex;
+    flex-direction:column;
   }
   .artist-reveal-header{
     position:static;
@@ -7133,7 +7141,13 @@ html:has(.constellation-root){
        calc(100% - 2rem) clamp still wins on narrower phones so it
        never overflows the gutter. */
     max-width:min(36rem, calc(100% - 2rem));
+    /* margin-top: auto pins the artwork to the bottom of the flex
+       stage so its distance to the footer is constant (5rem) across
+       every artist page, regardless of how tall the bio above is.
+       margin-left/right: auto keep it horizontally centered.
+       margin-bottom: 5rem is the editorial gap to the footer. */
     margin:2rem auto 5rem;
+    margin-top:auto;
   }
 }
 
