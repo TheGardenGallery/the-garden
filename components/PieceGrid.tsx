@@ -54,6 +54,20 @@ export function PieceGrid({
   // there, even though it's now a completely different piece.
   const [hovered, setHovered] = useState<string | null>(null);
   const [mounted, setMounted] = useState<Set<string>>(new Set());
+  // Defer upgrading eager-mount cells from preload="metadata" to
+  // preload="auto" until the page/shuffle transition settles. Without
+  // this gate, every items-array change kicks off 12 simultaneous
+  // full-data fetches mid-animation — bandwidth + decoder thrash
+  // that registers as the "glitch" feel during pagination and colour
+  // locks. After the layout animation completes (~600ms), upgrade
+  // preload so subsequent hovers play instantly from buffered data.
+  const [autoPreload, setAutoPreload] = useState(false);
+  useEffect(() => {
+    if (!eagerMount) return;
+    setAutoPreload(false);
+    const t = window.setTimeout(() => setAutoPreload(true), 650);
+    return () => window.clearTimeout(t);
+  }, [items, eagerMount]);
   // Mirror the homepage hero's left/right arrow zones — the prev/next
   // controls fade in only when the mouse is near the corresponding
   // edge of the overlay.
@@ -218,8 +232,23 @@ export function PieceGrid({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{
+                  // Layout (FLIP between positions when items shuffle)
+                  // and opacity (fade for entering/leaving) share a
+                  // duration and easing so a cell's move and its
+                  // fade-in resolve on the same frame — earlier the
+                  // 0.55 vs 0.32 split meant fading completed long
+                  // before the slide and the grid read as "jittering"
+                  // into place. Per-cell stagger (28ms × index)
+                  // creates a soft rippling-in across the 12 slots,
+                  // which both masks any decode-time variance between
+                  // freshly-mounted videos and gives the swap a
+                  // refined editorial wave instead of a 12-cell pop.
                   layout: { duration: 0.55, ease: [0.22, 0.61, 0.36, 1] },
-                  opacity: { duration: 0.32, ease: "easeOut" },
+                  opacity: {
+                    duration: 0.55,
+                    ease: [0.22, 0.61, 0.36, 1],
+                    delay: i * 0.028,
+                  },
                 }}
                 className="piece-cell"
                 data-zoom-src={item.video}
@@ -245,13 +274,18 @@ export function PieceGrid({
                         muted
                         loop
                         playsInline
-                        // eagerMount pages (Split Logic) use "auto" so
-                        // every visible cell is buffered ahead of hover —
-                        // the artwork plays the instant the cursor lands.
-                        // Hover-mount pages stay on "metadata" to avoid
-                        // chewing bandwidth on cells the user only
-                        // grazes.
-                        preload={eagerMount ? "auto" : "metadata"}
+                        // On eagerMount pages (Split Logic) every cell
+                        // mounts from first paint, but preload starts
+                        // at "metadata" so a page/shuffle change
+                        // doesn't kick off 12 simultaneous full-data
+                        // fetches mid-animation (decoder thrash =
+                        // glitch). After ~650ms (just past the
+                        // layout-animation duration) the gate flips
+                        // to "auto" so subsequent hovers play instantly
+                        // from buffered data. Hover-mount pages stay
+                        // on "metadata" forever to avoid chewing
+                        // bandwidth on cells the user only grazes.
+                        preload={eagerMount && autoPreload ? "auto" : "metadata"}
                         aria-hidden="true"
                       />
                     ) : (
