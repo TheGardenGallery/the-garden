@@ -325,17 +325,25 @@ body:has(.artist-reveal:not([data-theme="paper"])){
   background:#000;
 }
 
-/* Paper-themed artist pages: paint `main` paper so the page's own
-   surface extends from the artist-reveal box all the way to the
-   footer's top edge. Without this, body's ink bg (set by the iOS
-   URL-bar tint fix) leaks through `main` below short-content
-   artist-reveal boxes — most visibly on Khwampa, whose landscape
-   hero renders ~120px tall on mobile, leaving the rest of `main`
-   transparent against ink. Dark-themed artist pages don't need
-   this — the existing body { background: #000 } rule above
-   already paints the right surface through transparent main. */
-body:has(.artist-reveal[data-theme="paper"]) main{
-  background:var(--paper);
+/* Artist pages: collapse body + main to content height so the
+   footer sits at the natural end of the page, not at the viewport
+   bottom. Without this, body's min-height: 100dvh + main's flex:1
+   forced empty space below the artist-reveal box (filled either
+   by body bg, which is ink, or by a workaround paper bg on main).
+   Either approach made the visible distance from artwork to
+   footer vary with content length — long bios sat close to the
+   footer, short bios floated far above it. With body collapsed,
+   the artwork-to-footer distance is just artwork.margin-bottom
+   (5rem) + artist-reveal.padding-bottom (2.5rem) = 120px on
+   every page. Short artist pages render shorter than the
+   viewport; html's ink bg (set above) fills the remaining
+   viewport area, matching the black footer rather than
+   contradicting it. */
+body:has(.artist-reveal){
+  min-height:0;
+}
+body:has(.artist-reveal) main{
+  flex:0 0 auto;
 }
 
 /* Nav theme adaptation applies to any page with a dark canvas at
@@ -7036,22 +7044,21 @@ html:has(.constellation-root){
      bio length fits. */
   .artist-reveal{
     height:auto;
-    /* Fill the visible viewport below the nav so the artwork can be
-       pinned to a fixed distance above the footer regardless of bio
-       length. Without min-height the box collapses to content height,
-       and short-content pages (Khwampa) end with the artwork close
-       to the bio but far from the footer, while long-content pages
-       end with the artwork close to the footer — breaking cohesion
-       across the artist directory. Combined with `margin-top: auto`
-       on the artwork below, the artwork now ALWAYS sits at
-       artwork.margin-bottom (5rem) above the footer, and the
-       elastic space lives above the artwork (between bio and
-       artwork) where length variation is less visually disruptive. */
-    min-height:calc(100vh - var(--nav-height));
-    min-height:calc(100dvh - var(--nav-height));
+    /* Content-height. No min-height, no flex pinning. The page
+       collapses to its natural content + the editorial gap below
+       the artwork — so bio and artwork stay close together as a
+       single editorial unit (Hufkens-style), and the distance from
+       artwork to footer is the constant artwork.margin-bottom
+       (5rem) + artist-reveal.padding-bottom (2.5rem) = 120px on
+       every artist page. The body-bg-leak that earlier
+       min-height/flex versions worked around is now handled by
+       collapsing the body itself to content height on artist pages
+       (see `body:has(.artist-reveal) { min-height: 0 }` below) —
+       below short artist pages, html's own ink bg fills the
+       remaining viewport area, matching the footer rather than
+       contradicting it. */
+    padding-bottom:2.5rem;
     overflow:visible;
-    display:flex;
-    flex-direction:column;
     /* Keep margin-top: var(--nav-height) from desktop so the deck
        starts below the sticky main nav — without it the artist
        name slides under the nav at the top of the page. */
@@ -7059,18 +7066,12 @@ html:has(.constellation-root){
   .artist-reveal-track{
     width:100%;
     height:auto;
-    flex:1;
-    display:flex;
-    flex-direction:column;
   }
   .artist-reveal-stage{
     position:static;
     width:100%;
     height:auto;
     pointer-events:auto;
-    flex:1;
-    display:flex;
-    flex-direction:column;
   }
   .artist-reveal-header{
     position:static;
@@ -7141,13 +7142,12 @@ html:has(.constellation-root){
        calc(100% - 2rem) clamp still wins on narrower phones so it
        never overflows the gutter. */
     max-width:min(36rem, calc(100% - 2rem));
-    /* margin-top: auto pins the artwork to the bottom of the flex
-       stage so its distance to the footer is constant (5rem) across
-       every artist page, regardless of how tall the bio above is.
-       margin-left/right: auto keep it horizontally centered.
-       margin-bottom: 5rem is the editorial gap to the footer. */
+    /* 2rem above the artwork keeps it close to the bio/cue (tight
+       editorial unit), 5rem below is the constant gap to the
+       footer's top edge. With the body itself collapsing to
+       content height on artist pages, no main empty-space leaks
+       below — the page ends at the footer naturally. */
     margin:2rem auto 5rem;
-    margin-top:auto;
   }
 }
 
