@@ -7022,14 +7022,18 @@ html:has(.constellation-root){
        this, short-content pages leave a gap inside main where the
        body's ink bg leaks through between the artwork and the footer
        on paper-themed pages, or merges the dark artwork into the
-       footer with no visible boundary. The artwork already carries
-       its own margin: 2rem auto 5rem; min-height alone provides the
-       extra editorial breathing room when content is short, and
-       collapses tight against the artwork's margin when content
-       fills the viewport — so the page reads refined at both ends
-       of the content-length spectrum without an extra fixed band. */
+       footer with no visible boundary. */
     min-height:calc(100vh - var(--nav-height));
     min-height:calc(100dvh - var(--nav-height));
+    /* Guaranteed band of the page's own surface between the artwork
+       and the footer. Padding (not margin) because the artwork's own
+       margin-bottom can collapse up through .artist-reveal-stage /
+       -track / -reveal — which doesn't create a block formatting
+       context on mobile — so it doesn't reliably show as gap above
+       the footer. 2.5rem (40px) reads as editorial breathing room
+       without the overdone 190px the earlier padding+margin stack
+       produced. */
+    padding-bottom:2.5rem;
     overflow:visible;
     /* Keep margin-top: var(--nav-height) from desktop so the deck
        starts below the sticky main nav — without it the artist
