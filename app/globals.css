@@ -7005,7 +7005,17 @@ html:has(.constellation-root){
      bio length fits. */
   .artist-reveal{
     height:auto;
-    min-height:0;
+    /* Fill at least the visible viewport below the nav so the page's
+       paper/ink surface extends all the way to the footer. Without
+       this, short-content pages leave a gap inside main where body
+       bg shows through — and after the iOS URL-bar fix turned body
+       bg ink, that gap reads as a sudden black band between a
+       paper-themed artwork and the black footer (or merges the dark
+       artwork into the footer with no visible boundary). The
+       min-height matches the desktop fixed height; on tall content
+       the page just continues past it as before. */
+    min-height:calc(100vh - var(--nav-height));
+    min-height:calc(100dvh - var(--nav-height));
     overflow:visible;
     /* Keep margin-top: var(--nav-height) from desktop so the deck
        starts below the sticky main nav — without it the artist
