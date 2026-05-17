@@ -564,10 +564,21 @@ function MobileField({ stars }: { stars: Star[] }) {
         }
 
         for (let i = 0; i < n; i++) {
-          if (x[i] < PAD_X) { x[i] = PAD_X; vx[i] = Math.abs(vx[i]); }
-          if (x[i] + w[i] > cw - PAD_X) { x[i] = cw - PAD_X - w[i]; vx[i] = -Math.abs(vx[i]); }
+          // Items wider than the usable strip (rare — only happens when
+          // an artist's name is unusually long on a narrow viewport)
+          // cause the two opposing bounce conditions to fire on
+          // alternating frames, jittering visibly. When item exceeds
+          // the usable width, pin to PAD_X and zero horizontal vel.
+          if (w[i] > cw - PAD_X * 2) {
+            x[i] = PAD_X;
+            vx[i] = 0;
+          } else if (x[i] < PAD_X) {
+            x[i] = PAD_X; vx[i] = Math.abs(vx[i]);
+          } else if (x[i] + w[i] > cw - PAD_X) {
+            x[i] = cw - PAD_X - w[i]; vx[i] = -Math.abs(vx[i]);
+          }
           if (y[i] < PAD_TOP) { y[i] = PAD_TOP; vy[i] = Math.abs(vy[i]); }
-          if (y[i] + h[i] > ch - PAD_BOT) { y[i] = ch - PAD_BOT - h[i]; vy[i] = -Math.abs(vy[i]); }
+          else if (y[i] + h[i] > ch - PAD_BOT) { y[i] = ch - PAD_BOT - h[i]; vy[i] = -Math.abs(vy[i]); }
         }
 
         for (let i = 0; i < n; i++) {
@@ -589,6 +600,28 @@ function MobileField({ stars }: { stars: Star[] }) {
               }
             }
           }
+        }
+
+        // Post-AABB clamp pass. The collision push above can shove items
+        // past the walls (item against a wall + neighbour overlap pushes
+        // it further into the wall). Without this second pass the item
+        // sits visibly out-of-bounds for one frame, and items clamped at
+        // the wall on the next frame's bounce appear stationary —
+        // exactly the "not hovering / drifts out of frame" symptom.
+        // Hard-clamp inverts velocity sign toward the field interior so
+        // the item resumes drift inward rather than continuing to press
+        // the wall.
+        for (let i = 0; i < n; i++) {
+          if (w[i] > cw - PAD_X * 2) {
+            x[i] = PAD_X;
+            vx[i] = 0;
+          } else if (x[i] < PAD_X) {
+            x[i] = PAD_X; vx[i] = Math.abs(vx[i]);
+          } else if (x[i] + w[i] > cw - PAD_X) {
+            x[i] = cw - PAD_X - w[i]; vx[i] = -Math.abs(vx[i]);
+          }
+          if (y[i] < PAD_TOP) { y[i] = PAD_TOP; vy[i] = Math.abs(vy[i]); }
+          else if (y[i] + h[i] > ch - PAD_BOT) { y[i] = ch - PAD_BOT - h[i]; vy[i] = -Math.abs(vy[i]); }
         }
 
         for (let i = 0; i < n; i++) {
