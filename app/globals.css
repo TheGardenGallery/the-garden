@@ -139,6 +139,17 @@ html{
   scroll-behavior:smooth;
   scrollbar-width:thin;
   scrollbar-color:gray transparent;
+  /* Reserve the scrollbar's gutter always, whether or not the page
+     is currently scrollable. Without this, the welcome-overlay's
+     `body:has(.wf-root) { overflow: hidden }` removed the gutter
+     while the gate was up; when the overlay dismissed and the
+     scrollbar reappeared, every centered element (hero, nav,
+     editorial columns) shifted ~8px left as the viewport narrowed.
+     `stable` keeps the gutter pinned so the layout never shifts at
+     the moment the overlay clears, on platforms where scrollbars
+     take space (Windows, Linux, "Always show" on macOS). On systems
+     with overlay scrollbars (default macOS, iOS) it's a no-op. */
+  scrollbar-gutter:stable;
   /* iOS Safari: fully block the browser's pull-to-refresh chrome on
      vertical pulls. `contain` should have stopped the chain but on
      iOS the second-pull still engaged the refresh indicator (white
