@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 
 /**
  * Welcome gate — split black/white surface built from horizontal strips
- * with hairline gaps between them. The word "Welcome." fades in, holds,
+ * with hairline gaps between them. The word "Welcome" fades in, holds,
  * then the split-flap curtain falls away automatically — no tap needed.
  *
  * Clicking/tapping at any point skips the wait and triggers immediately.
@@ -95,7 +95,7 @@ export function WelcomeOverlay() {
   useEffect(() => {
     if (!mounted || dismissed || cachedAway || pathname !== "/") return;
 
-    // 1. After the opening silence, fade "Welcome." in.
+    // 1. After the opening silence, fade "Welcome" in.
     const tIn = setTimeout(() => setTextVisible(true), OPEN_HOLD);
 
     // 2. Once it has dwelt, fade it back out on its own — separate from
@@ -234,7 +234,7 @@ export function WelcomeOverlay() {
             : `opacity ${TEXT_OUT}ms ${EASE_OUT}`,
         }}
       >
-        Welcome.
+        Welcome
       </button>
     </div>,
     document.body
