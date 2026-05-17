@@ -139,6 +139,15 @@ html{
   scroll-behavior:smooth;
   scrollbar-width:thin;
   scrollbar-color:gray transparent;
+  /* iOS Safari: prevent vertical pull from chaining into the
+     browser's pull-to-refresh chrome, which has a white default
+     surface that contradicts the page's ink-black overscroll
+     backdrop. `contain` keeps the rubber-band bounce intact (so
+     the gesture still feels native) but stops the chain — the
+     first pull and every pull after consistently reveal html's
+     ink bg instead of flashing into Safari's refresh indicator.
+     No-op on desktop browsers where pull-to-refresh isn't a thing. */
+  overscroll-behavior-y:contain;
   /* Match the html background to the footer's surface so the iOS
      Safari URL-bar safe area + rubber-band overscroll at the bottom
      of the page reveal coherent ink-black rather than a mismatched
