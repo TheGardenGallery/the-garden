@@ -7013,9 +7013,14 @@ html:has(.constellation-root){
        paper-themed artwork and the black footer (or merges the dark
        artwork into the footer with no visible boundary). The
        min-height matches the desktop fixed height; on tall content
-       the page just continues past it as before. */
+       the page just continues past it as before. The explicit
+       padding-bottom guarantees the page's own surface keeps reading
+       below the artwork's own margin before the footer's edge — even
+       when content is just tall enough to defeat min-height-driven
+       stretching. */
     min-height:calc(100vh - var(--nav-height));
     min-height:calc(100dvh - var(--nav-height));
+    padding-bottom:5rem;
     overflow:visible;
     /* Keep margin-top: var(--nav-height) from desktop so the deck
        starts below the sticky main nav — without it the artist
