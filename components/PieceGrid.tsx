@@ -121,13 +121,16 @@ export function PieceGrid({
     if (expanded === null) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === "Escape") setExpanded(null);
-      else if (e.key === "ArrowLeft" || (wasdNav && (e.key === "a" || e.key === "A"))) prev();
-      else if (e.key === "ArrowRight" || (wasdNav && (e.key === "d" || e.key === "D"))) next();
+      const k = e.key;
+      if (k === "Escape") setExpanded(null);
+      else if (k === "ArrowLeft" || k === "a" || k === "A") prev();
+      else if (k === "ArrowRight" || k === "d" || k === "D") next();
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [expanded, prev, next, wasdNav]);
+    // Capture-phase so the handler fires before any focused descendant
+    // (the overlay button, the artwork's container) could intercept.
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [expanded, prev, next]);
 
   // Drive play/pause on the mounted cell videos. Only the currently
   // hovered cell plays; everything else stays paused at its last
