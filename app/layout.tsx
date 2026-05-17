@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { VisitMarker } from "@/components/VisitMarker";
@@ -22,6 +22,19 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
   title: "The Garden",
   description: "An online gallery for digital art.",
+};
+
+// iOS Safari paints the strip between the page's bottom pixel and its
+// URL-bar pill using `theme-color`. Without this meta, the system
+// default (white on light-mode iPhones) shows below the black footer
+// as a mismatched sliver. Setting it to ink makes that chrome strip
+// match the footer, so the page reads as one grounded column straight
+// through the safe area. Only affects browser chrome — page bg, body
+// bg, and every page root are unchanged, so light-themed surfaces
+// inside the viewport stay paper. Next 15 moved this from `metadata`
+// to the separate `viewport` export.
+export const viewport: Viewport = {
+  themeColor: "#000000",
 };
 
 export default function RootLayout({

@@ -139,13 +139,18 @@ html{
   scroll-behavior:smooth;
   scrollbar-width:thin;
   scrollbar-color:gray transparent;
-  background:var(--paper);
+  /* Match the html background to the footer's surface so the iOS
+     Safari URL-bar safe area + rubber-band overscroll at the bottom
+     of the page reveal coherent ink-black rather than a mismatched
+     white slab. The paper-coloured content area lives on `body`;
+     everything past the page's bounds (overscroll, short-content
+     halo, URL-bar tab strip) reads as the same dark surface the
+     footer already establishes. Gallery-standard: don't disable the
+     OS gesture — just give it the right backdrop. Per-page
+     dark-hero overrides below kept explicit so the rule stays
+     greppable and removing the default wouldn't silently regress. */
+  background:#000;
 }
-/* Match the html background to whichever surface the current page
-   is presenting, so the native rubber-band overscroll always
-   reveals a coherent color rather than a mismatched white slab on
-   a dark page (or vice versa). Gallery-standard: don't disable the
-   OS gesture — just give it the right backdrop. */
 html:has(.artist-reveal:not([data-theme="paper"])),
 html:has(.hero[data-theme="dark"]),
 html:has(.ex-hero[data-theme="dark"]){
