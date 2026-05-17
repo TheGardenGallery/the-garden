@@ -650,14 +650,20 @@ export function SplitLogicSystem({
     return () => obs.disconnect();
   }, []);
 
-  // Keyboard pagination — ArrowLeft/Right move between pages while the
-  // grid is in view. Skip when the lightbox overlay is mounted (it has
-  // its own ArrowLeft/Right handler for prev/next artwork) and skip
-  // when the user is typing in a form field.
+  // Keyboard pagination — ArrowLeft/Right or A/D (gamer-style) move
+  // between pages while the grid is in view. Skip when the lightbox
+  // overlay is mounted (it has its own prev/next handler for the
+  // expanded artwork) and skip when the user is typing in a form
+  // field. Modifier-keyed combos (Cmd-A, Ctrl-D, etc.) are also
+  // ignored so the WASD shortcuts never hijack browser/OS gestures.
   useEffect(() => {
     if (totalPages <= 1) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const k = e.key;
+      const isLeft = k === "ArrowLeft" || k === "a" || k === "A";
+      const isRight = k === "ArrowRight" || k === "d" || k === "D";
+      if (!isLeft && !isRight) return;
       if (!inViewRef.current) return;
       if (document.querySelector(".piece-grid-overlay")) return;
       const t = document.activeElement as HTMLElement | null;
@@ -670,7 +676,7 @@ export function SplitLogicSystem({
       )
         return;
       e.preventDefault();
-      if (e.key === "ArrowLeft") goPrev();
+      if (isLeft) goPrev();
       else goNext();
     };
     window.addEventListener("keydown", onKey);
@@ -746,7 +752,7 @@ export function SplitLogicSystem({
           </button>
         )}
 
-        <PieceGrid items={pageItems} eagerMount />
+        <PieceGrid items={pageItems} eagerMount wasdNav />
 
         {totalPages > 1 && (
           <button

@@ -14,6 +14,7 @@ export function PieceGrid({
   items,
   cellOrder,
   eagerMount = false,
+  wasdNav = false,
 }: {
   items: PieceGridItem[];
   /**
@@ -36,6 +37,14 @@ export function PieceGrid({
    * every other exhibition.
    */
   eagerMount?: boolean;
+  /**
+   * When true, the lightbox accepts A/D in addition to the standard
+   * ArrowLeft/ArrowRight for prev/next-artwork navigation. Opted into
+   * only by pages whose grid is paired with a sibling A/D pagination
+   * (Split Logic), so the WASD muscle-memory is consistent between
+   * paging the grid and stepping through the lightbox stack.
+   */
+  wasdNav?: boolean;
 }) {
   const [expanded, setExpanded] = useState<number | null>(null);
   // Hover/mount state is keyed by the piece's stable video URL rather
@@ -111,13 +120,14 @@ export function PieceGrid({
   useEffect(() => {
     if (expanded === null) return;
     const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === "Escape") setExpanded(null);
-      else if (e.key === "ArrowLeft") prev();
-      else if (e.key === "ArrowRight") next();
+      else if (e.key === "ArrowLeft" || (wasdNav && (e.key === "a" || e.key === "A"))) prev();
+      else if (e.key === "ArrowRight" || (wasdNav && (e.key === "d" || e.key === "D"))) next();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [expanded, prev, next]);
+  }, [expanded, prev, next, wasdNav]);
 
   // Drive play/pause on the mounted cell videos. Only the currently
   // hovered cell plays; everything else stays paused at its last
