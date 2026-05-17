@@ -13,6 +13,7 @@ export type PieceGridItem = {
 export function PieceGrid({
   items,
   cellOrder,
+  eagerMount = false,
 }: {
   items: PieceGridItem[];
   /**
@@ -23,6 +24,18 @@ export function PieceGrid({
    * positions instead of teleporting.
    */
   cellOrder?: number[];
+  /**
+   * When true, every cell mounts its <video> on initial render with
+   * preload="auto" rather than swapping in only after first hover.
+   * The hover then triggers .play() on already-buffered media, so the
+   * artwork starts moving the instant the cursor lands — no metadata
+   * fetch + decode pause. Bandwidth heavier (12 videos × 100-500KB =
+   * ~3-6MB up front per page), so reserved for pages where the
+   * piece-grid is the editorial centerpiece (Ricky's Split Logic).
+   * Default false preserves the lighter hover-mount behaviour for
+   * every other exhibition.
+   */
+  eagerMount?: boolean;
 }) {
   const [expanded, setExpanded] = useState<number | null>(null);
   // Hover/mount state is keyed by the piece's stable video URL rather
@@ -147,7 +160,9 @@ export function PieceGrid({
         <AnimatePresence mode="popLayout" initial={false}>
           {items.map((item, i) => {
             const cellKey = item.video;
-            const isMounted = mounted.has(cellKey);
+            // eagerMount forces the <video> in from first paint with
+            // aggressive preload, so hover is instant. See prop docs.
+            const isMounted = eagerMount || mounted.has(cellKey);
             const cellStyle: React.CSSProperties = {};
             if (cellOrder !== undefined) cellStyle.order = cellOrder[i];
             return (
@@ -186,11 +201,13 @@ export function PieceGrid({
                         muted
                         loop
                         playsInline
-                        // metadata, not auto — cells mount on hover but the
-                        // user may never play many of them; aggressive
-                        // preload chews bandwidth on cells that get one
-                        // brief hover. play() handles buffering on demand.
-                        preload="metadata"
+                        // eagerMount pages (Split Logic) use "auto" so
+                        // every visible cell is buffered ahead of hover —
+                        // the artwork plays the instant the cursor lands.
+                        // Hover-mount pages stay on "metadata" to avoid
+                        // chewing bandwidth on cells the user only
+                        // grazes.
+                        preload={eagerMount ? "auto" : "metadata"}
                         aria-hidden="true"
                       />
                     ) : (

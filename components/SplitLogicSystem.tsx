@@ -746,7 +746,7 @@ export function SplitLogicSystem({
           </button>
         )}
 
-        <PieceGrid items={pageItems} />
+        <PieceGrid items={pageItems} eagerMount />
 
         {totalPages > 1 && (
           <button
