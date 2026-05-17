@@ -5126,28 +5126,6 @@ html:has(.constellation-root){
     inset 0 -1px 0 rgba(0,0,0,0.46),
     inset 0 -10px 16px -12px rgba(0,0,0,0.45);
 }
-/* Scrub indicator — a thin vertical phosphor line that marks the
-   active hue within the rainbow swatch when the user has scrubbed
-   to lock at a continuous hue position. Same phosphor colour as
-   the walker reticle so the bar reads as one instrument. */
-.sl-palette-scrub-indicator{
-  position:absolute;top:-6px;bottom:-6px;
-  width:2px;
-  transform:translateX(-50%);
-  pointer-events:none;
-  background:linear-gradient(180deg,
-    color-mix(in srgb, var(--phosphor) 0%, transparent) 0%,
-    var(--phosphor) 22%,
-    var(--phosphor) 78%,
-    color-mix(in srgb, var(--phosphor) 0%, transparent) 100%);
-  box-shadow:
-    0 0 6px color-mix(in srgb, var(--phosphor) 70%, transparent),
-    0 0 14px color-mix(in srgb, var(--phosphor) 32%, transparent);
-  z-index:4;
-}
-.sl-palette-cell.is-rainbow{
-  cursor:ew-resize;
-}
 /* Rainbow zone — multi-colour family can't be honestly represented
    by a single swatch, so it gets a horizontal spectrum sweep layered
    *under* the existing CRT scanlines + sheen so it reads as part of
@@ -5209,42 +5187,6 @@ html:has(.constellation-root){
   outline-offset:2px;
   z-index:3;
 }
-/* Walker — the tile is "energised": phosphor wash bleeds inward from
-   the edges, with a brighter sliver lighting the top. No flat 1px
-   border line. The reticle hangs above and below as the CRT cursor. */
-.sl-palette-cell.is-walker::before{
-  content:"";
-  position:absolute;inset:0;
-  pointer-events:none;
-  box-shadow:
-    inset 0 0 11px color-mix(in srgb, var(--phosphor) 28%, transparent),
-    inset 0 0 4px color-mix(in srgb, var(--phosphor) 38%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--phosphor) 62%, transparent);
-  animation:sl-walker-pulse 1.6s ease-in-out infinite;
-}
-.sl-palette-cell.is-walker::after{
-  content:"";
-  position:absolute;
-  left:50%;top:-10px;bottom:-10px;
-  width:1px;
-  transform:translateX(-50%);
-  /* Reticle fades at its tips — feels less like a drawn line, more
-     like a focused beam. */
-  background:linear-gradient(180deg,
-    color-mix(in srgb, var(--phosphor) 0%, transparent) 0%,
-    var(--phosphor) 28%,
-    var(--phosphor) 72%,
-    color-mix(in srgb, var(--phosphor) 0%, transparent) 100%);
-  box-shadow:
-    0 0 6px color-mix(in srgb, var(--phosphor) 65%, transparent),
-    0 0 14px color-mix(in srgb, var(--phosphor) 28%, transparent);
-  opacity:0.85;
-  pointer-events:none;
-}
-@keyframes sl-walker-pulse{
-  0%,100%{ opacity:0.55; }
-  50%    { opacity:1.0;  }
-}
 /* Hover preview — soft white bleed inward, no flat border. Reads as
    "the tile is being illuminated" rather than "it's selected." */
 .sl-palette-cell.is-hovered::before{
@@ -5276,38 +5218,6 @@ html:has(.constellation-root){
     inset 0 0 5px color-mix(in srgb, var(--phosphor) 52%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--phosphor) 88%, transparent);
 }
-.sl-palette-cell.is-locked::after{
-  content:"";
-  position:absolute;
-  left:50%;top:-12px;bottom:-12px;
-  width:1px;
-  transform:translateX(-50%);
-  background:linear-gradient(180deg,
-    color-mix(in srgb, var(--phosphor) 0%, transparent) 0%,
-    var(--phosphor) 24%,
-    var(--phosphor) 76%,
-    color-mix(in srgb, var(--phosphor) 0%, transparent) 100%);
-  box-shadow:
-    0 0 8px color-mix(in srgb, var(--phosphor) 80%, transparent),
-    0 0 18px color-mix(in srgb, var(--phosphor) 40%, transparent);
-  pointer-events:none;
-}
-/* Phosphor decay: when the walker leaves, the previous cell's amber
-   wash fades out over 600ms — like trail on a CRT scanning beam. */
-.sl-palette-cell.is-fading::before{
-  content:"";
-  position:absolute;inset:0;
-  pointer-events:none;
-  box-shadow:
-    inset 0 0 10px color-mix(in srgb, var(--phosphor) 24%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--phosphor) 48%, transparent);
-  animation:sl-afterglow 600ms ease-out forwards;
-}
-@keyframes sl-afterglow{
-  0%   { opacity:0.7; }
-  100% { opacity:0;   }
-}
-
 /* Readout — Space Mono telemetry line under the strip. Hex glows in
    its live colour, state token shifts based on display mode, and a
    blinking phosphor block sits at the end as a terminal cursor. */
@@ -5354,8 +5264,6 @@ html:has(.constellation-root){
   .sl-palette-readout{ font-size:11px; gap:0.5em; }
 }
 @media (prefers-reduced-motion: reduce){
-  .sl-palette-cell.is-walker::before,
-  .sl-palette-cell.is-fading::before,
   .sl-readout-cursor{ animation:none; opacity:1; }
   .sl-palette-cell{ transition:none; }
   .sl-palette-cell:hover{ transform:none; }

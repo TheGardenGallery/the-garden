@@ -50,24 +50,17 @@ const RAINBOW_IDS = new Set([
 // every group member to sit immediately after the group's first
 // occurrence, preserving their relative order.
 const ADJACENCY_GROUPS: string[][] = [
-  ["sl-007", "sl-012", "sl-099"],
   ["sl-098", "sl-037", "sl-027", "sl-087", "sl-049"],
   ["sl-093", "sl-013"],
   ["sl-078", "sl-070", "sl-020"],
-  ["sl-060", "sl-046", "sl-050", "sl-063", "sl-016"],
   ["sl-015", "sl-076", "sl-067", "sl-066", "sl-073", "sl-038", "sl-064", "sl-008", "sl-086", "sl-080"],
-  ["sl-036", "sl-033", "sl-034", "sl-044", "sl-018", "sl-058", "sl-092", "sl-028"],
+  ["sl-036", "sl-033", "sl-034", "sl-044", "sl-028", "sl-092", "sl-058", "sl-018"],
   ["sl-075", "sl-045", "sl-042"],
-  ["sl-077", "sl-100", "sl-019", "sl-061", "sl-069", "sl-065", "sl-025", "sl-079", "sl-043", "sl-051", "sl-017", "sl-047", "sl-085"],
-  ["sl-009", "sl-056", "sl-053", "sl-068", "sl-090"],
+  ["sl-007", "sl-012", "sl-099", "sl-077", "sl-100", "sl-019", "sl-061", "sl-069", "sl-065", "sl-025", "sl-079", "sl-043", "sl-051", "sl-017", "sl-047", "sl-085"],
+  ["sl-009", "sl-056", "sl-053", "sl-014", "sl-090", "sl-068", "sl-084", "sl-048", "sl-023"],
   ["sl-057", "sl-022", "sl-088"],
-  ["sl-024", "sl-035"],
-  ["sl-062", "sl-055", "sl-021", "sl-059", "sl-071"],
-  ["sl-039"],
-  ["sl-005", "sl-006", "sl-011", "sl-010"],
-  ["sl-030", "sl-040", "sl-029", "sl-041"],
-  ["sl-089", "sl-083", "sl-031", "sl-032", "sl-081"],
-  ["sl-084", "sl-048"],
+  ["sl-062", "sl-055", "sl-021", "sl-059", "sl-071", "sl-074", "sl-030", "sl-040", "sl-029", "sl-041", "sl-035", "sl-054", "sl-024"],
+  ["sl-097", "sl-089", "sl-083", "sl-039", "sl-031", "sl-032", "sl-081", "sl-082", "sl-091", "sl-026", "sl-052", "sl-072", "sl-005", "sl-006", "sl-011", "sl-010", "sl-060", "sl-046", "sl-050", "sl-063", "sl-016"],
 ];
 
 // Bar design — two curated specials + four algorithmic centroids:
@@ -89,7 +82,7 @@ const ADJACENCY_GROUPS: string[][] = [
 // to the clicked button leads.
 type PieceAssignment = "white" | "rainbow" | number;
 
-const CHROMATIC_BUTTON_COUNT = 7;
+const CHROMATIC_BUTTON_COUNT = 4;
 const MIN_WHITE_PIECES = 3;
 const MIN_CHROMATIC_BUCKET = 2;
 const MONO_BRIGHT_L_MIN = 0.65;
@@ -157,18 +150,19 @@ function isWhitePiece(
 }
 
 function designButtonLch(centroid: Oklch): Oklch {
-  // Yellow reads visually more "loud" than other hues at the same
-  // OKLCh chroma — at L=0.72 C=0.22 it sits in acidic/highlighter
-  // territory. The yellow band (≈ 80°-115° in OKLCh) gets a softer
-  // treatment: higher L, lower C, so it lands buttery-warm rather
-  // than neon. The L bump also helps it sit alongside white on the
-  // bar without one drowning the other.
+  // Yellow band (≈ 80°-115° in OKLCh) is fussy — the raw centroid
+  // often lands olive/highlighter, which reads pukey on a black bar.
+  // Pull the rendered hue into the buttery-yellow sweet spot
+  // (≈ 100°) and raise L/C so it reads warm-sunlit rather than
+  // green-tinged or acidic.
   const deg = ((centroid.h * 180) / Math.PI + 360) % 360;
   const isYellowBand = deg >= 80 && deg < 115;
-  const L = isYellowBand ? 0.8 : BUTTON_L_TARGET;
-  const C = isYellowBand
-    ? Math.min(0.17, Math.max(0.13, centroid.C))
-    : Math.min(BUTTON_C_CAP, Math.max(BUTTON_C_FLOOR, centroid.C));
+  if (isYellowBand) {
+    const yellowDeg = Math.max(95, Math.min(105, deg));
+    return { h: (yellowDeg * Math.PI) / 180, L: 0.88, C: 0.18 };
+  }
+  const L = BUTTON_L_TARGET;
+  const C = Math.min(BUTTON_C_CAP, Math.max(BUTTON_C_FLOOR, centroid.C));
   return { h: centroid.h, L, C };
 }
 
@@ -176,13 +170,6 @@ function rankPriority(a: PieceAssignment): number {
   if (a === "white") return 0;
   if (a === "rainbow") return 1e6;
   return 1 + a;
-}
-
-function hueDistance(a: number, b: number): number {
-  let d = a - b;
-  if (d > Math.PI) d -= 2 * Math.PI;
-  else if (d < -Math.PI) d += 2 * Math.PI;
-  return Math.abs(d);
 }
 
 function cosineSim(a: number[], b: number[]): number {
@@ -197,13 +184,11 @@ function computeSortedIndices(
   pieceAssignment: PieceAssignment[],
   topClusterLch: Oklch[],
   centroids: Oklch[],
-  dominantHues: number[],
   dominantStrength: number[],
   bucketMass: number[],
   pieceEmbeddings: (number[] | null)[],
   bucketArchetypes: (number[] | null)[],
   lockedAssignment: PieceAssignment | null,
-  lockedHueRad: number | null,
 ): number[] {
   const n = pieceAssignment.length;
   const indices = Array.from({ length: n }, (_, i) => i);
@@ -221,27 +206,6 @@ function computeSortedIndices(
   }
 
   indices.sort((a, b) => {
-    // Rainbow scrub overrides categorical lock: continuous hue mode
-    // ranks every chromatic piece by hue distance to the scrubbed
-    // target. White and rainbow pieces drop behind chromatic ones
-    // (they don't have a single hue to match against).
-    if (lockedHueRad !== null) {
-      const aH = pieceAssignment[a];
-      const bH = pieceAssignment[b];
-      const aChrom = typeof aH === "number";
-      const bChrom = typeof bH === "number";
-      if (aChrom !== bChrom) return aChrom ? -1 : 1;
-      if (!aChrom) return rankPriority(aH) - rankPriority(bH);
-      const da = hueDistance(dominantHues[a], lockedHueRad);
-      const db = hueDistance(dominantHues[b], lockedHueRad);
-      if (da !== db) return da - db;
-      // Tiebreak: prefer pieces with stronger dominance — wall-to-
-      // wall sits ahead of an accent at identical hue.
-      if (dominantStrength[a] !== dominantStrength[b]) {
-        return dominantStrength[b] - dominantStrength[a];
-      }
-      return topClusterLch[a].L - topClusterLch[b].L;
-    }
     if (lockedAssignment !== null) {
       const am = pieceAssignment[a] === lockedAssignment ? 0 : 1;
       const bm = pieceAssignment[b] === lockedAssignment ? 0 : 1;
@@ -306,12 +270,6 @@ export function SplitLogicSystem({
   embeddings?: Record<string, number[]>;
 }) {
   const [lockedZoneIdx, setLockedZoneIdx] = useState<number | null>(null);
-  // When the user scrubs the rainbow swatch, this carries the
-  // continuously-locked hue (radians). It coexists with the rainbow
-  // lockedZoneIdx so the swatch reads as "this is the active
-  // category" while the sort uses the scrubbed hue instead of the
-  // categorical match-all.
-  const [lockedHueRad, setLockedHueRad] = useState<number | null>(null);
   const [page, setPage] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -548,9 +506,6 @@ export function SplitLogicSystem({
 
   const sortedIndices = useMemo(() => {
     const dominantStrength = cells.map((c) => c.dominantStrength ?? 0);
-    const dominantHues = cells.map(
-      (c, i) => c.dominant?.h ?? piecePrimaries.topClusterLch[i].h,
-    );
     // For each piece in a chromatic bucket: sum of its cluster
     // weights whose hue sits within ±25° of the bucket centroid's
     // hue. This is the "literal amount of this colour in the piece"
@@ -574,13 +529,11 @@ export function SplitLogicSystem({
       pieceAssignment,
       piecePrimaries.topClusterLch,
       centroids,
-      dominantHues,
       dominantStrength,
       bucketMass,
       pieceEmbeddings,
       bucketArchetypes,
       lockedAssignment,
-      lockedHueRad,
     );
     // Adjacency post-pass — pull every group member into a contiguous
     // run, anchored at the position of the earliest-sorting member.
@@ -621,13 +574,12 @@ export function SplitLogicSystem({
       result.splice(anchorPos, 0, ...ordered);
     }
     return result;
-  }, [cells, pieceAssignment, piecePrimaries, centroids, pieceEmbeddings, bucketArchetypes, lockedAssignment, lockedHueRad]);
+  }, [cells, pieceAssignment, piecePrimaries, centroids, pieceEmbeddings, bucketArchetypes, lockedAssignment]);
 
-  // Clicking a category (rainbow scrub OR a regular category button)
-  // re-sorts the grid so matching pieces appear first — but the full
-  // 100-piece stack stays navigable via the pager. The prior version
-  // filtered to ONLY matching pieces, which made the rest of the
-  // collection inaccessible from a locked state.
+  // Clicking a category re-sorts the grid so matching pieces appear
+  // first — but the full 100-piece stack stays navigable via the
+  // pager. The prior version filtered to ONLY matching pieces, which
+  // made the rest of the collection inaccessible from a locked state.
   const total = sortedIndices.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -645,26 +597,8 @@ export function SplitLogicSystem({
 
   const handleZoneClick = (i: number) => {
     setLockedZoneIdx((cur) => (cur === i ? null : i));
-    // Releasing any chromatic lock also drops the rainbow scrub hue —
-    // they're conceptually one lock.
-    setLockedHueRad(null);
     setPage(0);
   };
-
-  // Rainbow swatch scrub — sets the scrubbed hue AND parks the lock
-  // on the rainbow zone so the swatch reads as active. Passing null
-  // clears the scrub.
-  const rainbowIdx = zoneKeys.findIndex((k) => k === "rainbow");
-  const handleScrubRainbow = useCallback(
-    (hueRad: number | null) => {
-      setLockedHueRad(hueRad);
-      if (hueRad !== null && rainbowIdx >= 0) {
-        setLockedZoneIdx(rainbowIdx);
-        setPage(0);
-      }
-    },
-    [rainbowIdx],
-  );
 
   // Both directions wrap — paging through the series is a loop, not a
   // bounded list with dead ends. From page 0 the left arrow takes you
@@ -780,8 +714,6 @@ export function SplitLogicSystem({
         cells={zoneCells}
         lockedIdx={lockedZoneIdx}
         onCellClick={handleZoneClick}
-        lockedHueRad={lockedHueRad}
-        onScrubRainbow={handleScrubRainbow}
       />
 
       {/* Relative wrapper — arrows position:absolute in the margins,
