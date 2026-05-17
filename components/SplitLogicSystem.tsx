@@ -50,27 +50,24 @@ const RAINBOW_IDS = new Set([
 // every group member to sit immediately after the group's first
 // occurrence, preserving their relative order.
 const ADJACENCY_GROUPS: string[][] = [
-  ["sl-007", "sl-012"],
+  ["sl-007", "sl-012", "sl-099"],
   ["sl-098", "sl-037", "sl-027", "sl-087", "sl-049"],
   ["sl-093", "sl-013"],
   ["sl-078", "sl-070", "sl-020"],
-  ["sl-060", "sl-046", "sl-050", "sl-063"],
-  ["sl-038", "sl-008", "sl-015"],
-  ["sl-033", "sl-034", "sl-044"],
+  ["sl-060", "sl-046", "sl-050", "sl-063", "sl-016"],
+  ["sl-015", "sl-076", "sl-067", "sl-066", "sl-073", "sl-038", "sl-064", "sl-008", "sl-086", "sl-080"],
+  ["sl-036", "sl-033", "sl-034", "sl-044", "sl-018", "sl-058", "sl-092", "sl-028"],
   ["sl-075", "sl-045", "sl-042"],
-  ["sl-099", "sl-085", "sl-047", "sl-017", "sl-051", "sl-043", "sl-079", "sl-065", "sl-058", "sl-092", "sl-018", "sl-025"],
+  ["sl-077", "sl-100", "sl-019", "sl-061", "sl-069", "sl-065", "sl-025", "sl-079", "sl-043", "sl-051", "sl-017", "sl-047", "sl-085"],
   ["sl-009", "sl-056", "sl-053", "sl-068", "sl-090"],
   ["sl-057", "sl-022", "sl-088"],
-  ["sl-086", "sl-080", "sl-036"],
   ["sl-024", "sl-035"],
-  ["sl-062", "sl-055", "sl-021"],
-  ["sl-059", "sl-071"],
-  ["sl-083", "sl-039"],
+  ["sl-062", "sl-055", "sl-021", "sl-059", "sl-071"],
+  ["sl-039"],
   ["sl-005", "sl-006", "sl-011", "sl-010"],
   ["sl-030", "sl-040", "sl-029", "sl-041"],
-  ["sl-089", "sl-031", "sl-032", "sl-081"],
+  ["sl-089", "sl-083", "sl-031", "sl-032", "sl-081"],
   ["sl-084", "sl-048"],
-  ["sl-069", "sl-061", "sl-019", "sl-100"],
 ];
 
 // Bar design — two curated specials + four algorithmic centroids:
@@ -626,42 +623,25 @@ export function SplitLogicSystem({
     return result;
   }, [cells, pieceAssignment, piecePrimaries, centroids, pieceEmbeddings, bucketArchetypes, lockedAssignment, lockedHueRad]);
 
-  // When a category is locked (rainbow scrub OR a regular category
-  // button), the grid shows ONLY matching pieces. Without this filter
-  // the grid falls back to non-matching pieces just to fill out the
-  // PAGE_SIZE slots, which causes "click blue, see mostly whites"
-  // behaviour when the matching bucket is smaller than a page.
-  const filteredIndices = useMemo(() => {
-    if (lockedHueRad !== null) {
-      // Rainbow scrub — every chromatic piece is fair game (they all
-      // have *some* hue distance to the scrubbed target), but white
-      // and rainbow pieces have no single hue and are dropped.
-      return sortedIndices.filter(
-        (i) => typeof pieceAssignment[i] === "number",
-      );
-    }
-    if (lockedAssignment !== null) {
-      return sortedIndices.filter(
-        (i) => pieceAssignment[i] === lockedAssignment,
-      );
-    }
-    return sortedIndices;
-  }, [sortedIndices, pieceAssignment, lockedAssignment, lockedHueRad]);
+  // Clicking a category (rainbow scrub OR a regular category button)
+  // re-sorts the grid so matching pieces appear first — but the full
+  // 100-piece stack stays navigable via the pager. The prior version
+  // filtered to ONLY matching pieces, which made the rest of the
+  // collection inaccessible from a locked state.
+  const total = sortedIndices.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const filteredTotal = filteredIndices.length;
-  const totalPages = Math.max(1, Math.ceil(filteredTotal / PAGE_SIZE));
-
-  // If the filtered set shrank past the current page (e.g. a new
-  // lock just kicked in), pull `page` back into bounds.
+  // If the sort shrank past the current page (defensive — `total` is
+  // a constant 100 in practice), pull `page` back into bounds.
   useEffect(() => {
     if (page >= totalPages) setPage(0);
   }, [page, totalPages]);
 
   const pageItems = useMemo(() => {
     const start = page * PAGE_SIZE;
-    const end = Math.min(start + PAGE_SIZE, filteredTotal);
-    return filteredIndices.slice(start, end).map((i) => gridItems[i]);
-  }, [page, filteredTotal, filteredIndices, gridItems]);
+    const end = Math.min(start + PAGE_SIZE, total);
+    return sortedIndices.slice(start, end).map((i) => gridItems[i]);
+  }, [page, total, sortedIndices, gridItems]);
 
   const handleZoneClick = (i: number) => {
     setLockedZoneIdx((cur) => (cur === i ? null : i));

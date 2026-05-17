@@ -758,10 +758,26 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .hero[data-hero-treatment="full-bleed-video"]{background:#000000;}
 .hero[data-hero-treatment="full-bleed-video"]::after{display:none;}
 .hero[data-slug="split-logic"] .slide-video{
-  max-height:74vh;
-  max-width:74vh;
+  /* max-* relative to the slide content box (not viewport vh) so the
+     video respects the slide padding. The prior 74vh cap was viewport-
+     relative, which ignored the slide's reserved card-zone at the
+     bottom and let the video extend right into the title-card area.
+     With 100% of the slide content, the video's height is bounded by
+     whatever vertical room the slide's padding leaves. */
+  max-height:100%;
+  max-width:100%;
   width:auto;
   height:auto;
+}
+/* Reserve space at the bottom of the homepage Split Logic slide so the
+   video's bottom edge clears the .hero-card (artist + title + status +
+   "Learn more" lockup at `bottom: 64px; max-width: 380px`). Card height
+   ~122px + bottom offset 64px = 186px from section bottom; 220 gives a
+   comfortable buffer above that. Only fires when Split Logic is the
+   current homepage slide — other slides keep their default 64px
+   symmetric padding. */
+.hero[data-slug="split-logic"] .slide{
+  padding-bottom:220px;
 }
 /* Slightly larger hero card lockup for dense featured homepage works. */
 .hero[data-hero-copy-treatment="featured-lockup"] .hero-artist,
@@ -2232,6 +2248,11 @@ html:has(.constellation-root){
      rasterizes the first frame and never updates. The shadow is
      invisible against the black ground anyway; kill it here. */
   filter:none;
+  /* 88% scale cap — Hufkens-style gallery-poster restraint for the
+     1:1 square ASCII art, matches the Phantasmagoria / gwanak-gu
+     square-hero convention. */
+  max-width:88%;
+  max-height:88%;
 }
 /* Ricky Retouch / Split Logic: pure black hero ground — same as the
    homepage hero. The series' varied palettes read as lit plates
@@ -2346,9 +2367,55 @@ html:has(.constellation-root){
    Widen it to match the width of one pair-square, centered on the
    page so it shares the same axis as the prose column above and
    below. */
+/* Aluan Wang / Equinox — Hufkens-tier refinement.
+   Pair = #1 + #13 (both 1:1 squares); Solo = #21 (2800×2239, 5:4
+   landscape). Refinement moves match Drift / Khwampa / cydr / Nikita
+   / loackme / Provencher / Constraint / Jeres / Alcina.
+     1. PAIR — scale 960 → 1180 (full editorial breakout); gap →
+        clamp(40, 4vw, 56px) so the two squares read as a deliberate
+        diptych rather than thumbnails on a 32px gutter.
+     2. SOLO — 812 → 720 (cydr prose-column match). At 720 the
+        landscape #21 reads as a deliberate editorial pause below
+        the 1180 diptych instead of an arbitrary intermediate width.
+     3. PLATE — dissolve the grey #f1f4f6 matte and 10%/12% padding.
+        Pair plate goes 4:5 → 1:1 to match the squares; solo plate
+        goes 4:5 → 5:4 to match #21's landscape source. The visible
+        cream halo in the prior render was the default plate showing
+        through; this is the loackme/Yoshi/Nikita plate-dissolve.
+     4. BREATHING ROOM — clamp(80, 9vw, 128px) vertical margins on
+        both groups (replaces the 56px default).
+     5. SHADOW — single 4% whisper since the plates are dissolved
+        and the cream page is the new visual ground.
+     6. CAPTION — 18px figure gap for the quiet legend treatment. */
 .exhibition-detail[data-slug="equinox"] .ex-inline-artworks:has(> :only-child){
-  max-width:812px;
-  margin:56px auto;
+  max-width:720px;
+}
+.exhibition-detail[data-slug="equinox"]
+  .ex-inline-artworks:has(> :nth-child(2)){
+  max-width:1180px;
+  gap:clamp(40px, 4vw, 56px);
+}
+.exhibition-detail[data-slug="equinox"] .ex-inline-artworks{
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="equinox"] .ex-inline-plate{
+  background:transparent;
+  padding:0;
+}
+.exhibition-detail[data-slug="equinox"]
+  .ex-inline-artworks:has(> :nth-child(2)) .ex-inline-plate{
+  aspect-ratio:1;
+}
+.exhibition-detail[data-slug="equinox"]
+  .ex-inline-artworks:has(> :only-child) .ex-inline-plate{
+  aspect-ratio:5/4;
+}
+.exhibition-detail[data-slug="equinox"] .ex-inline-image img{
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="equinox"] .ex-inline-figure{
+  gap:18px;
 }
 
 /* loackme / SPACE\TIME — Hufkens-tier refinement. Three moves:
@@ -2400,13 +2467,65 @@ html:has(.constellation-root){
   }
 }
 
-/* Spøgelsesmaskinen / Glitch Garden: the trio of plant GIFs at the
-   foot of the description should sit three-up, matching the space-time
-   pattern. On mobile, single-column so each 128×128 gif reads at
-   full width. */
+/* Spøgelsesmaskinen / Glitch Garden — Hufkens-tier refinement. The
+   source GIFs are native 128×128 pixel-grid plant studies — Spogel's
+   own words name "the low resolution of 128×128 pixels" as the work
+   itself. Refinement moves match Drift / Khwampa / cydr / Nikita /
+   loackme / Provencher.
+     1. PLATE — strip the grey #f1f4f6 matte and 10%/12% padding.
+        Plate aspect goes 4:5 → 1:1 to match the GIFs' true square
+        crop (no more empty matte around a 128×128 video centered in
+        a portrait box). Same plate-dissolve move as Yoshi / Nikita.
+     2. SOLO scale 420 → 720px so the Thuja plate lands at prose-
+        column width and reads as a deliberate editorial pause
+        rather than an illustration drop-in.
+     3. TRIO scale 1000 → 1200px, matching loackme's trio breakout.
+        Cells become ~395×395 instead of 312×312, with the clamp()
+        gap widening so the three pixel-gardens read as a deliberate
+        botanical triptych rather than a 32px-gutter grid.
+     4. BREATHING ROOM clamp(80, 9vw, 128px) vertical margins on both
+        groups.
+     5. PIXELATED rendering — crucial. The default smooth-interpolate
+        on a 128px source upscaled to 720/395px would wash out the
+        pixel grid into blur, exactly the opposite of Spogel's stated
+        aesthetic. crisp-edges/pixelated preserves the diode-grid
+        glow he describes.
+     6. SHADOW — single 4% whisper. With the plate dissolved the GIFs
+        need a quiet shadow to lift off the cream paper without
+        reintroducing the matte feel.
+     7. CAPTION gap 18px — quiet gallery-label legend treatment. */
+.exhibition-detail[data-slug="glitch-garden"] .ex-inline-plate{
+  aspect-ratio:1;
+  background:transparent;
+  padding:0;
+}
+.exhibition-detail[data-slug="glitch-garden"] .ex-inline-media video,
+.exhibition-detail[data-slug="glitch-garden"] .ex-inline-media img{
+  /* Force the video to fill the plate. Source MP4s are 640×640 native;
+     when the solo plate is 720×720 (larger than the intrinsic), the
+     default `width:auto` rule leaves the video at 640×640 centered,
+     stranding the caption ~40px left of the visible artwork. width/
+     height:100% pins the video edges to the plate edges so the caption
+     reads as flush at the artwork's bottom-left corner. */
+  width:100%;
+  height:100%;
+  image-rendering:pixelated;
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="glitch-garden"] .ex-inline-artworks:has(> :only-child){
+  max-width:560px;
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
 .exhibition-detail[data-slug="glitch-garden"] .ex-inline-artworks:has(> :nth-child(3)){
   grid-template-columns:repeat(3, 1fr);
-  max-width:1000px;
+  max-width:1200px;
+  gap:clamp(40px, 4vw, 56px);
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="glitch-garden"] .ex-inline-figure{
+  gap:18px;
 }
 @media (max-width:720px){
   .exhibition-detail[data-slug="glitch-garden"] .ex-inline-artworks:has(> :nth-child(3)){
@@ -2435,7 +2554,12 @@ html:has(.constellation-root){
        so the 6-piece grid lands as a deliberate spread, not the
        default tight stack. */
 .exhibition-detail[data-slug="simple-thoughts"] .ex-hero{
-  --ex-title-clearance:40px;
+  /* Clearance bumped 40→80 so the wide-panorama artwork can't extend
+     into the title-zone at any viewport. At landscape orientation the
+     section height shrinks and the 2-line title's bottom edge sits
+     closer to the artwork's bottom; 80px gives a comfortable buffer
+     against font-load variance in the title text height. */
+  --ex-title-clearance:80px;
 }
 .exhibition-detail[data-slug="simple-thoughts"] .ex-hero-frame{
   padding:40px 32px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
@@ -2721,7 +2845,11 @@ html:has(.constellation-root){
    the frame's bottom safe-zone so the image fills more of the
    viewport and reads as the dominant visual above the inline pairs. */
 .ex-hero[data-slug="heuristics-of-emotion"]{
-  --ex-title-clearance:24px;
+  /* Clearance bumped 24→64 (just-above title-text height ~63px) so the
+     artwork's bottom edge can't extend into the title-zone on resize.
+     Prior 24 was tuned for image presence but is shorter than the
+     title-text height, which caused overlap at every viewport. */
+  --ex-title-clearance:64px;
 }
 /* riiiis / bully: source is only 640×529, so the default
    width:auto / max-width:100% rule renders it at intrinsic size and it
@@ -2751,6 +2879,41 @@ html:has(.constellation-root){
   height:100% !important;
   object-fit:cover;
 }
+/* riiiis / bully — Hufkens-tier refinement. Two pairs:
+   apocalypse + genesis (1:1 squares) and haven + portent (3:4
+   portraits, cover-locked to a shared 3:4 frame above). Refinement
+   moves match Drift / Khwampa / cydr / Nikita / loackme / Provencher /
+   Constraint / Jeres / Alcina / Piezo / Deluge.
+     1. HERO frame top padding 64→32 (Drift/Jere/Alcina pattern —
+        small vertical gain). Hero image scale 69% kept as-is because
+        the 640×529 source is low-res and the existing scale is
+        already deliberately tuned.
+     2. PAIRS scale 960 → 1180 (full editorial breakout). Both pairs
+        get the same clamp() gap so each diptych reads as deliberate
+        rather than thumbnails on a 32px gutter.
+     3. BREATHING ROOM clamp(80, 9vw, 128px) vertical margins on
+        every group.
+     4. SHADOW — single 4% whisper on inline images so the work
+        reads as a print resting on the cream page.
+     5. CAPTION — 18px figure gap for the quiet legend treatment. */
+.ex-hero[data-slug="bully"] .ex-hero-frame{
+  padding-top:32px;
+}
+.exhibition-detail[data-slug="bully"]
+  .ex-inline-artworks:has(> :nth-child(2)){
+  max-width:1180px;
+  gap:clamp(40px, 4vw, 56px);
+}
+.exhibition-detail[data-slug="bully"] .ex-inline-artworks{
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="bully"] .ex-inline-image img{
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="bully"] .ex-inline-figure{
+  gap:18px;
+}
 /* Mazin / Phantasmagoria: hero scaled 12% smaller than the default. */
 .ex-hero[data-slug="phantasmagoria"] .ex-hero-plate img{
   max-width:88%;max-height:88%;
@@ -2776,11 +2939,55 @@ html:has(.constellation-root){
       to keep its hero-card clear; we inherit the same — which also
       keeps the title-bar safe from the artwork at narrow widths. */
 .ex-hero[data-slug="iso-iec-10646"] .ex-hero-frame{
-  padding:64px 56px;
+  /* Bottom padding reserves the title-bar safe-zone (canonical 160px =
+     `--ex-title-bottom` 64 + `--ex-title-clearance` 96). The prior
+     symmetric 64/64 padding mirrored the homepage hero box exactly,
+     but the homepage hero has no title overlay; the exhibition hero
+     does, so the artwork's bottom edge would extend right into the
+     title text on resize. */
+  padding:64px 56px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
+}
+.ex-hero[data-slug="iso-iec-10646"] .ex-hero-plate{
+  /* Plate hugs the 4096×5927 (~7:10) portrait source so the artwork
+     doesn't float in a wide landscape plate with hundreds of pixels
+     of cream on each side — Drift / Jere / Piezo / Alcina / distrakted
+     pattern. The existing frame padding stays symmetric to keep the
+     plate at the same vertical box as the homepage hero. */
+  width:auto;
+  height:100%;
+  aspect-ratio:4096/5927;
+  max-width:100%;
 }
 .ex-hero[data-slug="iso-iec-10646"] .ex-hero-plate img{
   width:100%;height:100%;
   object-fit:contain;
+}
+/* Paul Prudence / ISO/IEC 10646 — Hufkens-tier inline refinement.
+   Source artworks ~7:10 portrait. Single inline pair (#45 + #34) and a
+   details featured-work block (#70 with 3 crops). Hero refinement is
+   handled above (plate aspect-ratio + existing homepage-matched frame
+   padding); inline pair gets the standard breakout treatment.
+     1. PAIR scale 960 → 1180 (full editorial breakout); clamp() gap
+        so the diptych reads as deliberate rather than thumbnails on
+        a 32px gutter.
+     2. BREATHING ROOM clamp(80, 9vw, 128px) vertical margins.
+     3. SHADOW softened from default 8%/5% two-pass to single 4%
+        whisper — Hufkens convention used across the refined-six.
+     4. CAPTION 18px figure gap for quiet legend treatment. */
+.exhibition-detail[data-slug="iso-iec-10646"]
+  .ex-inline-artworks:has(> :nth-child(2)){
+  max-width:1180px;
+  gap:clamp(40px, 4vw, 56px);
+}
+.exhibition-detail[data-slug="iso-iec-10646"] .ex-inline-artworks{
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="iso-iec-10646"] .ex-inline-image img{
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="iso-iec-10646"] .ex-inline-figure{
+  gap:18px;
 }
 @media (max-width:1100px){
   .ex-hero[data-slug="iso-iec-10646"] .ex-hero-frame{
@@ -2793,8 +3000,11 @@ html:has(.constellation-root){
   }
 }
 @media (max-height:600px) and (orientation:landscape){
+  /* Same title-clearance reservation as desktop above — the prior
+     16/16 symmetric padding was the second breakpoint where the
+     title could touch the artwork. */
   .ex-hero[data-slug="iso-iec-10646"] .ex-hero-frame{
-    padding:16px 80px;
+    padding:16px 80px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
   }
 }
 /* Ricky Retouch / Split Logic: match the homepage hero's frame padding
@@ -2803,7 +3013,12 @@ html:has(.constellation-root){
    padding at wide desktop, heavy bottom-clearance at narrow widths
    (mirrors the homepage breakpoints exactly). */
 .ex-hero[data-slug="split-logic"] .ex-hero-frame{
-  padding:64px 56px;
+  /* Bottom padding reserves the title-bar safe-zone (canonical 160px =
+     `--ex-title-bottom` 64 + `--ex-title-clearance` 96) so the hero
+     video's bottom edge can never extend behind the title text. The
+     prior symmetric 64/64 padding lined the artwork's bottom edge up
+     with where the title sits, causing visible overlap. */
+  padding:64px 56px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
 }
 @media (max-width:1100px){
   .ex-hero[data-slug="split-logic"] .ex-hero-frame{
@@ -2816,8 +3031,11 @@ html:has(.constellation-root){
   }
 }
 @media (max-height:600px) and (orientation:landscape){
+  /* Same title-clearance reservation as desktop — the prior 16/16
+     symmetric padding in landscape was the second place the title
+     could touch the artwork. */
   .ex-hero[data-slug="split-logic"] .ex-hero-frame{
-    padding:16px 80px;
+    padding:16px 80px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
   }
 }
 /* PERFECTL00P / Trails: balance the top padding to match the bottom
@@ -2830,11 +3048,103 @@ html:has(.constellation-root){
 .ex-hero[data-slug="trails"] .ex-hero-plate img{
   max-width:95%;max-height:95%;
 }
+/* Jeres / Heuristics of Emotion — Hufkens-tier refinement.
+   Source PNG is 1214×1724 (0.704 ratio, ~7:10 portrait). Plate gets
+   the same aspect-ratio so it matches the artwork exactly instead of
+   leaving the 2:3 portrait floating in a wide landscape plate with
+   500px of cream margin on each side — that's what was making the
+   hero feel tiny at narrow viewport ratios. Image fills the plate
+   100% (replaces the 95% cap), and frame top padding drops 64→32px
+   (matches Drift's tighter frame). Net: ~10% larger image at every
+   viewport and the cream margins inside the plate disappear. */
+.ex-hero[data-slug="heuristics-of-emotion"] .ex-hero-frame{
+  padding:32px 56px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
+}
+.ex-hero[data-slug="heuristics-of-emotion"] .ex-hero-plate{
+  width:auto;
+  height:100%;
+  aspect-ratio:1214/1724;
+  max-width:100%;
+}
 .ex-hero[data-slug="heuristics-of-emotion"] .ex-hero-plate img{
-  max-width:95%;max-height:95%;
+  width:90%;
+  height:90%;
+  object-fit:contain;
 }
 .exhibition-detail[data-slug="heuristics-of-emotion"] .ex-details-inner{
   max-width:890px;
+}
+/* Refinement moves match Drift / Khwampa / cydr / Nikita / Constraint.
+   Two pairs (4 pieces total). 1180px breakout scale lifts each pair
+   out of the prose column so they read as a deliberate diptych rather
+   than thumbnails on a shared rule; clamp() gap widens the pair beyond
+   the default 32px gutter. clamp() vertical margins give Hufkens
+   breathing room. 18px figure gap pushes captions a touch lower so
+   they read as quiet legends. */
+.exhibition-detail[data-slug="heuristics-of-emotion"]
+  .ex-inline-artworks:has(> :nth-child(2)){
+  max-width:1180px;
+  gap:clamp(40px, 4vw, 56px);
+}
+.exhibition-detail[data-slug="heuristics-of-emotion"] .ex-inline-artworks{
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="heuristics-of-emotion"] .ex-inline-figure{
+  gap:18px;
+}
+/* Tù.úk'z / Isle of Alcina — Hufkens-tier refinement. Page came in
+   raw (zero overrides); apply the established pattern.
+     1. HERO — source is 2170×2400 (≈0.904, near-square portrait).
+        Default plate fills the wide landscape frame so the artwork
+        gets height-constrained with ~390px of cream margin on each
+        side. Match plate aspect-ratio to source so the plate hugs
+        the artwork; reduce frame top padding 64→32 (Drift/Jere); cap
+        image at 90% for Hufkens-style breathing room (no edge-bleed).
+     2. INLINE PAIR — Isle of Alcina #7 + #15, both 2400×2400 squares.
+        Dissolve the default grey plate (background:transparent,
+        padding:0, aspect-ratio:1 to match the squares) so the
+        artwork sits flush on cream paper — same plate-dissolve as
+        Yoshi / Nikita / cydr. Bump 960→1180 for the editorial
+        breakout, widen the gap to clamp(40, 4vw, 56px) so the pair
+        reads as a deliberate diptych.
+     3. BREATHING ROOM — clamp(80, 9vw, 128px) vertical margin.
+     4. SHADOW — single 4% whisper since the plate's dissolved and
+        the page background is the new visual ground.
+     5. CAPTION — 18px figure gap. */
+.ex-hero[data-slug="isle-of-alcina"] .ex-hero-frame{
+  padding:32px 56px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
+}
+.ex-hero[data-slug="isle-of-alcina"] .ex-hero-plate{
+  width:auto;
+  height:100%;
+  aspect-ratio:2170/2400;
+  max-width:100%;
+}
+.ex-hero[data-slug="isle-of-alcina"] .ex-hero-plate img{
+  width:90%;
+  height:90%;
+  object-fit:contain;
+}
+.exhibition-detail[data-slug="isle-of-alcina"] .ex-inline-plate{
+  aspect-ratio:1;
+  background:transparent;
+  padding:0;
+}
+.exhibition-detail[data-slug="isle-of-alcina"] .ex-inline-media img{
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="isle-of-alcina"]
+  .ex-inline-artworks:has(> :nth-child(2)){
+  max-width:1180px;
+  gap:clamp(40px, 4vw, 56px);
+}
+.exhibition-detail[data-slug="isle-of-alcina"] .ex-inline-artworks{
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="isle-of-alcina"] .ex-inline-figure{
+  gap:18px;
 }
 /* Paolo Čerić / Drift: source is a tall 4:5 portrait (1298×1730). The
    default plate is `width:100%;height:100%` of the frame's content box,
@@ -2850,6 +3160,18 @@ html:has(.constellation-root){
   height:100%;
   aspect-ratio:1298/1730;
   max-width:100%;
+}
+/* Force the <img> to fill the aspect-ratio'd plate from first paint.
+   The default `.ex-hero-plate img` rule (width:auto;height:auto) leaves
+   the image at 0×0 until the JPG bytes arrive — so on a cold load the
+   hero appears empty/tiny until download completes, then snaps to size.
+   width/height:100% + object-fit:contain gives a stable rendered box
+   regardless of load state; aspect already matches the source so contain
+   produces the same pixel size as before. */
+.ex-hero[data-slug="drift"] .ex-hero-plate img{
+  width:78%;
+  height:78%;
+  object-fit:contain;
 }
 /* Live generative artwork hero — pixel-rendered HTML/canvas piece.
    Iframes have no intrinsic dimensions, so we size the box from the
@@ -2972,26 +3294,94 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="solve-un-solve"] .ex-inline-caption{
   margin-top:18px;
 }
-/* Earthsample / gwanak-gu: solo "a trip to osaka" plate scaled ~25%
-   above the global 420px cap (now 526px) so it carries enough weight
-   in the prose flow as the standalone breath between paragraphs. */
-.exhibition-detail[data-slug="gwanak-gu"] .ex-inline-artworks:has(> :only-child){
-  max-width:526px;
+/* earthsample / gwanak-gu — hero video sized 88% of the plate so it
+   reads with gallery-poster breathing room rather than crowding the
+   wide hero frame. Source is 1800×1800 1:1; default `width:auto` lets
+   it expand to 100% of plate height (≈700px), which felt too dominant. */
+.ex-hero[data-slug="gwanak-gu"] .ex-hero-plate .ex-hero-video{
+  max-width:88%;
+  max-height:88%;
 }
-/* Mazin / Phantasmagoria: solo Ruinscape Isometrica scaled 10% above
-   the global 420px cap, with extra vertical breathing room so the
-   single inline beat feels deliberate rather than crammed between
-   paragraphs. */
+/* earthsample / gwanak-gu — Hufkens-tier refinement. Five 1:1 square
+   GIFs (one solo + two pairs) punctuating the prose. Refinement moves
+   match Drift / Khwampa / cydr / Nikita / loackme / Provencher /
+   Constraint / Jeres.
+     1. PLATE — strip the default grey #f1f4f6 matte and 10%/12%
+        padding. Aspect goes 4:5 → 1:1 so the plate hugs the square
+        GIFs without empty matte top/bottom. Same plate-dissolve as
+        Yoshi / Nikita / Glitch Garden.
+     2. SOLO ("a trip to osaka") scale 526 → 560px (loackme solo
+        convention — meaningful pause without dominating the short
+        prose between paragraphs 1 and 2).
+     3. PAIRS ("worship + gyeoul", "may + spirit") scale 960 → 1180px
+        with clamp() gap. Each pair reads as a deliberate diptych at
+        editorial-breakout scale rather than thumbnails on a shared
+        32px-gutter grid.
+     4. BREATHING ROOM clamp(80, 9vw, 128px) vertical margins on all
+        three groups.
+     5. SHADOW — single 4% whisper since the plate's dissolved and
+        the cream page is the new visual ground.
+     6. CAPTION — 18px figure gap for the quiet gallery-label legend
+        treatment. */
+.exhibition-detail[data-slug="gwanak-gu"] .ex-inline-plate{
+  aspect-ratio:1;
+  background:transparent;
+  padding:0;
+}
+.exhibition-detail[data-slug="gwanak-gu"] .ex-inline-media video,
+.exhibition-detail[data-slug="gwanak-gu"] .ex-inline-media img{
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="gwanak-gu"] .ex-inline-artworks:has(> :only-child){
+  max-width:560px;
+}
+.exhibition-detail[data-slug="gwanak-gu"]
+  .ex-inline-artworks:has(> :nth-child(2)){
+  max-width:1180px;
+  gap:clamp(40px, 4vw, 56px);
+}
+.exhibition-detail[data-slug="gwanak-gu"] .ex-inline-artworks{
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="gwanak-gu"] .ex-inline-figure{
+  gap:18px;
+}
+/* Mazin / Phantasmagoria — Hufkens-tier refinement. Single solo inline
+   piece (Ruinscape Isometrica, 1024×1112 slight portrait). Refinement
+   moves match Drift / Khwampa / cydr / Nikita / loackme / Provencher /
+   Constraint / Jeres / Alcina / Piezo / Deluge / Bully.
+     1. HERO frame top padding 64→32 (Drift/Jere/Alcina pattern).
+        Hero image scale 88% kept — already deliberately tuned.
+     2. SOLO scale 462 → 720 (cydr/Nikita prose-column match). At
+        720 the single editorial beat lands at the same measure as
+        the prose column, reading as a deliberate inset moment
+        rather than a tucked-in illustration.
+     3. BREATHING ROOM clamp(80, 9vw, 128px) vertical margins,
+        replacing the prior 72/72 symmetric.
+     4. SHADOW softened to single 4% whisper, matching the Hufkens
+        convention used across the refined-six.
+     5. CAPTION 18px figure gap for the quiet legend treatment. */
+.ex-hero[data-slug="phantasmagoria"] .ex-hero-frame{
+  padding-top:32px;
+}
 .exhibition-detail[data-slug="phantasmagoria"] .ex-inline-artworks:has(> :only-child){
-  max-width:462px;
-  margin-block:72px;
+  max-width:720px;
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="phantasmagoria"] .ex-inline-image img{
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="phantasmagoria"] .ex-inline-figure{
+  gap:18px;
 }
 /* Rudxane / Piezo: solo installation-view photo scaled 25% above the
    global 420px cap (now 525px) and given a softer drop-shadow than the
    default — the doc photo is already a "framed photo" by nature, so a
    pronounced lift reads as redundant. */
 .exhibition-detail[data-slug="piezo"] .ex-inline-artworks:has(> :only-child){
-  max-width:894px;
+  max-width:1180px;
 }
 /* Lock every Piezo single-child installation photo into the same 3:2
    box so all three render at identical dimensions regardless of the
@@ -3010,10 +3400,104 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="piezo"] .ex-inline-image img{
   filter:drop-shadow(0 6px 16px rgba(40,35,25,0.04)) drop-shadow(0 1px 3px rgba(40,35,25,0.03));
 }
-/* Chepertom / Deluge: solo Aftermath/Dispersion plates scaled up so
-   the wide 16:9 frames carry the weight of the prose flow. */
+/* rudxane / Piezo — Hufkens-tier refinement. Source artworks are
+   1697×2400 (~7:10 portrait); installation photos are 3:2 landscape.
+   Refinement moves match Drift / Khwampa / cydr / Nikita / loackme /
+   Provencher / Constraint / Jeres / Alcina.
+     1. HERO — plate gets aspect-ratio:1697/2400 so it hugs the ~7:10
+        portrait source instead of leaving it floating in a wide
+        landscape plate with cream margins on each side. Frame top
+        padding 64→32 (Drift/Jere pattern), image at 92% for Hufkens
+        restraint.
+     2. PAIRS (#18+#5, #1+#7) — scale 960 → 1180 (full editorial
+        breakout); gap → clamp(40, 4vw, 56px) so each pair reads as a
+        deliberate diptych rather than thumbnails on a 32px gutter.
+        Image natural 7:10 aspect drives the layout directly — no
+        plate dissolve needed since Piezo's items are images (the
+        `.ex-inline-plate` element only renders for video items).
+     3. SOLOS (installation photos) — scaled to 1180 to match the pair
+        breakout. Closing photo at p9 now spans visually consistent
+        with the diptychs above and reads in register with the
+        colophon row width.
+     4. BREATHING ROOM — clamp(80, 9vw, 128px) vertical margins on
+        every group.
+     5. CAPTION — 18px figure gap for the quiet legend treatment.
+   Shadow rule above provides a 4%/3% soft lift across all Piezo
+   images, matching the Hufkens whisper convention. Pair items are
+   `unoptimized: true` in the data so the full 1697×2400 source serves
+   directly — bypasses Next/image's optimizer which was downsampling
+   the artwork to ~610px on retina (grain/noise textures suffer most
+   from the optimizer's WebP pipeline). */
+.ex-hero[data-slug="piezo"] .ex-hero-frame{
+  padding:32px 56px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
+}
+.ex-hero[data-slug="piezo"] .ex-hero-plate{
+  width:auto;
+  height:100%;
+  aspect-ratio:1697/2400;
+  max-width:100%;
+}
+.ex-hero[data-slug="piezo"] .ex-hero-plate img{
+  width:92%;
+  height:92%;
+  object-fit:contain;
+}
+.exhibition-detail[data-slug="piezo"]
+  .ex-inline-artworks:has(> :nth-child(2)){
+  max-width:1180px;
+  gap:clamp(40px, 4vw, 56px);
+}
+.exhibition-detail[data-slug="piezo"] .ex-inline-artworks{
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="piezo"] .ex-inline-figure{
+  gap:18px;
+}
+/* Chepertom / Deluge — Hufkens-tier refinement. Hero source is
+   1536×1728 (~7:8 near-square portrait); RAW solos are 16:9 landscape;
+   RAD pair are ~4:5 portraits (source aspects differ ~4% so they're
+   cover-cropped to a shared 4:5). Refinement moves match Drift /
+   Khwampa / cydr / Nikita / loackme / Provencher / Constraint / Jeres
+   / Alcina / Piezo.
+     1. HERO — plate gets aspect-ratio:1536/1728 so it hugs the
+        near-square source instead of leaving it floating in a wide
+        landscape plate. Frame top padding 64→32, image at 92% for
+        Hufkens restraint.
+     2. SOLOS (Aftermath.RAW, Dispersion.RAW, both 16:9 landscape)
+        scale 633 → 1180 (full editorial breakout). At 1180px wide ×
+        ~664 tall these wide panoramas finally carry the visual weight
+        the artist's metaphor (chaotic ocean / data deluge) needs.
+     3. PAIR (Breaker.RAD + Undertow.RAD) — scale 960 → 1180 with
+        clamp() gap. Pair plate keeps the 4:5 cover crop because the
+        sources differ ~4% in aspect; the cover unifies them so they
+        read as a deliberate diptych rather than mismatched heights.
+     4. BREATHING ROOM — clamp(80, 9vw, 128px) vertical margins on
+        every group.
+     5. SHADOW — single 4% whisper on inline images, matches the
+        Hufkens whisper convention.
+     6. CAPTION — 18px figure gap for the quiet legend treatment. */
+.ex-hero[data-slug="deluge"] .ex-hero-frame{
+  padding:32px 56px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
+}
+.ex-hero[data-slug="deluge"] .ex-hero-plate{
+  width:auto;
+  height:100%;
+  aspect-ratio:1536/1728;
+  max-width:100%;
+}
+.ex-hero[data-slug="deluge"] .ex-hero-plate img{
+  width:92%;
+  height:92%;
+  object-fit:contain;
+}
 .exhibition-detail[data-slug="deluge"] .ex-inline-artworks:has(> :only-child){
-  max-width:633px;
+  max-width:1180px;
+}
+.exhibition-detail[data-slug="deluge"]
+  .ex-inline-artworks:has(> :nth-child(2)){
+  max-width:1180px;
+  gap:clamp(40px, 4vw, 56px);
 }
 /* Paired bottom row (Breaker / Undertow): source files differ in aspect
    by ~4%, so Undertow renders visibly taller than Breaker. Pin both
@@ -3029,6 +3513,16 @@ html:has(.constellation-root){
   height:100% !important;
   object-fit:cover !important;
 }
+.exhibition-detail[data-slug="deluge"] .ex-inline-artworks{
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="deluge"] .ex-inline-image img{
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="deluge"] .ex-inline-figure{
+  gap:18px;
+}
 /* Erik Swahn / Autoscope: solo iframes sized so the artwork commands
    the page — wider than the ~640px text column (≈1.4×) so each piece
    reads as a featured work, not an inline illustration. Generous
@@ -3036,7 +3530,20 @@ html:has(.constellation-root){
    resumes. #83 stays wider (different internal aspect). */
 .exhibition-detail[data-slug="autoscope"] .ex-inline-artworks:has(> :only-child){
   max-width:900px;
-  margin-block:64px 48px;
+  /* Hufkens-tier symmetric breathing room — replaces the prior
+     64/48 asymmetric block. clamp(80, 9vw, 128px) matches Drift /
+     cydr / Provencher / Nikita / Jeres / Glitch / gwanak so each
+     of the three Autoscope iframes sits with gallery-print space
+     above and below. */
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+/* 18px figure gap pushes captions a touch lower so they read as
+   quiet legends — matches the rest of the refined six. Drop-shadow
+   above stays heavier (10%/6%) because Erik's bundle paints onto
+   cream that visually melts into the page; the lift is intentional. */
+.exhibition-detail[data-slug="autoscope"] .ex-inline-figure{
+  gap:18px;
 }
 .exhibition-detail[data-slug="autoscope"] .ex-inline-artworks:has(iframe[title$="#83"]){
   max-width:967px;
@@ -3334,8 +3841,20 @@ html:has(.constellation-root){
          drop-shadow(0 8px 22px rgba(40,35,25,0.07))
          drop-shadow(0 22px 44px rgba(40,35,25,0.04));
 }
+/* Hufkens-tier refinement — matches cydr's solo treatment. Three
+   1:1 trilogy videos punctuating the prose; bumped 448 → 720px so
+   each video lands at the prose column's width and reads as a
+   deliberate editorial pause rather than a small illustration drop.
+   clamp() vertical margins give the trilogy gallery-print breathing
+   room above and below; 18px figure gap pushes captions a touch lower
+   so they read as quiet legends rather than tagged-on filenames. */
 .exhibition-detail[data-slug="making-an-egg"] .ex-inline-artworks:has(> :only-child){
-  max-width:448px;
+  max-width:720px;
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="making-an-egg"] .ex-inline-figure{
+  gap:18px;
 }
 /* The hero video has a thin black sliver baked into its bottom edge.
    Slight overscale anchored to the top pushes that sliver below the
@@ -3366,10 +3885,27 @@ html:has(.constellation-root){
 }
 /* Orchestrated pair at the first inline slot — the canonical
    *Orchestrated* alongside edition xi. 840 keeps each plate
-   ~404w × ~720h at 9:16. */
+   ~404w × ~720h at 9:16. The clamp() gap widens the pair so the
+   two verticals read as a deliberate diptych rather than two cells
+   sharing a 32px gutter — same move as Drift / Constraint. */
 .exhibition-detail[data-slug="the-flood"]
   .ex-inline-artworks:has(> :nth-child(2)){
   max-width:840px;
+  gap:clamp(40px, 4vw, 56px);
+}
+/* Hufkens-tier breathing room — matches Drift / Khwampa / cydr /
+   Provencher / Constraint. Both inline groups (Orchestrated pair and
+   the Chaos solo) gain the clamp() vertical margins so the artworks
+   land on the page with quiet space above and below, instead of the
+   default 56px which reads as a tight illustration drop-in. The 18px
+   figure gap pushes captions a touch lower so they read as quiet
+   gallery-label legends rather than tagged-on filenames. */
+.exhibition-detail[data-slug="the-flood"] .ex-inline-artworks{
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="the-flood"] .ex-inline-figure{
+  gap:18px;
 }
 /* Dissolve the grey plate into the page for Yoshi — the videos are pure
    white, so a grey matte creates a hard seam. Remove the plate bg and
@@ -4008,6 +4544,49 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="basalt-rt"] .ex-explore-image{
   background:transparent;
 }
+/* Itsgalo / BASALT RT — Hufkens-tier refinement. Structurally
+   minimal (1-paragraph artist statement, 3-piece live-iframe explore
+   row, no inline artworks). Existing CSS already handles hero iframe
+   scale (0.85, tuned to match explore-cell canvas-vs-margin ratio)
+   and explore-row 3-up layout. Two remaining moves match ESCAPES:
+     1. HERO frame top padding 64→32 (Drift convention — small
+        vertical gain without affecting the deliberately-scaled iframe).
+     2. VERTICAL RHYTHM — tighten the empty space the default layout
+        reserves. The shared `.ex-overview` has min-height 420px so
+        multi-fact sidenotes don't overflow, and 120px bottom-padding;
+        combined with the 1-sentence description that's ~300px of
+        stranded space below the prose plus 120px before the explore
+        section plus another 120px before the colophon. BASALT RT's
+        facts sidenote is only 3 entries (~200px from top:72px) so the
+        420 floor is more buffer than needed. Drop overview min-height
+        420→320, trim overview/explore bottom paddings 120→64/80 to
+        keep the page's vertical pacing proportional to its actual
+        content density. */
+.ex-hero[data-slug="basalt-rt"] .ex-hero-frame{
+  padding-top:32px;
+}
+.exhibition-detail[data-slug="basalt-rt"] .ex-overview{
+  min-height:320px;
+  padding-bottom:64px;
+}
+.exhibition-detail[data-slug="basalt-rt"] .ex-explore{
+  padding-bottom:80px;
+}
+/* Final Hufkens-tier pass on the explore row: bump the inner max-width
+   1100 → 1180 (matches the breakout scale used on the refined-six
+   inline pairs), widen the gap 24 → clamp() so the three live BASALT
+   RT iframes read as a deliberate triptych rather than thumbnails on
+   a 24px gutter, and lift the caption legend 14 → 18 to match the
+   inline-figure convention. */
+.exhibition-detail[data-slug="basalt-rt"] .ex-explore-inner{
+  max-width:1180px;
+}
+.exhibition-detail[data-slug="basalt-rt"] .ex-explore-row{
+  gap:clamp(40px, 4vw, 56px);
+}
+.exhibition-detail[data-slug="basalt-rt"] .ex-explore-figure{
+  gap:24px;
+}
 /* Pixel-art GIFs: at hero scale we force image-rendering: pixelated so
    ASCII stays crisp. At thumbnail scale (this row) `pixelated` reads
    abrasive — full jaggy edges at 200px — while `auto` (bicubic) goes
@@ -4021,6 +4600,40 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="pictography"] .ex-explore-row{
   grid-template-columns:repeat(3, 1fr);
 }
+/* 1mposter / Pictography — Hufkens-tier refinement. Page is structurally
+   minimal (2 short artist-statement paragraphs, no inline artworks,
+   3-piece 1:1 ASCII-art explore row). Same pattern as ESCAPES / Trails /
+   distrakted for content-light pages: tighten the vertical rhythm and
+   push the explore row to Hufkens-tier triptych.
+     1. HERO frame top padding 64→32 (Drift convention) — minor image
+        gain. Black plate ground (#000), pixelated rendering, and
+        no-filter rules above stay — all deliberately tuned to the
+        ASCII pixel art.
+     2. VERTICAL RHYTHM — overview min-height 420→320, overview/explore
+        bottom paddings 120→64/80 so the page's vertical pacing
+        matches its content density.
+     3. EXPLORE row — inner max-width 1100→1180 (breakout scale),
+        gap 24→clamp(40, 4vw, 56) so the three works read as a
+        deliberate triptych, figure gap 14→18 caption legend. */
+.ex-hero[data-slug="pictography"] .ex-hero-frame{
+  padding-top:32px;
+}
+.exhibition-detail[data-slug="pictography"] .ex-overview{
+  min-height:320px;
+  padding-bottom:64px;
+}
+.exhibition-detail[data-slug="pictography"] .ex-explore{
+  padding-bottom:80px;
+}
+.exhibition-detail[data-slug="pictography"] .ex-explore-inner{
+  max-width:1180px;
+}
+.exhibition-detail[data-slug="pictography"] .ex-explore-row{
+  gap:clamp(40px, 4vw, 56px);
+}
+.exhibition-detail[data-slug="pictography"] .ex-explore-figure{
+  gap:18px;
+}
 /* Itsgalo / Basalt GIFs: three 720×960 portrait works in a row. Override
    the default 5-up grid + square cell aspect so the cells match the
    source 3:4 and the GIFs fill cleanly. */
@@ -4030,10 +4643,86 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="basalt-gifs"] .ex-explore-image{
   aspect-ratio:3/4;
 }
+/* Itsgalo / Basalt GIFs — Hufkens-tier refinement. Source GIFs are
+   720×960 (3:4 portrait). Refinement moves match Drift / Khwampa /
+   cydr / Nikita / loackme / Provencher / Constraint / Jeres / Alcina.
+     1. HERO — plate gets aspect-ratio:720/960 so it hugs the 3:4
+        source instead of leaving the GIF floating in a wide landscape
+        plate with cream margins on each side. Frame top padding 64→32
+        (matches Drift/Jere/Alcina), image at 90% for Hufkens restraint.
+     2. INLINE solo — BASALT GIFs #8 scales 420 → 560px (loackme /
+        Glitch / gwanak solo convention for portrait sources).
+     3. PLATE — dissolve the grey #f1f4f6 matte and 10%/12% padding so
+        the GIF sits flush on cream. Aspect goes 4:5 → 3:4 to match
+        the source (the visible cream halo in the prior render was
+        the default 4:5 plate showing through around a 3:4 GIF).
+     4. BREATHING ROOM — clamp(80, 9vw, 128px) vertical margins.
+     5. SHADOW — single 4% whisper since the plate's dissolved and
+        the page background is the new visual ground.
+     6. CAPTION — 18px figure gap for the quiet legend treatment. */
+.ex-hero[data-slug="basalt-gifs"] .ex-hero-frame{
+  padding:32px 56px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
+}
+.ex-hero[data-slug="basalt-gifs"] .ex-hero-plate{
+  width:auto;
+  height:100%;
+  aspect-ratio:720/960;
+  max-width:100%;
+}
+.ex-hero[data-slug="basalt-gifs"] .ex-hero-plate img{
+  width:90%;
+  height:90%;
+  object-fit:contain;
+}
+.exhibition-detail[data-slug="basalt-gifs"] .ex-inline-plate{
+  aspect-ratio:3/4;
+  background:transparent;
+  padding:0;
+}
+.exhibition-detail[data-slug="basalt-gifs"] .ex-inline-media img{
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="basalt-gifs"] .ex-inline-artworks:has(> :only-child){
+  max-width:560px;
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="basalt-gifs"] .ex-inline-figure{
+  gap:18px;
+}
 /* Tù.úk'z / Escapes: three works fill the full explore row, three equal
    columns. */
 .exhibition-detail[data-slug="escapes"] .ex-explore-row{
   grid-template-columns:repeat(3, 1fr);
+}
+/* Tù.úk'z / Escapes — Hufkens-tier refinement. Page is structurally
+   minimal (1-paragraph artist statement, 3-piece explore row, no
+   inline artworks). Two moves:
+     1. HERO — 2400×2400 square source capped at 92% so the artwork
+        sits with gallery-poster breathing room (same restraint move
+        as Jere / Alcina; per-piece dial 88–95%).
+     2. VERTICAL RHYTHM — tighten the empty space that the default
+        layout reserves. The shared `.ex-overview` has min-height
+        420px so multi-fact sidenotes don't overflow, and 120px
+        bottom-padding; combined with the 1-sentence description
+        that's ~300px of stranded space below the prose plus 120px
+        before the explore section plus 120px before the colophon.
+        Escapes's facts sidenote is only 3 entries (~200px from
+        top:72px) so the 420 floor is way more buffer than needed.
+        Drop overview min-height 420→320 (still safe — facts card
+        ends ~272px from section top), trim overview/explore bottom
+        paddings 120→64/80 to keep the page's vertical pacing
+        proportional to its actual content density. */
+.ex-hero[data-slug="escapes"] .ex-hero-plate img{
+  max-width:92%;
+  max-height:92%;
+}
+.exhibition-detail[data-slug="escapes"] .ex-overview{
+  min-height:320px;
+  padding-bottom:64px;
+}
+.exhibition-detail[data-slug="escapes"] .ex-explore{
+  padding-bottom:80px;
 }
 /* Mazin / Phantasmagoria: explore reduced to three works, fill the row
    in three equal columns. */
@@ -4044,6 +4733,36 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="trails"] .ex-explore-row{
   grid-template-columns:repeat(3, 1fr);
 }
+/* PERFECTL00P / Trails — Hufkens-tier refinement. Page is structurally
+   minimal (3 short artist-statement paragraphs, no inline artworks,
+   3-piece explore row). Same pattern as ESCAPES / BASALT RT for
+   content-light pages: tighten the empty space the default layout
+   reserves, plus push the explore row to Hufkens-tier triptych
+   rhythm.
+     1. VERTICAL RHYTHM — overview min-height 420→320 (Trails facts
+        sidenote is 3 entries ~200px from top:72px, so 320 is safe),
+        overview/explore bottom paddings 120→64/80 so the page's
+        pacing matches its content density.
+     2. EXPLORE row — inner max-width 1100→1180 (Hufkens breakout
+        scale), gap 24→clamp() so the three live videos read as a
+        deliberate triptych, figure gap 14→18 for the quiet
+        caption-legend treatment. */
+.exhibition-detail[data-slug="trails"] .ex-overview{
+  min-height:320px;
+  padding-bottom:64px;
+}
+.exhibition-detail[data-slug="trails"] .ex-explore{
+  padding-bottom:80px;
+}
+.exhibition-detail[data-slug="trails"] .ex-explore-inner{
+  max-width:1180px;
+}
+.exhibition-detail[data-slug="trails"] .ex-explore-row{
+  gap:clamp(40px, 4vw, 56px);
+}
+.exhibition-detail[data-slug="trails"] .ex-explore-figure{
+  gap:18px;
+}
 /* Mark Webster / distraKted: three portrait works in a row; cell aspect
    matches the source ~3:4 so the works fill cleanly without letterbox. */
 .exhibition-detail[data-slug="distrakted"] .ex-explore-row{
@@ -4052,6 +4771,102 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="distrakted"] .ex-explore-image{
   aspect-ratio:3/4;
   background:transparent;
+}
+/* Mark Webster / distraKted — Hufkens-tier refinement. Page is
+   structurally minimal (3 short artist-statement paragraphs, no
+   inline artworks, 3-piece 3:4 portrait explore row). Same pattern
+   as ESCAPES / Trails / BASALT RT for content-light pages: tighten
+   the vertical rhythm, push the explore row to Hufkens-tier triptych.
+     1. HERO frame top padding 64→32 (Drift convention) — small
+        vertical gain for the 3:4 portrait hero image.
+     2. VERTICAL RHYTHM — overview min-height 420→320 (3-fact card
+        ~200px from top:72px, so 320 is safe), overview/explore
+        bottom paddings 120→64/80 so the page's vertical pacing
+        matches its content density instead of reserving the
+        content-rich-page defaults.
+     3. EXPLORE row — inner max-width 1100→1180 (breakout scale),
+        gap 24→clamp(40, 4vw, 56) so the three portraits read as
+        a deliberate triptych, figure gap 14→18 caption legend. */
+.ex-hero[data-slug="distrakted"] .ex-hero-frame{
+  padding:32px 56px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
+}
+/* Plate hugs the 9449×12866 (~7:10) portrait source so the artwork
+   doesn't float in a wide landscape plate with hundreds of pixels of
+   cream on each side — the Drift / Jere / Piezo / Alcina pattern.
+   Image at 92% for Hufkens-style breathing room around the work. */
+.ex-hero[data-slug="distrakted"] .ex-hero-plate{
+  width:auto;
+  height:100%;
+  aspect-ratio:9449/12866;
+  max-width:100%;
+}
+.ex-hero[data-slug="distrakted"] .ex-hero-plate img{
+  width:92%;
+  height:92%;
+  object-fit:contain;
+}
+/* Chuck Anderson / Imagined Wreckage — Hufkens-tier refinement. Source
+   hero is 1600×2000 (4:5 portrait); inline pair (Scratch Disk Amnesia
+   + Completely Legal Esoteric Scrabble Strategy) and the details
+   featured-work crops (Raw Digital Materials) round out a content-rich
+   editorial page. Refinement moves match Drift / Khwampa / cydr /
+   Nikita / loackme / Provencher / Constraint / Jeres / Alcina / Piezo /
+   Deluge / Bully.
+     1. HERO — plate gets aspect-ratio:4/5 so it hugs the portrait
+        source instead of leaving 400+ px of cream on each side. Frame
+        top padding 64→32 (Drift/Jere pattern), image at 92% for
+        Hufkens-style breathing room.
+     2. PAIR (Scratch Disk Amnesia + Completely Legal...) scale 960
+        → 1180 (full editorial breakout); clamp() gap so the diptych
+        reads as deliberate rather than thumbnails on a 32px gutter.
+     3. BREATHING ROOM clamp(80, 9vw, 128px) vertical margins.
+     4. SHADOW softened from default 8%/5% two-pass to single 4%
+        whisper — Hufkens convention used across the refined-six.
+     5. CAPTION 18px figure gap for quiet legend treatment. */
+.ex-hero[data-slug="imagined-wreckage"] .ex-hero-frame{
+  padding:32px 56px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
+}
+.ex-hero[data-slug="imagined-wreckage"] .ex-hero-plate{
+  width:auto;
+  height:100%;
+  aspect-ratio:4/5;
+  max-width:100%;
+}
+.ex-hero[data-slug="imagined-wreckage"] .ex-hero-plate img{
+  width:92%;
+  height:92%;
+  object-fit:contain;
+}
+.exhibition-detail[data-slug="imagined-wreckage"]
+  .ex-inline-artworks:has(> :nth-child(2)){
+  max-width:1180px;
+  gap:clamp(40px, 4vw, 56px);
+}
+.exhibition-detail[data-slug="imagined-wreckage"] .ex-inline-artworks{
+  margin-top:clamp(80px, 9vw, 128px);
+  margin-bottom:clamp(80px, 9vw, 128px);
+}
+.exhibition-detail[data-slug="imagined-wreckage"] .ex-inline-image img{
+  filter:drop-shadow(0 8px 22px rgba(40,35,25,0.04));
+}
+.exhibition-detail[data-slug="imagined-wreckage"] .ex-inline-figure{
+  gap:18px;
+}
+.exhibition-detail[data-slug="distrakted"] .ex-overview{
+  min-height:320px;
+  padding-bottom:64px;
+}
+.exhibition-detail[data-slug="distrakted"] .ex-explore{
+  padding-bottom:80px;
+}
+.exhibition-detail[data-slug="distrakted"] .ex-explore-inner{
+  max-width:1180px;
+}
+.exhibition-detail[data-slug="distrakted"] .ex-explore-row{
+  gap:clamp(40px, 4vw, 56px);
+}
+.exhibition-detail[data-slug="distrakted"] .ex-explore-figure{
+  gap:18px;
 }
 /* Caption: matches the FeaturedArtworks / editorial register. */
 .ex-explore-caption{
@@ -4952,6 +5767,19 @@ html:has(.constellation-root){
   width:100%;height:100%;
   max-width:none;max-height:none;
   object-fit:cover;
+}
+/* Ricky Retouch / Split Logic — Hufkens-tier refinement (minimal).
+   The page is the most heavily customized in the codebase (magnifier,
+   broadsheet, reticles, pin system, dual piece grids). Plate dissolve,
+   trio breakout at 1505px, and dark-theme treatment are already done.
+   Vertical margins are deliberately tuned to a tight 48/48 rhythm
+   per the recent "no white-space chasing" commit, so the standard
+   clamp(80, 9vw, 128px) doesn't apply here. The one piece of the
+   refined-six convention that fits without disturbing the existing
+   spacing: 18px figure gap, pushing the caption (when present) a
+   touch lower so it reads as a quiet legend. */
+.exhibition-detail[data-slug="split-logic"] .ex-inline-figure{
+  gap:18px;
 }
 /* The hero and inline videos previously carried a cursor:zoom-in
    affordance to hint at ZoomCatcher. The Split Logic magnifier now
@@ -6149,11 +6977,43 @@ html:has(.constellation-root){
 .artist-reveal[data-slug="paul-prudence"] .artist-reveal-artwork{
   width:430px;
 }
-/* Yoshi Sodeoka: The Flood's network reads small inside the default
-   510 frame — the piece's white halo eats interior space — so widen
-   it a touch to give the network more presence. */
+/* Yoshi Sodeoka: The Flood: Orchestrated is a 9:16 portrait video
+   (2160×3840). The video element's default aspect-ratio is set to
+   Ricky's 1456/1500 (CLS-prevention default) which forces Yoshi's
+   portrait video into a near-square box with ~125px of cream margins
+   on each side. Override the aspect-ratio to match the source, and
+   narrow the frame to 340px so the 9:16 video doesn't tower at the
+   default 510 width (would be ~906px tall) — at 340 wide the natural
+   aspect gives a ~604px-tall portrait that balances against the bio
+   block. The visible artwork is the same width as before (was 348
+   letterboxed inside a 600 box); now it fills the frame cleanly. */
 .artist-reveal[data-slug="yoshi-sodeoka"] .artist-reveal-artwork{
-  width:600px;
+  width:340px;
+}
+.artist-reveal[data-slug="yoshi-sodeoka"] .artist-reveal-artwork video{
+  aspect-ratio:2160 / 3840;
+}
+/* Nikita Diakur: Making an Egg with Hands is a 9:16 portrait video
+   (1920×3412). Same fix as Yoshi above — default 1456/1500 aspect
+   letterboxes the portrait into a near-square box. Match the source
+   aspect and narrow the frame so the artwork fills cleanly. */
+.artist-reveal[data-slug="nikita-diakur"] .artist-reveal-artwork{
+  width:340px;
+}
+.artist-reveal[data-slug="nikita-diakur"] .artist-reveal-artwork video{
+  aspect-ratio:1920 / 3412;
+}
+/* Square-source video artists — earthsample (gwanak-gu, 4000×4000),
+   loackme (SPACE\TIME, 900×900), PERFECTL00P (Trails, 1200×1200), and
+   Spøgelsesmaskinen (Glitch Garden, 640×640) all have native 1:1
+   videos. The default 1456/1500 aspect (~0.971) introduces a subtle
+   15px vertical stretch + minor cream margins; match the source 1:1
+   so each video fills its frame edge-to-edge. */
+.artist-reveal[data-slug="earthsample"] .artist-reveal-artwork video,
+.artist-reveal[data-slug="loackme"] .artist-reveal-artwork video,
+.artist-reveal[data-slug="perfectl00p"] .artist-reveal-artwork video,
+.artist-reveal[data-slug="sp-gelsesmaskinen"] .artist-reveal-artwork video{
+  aspect-ratio:1;
 }
 /* rudxane: Piezo's woven-block composition is dense and visually
    heavy at the default 510 — a tighter frame keeps the artwork from

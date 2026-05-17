@@ -160,6 +160,14 @@ export type Exhibition = {
       (0–100) giving the focal point of the crop. */
   details?: {
     sourceImage: string;
+    /** Optional animated source. When present, each crop renders a
+        <video> element playing this file, positioned/scaled per
+        crop so all crops show the same animation cropped differently.
+        Browsers share the network buffer for identical URLs, so the
+        crops stay visually in sync. Falls back to `sourceImage` for
+        SSR / before video metadata loads. Only honoured for the page
+        that sets it — other exhibitions keep using sourceImage. */
+    sourceVideo?: string;
     title?: string;           // optional work title shown under the heading
     verseUrl?: string;        // if set, the title becomes a link to the work on Verse
     aspectRatio?: string;     // e.g. "1" (default), "4/5"

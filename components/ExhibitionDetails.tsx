@@ -98,6 +98,62 @@ export function ExhibitionDetails({ details, title }: { details: Details; title:
                   <figcaption className="ex-detail-caption">{c.caption}</figcaption>
                 )}
               </figure>
+            ) : details.sourceVideo ? (
+              (() => {
+                // Per-crop animated source. Same crop math as the
+                // background-position branch, expressed as absolute
+                // positioning instead. Container width = W; video sized
+                // at `zoom*100%` (zoom*W). For focal point F (in 0–100)
+                // to land at container center, video_left = 0.5*W - F%
+                // * zoom*W → as % of container: left% = 50 - zoom*F.
+                // Inset clamping mirrors resolveCrop so the matte can
+                // never enter the visible window.
+                // All crops share the same `sourceVideo` URL, so the
+                // browser shares the network buffer across the three
+                // <video> elements and autoplay keeps them visually in
+                // sync over the loop.
+                const halfWindow = 50 / c.zoom;
+                const minX = inset.left + halfWindow;
+                const maxX = 100 - inset.right - halfWindow;
+                const minY = inset.top + halfWindow;
+                const maxY = 100 - inset.bottom - halfWindow;
+                const focalX = clamp(c.x, Math.min(minX, maxX), Math.max(minX, maxX));
+                const focalY = clamp(c.y, Math.min(minY, maxY), Math.max(minY, maxY));
+                const leftPct = 50 - c.zoom * focalX;
+                const topPct = 50 - c.zoom * focalY;
+                return (
+                  <figure
+                    className="ex-detail-crop ex-detail-crop--video"
+                    style={{ ...baseStyle, position: "relative", overflow: "hidden" }}
+                    role="img"
+                    aria-label={label}
+                  >
+                    {activeSrc && (
+                      <video
+                        src={details.sourceVideo}
+                        poster={details.sourceImage}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        preload="auto"
+                        style={{
+                          position: "absolute",
+                          left: `${leftPct}%`,
+                          top: `${topPct}%`,
+                          width: `${c.zoom * 100}%`,
+                          height: `${c.zoom * 100}%`,
+                          objectFit: "cover",
+                          display: "block",
+                        }}
+                      />
+                    )}
+                    {c.caption && (
+                      <figcaption className="ex-detail-caption">{c.caption}</figcaption>
+                    )}
+                  </figure>
+                );
+              })()
             ) : (
               (() => {
                 const { bgX, bgY } = resolveCrop(c, inset);
