@@ -53,7 +53,14 @@ type ShapedBioProps = {
 };
 
 /** Render a paragraph's lines as `display: block` spans. Shared
-    between the shaped layout and the SSR fallback. */
+    between the shaped layout and the SSR fallback.
+    Italics that span a shaped line break (e.g. an `*INFINITE
+    PRESSURE*` pair where the break lands between the words) are
+    handled by walking lines statefully — every `*` toggles an
+    in-italic flag, and that flag carries from one line to the next
+    so the second half still renders inside <em>. Without this
+    crossing, line-by-line renderEmphasis sees unbalanced pairs and
+    leaves the asterisks visible. */
 function renderParagraph(
   para: string,
   i: number,
@@ -65,13 +72,40 @@ function renderParagraph(
       <p key={i}>{renderEmphasis ? renderEmphasis(para) : para}</p>
     );
   }
+  if (!renderEmphasis) {
+    return (
+      <p key={i}>
+        {lines.map((line, j) => (
+          <span key={j} style={{ display: "block" }}>{line}</span>
+        ))}
+      </p>
+    );
+  }
+  let inItalic = false;
   return (
     <p key={i}>
-      {lines.map((line, j) => (
-        <span key={j} style={{ display: "block" }}>
-          {renderEmphasis ? renderEmphasis(line) : line}
-        </span>
-      ))}
+      {lines.map((line, j) => {
+        const parts: ReactNode[] = [];
+        let cursor = 0;
+        for (let k = 0; k < line.length; k++) {
+          if (line[k] !== "*") continue;
+          if (cursor < k) {
+            const txt = line.slice(cursor, k);
+            parts.push(inItalic ? <em key={`${j}-${cursor}`}>{txt}</em> : txt);
+          }
+          inItalic = !inItalic;
+          cursor = k + 1;
+        }
+        if (cursor < line.length) {
+          const txt = line.slice(cursor);
+          parts.push(inItalic ? <em key={`${j}-${cursor}`}>{txt}</em> : txt);
+        }
+        return (
+          <span key={j} style={{ display: "block" }}>
+            {parts}
+          </span>
+        );
+      })}
     </p>
   );
 }
