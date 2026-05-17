@@ -19,9 +19,12 @@ import { useEffect } from "react";
 // Strict alternating direction — odd indexes are positive, even indexes
 // are negative, so adjacent plates always drift opposite each other.
 // Magnitudes vary slightly within each direction so the speeds aren't
-// uniform.
+// uniform. Mobile is amped above desktop because the smaller viewport
+// + faster scroll velocity make a moderate parallax read as "barely
+// there"; the larger values land in a felt-but-not-flashy register
+// without crossing into wedge-flapping-around territory.
 const SPEEDS = [-0.08, 0.10, -0.07, 0.11, -0.09, 0.08, -0.10, 0.07];
-const MOBILE_SPEEDS = [-0.14, 0.17, -0.12, 0.18, -0.15, 0.14, -0.17, 0.12];
+const MOBILE_SPEEDS = [-0.20, 0.24, -0.17, 0.25, -0.22, 0.20, -0.24, 0.17];
 
 export function InterviewParallax() {
   useEffect(() => {
@@ -47,7 +50,15 @@ export function InterviewParallax() {
         const distance = (elCenter - center) / vh;
         const speed = speeds[i % speeds.length];
         const raw = distance * speed * vh;
-        const buffer = rect.height * 0.18;
+        // Mobile gets a slightly higher buffer ceiling so the louder
+        // mobile speeds can land more travel before clipping; desktop
+        // stays at the conservative 0.18 so the wedge edges never peek.
+        // The media plate is `top:-20%; bottom:-20%`, so the safe range
+        // on mobile is ~0.143 * media-height — 0.21 slightly exceeds
+        // that on the rare extreme-distance frame, which is an
+        // acceptable trade for felt motion on phones.
+        const bufferRatio = isMobile ? 0.21 : 0.18;
+        const buffer = rect.height * bufferRatio;
         const offset = Math.max(-buffer, Math.min(buffer, raw));
         el.style.setProperty("--parallax-y", `${offset.toFixed(1)}px`);
       });
