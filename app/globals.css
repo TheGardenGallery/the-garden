@@ -227,7 +227,16 @@ img{-webkit-user-select:none;user-select:none;-webkit-user-drag:none;user-drag:n
 .ex-works,
 .plot-wrap{-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;}
 body{
-  background:var(--paper);
+  /* Ink-black body bg matches the footer and is what iOS Safari
+     samples to tint its URL-bar chrome on versions where the
+     `theme-color` meta is ignored. Every page root paints its own
+     paper-coloured surface on an opaque wrapper (.about-page,
+     .legal-page, .principles-page, .journal-index, .exhibitions-page,
+     .plot-wrap, .exhibitions-hybrid, .news-hybrid, .exhibition-detail,
+     etc.) so the page interior reads identically — the black body
+     only matters where it shows through (rubber-band overscroll,
+     URL-bar safe area, the narrow strip Safari samples). */
+  background:#000;
   color:#000;
   font-family:'Barlow',sans-serif;
   font-weight:400;
@@ -2202,7 +2211,14 @@ html:has(.constellation-root){
    ======================================================================= */
 
 /* Scoped to .exhibition-detail wrapper to keep --rule-thin local */
-.exhibition-detail{--rule-thin:#e5e2da;}
+/* Explicit paper bg on the .exhibition-detail wrapper so the page
+   interior covers body's ink-black bg (which exists for iOS URL-bar
+   tinting). The pre-body-black state had this rendering against
+   body's paper bg via inheritance; this rule restores that exact
+   surface deterministically. Dark-themed exhibitions (split-logic,
+   pictography) have their own section-level dark bgs that cover this
+   paper wrapper, so no visible change there either. */
+.exhibition-detail{--rule-thin:#e5e2da;background:var(--paper);}
 
 .ex-title-bar{
   position:absolute;left:var(--gutter);bottom:64px;z-index:3;
