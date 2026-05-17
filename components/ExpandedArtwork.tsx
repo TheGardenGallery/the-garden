@@ -304,14 +304,17 @@ export function ExpandedArtwork({
     <motion.div
       ref={containerRef}
       className="piece-grid-expanded"
-      initial={{ opacity: 0, scale: 0.94 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{
-        opacity: 0,
-        scale: 0.94,
-        transition: { duration: 0.16, ease: "easeOut" },
-      }}
-      transition={{ type: "spring", stiffness: 280, damping: 30 }}
+      /* Opacity-only fade. Earlier versions did an
+         opacity + scale-0.94 → scale-1 spring on every mount, which
+         replayed on every swipe (the parent re-keys this component
+         per `expanded` index) and read as a visible "pop" between
+         artworks. Plain opacity at a short duration lets the
+         neighbouring-poster preload do the heavy lifting and the
+         swipe lands cleanly on the next frame. */
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.12, ease: "easeOut" } }}
+      transition={{ duration: 0.18, ease: "easeOut" }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={() => finishDrag(true)}

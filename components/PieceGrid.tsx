@@ -132,6 +132,37 @@ export function PieceGrid({
     return () => window.removeEventListener("keydown", onKey, true);
   }, [expanded, prev, next]);
 
+  // Preload the immediately-neighbouring posters and videos whenever
+  // the lightbox is open or moves. Without this, a swipe to the next
+  // artwork has to fetch the blurred-bg poster and the video src
+  // from network mid-transition — visible as a stutter / "weird
+  // load" behind the artwork. With both prefetched, the swap is
+  // instant from cache.
+  useEffect(() => {
+    if (expanded === null || items.length <= 1) return;
+    const ids = [
+      (expanded - 1 + items.length) % items.length,
+      (expanded + 1) % items.length,
+    ];
+    const cleanups: Array<() => void> = [];
+    ids.forEach((idx) => {
+      const it = items[idx];
+      if (!it) return;
+      const img = new Image();
+      img.src = it.poster;
+      const v = document.createElement("video");
+      v.preload = "auto";
+      v.muted = true;
+      v.src = it.video;
+      // Detach so the element can be GC'd once the data is cached.
+      cleanups.push(() => {
+        v.removeAttribute("src");
+        v.load();
+      });
+    });
+    return () => cleanups.forEach((fn) => fn());
+  }, [expanded, items]);
+
   // Drive play/pause on the mounted cell videos. Only the currently
   // hovered cell plays; everything else stays paused at its last
   // frame. While anything is expanded, all cells pause.
