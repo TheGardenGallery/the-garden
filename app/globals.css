@@ -1361,6 +1361,18 @@ html:has(.constellation-root){
   width:100%;
   height:100dvh;
   overflow:hidden;
+  /* Lock all touch gestures inside the field. Without this, dragging
+     a finger across the drifting items propagates as a page-level
+     scroll (revealing the footer and any chrome below), which makes
+     the field feel like a list to scroll through rather than a fixed
+     scatter to tap into. Pan / pinch / scroll all suppressed; the
+     touchstart/move pointer-tracking the simulation listens for
+     still fires (touch-action only gates default browser behaviour,
+     not JS event delivery). */
+  touch-action:none;
+  -webkit-user-select:none;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior:none;
 }
 .constellation-mobile-star{
   position:absolute;
@@ -7006,21 +7018,18 @@ html:has(.constellation-root){
   .artist-reveal{
     height:auto;
     /* Fill at least the visible viewport below the nav so the page's
-       paper/ink surface extends all the way to the footer. Without
-       this, short-content pages leave a gap inside main where body
-       bg shows through — and after the iOS URL-bar fix turned body
-       bg ink, that gap reads as a sudden black band between a
-       paper-themed artwork and the black footer (or merges the dark
-       artwork into the footer with no visible boundary). The
-       min-height matches the desktop fixed height; on tall content
-       the page just continues past it as before. The explicit
-       padding-bottom guarantees the page's own surface keeps reading
-       below the artwork's own margin before the footer's edge — even
-       when content is just tall enough to defeat min-height-driven
-       stretching. */
+       paper/ink surface extends all the way to the footer — without
+       this, short-content pages leave a gap inside main where the
+       body's ink bg leaks through between the artwork and the footer
+       on paper-themed pages, or merges the dark artwork into the
+       footer with no visible boundary. The artwork already carries
+       its own margin: 2rem auto 5rem; min-height alone provides the
+       extra editorial breathing room when content is short, and
+       collapses tight against the artwork's margin when content
+       fills the viewport — so the page reads refined at both ends
+       of the content-length spectrum without an extra fixed band. */
     min-height:calc(100vh - var(--nav-height));
     min-height:calc(100dvh - var(--nav-height));
-    padding-bottom:5rem;
     overflow:visible;
     /* Keep margin-top: var(--nav-height) from desktop so the deck
        starts below the sticky main nav — without it the artist

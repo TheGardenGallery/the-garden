@@ -453,9 +453,14 @@ function MobileField({ stars }: { stars: Star[] }) {
     const n = stars.length;
     if (n === 0) return;
 
-    const reduced =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Note: we used to bail the rAF loop on prefers-reduced-motion,
+    // but the drift here is ≤0.11px/frame — a slow, ambient
+    // scatter, not an attention-grabbing animation. Bailing made the
+    // field look frozen on iPhones with Low Power Mode (which iOS
+    // silently flips reduced-motion on for) and was reported as a
+    // regression. The drift is part of the page's identity, so we
+    // run the loop regardless and let the gentle motion speak for
+    // itself.
 
     let cw = 0, ch = 0;
     let cleanedUp = false;
@@ -480,13 +485,13 @@ function MobileField({ stars }: { stars: Star[] }) {
 
       ro.observe(container);
 
-      // Pointer tracking (skip in reduced-motion since we won't animate)
-      if (!reduced) {
-        container.addEventListener("pointermove", onPointerMove as EventListener);
-        container.addEventListener("touchstart", onTouchStart as EventListener, { passive: true });
-        container.addEventListener("touchmove", onPointerMove as EventListener, { passive: true });
-        container.addEventListener("pointerleave", onPointerLeave);
-      }
+      // Pointer tracking — always attach. The rAF loop always runs
+      // (see note above re: reduced-motion), so the slowdown-on-touch
+      // behaviour applies on every device.
+      container.addEventListener("pointermove", onPointerMove as EventListener);
+      container.addEventListener("touchstart", onTouchStart as EventListener, { passive: true });
+      container.addEventListener("touchmove", onPointerMove as EventListener, { passive: true });
+      container.addEventListener("pointerleave", onPointerLeave);
 
       // Poisson-disc placement
       const rng = makeRng(SEED + 777);
@@ -524,10 +529,6 @@ function MobileField({ stars }: { stars: Star[] }) {
           el.style.transform = `translate(${xs[i].toFixed(1)}px, ${ys[i].toFixed(1)}px)`;
         }
       }
-
-      // Reduced motion: place items at their seeded positions and
-      // stop here — no rAF loop, no pointer slowdown, no drift.
-      if (reduced) return;
 
       // Animation loop
       let paused = document.hidden;
