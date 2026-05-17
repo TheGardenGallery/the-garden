@@ -1551,15 +1551,14 @@ html:has(.constellation-root){
 /* Principles — meta-nav label on the About page, aligned to the same
    left gutter as the site's "The Garden" logo (start of "T"). */
 .about-principles-link{
-  /* Sticky (not fixed) — fixed positioning is established relative to
-     the nearest transformed ancestor, and Next's App Router /
-     Framer Motion wrappers around the page introduce transforms
-     elsewhere in the tree that can capture this element and scroll
-     it with the page. Sticky sticks to the scrolling viewport
-     regardless of ancestor transforms, and self-aligns to the
-     right edge via flex's cross-axis end so we don't need `right`. */
-  position:sticky;
-  top:calc(var(--nav-height) + 24px);
+  /* In normal flow at the top of the page — not fixed, not sticky.
+     Earlier iterations used position: fixed / sticky to keep the link
+     in the top-right corner as the user scrolled, but on mobile the
+     link's column overlaps the bio's horizontal extent, so any
+     viewport-anchored position read as "PRINCIPLES floating over
+     body text on scroll." Sitting in flow at the top means it shows
+     where the user first lands, and scrolls cleanly off-screen with
+     everything else — never overlaying body text. */
   align-self:flex-end;
   width:var(--logo-width, 131px);
   text-align:left;
@@ -1567,20 +1566,9 @@ html:has(.constellation-root){
   font-size:10px;letter-spacing:1px;text-transform:uppercase;
   color:var(--ink-muted);text-decoration:none;
   transition:color 200ms ease-out;
-  z-index:100;
-  /* Cover any body text the link sticks above on scroll — without a
-     surface, the small uppercase label reads through underlying
-     paragraphs at the right edge of mobile viewports. */
-  background:var(--paper-warm);
-  padding:6px 0 6px 8px;
 }
 @media (hover:hover){
   .about-principles-link:hover{color:var(--ink-hover);}
-}
-@media (max-width:720px){
-  .about-principles-link{
-    top:calc(var(--nav-height) + 16px);
-  }
 }
 
 
