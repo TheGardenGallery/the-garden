@@ -139,15 +139,15 @@ html{
   scroll-behavior:smooth;
   scrollbar-width:thin;
   scrollbar-color:gray transparent;
-  /* iOS Safari: prevent vertical pull from chaining into the
-     browser's pull-to-refresh chrome, which has a white default
-     surface that contradicts the page's ink-black overscroll
-     backdrop. `contain` keeps the rubber-band bounce intact (so
-     the gesture still feels native) but stops the chain — the
-     first pull and every pull after consistently reveal html's
-     ink bg instead of flashing into Safari's refresh indicator.
+  /* iOS Safari: fully block the browser's pull-to-refresh chrome on
+     vertical pulls. `contain` should have stopped the chain but on
+     iOS the second-pull still engaged the refresh indicator (white
+     default surface), contradicting the page's ink-black overscroll
+     backdrop. `none` is the strongest variant — rubber-band bounce
+     within the page is unaffected (it stays as a bounce on html's
+     ink bg) and chain-into-browser-refresh is fully suppressed.
      No-op on desktop browsers where pull-to-refresh isn't a thing. */
-  overscroll-behavior-y:contain;
+  overscroll-behavior-y:none;
   /* Match the html background to the footer's surface so the iOS
      Safari URL-bar safe area + rubber-band overscroll at the bottom
      of the page reveal coherent ink-black rather than a mismatched
@@ -246,6 +246,12 @@ body{
      only matters where it shows through (rubber-band overscroll,
      URL-bar safe area, the narrow strip Safari samples). */
   background:#000;
+  /* Mirror the html-level pull-to-refresh block — some iOS Safari
+     versions treat body as the scroll container and ignore the
+     `overscroll-behavior` set on html, letting pull gestures
+     escape into the browser's white refresh chrome. Setting it on
+     both elements is belt-and-suspenders. */
+  overscroll-behavior-y:none;
   color:#000;
   font-family:'Barlow',sans-serif;
   font-weight:400;
