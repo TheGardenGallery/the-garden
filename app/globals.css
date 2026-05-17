@@ -1551,9 +1551,16 @@ html:has(.constellation-root){
 /* Principles — meta-nav label on the About page, aligned to the same
    left gutter as the site's "The Garden" logo (start of "T"). */
 .about-principles-link{
-  position:fixed;
+  /* Sticky (not fixed) — fixed positioning is established relative to
+     the nearest transformed ancestor, and Next's App Router /
+     Framer Motion wrappers around the page introduce transforms
+     elsewhere in the tree that can capture this element and scroll
+     it with the page. Sticky sticks to the scrolling viewport
+     regardless of ancestor transforms, and self-aligns to the
+     right edge via flex's cross-axis end so we don't need `right`. */
+  position:sticky;
   top:calc(var(--nav-height) + 24px);
-  right:var(--gutter);
+  align-self:flex-end;
   width:var(--logo-width, 131px);
   text-align:left;
   font-family:'Barlow',sans-serif;font-weight:500;
@@ -1561,6 +1568,11 @@ html:has(.constellation-root){
   color:var(--ink-muted);text-decoration:none;
   transition:color 200ms ease-out;
   z-index:100;
+  /* Cover any body text the link sticks above on scroll — without a
+     surface, the small uppercase label reads through underlying
+     paragraphs at the right edge of mobile viewports. */
+  background:var(--paper-warm);
+  padding:6px 0 6px 8px;
 }
 @media (hover:hover){
   .about-principles-link:hover{color:var(--ink-hover);}
