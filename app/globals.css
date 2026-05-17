@@ -1361,15 +1361,13 @@ html:has(.constellation-root){
   width:100%;
   height:100dvh;
   overflow:hidden;
-  /* Lock all touch gestures inside the field. Without this, dragging
-     a finger across the drifting items propagates as a page-level
-     scroll (revealing the footer and any chrome below), which makes
-     the field feel like a list to scroll through rather than a fixed
-     scatter to tap into. Pan / pinch / scroll all suppressed; the
-     touchstart/move pointer-tracking the simulation listens for
-     still fires (touch-action only gates default browser behaviour,
-     not JS event delivery). */
-  touch-action:none;
+  /* Allow vertical pan so the user can still reach the footer below
+     the field, but block pinch-zoom and horizontal pan so the field
+     reads as a fixed scatter rather than a panning surface. The
+     simulation's touchstart/touchmove pointer-tracking still fires
+     either way — touch-action only gates the browser's default
+     gesture behaviour, not JS event delivery. */
+  touch-action:pan-y;
   -webkit-user-select:none;user-select:none;
   -webkit-tap-highlight-color:transparent;
   overscroll-behavior:none;
