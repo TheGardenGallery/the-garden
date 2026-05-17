@@ -632,21 +632,25 @@ export function SplitLogicSystem({
     return () => obs.disconnect();
   }, []);
 
-  // Drives the fixed-position chevrons on mobile. Uses a ratio
-  // threshold (≥40% of the pager region in viewport) so the chevrons
-  // only appear once the grid actually dominates the screen — not
-  // when only the top edge is peeking up from below or sliding off
-  // the bottom past the colour bar above.
+  // Drives the fixed-position chevrons on mobile. Observes the grid
+  // itself (not the wrapping pager region — that includes the page
+  // indicator and section padding, which kept the ratio inflated
+  // long after the actual grid had scrolled past) and requires ≥70%
+  // of the grid to be in viewport. Below that threshold the chevrons
+  // hide, so they never float over the artist's note, colour bar,
+  // or any neighbouring chrome.
   const pagerRef = useRef<HTMLDivElement>(null);
   const [pagerInView, setPagerInView] = useState(false);
   useEffect(() => {
-    const el = pagerRef.current;
-    if (!el) return;
+    const region = pagerRef.current;
+    if (!region) return;
+    const grid = region.querySelector<HTMLElement>(".piece-grid");
+    if (!grid) return;
     const obs = new IntersectionObserver(
-      ([entry]) => setPagerInView(entry.intersectionRatio >= 0.4),
-      { threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] }
+      ([entry]) => setPagerInView(entry.intersectionRatio >= 0.7),
+      { threshold: [0, 0.3, 0.5, 0.7, 0.85, 1] }
     );
-    obs.observe(el);
+    obs.observe(grid);
     return () => obs.disconnect();
   }, []);
 
