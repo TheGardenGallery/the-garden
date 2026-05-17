@@ -177,28 +177,7 @@ export function WelcomeOverlay() {
       }, totalAnim - 200);
     }
 
-    setTimeout(() => {
-      setDismissed(true);
-      /* Re-kick every paused video on the page. While the welcome
-         overlay was mounted, the videos behind it tried to autoplay
-         (via the autoPlay attribute + ref.play() calls), but iOS
-         Safari rejects autoplay when the video is occluded by an
-         opaque overlay — and once rejected, it shows native
-         play-button controls indefinitely. Calling .play() once
-         the overlay clears restores the autoplay grant. Muted and
-         playsInline are already set on every video, so this is
-         allowed without a user gesture. The 80ms delay gives React
-         a beat to commit the unmount + the browser to repaint so
-         the videos are no longer occluded when .play() fires.
-         No-op on videos that are already playing. */
-      setTimeout(() => {
-        document.querySelectorAll<HTMLVideoElement>("video").forEach((v) => {
-          if (!v.paused) return;
-          v.muted = true;
-          v.play().catch(() => {});
-        });
-      }, 80);
-    }, totalAnim + 180);
+    setTimeout(() => setDismissed(true), totalAnim + 180);
 
     /* stamp the session — VisitMarker also sets this on every page,
        this just covers the case where the welcome itself completes
