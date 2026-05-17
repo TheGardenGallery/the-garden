@@ -5955,6 +5955,24 @@ html:has(.constellation-root){
     padding-top:24px;
     padding-bottom:32px;
   }
+  /* Mobile grid sizing: the desktop ‑‑pg-arrow-clearance:64px
+     reservation reserves space for the prev/next chevrons that sit
+     in the grid's left/right margins on desktop. On mobile the
+     chevrons are position:fixed (out of flow), so that 128px of
+     reserved space is wasted — cells shrink to ~125px each. Override
+     the clearance to a small editorial gutter so the grid fills
+     close to the full viewport width (cells land at ~170px, in line
+     with the proportion editorial NFT galleries use on phones). The
+     gap bump from 14→16px keeps the rhythm a touch more generous,
+     row-gap slightly more than column-gap so each row reads as its
+     own line of artwork. */
+  .exhibition-detail[data-slug="split-logic"] .sl-pager-region{
+    --pg-arrow-clearance:14px;
+  }
+  .exhibition-detail[data-slug="split-logic"] .piece-grid{
+    column-gap:16px;
+    row-gap:20px;
+  }
   /* Prev/next exhibition nav — stack vertically on narrow viewports.
      Side-by-side at <414px wraps the right cell awkwardly. */
   .exhibition-detail[data-slug="split-logic"] .ex-nav{
