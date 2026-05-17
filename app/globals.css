@@ -1558,8 +1558,11 @@ html:has(.constellation-root){
      viewport-anchored position read as "PRINCIPLES floating over
      body text on scroll." Sitting in flow at the top means it shows
      where the user first lands, and scrolls cleanly off-screen with
-     everything else — never overlaying body text. */
+     everything else — never overlaying body text. The top margin
+     restores the original 24px breathing room below the nav (16px on
+     mobile, matching the pre-revert offset). */
   align-self:flex-end;
+  margin-top:24px;
   width:var(--logo-width, 131px);
   text-align:left;
   font-family:'Barlow',sans-serif;font-weight:500;
@@ -1569,6 +1572,11 @@ html:has(.constellation-root){
 }
 @media (hover:hover){
   .about-principles-link:hover{color:var(--ink-hover);}
+}
+@media (max-width:720px){
+  .about-principles-link{
+    margin-top:16px;
+  }
 }
 
 
