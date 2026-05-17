@@ -6995,16 +6995,18 @@ html:has(.constellation-root){
 .artist-reveal[data-slug="khwampa"] .artist-reveal-artwork{
   width:720px;
 }
-/* Mark Webster: distraKted hero is a tall portrait PNG
-   (9449×12866). The default <img> has no width/height attrs and no
-   aspect reservation, so before the (1MB) file loads the artwork
-   wrapper collapses to 0 height — then snaps to ~450px once the
-   image arrives, jolting the bio above. Reserving the aspect on the
-   img element pre-computes the height from the wrapper's width, so
-   the page renders at its final layout immediately and the image
-   fades into the already-reserved frame. */
+/* Mark Webster: distraKted hero is a tall portrait PNG. Source
+   was 9449×12866, optimized down to 1763×2400 (same aspect) to
+   cut the file from 1MB → 688KB. The default <img> has no
+   width/height attrs and no aspect reservation, so without this
+   rule the artwork wrapper would collapse to 0 height before the
+   file loads and snap to ~450px once it arrives, jolting the
+   bio above. Reserving the aspect on the img element
+   pre-computes the height from the wrapper's width, so the page
+   renders at its final layout immediately and the image fades
+   into the already-reserved frame. */
 .artist-reveal[data-slug="mark-webster"] .artist-reveal-artwork img{
-  aspect-ratio:9449 / 12866;
+  aspect-ratio:1763 / 2400;
 }
 @media (max-width:720px){
   .artist-reveal[data-slug="john-provencher"] .artist-reveal-artwork{
