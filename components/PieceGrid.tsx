@@ -235,20 +235,17 @@ export function PieceGrid({
                   // Layout (FLIP between positions when items shuffle)
                   // and opacity (fade for entering/leaving) share a
                   // duration and easing so a cell's move and its
-                  // fade-in resolve on the same frame — earlier the
-                  // 0.55 vs 0.32 split meant fading completed long
-                  // before the slide and the grid read as "jittering"
-                  // into place. Per-cell stagger (28ms × index)
-                  // creates a soft rippling-in across the 12 slots,
-                  // which both masks any decode-time variance between
-                  // freshly-mounted videos and gives the swap a
-                  // refined editorial wave instead of a 12-cell pop.
+                  // fade-in resolve on the same frame — without
+                  // matching, the 0.55 vs 0.32 split meant fading
+                  // completed long before the slide and the grid
+                  // read as "jittering" into place. NO stagger —
+                  // an earlier per-cell delay made roughly half the
+                  // entering cells sit invisible for up to ~330ms
+                  // during a colour-lock shuffle, which read as
+                  // "artworks didn't load" rather than refined
+                  // sequencing. All entering cells fade in together.
                   layout: { duration: 0.55, ease: [0.22, 0.61, 0.36, 1] },
-                  opacity: {
-                    duration: 0.55,
-                    ease: [0.22, 0.61, 0.36, 1],
-                    delay: i * 0.028,
-                  },
+                  opacity: { duration: 0.55, ease: [0.22, 0.61, 0.36, 1] },
                 }}
                 className="piece-cell"
                 data-zoom-src={item.video}
