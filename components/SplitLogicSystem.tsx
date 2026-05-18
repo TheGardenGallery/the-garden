@@ -272,6 +272,13 @@ export function SplitLogicSystem({
   const [lockedZoneIdx, setLockedZoneIdx] = useState<number | null>(null);
   const [page, setPage] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
+  // Auto-lock to the white zone on first paint so the page starts in
+  // an opinionated reading state (white pieces lead the grid)
+  // rather than the algorithmic-default sort. Runs exactly once
+  // after the colour bar's zone keys resolve. If `white` didn't
+  // surface (rare — would need <3 monochrome-bright pieces), the
+  // grid simply stays in its default order.
+  const initialLockAppliedRef = useRef(false);
 
 
   // Per-piece colour profile. topClusterLch is each piece's top
@@ -457,6 +464,14 @@ export function SplitLogicSystem({
       centroids: sortedCentroids,
     };
   }, [cells]);
+
+  useEffect(() => {
+    if (initialLockAppliedRef.current) return;
+    if (zoneKeys.length === 0) return;
+    const whiteIdx = zoneKeys.indexOf("white");
+    initialLockAppliedRef.current = true;
+    if (whiteIdx >= 0) setLockedZoneIdx(whiteIdx);
+  }, [zoneKeys]);
 
   const lockedAssignment: PieceAssignment | null =
     lockedZoneIdx !== null && lockedZoneIdx < zoneKeys.length
