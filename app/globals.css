@@ -4194,14 +4194,19 @@ html:has(.constellation-root){
   padding:100px var(--gutter) 120px;
   background:#000;
   border-top:1px solid rgba(255,255,255,0.06);
-  /* scroll-reveal */
+  /* scroll-reveal — opacity-only, slow, soft easing. The earlier
+     version paired the fade with translateY(6px), which on a
+     3000px+ tall editorial section (heading + 4 paragraphs +
+     sticky anchor on desktop) read as the whole block "twitching
+     up" as the user scrolled into it. Dropping the transform and
+     stretching the duration to 0.8s with a Hufkens-ish ease-out
+     curve makes the arrival feel like a curatorial dissolve
+     rather than a UI flourish. */
   opacity:0;
-  transform:translateY(6px);
-  transition:opacity 0.5s ease-out, transform 0.5s ease-out;
+  transition:opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .broadsheet--visible{
   opacity:1;
-  transform:translateY(0);
 }
 
 .broadsheet-inner{
