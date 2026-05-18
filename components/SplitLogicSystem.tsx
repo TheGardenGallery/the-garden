@@ -611,7 +611,11 @@ export function SplitLogicSystem({
   }, [page, total, sortedIndices, gridItems]);
 
   const handleZoneClick = (i: number) => {
-    setLockedZoneIdx((cur) => (cur === i ? null : i));
+    // No toggle-to-null — the system stays LOCKED at all times. The
+    // page opens locked on white, and every swatch click just moves
+    // the lock to that swatch. Clicking the currently-locked
+    // swatch is a no-op (already locked there).
+    setLockedZoneIdx(i);
     setPage(0);
   };
 
