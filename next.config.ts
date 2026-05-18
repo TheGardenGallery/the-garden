@@ -25,6 +25,27 @@ const nextConfig: NextConfig = {
   images: {
     qualities: [45, 75, 90, 100],
   },
+  // Aggressive Cache-Control on the long-lived static media tree so
+  // Vercel's CDN + browser caches keep a single copy per asset for a
+  // year and repeat visitors don't re-download the multi-megabyte
+  // videos and posters. `immutable` is acceptable here because the
+  // public URLs are paired with deploy-pinned content (Vercel
+  // re-deploys the full /public tree on every build) and any
+  // re-encode propagates to returning users after their browser TTL.
+  // /_next/static/* already gets long-cache headers from Next itself.
+  async headers() {
+    return [
+      {
+        source: "/images/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
