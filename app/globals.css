@@ -269,7 +269,10 @@ main{
      below) means the bg behind the fade is already the right colour
      when the page content arrives — no flash of contrasting ink. */
   background:var(--paper);
-  transition:background-color 0.3s ease-out;
+  /* Unified with nav timing (380ms ease-slow) so the bg behind the
+     page transitions in lockstep with the nav above it — one
+     coordinated colour change across the whole top of the viewport. */
+  transition:background-color 380ms var(--ease-slow);
 }
 /* Dark-canvas pages: main bg flips to ink so the route-transition
    fade-in lands over an ink ground instead of revealing paper behind
@@ -332,8 +335,17 @@ nav,.site-nav{
   padding:24px var(--gutter);
   background:var(--nav-bg, var(--paper));
   border-bottom:1px solid var(--nav-rule, var(--rule));
+  color:var(--nav-fg, #000);
   height:var(--nav-height);
-  transition:background-color 0.3s ease-out, border-color 0.3s ease-out;
+  /* Unified nav theme transition: bg + text + border all interpolate
+     over 380ms ease-slow so when the body's `:has()` predicate flips
+     (light page ↔ dark page), every part of the nav moves as one. Was
+     300ms ease-out which mismatched the children's 245ms default-ease
+     color transitions; the multi-rate handoff was the choppy feel. */
+  transition:
+    background-color 380ms var(--ease-slow),
+    color 380ms var(--ease-slow),
+    border-color 380ms var(--ease-slow);
 }
 .nav-links{display:flex;gap:44px;list-style:none;}
 .nav-links a{
@@ -344,7 +356,11 @@ nav,.site-nav{
   line-height:1;
   padding-bottom:2px;
   position:relative;
-  transition:color 245ms;
+  /* Match the unified nav theme transition (380ms ease-slow) so the
+     link text colour moves in lockstep with the nav's bg + border on
+     a page-theme change. Slight slowdown from the previous 245ms is
+     fine for hover too — still feels responsive. */
+  transition:color 380ms var(--ease-slow);
 }
 .nav-links a[aria-current="page"]{color:var(--nav-fg-muted, var(--ink-muted));}
 @media (hover:hover){
@@ -428,7 +444,8 @@ body.nav-on-paper:has(.exhibition-detail[data-slug="split-logic"]){
   display:inline-block;
   line-height:1;
   color:var(--nav-fg, #000);
-  transition:color 245ms;
+  /* Unified with nav theme transition — see nav rule above. */
+  transition:color 380ms var(--ease-slow);
 }
 .logo .the,.logo .grd{color:inherit;}
 .logo .triangle{display:inline-block;width:0.73em;height:0.73em;vertical-align:baseline;line-height:1;margin:0 0.02em 0 -0.05em;position:relative;top:0;}
@@ -452,6 +469,12 @@ body.nav-on-paper:has(.exhibition-detail[data-slug="split-logic"]){
      adapts to dark vs paper grounds) reaches the dot matrix below. */
   color:var(--nav-fg, var(--ink));
   -webkit-tap-highlight-color:transparent;
+  /* Toggle's color is what `.nav-toggle-dots span { background:
+     currentColor }` resolves to — without this transition, the four
+     dots flashed instantly between cream and ink on page-theme
+     changes while everything else around them faded. Match the
+     unified nav timing so the dots crossfade in sync. */
+  transition:color 380ms var(--ease-slow);
 }
 .nav-toggle-dots{
   position:absolute;top:50%;left:50%;
@@ -466,8 +489,14 @@ body.nav-on-paper:has(.exhibition-detail[data-slug="split-logic"]){
      so on dark grounds the dots disappeared. */
   background:currentColor;
   border-radius:50%;
-  transition:transform 240ms var(--ease-slow),
-             opacity 180ms var(--ease-slow);
+  /* Explicit background-color transition so the dots crossfade with
+     the rest of the nav on a page-theme change. transform + opacity
+     keep their fast hamburger-to-X choreography (240/180ms); the new
+     background transition rides the unified 380ms theme curve. */
+  transition:
+    transform 240ms var(--ease-slow),
+    opacity 180ms var(--ease-slow),
+    background-color 380ms var(--ease-slow);
 }
 /* iOS Safari triggers :focus-visible on tap and leaves it sticky; the
    hamburger's own state (dots → X) is already a clear interaction signal,
