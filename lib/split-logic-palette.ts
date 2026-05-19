@@ -240,6 +240,29 @@ export async function getSplitLogicEmbeddings(): Promise<
 }
 
 /**
+ * Server-side pre-computation of per-piece archetype similarities so
+ * the 1MB embeddings file never ships to the browser. Loads palette
+ * + embeddings, runs the bucket assignment, builds per-bucket
+ * archetypes, and returns each piece's cosine similarity to its own
+ * bucket's archetype. The client uses these floats directly as the
+ * within-bucket sort tiebreak — same ordering as the original
+ * client-side computation, ~1KB inline instead of ~400KB.
+ */
+export async function getSplitLogicArchetypeSimilarities(): Promise<
+  Record<string, number>
+> {
+  const [cells, embeddings] = await Promise.all([
+    getSplitLogicFullPalette(),
+    getSplitLogicEmbeddings(),
+  ]);
+  if (Object.keys(embeddings).length === 0) return {};
+  const { computeSplitLogicBuckets, computeArchetypeSimilarities } =
+    await import("./split-logic-buckets");
+  const { pieceAssignment } = computeSplitLogicBuckets(cells);
+  return computeArchetypeSimilarities(cells, pieceAssignment, embeddings);
+}
+
+/**
  * Returns colour data for all 100 sl-* items in the full series.
  *
  * Uses the precomputed JSON written by scripts/build-sl-palette.ts,

@@ -16,7 +16,7 @@ import { Reveal } from "@/components/Reveal";
 import { SplitLogicMagnifier } from "@/components/SplitLogicMagnifier";
 import { ArtistBroadsheet } from "@/components/ArtistBroadsheet";
 import {
-  getSplitLogicEmbeddings,
+  getSplitLogicArchetypeSimilarities,
   getSplitLogicFullPalette,
   getSplitLogicMagnifierTones,
 } from "@/lib/split-logic-palette";
@@ -121,7 +121,7 @@ export default async function ExhibitionDetailPage({
           <Reveal>
             <SplitLogicSystem
               cells={await getSplitLogicFullPalette()}
-              embeddings={await getSplitLogicEmbeddings()}
+              archetypeSimilarities={await getSplitLogicArchetypeSimilarities()}
               gridItems={exhibition.pieceGridFull ?? exhibition.pieceGrid}
             />
           </Reveal>
