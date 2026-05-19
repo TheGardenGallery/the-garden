@@ -3,17 +3,17 @@ import { AutoPlayVideo } from "@/components/AutoPlayVideo";
 import { interviews } from "@/lib/data/interviews";
 
 export const metadata = {
-  title: "Interview | The Garden",
+  title: "Interviews | The Garden",
 };
 
 export default function JournalPage() {
   return (
     <div className="journal-index">
-      {/* Page label is carried by the nav (Interview is the current
+      {/* Page label is carried by the nav (Interviews is the current
           item); the page itself opens straight into the archive. The
           sr-only h1 keeps the document outline correct for screen
           readers without a visible title. */}
-      <h1 className="sr-only">Interview — The Garden</h1>
+      <h1 className="sr-only">Interviews — The Garden</h1>
 
       <ol className="journal-index-list">
         {interviews.map((iv) => (
