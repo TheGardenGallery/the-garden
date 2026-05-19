@@ -3736,6 +3736,13 @@ html:has(.constellation-root){
      here to beat the parent rule's `font-variant-numeric:onum`. */
   font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
+/* Mobile: the italic "(" renders ~2px left of where the body's "E"
+   sits at the smaller mobile font size + device pixel ratio combo
+   (desktop renders the same character pair correctly aligned). A
+   2px nudge brings the paren back to the body's left edge. */
+@media (max-width:720px){
+  .ex-overview-body p.ex-description-byline{text-indent:2px;}
+}
 /* Exhibition facts live as a vertical sidenote in the right margin of
    the editorial column — museum wall-card treatment. Each fact is a
    small uppercase label with its value below, separated by a hairline
