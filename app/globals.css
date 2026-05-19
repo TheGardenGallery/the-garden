@@ -4991,9 +4991,17 @@ html:has(.constellation-root){
     gap:18px;
     overflow-x:auto;
     scroll-snap-type:x mandatory;
+    /* Bleed the row to viewport edges and run the items flush to both
+       edges. The earlier `padding: 0 var(--gutter)` + `scroll-padding-
+       left: var(--gutter)` inset the first item by a gutter-width
+       cream gap on the left and pushed the right peek short of the
+       viewport edge — broke the symmetry: when scrolled past item 1,
+       its off-screen-left fragment extends fully to the viewport-left
+       edge, so at scroll-position 0 the right peek should mirror that
+       by extending fully to viewport-right. The header stays at its
+       gutter-aligned position outside the row, which is the standard
+       "label inset, gallery row bleeds" gallery convention. */
     margin:0 calc(var(--gutter) * -1);
-    padding:0 var(--gutter);
-    scroll-padding-left:var(--gutter);
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
   }
