@@ -473,6 +473,60 @@ export function SplitLogicSystem({
     if (whiteIdx >= 0) setLockedZoneIdx(whiteIdx);
   }, [zoneKeys]);
 
+  // Warm the poster cache for every piece in the series, idle-time,
+  // once per mount. PieceGrid's 650ms `autoPreload` defer means a
+  // freshly-mounted cell relies entirely on its poster image to look
+  // "filled" for the first ~half-second after a colour-lock or page
+  // change. If that poster has to round-trip the network mid-
+  // transition the cell reads as a blank box for hundreds of ms —
+  // the "weird load-in" symptom. With every poster prefetched into
+  // browser cache up front, the swap renders the still frame
+  // instantly and the video stream catches up underneath.
+  //
+  // Cost is bounded by the series size (100 pieces × ~80KB poster =
+  // <10MB once, then immutable-cached forever by our Cache-Control
+  // headers). Skipped on Save-Data and 2G — those users would rather
+  // pay the per-swap stutter than burn 10MB upfront.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (gridItems.length === 0) return;
+    const conn = (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }
+    ).connection;
+    if (conn?.saveData) return;
+    if (conn?.effectiveType === "slow-2g" || conn?.effectiveType === "2g") return;
+
+    let cancelled = false;
+    const start = () => {
+      if (cancelled) return;
+      for (const item of gridItems) {
+        if (!item.poster) continue;
+        const img = new Image();
+        img.src = item.poster;
+      }
+    };
+
+    type IdleWindow = Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    const w = window as IdleWindow;
+    let idleId: number | null = null;
+    let timerId: number | null = null;
+    if (w.requestIdleCallback) {
+      idleId = w.requestIdleCallback(start, { timeout: 2000 });
+    } else {
+      timerId = window.setTimeout(start, 500);
+    }
+    return () => {
+      cancelled = true;
+      if (idleId !== null && w.cancelIdleCallback) w.cancelIdleCallback(idleId);
+      if (timerId !== null) window.clearTimeout(timerId);
+    };
+  }, [gridItems]);
+
   const lockedAssignment: PieceAssignment | null =
     lockedZoneIdx !== null && lockedZoneIdx < zoneKeys.length
       ? zoneKeys[lockedZoneIdx]
