@@ -19,6 +19,9 @@ export const metadata: Metadata = {
     title: "An online gallery for digital art",
   },
   twitter: {
+    // Re-declare card here — Next replaces the parent twitter object
+    // rather than deep-merging, so omitting card drops it to "summary".
+    card: "summary_large_image",
     title: "An online gallery for digital art",
   },
 };
