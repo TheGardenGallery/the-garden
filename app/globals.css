@@ -3067,7 +3067,14 @@ html:has(.constellation-root){
 }
 @media (max-width:600px){
   .ex-hero[data-slug="iso-iec-10646"] .ex-hero-frame{
-    padding:12px 12px 168px 12px;
+    /* Top padding bumped from 12px → 56px so the cream above the
+       artwork has visible weight against the 168px title-bar
+       reservation below. The prior 12/168 split was 14× asymmetric
+       and read as the artwork being jammed against the nav with a
+       cavernous empty zone underneath; 56/168 (~3× asymmetric,
+       mirroring the desktop ratio) restores deliberate breathing
+       room without shrinking the plate noticeably. */
+    padding:56px 12px 168px 12px;
   }
 }
 @media (max-height:600px) and (orientation:landscape){
