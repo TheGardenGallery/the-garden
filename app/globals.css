@@ -4998,15 +4998,22 @@ html:has(.constellation-root){
     padding:0 var(--gutter);
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
-    /* No scroll-snap — the homepage Past strip on mobile scrolls
-       freely with native momentum and rests wherever the gesture
-       releases, which feels gallery-like. snap-mandatory turned the
-       row into a paginated carousel that fought the gesture instead
-       of riding it. */
+    /* Snap behavior matching the homepage Past strip's mobile rules
+       (@media max-width:600px in .exhibitions-grid-hybrid): mandatory
+       snap so each swipe lands on the next artwork, scroll-snap-stop
+       so a flick can't skip past multiple, scroll-padding-inline so
+       the snapped item lines up with the section gutter, and
+       overscroll-behavior-x:contain so a horizontal flick doesn't
+       trigger browser back-nav. */
+    scroll-snap-type:x mandatory;
+    scroll-padding-inline:var(--gutter);
+    overscroll-behavior-x:contain;
   }
   .ex-explore-row::-webkit-scrollbar{display:none;}
   .ex-explore-item{
     flex:0 0 82%;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
   }
   /* Image → caption breathing room on mobile only. The artwork is
      now ~3× larger than in the previous 2-col grid, so the 14px gap
