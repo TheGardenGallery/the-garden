@@ -4685,8 +4685,10 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="basalt-rt"] .ex-explore-inner{
   max-width:1180px;
 }
-.exhibition-detail[data-slug="basalt-rt"] .ex-explore-row{
-  gap:clamp(40px, 4vw, 56px);
+@media (min-width:721px){
+  .exhibition-detail[data-slug="basalt-rt"] .ex-explore-row{
+    gap:clamp(40px, 4vw, 56px);
+  }
 }
 .exhibition-detail[data-slug="basalt-rt"] .ex-explore-figure{
   gap:24px;
@@ -4732,11 +4734,13 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="pictography"] .ex-explore-inner{
   max-width:1180px;
 }
-.exhibition-detail[data-slug="pictography"] .ex-explore-row{
-  gap:clamp(40px, 4vw, 56px);
-}
-.exhibition-detail[data-slug="pictography"] .ex-explore-figure{
-  gap:18px;
+@media (min-width:721px){
+  .exhibition-detail[data-slug="pictography"] .ex-explore-row{
+    gap:clamp(40px, 4vw, 56px);
+  }
+  .exhibition-detail[data-slug="pictography"] .ex-explore-figure{
+    gap:18px;
+  }
 }
 /* Itsgalo / Basalt GIFs: three 720×960 portrait works in a row. Override
    the default 5-up grid + square cell aspect so the cells match the
@@ -4861,8 +4865,10 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="trails"] .ex-explore-inner{
   max-width:1180px;
 }
-.exhibition-detail[data-slug="trails"] .ex-explore-row{
-  gap:clamp(40px, 4vw, 56px);
+@media (min-width:721px){
+  .exhibition-detail[data-slug="trails"] .ex-explore-row{
+    gap:clamp(40px, 4vw, 56px);
+  }
 }
 .exhibition-detail[data-slug="trails"] .ex-explore-figure{
   gap:18px;
@@ -4966,8 +4972,10 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="distrakted"] .ex-explore-inner{
   max-width:1180px;
 }
-.exhibition-detail[data-slug="distrakted"] .ex-explore-row{
-  gap:clamp(40px, 4vw, 56px);
+@media (min-width:721px){
+  .exhibition-detail[data-slug="distrakted"] .ex-explore-row{
+    gap:clamp(40px, 4vw, 56px);
+  }
 }
 .exhibition-detail[data-slug="distrakted"] .ex-explore-figure{
   gap:18px;
