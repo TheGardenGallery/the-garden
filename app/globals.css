@@ -3741,7 +3741,24 @@ html:has(.constellation-root){
    (desktop renders the same character pair correctly aligned). A
    2px nudge brings the paren back to the body's left edge. */
 @media (max-width:720px){
-  .ex-overview-body p.ex-description-byline{text-indent:2px;}
+  /* Mobile vertical rhythm refinement on the overview block:
+     1. `text-indent:2px` nudges the italic "(" back to the body's
+        left edge (handled separately above for desktop alignment).
+     2. `margin-bottom:12px` gives the byline a deliberate breathing
+        gap before the first body paragraph — together with the
+        ex-overview-body's `gap:18px`, the total separation becomes
+        30px, clearly larger than the 18px between body paragraphs.
+        Hierarchy signals: attribution → content (more space) vs
+        content → content (consistent prose rhythm). */
+  .ex-overview-body p.ex-description-byline{
+    text-indent:2px;
+    margin-bottom:12px;
+  }
+  /* Tighten meta-row internal rhythm on mobile: 6px between label
+     and value (was 4px — felt cramped at the smaller 9px label) and
+     24px between facts (was 20px — pulled onto the 4/8 grid). */
+  .ex-fact{gap:6px;}
+  .ex-facts{gap:24px;}
 }
 /* Exhibition facts live as a vertical sidenote in the right margin of
    the editorial column — museum wall-card treatment. Each fact is a
