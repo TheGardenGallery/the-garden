@@ -4974,6 +4974,34 @@ html:has(.constellation-root){
   .ex-explore-row{grid-template-columns:repeat(2, 1fr);gap:16px;}
 }
 
+/* 1mposter / Pictography mobile: swap the cramped 2-col grid for the
+   horizontal-scroll-snap pattern used by `.ex-details-grid` so the
+   three ASCII pictograms get full-bleed presence with the next item
+   peeking past the right edge as a swipe affordance. Combined with
+   the IntersectionObserver autoplay in ExploreItem (touch-only),
+   each GIF starts looping as it scrolls into view. Scoped to this
+   exhibition — other shows' 5+ piece explore rows still benefit from
+   the 2-col density. */
+@media (max-width:720px){
+  .exhibition-detail[data-slug="pictography"] .ex-explore-row{
+    display:flex;
+    grid-template-columns:none;
+    gap:12px;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    margin:0 calc(var(--gutter) * -1);
+    padding:0 var(--gutter);
+    scroll-padding-left:var(--gutter);
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .exhibition-detail[data-slug="pictography"] .ex-explore-row::-webkit-scrollbar{display:none;}
+  .exhibition-detail[data-slug="pictography"] .ex-explore-item{
+    flex:0 0 82%;
+    scroll-snap-align:start;
+  }
+}
+
 /* Khwampa / Simple Thoughts: 8 non-hero works in a 3-col grid
    (2 rows of 3 + last row of 2). The works are all 3:1 panoramas,
    so the image cells use that aspect ratio rather than the default
