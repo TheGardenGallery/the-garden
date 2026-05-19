@@ -3729,14 +3729,6 @@ html:has(.constellation-root){
   letter-spacing:0;line-height:1.4;
   color:var(--ink-muted);
   margin-bottom:4px;
-  /* Optically hang the leading "(" outside the text column. The
-     Cormorant italic parenthesis has heavy left side-bearing — its
-     curved stroke optically reads as indented compared to the
-     straight stems of "I", "T", etc. in the body paragraph below.
-     Mathematically aligned, visually misaligned; the negative
-     text-indent restores the optical left edge so the byline and
-     body share a clean margin. */
-  text-indent:-0.25em;
   /* Override the prose oldstyle numerals (inherited from
      `.ex-overview-body p`) so artist names starting with a digit —
      e.g. "1mposter" — read as proper cap-height initials rather
