@@ -459,23 +459,36 @@ body.nav-on-paper:has(.exhibition-detail[data-slug="split-logic"]){
   border-top:1px solid rgba(245,243,239,0.08);
   z-index:199;
   transform:translateY(-12px);opacity:0;pointer-events:none;
-  transition:transform 380ms var(--ease-slow), opacity 560ms var(--ease-slow);
+  /* CLOSE transition (when [data-open] is absent or "false"): tight
+     280ms uniform so the panel is fully gone within the 450ms page-
+     fade window in app/template.tsx. The cinematic open-stagger
+     reads as deliberate arrival; mirroring that on close instead made
+     the panel hang around after the new page had arrived. */
+  transition:transform 280ms var(--ease-slow), opacity 280ms var(--ease-slow);
   max-height:calc(100vh - var(--nav-height));
   max-height:calc(100dvh - var(--nav-height));
   overflow-y:auto;
 }
-.nav-panel[data-open="true"]{transform:translateY(0);opacity:1;pointer-events:auto;}
+.nav-panel[data-open="true"]{
+  transform:translateY(0);opacity:1;pointer-events:auto;
+  /* OPEN transition — preserves the slow cinematic entrance the panel
+     was originally tuned for. Only the close direction is faster. */
+  transition:transform 380ms var(--ease-slow), opacity 560ms var(--ease-slow);
+}
 .nav-panel ul{list-style:none;display:flex;flex-direction:column;gap:28px;padding:0;margin:0;}
 .nav-panel li{
   opacity:0;transform:translateY(8px);
+  /* Close: all items fade together at 220ms, no stagger. The previous
+     reverse-stagger (item 1 finishing at 560ms) was what made the
+     close drag past the page fade. Open keeps its forward stagger
+     below for the dramatic entrance. */
+  transition:opacity 220ms var(--ease-slow), transform 220ms var(--ease-slow);
+  transition-delay:0ms;
+}
+.nav-panel[data-open="true"] li{
+  opacity:1;transform:translateY(0);
   transition:opacity 380ms var(--ease-slow), transform 380ms var(--ease-slow);
 }
-/* Reverse stagger on close — last item fades first, first fades last */
-.nav-panel li:nth-child(4){transition-delay:0ms;}
-.nav-panel li:nth-child(3){transition-delay:60ms;}
-.nav-panel li:nth-child(2){transition-delay:120ms;}
-.nav-panel li:nth-child(1){transition-delay:180ms;}
-.nav-panel[data-open="true"] li{opacity:1;transform:translateY(0);}
 .nav-panel[data-open="true"] li:nth-child(1){transition-delay:120ms;}
 .nav-panel[data-open="true"] li:nth-child(2){transition-delay:180ms;}
 .nav-panel[data-open="true"] li:nth-child(3){transition-delay:240ms;}

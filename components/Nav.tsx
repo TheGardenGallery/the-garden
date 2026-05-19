@@ -141,6 +141,15 @@ export function Nav() {
               <Link
                 href={link.href}
                 aria-current={isActive(link.href) ? "page" : undefined}
+                /* Predictive close: start the panel close transition the
+                   moment the user taps a link, instead of waiting for the
+                   pathname useEffect to fire after navigation. On heavy
+                   pages (Artists, Split Logic) the route-change latency
+                   left the panel sitting open for a perceptible beat
+                   after the tap — reading as choppy. Closing at T=0 lets
+                   the panel animation run in parallel with the route
+                   transition so the two feel like one coordinated motion. */
+                onClick={() => setOpen(false)}
               >
                 {link.label}
               </Link>
