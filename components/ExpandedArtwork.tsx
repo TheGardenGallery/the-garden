@@ -91,6 +91,34 @@ export function ExpandedArtwork({
     setPan((p) => clampPan(p.x, p.y, zoom));
   }, [zoom, clampPan]);
 
+  // Explicit autoplay retries — iOS Safari's `autoplay` attribute
+  // often fails its first attempt on a freshly-mounted <video>
+  // element (especially when the data isn't yet decoded), and the
+  // browser doesn't retry. Result: poster sits frozen until the
+  // next user gesture. Mirror AutoPlayVideo's pattern of calling
+  // play() immediately, then again on `loadedmetadata` /
+  // `loadeddata` / `canplay` events, so the first frame paints as
+  // soon as any data is available. This is what makes the swipe-
+  // to-next-artwork transition feel snappy instead of poster-stall.
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const tryPlay = () => {
+      v.muted = true;
+      if (v.paused) v.play().catch(() => {});
+    };
+    tryPlay();
+    v.addEventListener("loadedmetadata", tryPlay);
+    v.addEventListener("loadeddata", tryPlay);
+    v.addEventListener("canplay", tryPlay);
+    return () => {
+      v.removeEventListener("loadedmetadata", tryPlay);
+      v.removeEventListener("loadeddata", tryPlay);
+      v.removeEventListener("canplay", tryPlay);
+    };
+  }, [item.video]);
+
   // Reset zoom + pan when the displayed artwork changes (prev/next
   // navigation). Without this, the new item would render with the
   // previous one's residual zoom/pan state.
@@ -371,6 +399,7 @@ export function ExpandedArtwork({
     >
       <div ref={innerRef} className="piece-grid-zoomable" style={innerStyle}>
         <video
+          ref={videoRef}
           src={item.video}
           poster={item.poster}
           autoPlay
