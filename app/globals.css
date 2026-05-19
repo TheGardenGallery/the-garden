@@ -4968,24 +4968,21 @@ html:has(.constellation-root){
 @media (max-width:1100px){
   .ex-explore-row{grid-template-columns:repeat(3, 1fr);}
 }
+/* Mobile explore row — universal. The default 2-col grid shrinks
+   every artwork to a thumbnail (and orphans the third item in a
+   half-empty second row for the many 3-piece series), which reads
+   as disrespectful to the work on a phone. Switch to the horizontal-
+   scroll-snap pattern used by `.ex-details-grid` — each item is 82%
+   of viewport width with the next peeking past the right edge as a
+   swipe affordance, and the row bleeds to the viewport edges so the
+   first item sits flush with the gutter. Combined with the
+   IntersectionObserver autoplay in ExploreItem (touch-only), GIF+
+   poster cells loop as they scroll into view; video-backed cells
+   keep their native <video autoPlay loop>. */
 @media (max-width:720px){
   .ex-explore{padding:0 var(--gutter) 80px;}
   .ex-explore-head{margin-bottom:32px;}
-  .ex-explore-row{grid-template-columns:repeat(2, 1fr);gap:16px;}
-}
-
-/* 1mposter / Pictography + Mazin / Phantasmagoria mobile: swap the
-   cramped 2-col grid for the horizontal-scroll-snap pattern used by
-   `.ex-details-grid` so the three GIF works get full-bleed presence
-   with the next item peeking past the right edge as a swipe
-   affordance. Combined with the IntersectionObserver autoplay in
-   ExploreItem (touch-only), each GIF starts looping as it scrolls
-   into view. Scoped to these two exhibitions — both ship 3 GIF+poster
-   items and benefit from the same treatment. Other shows' 5+ piece
-   explore rows still use the 2-col density. */
-@media (max-width:720px){
-  .exhibition-detail[data-slug="pictography"] .ex-explore-row,
-  .exhibition-detail[data-slug="phantasmagoria"] .ex-explore-row{
+  .ex-explore-row{
     display:flex;
     grid-template-columns:none;
     gap:12px;
@@ -4997,12 +4994,8 @@ html:has(.constellation-root){
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
   }
-  .exhibition-detail[data-slug="pictography"] .ex-explore-row::-webkit-scrollbar,
-  .exhibition-detail[data-slug="phantasmagoria"] .ex-explore-row::-webkit-scrollbar{
-    display:none;
-  }
-  .exhibition-detail[data-slug="pictography"] .ex-explore-item,
-  .exhibition-detail[data-slug="phantasmagoria"] .ex-explore-item{
+  .ex-explore-row::-webkit-scrollbar{display:none;}
+  .ex-explore-item{
     flex:0 0 82%;
     scroll-snap-align:start;
   }
