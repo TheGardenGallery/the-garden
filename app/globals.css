@@ -4042,6 +4042,16 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="the-flood"] .ex-inline-artworks:has(> :only-child){
   max-width:calc((100vh - var(--nav-height) - 128px) * 9 / 16);
 }
+/* Yoshi's artworks are dark spider scenes on near-black grounds; the
+   default `.ex-inline-plate { background:#f1f4f6 }` light blue-grey
+   plate created a flash when mounting on mobile (plate paints first,
+   then the dark poster JPG loads, then video first-frame replaces
+   poster — three contrasting frames in quick succession registered
+   as a visible flicker). Matching the plate to the artwork's own
+   ground means each transition is dark-to-dark, no contrast flash. */
+.exhibition-detail[data-slug="the-flood"] .ex-inline-plate{
+  background:#000;
+}
 /* The second inline-artworks block is Chaos, whose video is natively
    square. The sibling combinator (~) reliably targets the second
    `.ex-inline-artworks` regardless of how many `.ex-overview-body`
