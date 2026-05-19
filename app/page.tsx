@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Hero } from "@/components/Hero";
 import { ExhibitionCard } from "@/components/ExhibitionCard";
@@ -8,6 +9,19 @@ import { WelcomeOverlay } from "@/components/WelcomeOverlay";
 import { fetchExhibitions, fetchJournalEntries } from "@/lib/verse-api";
 import { getArtworkPalette } from "@/lib/palette";
 import { homepagePastPicks } from "@/lib/data/display-rules";
+
+// Homepage-only override: link-preview cards lead with the descriptive
+// line. Sub-pages keep their own per-page titles (set in each route's
+// generateMetadata) so a shared exhibition link shows the exhibition's
+// title instead of the homepage tagline.
+export const metadata: Metadata = {
+  openGraph: {
+    title: "An online gallery for digital art",
+  },
+  twitter: {
+    title: "An online gallery for digital art",
+  },
+};
 
 export default async function HomePage() {
   const exhibitions = await fetchExhibitions();

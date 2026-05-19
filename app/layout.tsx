@@ -22,14 +22,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
   title: "The Garden",
   description: "An online gallery for digital art.",
-  // Browser tab keeps the short brand name; link-preview cards (iMessage,
-  // Slack, Twitter, etc.) lead with the descriptive line so the site
-  // identifies itself when it shows up in someone else's feed.
-  openGraph: {
-    title: "An online gallery for digital art",
-  },
+  // Force the edge-to-edge image card on Twitter/X — Next auto-picks
+  // this when no explicit twitter object is set, but the moment a page
+  // overrides any twitter.* field it falls back to plain "summary"
+  // unless we declare card here at the layout level.
   twitter: {
-    title: "An online gallery for digital art",
+    card: "summary_large_image",
   },
 };
 
