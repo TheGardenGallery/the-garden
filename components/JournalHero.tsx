@@ -69,7 +69,7 @@ export function JournalHero({ entry }: JournalHeroProps) {
   }
 
   return (
-    <Link href={`/journal/${entry.slug}`} className="journal-hero">
+    <Link href={`/interviews/${entry.slug}`} className="journal-hero">
       {body}
     </Link>
   );

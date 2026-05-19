@@ -46,6 +46,20 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // The Interview section moved from /journal → /interviews so its URL
+  // structure matches /artists and /exhibitions (list at plural, detail
+  // at plural/[slug]). Permanent 308 redirect so old shares + Google's
+  // existing /journal index entries land cleanly on the new path
+  // without breaking POST bodies if any ever existed.
+  async redirects() {
+    return [
+      {
+        source: "/journal",
+        destination: "/interviews",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

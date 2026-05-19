@@ -20,7 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/", priority: 1.0, changeFrequency: "weekly" },
     { path: "/exhibitions", priority: 0.9, changeFrequency: "weekly" },
     { path: "/artists", priority: 0.9, changeFrequency: "weekly" },
-    { path: "/journal", priority: 0.8, changeFrequency: "monthly" },
+    { path: "/interviews", priority: 0.8, changeFrequency: "monthly" },
     { path: "/about", priority: 0.7, changeFrequency: "yearly" },
     { path: "/principles", priority: 0.6, changeFrequency: "yearly" },
     { path: "/constellation", priority: 0.5, changeFrequency: "yearly" },

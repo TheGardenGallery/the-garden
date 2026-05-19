@@ -38,7 +38,7 @@ export function JournalItem({ entry }: JournalItemProps) {
   }
 
   return (
-    <Link href={`/journal/${entry.slug}`} className="journal-item">
+    <Link href={`/interviews/${entry.slug}`} className="journal-item">
       {body}
     </Link>
   );

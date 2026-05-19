@@ -57,7 +57,7 @@ export default async function HomePage() {
   const journalHero = journal[0];
   // Homepage interview section is curator-locked to a single featured
   // conversation (currently Ricky's). Other entries remain reachable via
-  // /journal but are intentionally hidden from the homepage stack so the
+  // /interviews but are intentionally hidden from the homepage stack so the
   // section reads as one anchored editorial moment, not a feed.
   const journalSidebar: typeof journal = [];
 
@@ -117,7 +117,7 @@ export default async function HomePage() {
                     <JournalItem entry={entry} />
                   </Reveal>
                 ))}
-                <Link href="/journal" className="journal-all">
+                <Link href="/interviews" className="journal-all">
                   <span className="journal-all-label">View all articles</span>
                   <span className="journal-all-arrow">→</span>
                 </Link>

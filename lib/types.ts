@@ -226,7 +226,7 @@ export type JournalEntry = {
   heroVideo?: string;        // optional looping video to play in the hero slot. When set, renders a muted/autoplaying/looping <video> instead of the still <img>. `hero` is reused as the poster frame when present.
   heroAspect?: string;       // optional override for the hero image aspect-ratio (e.g. "1954/1002"). Defaults to 16/10. Use when the source artwork has a non-standard ratio and `object-fit:cover` would crop meaningful detail.
   kicker?: string;           // optional uppercase eyebrow above the headline — used to signify the exhibition or series the piece belongs to (e.g. "Split Logic")
-  externalUrl?: string;      // when set, the journal item links out to this URL instead of the internal /journal/[slug] route
+  externalUrl?: string;      // when set, the journal item links out to this URL instead of the internal /interviews/[slug] route
   disableHoverZoom?: boolean; // when true, skip the hover scale on the hero image — use for fine-pattern artwork where the scale slices into the grid
 };
 

@@ -8,9 +8,9 @@ import type { JournalEntry } from "@/lib/types";
  *
  * The homepage Interview section reads from here. The FIRST entry is the
  * main featured interview (currently Ricky Retouch's Split Logic
- * conversation, routing to our internal /interviews/[slug] page).
- * Subsequent entries become the sidebar stack — Paul Prudence's
- * external Verse journal piece currently lives there.
+ * conversation, routing to our internal /interviews/[slug] page by
+ * default). Subsequent entries become the sidebar stack — Paul
+ * Prudence's external Verse journal piece currently lives there.
  */
 export const journalEntries: JournalEntry[] = [
   {
@@ -25,13 +25,6 @@ export const journalEntries: JournalEntry[] = [
     heroVideo: "/images/ricky-retouch/unknown-variables-hero.mp4",
     heroAspect: "1958/1124",
     disableHoverZoom: true,
-    // Internal routing — omitting externalUrl makes JournalHero link to
-    // /journal/<slug> by default. We override that below with a custom
-    // href in the rendering component via `internalUrl` — but the
-    // existing component only supports `/journal/[slug]` or `externalUrl`.
-    // Since `/interviews/ricky-retouch` is our target, we set externalUrl
-    // to the local path (still Next-routable, just forces an `<a>`).
-    externalUrl: "/interviews/ricky-retouch",
   },
   {
     slug: "weaving-the-digital-a-celebration-of-unicode-textiles-and-computing",
