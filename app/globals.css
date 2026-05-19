@@ -256,7 +256,35 @@ body{
   display:flex;
   flex-direction:column;
 }
-main{flex:1 0 auto;}
+main{
+  flex:1 0 auto;
+  /* Page-themed background BEHIND the route-transition fade.
+     `app/template.tsx` wraps every page in a motion.div that animates
+     opacity 0 → 1 over 450ms. During that fade, the page's own
+     paper-coloured wrapper (.plot-wrap, .about-page, .ex-overview,
+     etc.) is also at opacity 0 — so without a bg on main, the body's
+     ink-black bg shows through, creating a visible black/grey strip
+     between the nav and the incoming page. Setting main's bg to
+     paper by default (and #000 on dark-canvas pages via the rule
+     below) means the bg behind the fade is already the right colour
+     when the page content arrives — no flash of contrasting ink. */
+  background:var(--paper);
+  transition:background-color 0.3s ease-out;
+}
+/* Dark-canvas pages: main bg flips to ink so the route-transition
+   fade-in lands over an ink ground instead of revealing paper behind
+   a fading dark hero. Same `:has()` predicate the nav theme uses, so
+   they stay in lockstep. */
+body:where(:has(.artist-reveal:not([data-theme="paper"])), :has(.hero[data-theme="dark"]), :has(.ex-hero[data-theme="dark"]), :has(.interview-root)) main{
+  background:#000;
+}
+/* Split Logic stays fully dark below the hero (grid + colophon all on
+   black), so suppress the auto-flip-to-paper behaviour that would
+   otherwise come with `body.nav-on-paper`. Mirrors the per-page nav
+   override above. */
+body.nav-on-paper:has(.exhibition-detail[data-slug="split-logic"]) main{
+  background:#000;
+}
 footer{flex-shrink:0;}
 a{color:inherit;text-decoration:none;}
 
