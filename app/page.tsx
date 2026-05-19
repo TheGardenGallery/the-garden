@@ -14,15 +14,24 @@ import { homepagePastPicks } from "@/lib/data/display-rules";
 // line. Sub-pages keep their own per-page titles (set in each route's
 // generateMetadata) so a shared exhibition link shows the exhibition's
 // title instead of the homepage tagline.
+//
+// og:description and twitter:description are explicitly emptied so
+// the preview card shows just title + URL — without the override they
+// would inherit layout's `description` ("An online gallery for digital
+// art.") which is identical to the og:title above, doubling the same
+// line on iMessage/WhatsApp/Slack cards. Layout's `description` stays
+// in place for Google's search snippet on the homepage.
 export const metadata: Metadata = {
   openGraph: {
     title: "An online gallery for digital art",
+    description: "",
   },
   twitter: {
     // Re-declare card here — Next replaces the parent twitter object
     // rather than deep-merging, so omitting card drops it to "summary".
     card: "summary_large_image",
     title: "An online gallery for digital art",
+    description: "",
   },
 };
 
