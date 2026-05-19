@@ -30,11 +30,25 @@ export function ExpandedArtwork({
   onClose,
   onPrev,
   onNext,
+  snappySwipe = false,
 }: {
   item: ExpandedArtworkItem;
   onClose: () => void;
   onPrev?: () => void;
   onNext?: () => void;
+  /**
+   * When true, swipe-commit fires onPrev/onNext immediately and lets
+   * the outgoing artwork translate off-screen via the motion exit
+   * animation in parallel with the incoming artwork's entry — instead
+   * of waiting out a 200ms CSS slide-off before unmounting. Halves
+   * the perceived flick-to-next time and stops rapid sequential
+   * swipes from getting eaten by the commit gate. Opted into by
+   * grids like Split Logic where users navigate many works in
+   * sequence; default off preserves the cinematic leave-then-enter
+   * behaviour on shorter exhibitions where each artwork warrants a
+   * beat of dwell.
+   */
+  snappySwipe?: boolean;
 }) {
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -222,6 +236,12 @@ export function ExpandedArtwork({
   // second flick mid-animation would re-enter the commit branch.
   const committingRef = useRef(false);
 
+  // Direction the outgoing artwork should translate when this
+  // instance unmounts after a swipe-commit. Read by the motion.div's
+  // exit prop so the leaving artwork continues in the swipe direction
+  // instead of fading from centre. Only used in snappy-swipe mode.
+  const [exitDirection, setExitDirection] = useState<number>(0);
+
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!touchRef.current.active) return;
     const moved = touchRef.current.moved;
@@ -267,20 +287,32 @@ export function ExpandedArtwork({
       (farEnough || flick) &&
       (onPrev || onNext)
     ) {
-      // Commit: continue the motion off-screen so the artwork visibly
-      // leaves in the swipe direction, then unmount once it's offscreen
-      // and let the new item's mount animation play centre-stage.
       committingRef.current = true;
       setIsDragging(false);
-      const offX =
-        dx > 0
-          ? Math.max(window.innerWidth, 480)
-          : -Math.max(window.innerWidth, 480);
-      setPan({ x: offX, y: 0 });
-      window.setTimeout(() => {
+      if (snappySwipe) {
+        // Snappy: fire navigation immediately and let the outgoing
+        // artwork's translate-off animation run in parallel with the
+        // incoming artwork's fade-in via motion's exit prop. The
+        // setPan({x:0}) snaps the inner-div back to centre so the
+        // exit transform owns the off-screen movement cleanly.
+        setExitDirection(dx > 0 ? 1 : -1);
+        setPan({ x: 0, y: 0 });
         if (dx > 0) onPrev?.();
         else onNext?.();
-      }, 200);
+      } else {
+        // Cinematic: continue the motion off-screen via inner-div pan,
+        // then unmount once it's mostly offscreen so the new item's
+        // mount animation plays centre-stage.
+        const offX =
+          dx > 0
+            ? Math.max(window.innerWidth, 480)
+            : -Math.max(window.innerWidth, 480);
+        setPan({ x: offX, y: 0 });
+        window.setTimeout(() => {
+          if (dx > 0) onPrev?.();
+          else onNext?.();
+        }, 200);
+      }
       return;
     }
 
@@ -313,7 +345,17 @@ export function ExpandedArtwork({
          swipe lands cleanly on the next frame. */
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.12, ease: "easeOut" } }}
+      exit={
+        snappySwipe && exitDirection !== 0
+          ? {
+              opacity: 0,
+              x:
+                exitDirection *
+                (typeof window !== "undefined" ? window.innerWidth : 1000),
+              transition: { duration: 0.22, ease: [0.22, 0.61, 0.36, 1] },
+            }
+          : { opacity: 0, transition: { duration: 0.12, ease: "easeOut" } }
+      }
       transition={{ duration: 0.18, ease: "easeOut" }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}

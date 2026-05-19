@@ -829,7 +829,7 @@ export function SplitLogicSystem({
           </button>
         )}
 
-        <PieceGrid items={pageItems} eagerMount wasdNav />
+        <PieceGrid items={pageItems} eagerMount wasdNav snappySwipe />
 
         {totalPages > 1 && (
           <button

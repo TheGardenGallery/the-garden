@@ -15,6 +15,7 @@ export function PieceGrid({
   cellOrder,
   eagerMount = false,
   wasdNav = false,
+  snappySwipe = false,
 }: {
   items: PieceGridItem[];
   /**
@@ -45,6 +46,13 @@ export function PieceGrid({
    * paging the grid and stepping through the lightbox stack.
    */
   wasdNav?: boolean;
+  /**
+   * Forwards to ExpandedArtwork's `snappySwipe` — see that prop's doc.
+   * On heavy-rotation grids the cinematic 200ms commit delay eats
+   * rapid swipes; opting in roughly halves flick-to-next time and
+   * stops the commit gate from silently dropping the second flick.
+   */
+  snappySwipe?: boolean;
 }) {
   const [expanded, setExpanded] = useState<number | null>(null);
   // Hover/mount state is keyed by the piece's stable video URL rather
@@ -369,6 +377,7 @@ export function PieceGrid({
               onClose={() => setExpanded(null)}
               onPrev={items.length > 1 ? prev : undefined}
               onNext={items.length > 1 ? next : undefined}
+              snappySwipe={snappySwipe}
             />
 
             <button
