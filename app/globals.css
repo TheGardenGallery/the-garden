@@ -4194,19 +4194,16 @@ html:has(.constellation-root){
   padding:100px var(--gutter) 120px;
   background:#000;
   border-top:1px solid rgba(255,255,255,0.06);
-  /* scroll-reveal — opacity-only, slow, soft easing. The earlier
-     version paired the fade with translateY(6px), which on a
-     3000px+ tall editorial section (heading + 4 paragraphs +
-     sticky anchor on desktop) read as the whole block "twitching
-     up" as the user scrolled into it. Dropping the transform and
-     stretching the duration to 0.8s with a Hufkens-ish ease-out
-     curve makes the arrival feel like a curatorial dissolve
-     rather than a UI flourish. */
-  opacity:0;
-  transition:opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-.broadsheet--visible{
-  opacity:1;
+  /* No scroll-reveal — the broadsheet sits below a transparent-bg
+     piece-grid section on Split Logic, so an opacity-0 initial state
+     left the page's phosphor dot lattice exposed where the broadsheet
+     should be. Reading: "empty dots → curatorial dissolve" registered
+     as "broken layout → it finally loaded" rather than the intended
+     soft arrival. The broadsheet now paints in its final state, so
+     scrolling past the grid into it crosses a clean printed-page
+     boundary instead of a visible gap. The .broadsheet--visible
+     class is still toggled by JS but has no CSS effect — kept inert
+     for the consumer component. */
 }
 
 .broadsheet-inner{
