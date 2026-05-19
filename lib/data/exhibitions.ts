@@ -374,6 +374,7 @@ export const exhibitions: Exhibition[] = [
         poster: "/images/mazin/phantasmagoria-cleanse-poster.png",
         alt: "Mazin, Phantasmagoria — C.L.E.A.N.S.E",
         verseUrl: "https://verse.works/artworks/af919830-5a55-4ca9-ae15-2925955450b8",
+        autoplayOnView: true,
       },
       {
         id: "phantasmagoria-rootknight",
@@ -382,6 +383,7 @@ export const exhibitions: Exhibition[] = [
         poster: "/images/mazin/phantasmagoria-rootknight-poster.png",
         alt: "Mazin, Phantasmagoria — Rootknight",
         verseUrl: "https://verse.works/artworks/df47ffae-2c49-4222-abec-9d2a8fd4bd57",
+        autoplayOnView: true,
       },
       {
         id: "phantasmagoria-phantasmagorian",
@@ -390,6 +392,7 @@ export const exhibitions: Exhibition[] = [
         poster: "/images/mazin/phantasmagoria-phantasmagorian-poster.png",
         alt: "Mazin, Phantasmagoria — Phantasmagorian",
         verseUrl: "https://verse.works/artworks/5b94924d-9d89-46f4-9cdf-82dd6e8bc88b",
+        autoplayOnView: true,
       },
     ],
   },

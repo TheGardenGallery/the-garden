@@ -77,6 +77,14 @@ export type FeaturedArtwork = {
       (or set explicitly here to override). */
   year?: number;
   edition?: string;
+  /** Force GIF-poster autoplay on desktop as well as touch. Default
+      behavior on GIF+poster items is hover-to-play on desktop, IO-
+      driven autoplay-on-view on touch. Setting this true makes the
+      desktop side use the same IO autoplay-on-view, so the artwork
+      moves without requiring hover — used when the artist's work is
+      kinetic by nature (Mazin's Phantasmagoria GIFs) and a static
+      preview misrepresents the piece. */
+  autoplayOnView?: boolean;
 };
 
 export type ExhibitionStatus = "current" | "upcoming" | "past";

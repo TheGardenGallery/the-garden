@@ -96,18 +96,20 @@ function ExploreItem({
   const meta = buildMetaLine(item, fallbackYear, fallbackWorkCount);
   const itemRef = useRef<HTMLAnchorElement | null>(null);
 
-  // Touch-device autoplay: hover never fires on phones/tablets, so a
-  // GIF-poster cell would sit static forever there. Use Intersection-
-  // Observer to drive `animating` when the cell is on screen, and
-  // pause it when it scrolls off — same idea the hover path uses,
-  // just keyed to visibility instead of cursor. Gated on `(hover:
-  // none)` so desktop's hover-to-play UX stays the only trigger there
-  // (otherwise every visible cell in a 5-item explore row would
-  // animate simultaneously, which is busy and bandwidth-heavy).
+  // IntersectionObserver-driven autoplay for GIF+poster cells.
+  //   - Touch devices (`(hover: none)`): always on. Hover doesn't
+  //     fire on phones/tablets, so without this the cell would sit
+  //     static forever.
+  //   - Desktop: opt-in per-item via `item.autoplayOnView`. The
+  //     default desktop UX is hover-to-play (so a 5-item explore row
+  //     doesn't decode five GIFs simultaneously), but kinetic series
+  //     like Mazin's Phantasmagoria mis-represent themselves at rest
+  //     and benefit from autoplay regardless of pointer.
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!hasPoster) return;
-    if (!window.matchMedia?.("(hover: none)")?.matches) return;
+    const isTouch = !!window.matchMedia?.("(hover: none)")?.matches;
+    if (!isTouch && !item.autoplayOnView) return;
     const el = itemRef.current;
     if (!el) return;
     const io = new IntersectionObserver(
@@ -116,7 +118,7 @@ function ExploreItem({
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [hasPoster]);
+  }, [hasPoster, item.autoplayOnView]);
 
   // Live iframes (e.g. BASALT RT) are interactive, so wrapping the
   // whole figure in a single <a> doesn't get the click-through —
