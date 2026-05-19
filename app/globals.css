@@ -4987,33 +4987,27 @@ html:has(.constellation-root){
     /* Gap > the 12px Details-crops use, because explore artworks are
        independent works (not crops of one piece) and deserve clearer
        separation. */
-    gap:18px;
+    /* Match Chuck Anderson's `.ex-details-grid` mobile pattern
+       verbatim — this is the canonical reference for any bottom-of-
+       page artwork strip on mobile across the site: 12px inter-item
+       gap, x-mandatory snap, items at 82% with snap-align: start,
+       bleed to viewport edges with the standard gutter padding +
+       negative margin trick. No snap-stop, no overflow-y override,
+       no overscroll-contain — just the base snap mechanics that feel
+       right on a phone. */
+    gap:12px;
     overflow-x:auto;
-    /* overflow-y:hidden mirrors the homepage Past strip — prevents
-       any momentary vertical overflow (Reveal transform, decode
-       jitter) from turning the row into a vertical-scroll target and
-       snagging the page's vertical wheel. */
-    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
     margin:0 calc(var(--gutter) * -1);
     padding:0 var(--gutter);
+    scroll-padding-left:var(--gutter);
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
-    /* Snap behavior matching the homepage Past strip's mobile rules
-       (@media max-width:600px in .exhibitions-grid-hybrid): mandatory
-       snap so each swipe lands on the next artwork, scroll-snap-stop
-       so a flick can't skip past multiple, scroll-padding-inline so
-       the snapped item lines up with the section gutter, and
-       overscroll-behavior-x:contain so a horizontal flick doesn't
-       trigger browser back-nav. */
-    scroll-snap-type:x mandatory;
-    scroll-padding-inline:var(--gutter);
-    overscroll-behavior-x:contain;
   }
   .ex-explore-row::-webkit-scrollbar{display:none;}
   .ex-explore-item{
     flex:0 0 82%;
     scroll-snap-align:start;
-    scroll-snap-stop:always;
   }
   /* Image → caption breathing room on mobile only. The artwork is
      now ~3× larger than in the previous 2-col grid, so the 14px gap
