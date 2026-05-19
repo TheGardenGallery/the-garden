@@ -164,6 +164,14 @@ function ExploreItem({
     );
   }
 
+  // Hover-to-play is the default desktop interaction for GIF+poster
+  // cells, but on `autoplayOnView` items the IntersectionObserver
+  // already keeps the GIF looping while in view — and the mouseleave
+  // handler would otherwise flip `animating` back to false the
+  // moment the cursor exited the cell, stopping the loop even though
+  // the item is still visible. Skip the hover wiring for those
+  // items so the IO state stays authoritative.
+  const useHoverPlay = hasPoster && !item.autoplayOnView;
   return (
     <a
       ref={itemRef}
@@ -171,8 +179,8 @@ function ExploreItem({
       target="_blank"
       rel="noopener noreferrer"
       className="ex-explore-item"
-      onMouseEnter={() => hasPoster && setAnimating(true)}
-      onMouseLeave={() => hasPoster && setAnimating(false)}
+      onMouseEnter={useHoverPlay ? () => setAnimating(true) : undefined}
+      onMouseLeave={useHoverPlay ? () => setAnimating(false) : undefined}
     >
       <figure className="ex-explore-figure">
         <div className="ex-explore-image">
