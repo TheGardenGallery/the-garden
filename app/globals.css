@@ -5024,7 +5024,14 @@ html:has(.constellation-root){
     overflow-x:auto;
     scroll-snap-type:x mandatory;
     margin:0 calc(var(--gutter) * -1);
-    padding:0 var(--gutter);
+    /* Padding-left only — keeps the first item gutter-inset from
+       viewport-left (matching the section header alignment), but
+       removes the padding-right that was visually clipping the
+       next-item peek at content-box-right on iOS Safari. With no
+       right padding, items overflow all the way to the row's
+       border-edge = viewport-right edge, so the peek runs flush
+       to the screen edge like the user wants. */
+    padding-left:var(--gutter);
     scroll-padding-left:var(--gutter);
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
@@ -5033,6 +5040,13 @@ html:has(.constellation-root){
   .ex-explore-item{
     flex:0 0 82%;
     scroll-snap-align:start;
+  }
+  /* Gutter breathing room past the last item so when the row is
+     scrolled fully to the end the last artwork has matching space
+     on its right as the first has on its left. Replaces what the
+     row's old padding-right was doing for the last-item snap. */
+  .ex-explore-item:last-child{
+    margin-right:var(--gutter);
   }
   /* Image → caption breathing room on mobile only. The artwork is
      now ~3× larger than in the previous 2-col grid, so the 14px gap
