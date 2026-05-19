@@ -221,6 +221,7 @@ export const exhibitions: Exhibition[] = [
         poster: "/images/1mposter/pictography-work-poster.png",
         alt: "1mposter, Pictography — Work",
         verseUrl: "https://verse.works/items/ethereum/0xb9d36b839fac842d90d2857102ce1c1bedd59695/2",
+        autoplayOnView: true,
       },
       {
         id: "pictography-power",
@@ -229,6 +230,7 @@ export const exhibitions: Exhibition[] = [
         poster: "/images/1mposter/pictography-power-poster.png",
         alt: "1mposter, Pictography — Power",
         verseUrl: "https://verse.works/items/ethereum/0xb9d36b839fac842d90d2857102ce1c1bedd59695/1",
+        autoplayOnView: true,
       },
       {
         id: "pictography-flit",
@@ -237,6 +239,7 @@ export const exhibitions: Exhibition[] = [
         poster: "/images/1mposter/pictography-flit-poster.png",
         alt: "1mposter, Pictography — Flit",
         verseUrl: "https://verse.works/items/ethereum/0xb9d36b839fac842d90d2857102ce1c1bedd59695/3",
+        autoplayOnView: true,
       },
     ],
   },
