@@ -70,8 +70,7 @@ export const exhibitions: Exhibition[] = [
       featured: {
         src: "/images/ricky-retouch/process/process-film.mp4",
         poster: "/images/ricky-retouch/process/process-film.jpg",
-        label: "capture_01  ::  studio.film",
-        duration: "03:11",
+        label: "HOUDINI_PROCESS_CAPTURE",
       },
       inline: {
         // Place between P3 (visual lineage / 1970s sci-fi interfaces) and
