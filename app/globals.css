@@ -6466,7 +6466,11 @@ html:has(.constellation-root){
   font-size:10px;letter-spacing:0.06em;
   color:rgba(232,248,248,0.6);
   font-variant-numeric:tabular-nums;
-  padding:0 2px 10px;
+  /* Caption below the frame, left-aligned — catalog-plate convention
+     (image first, plate label beneath). 10px top reads as the visual
+     analog of a plate's hairline gap; 0 bottom because the figure's
+     own margin handles spacing into the next paragraph. */
+  padding:10px 2px 0;
   user-select:none;
 }
 .sl-inline-process-readout-prefix{color:rgba(232,248,248,0.32);}

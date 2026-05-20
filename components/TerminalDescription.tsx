@@ -72,8 +72,16 @@ export function TerminalDescription({
                 className="sl-inline-process"
                 aria-label="Studio process log"
               >
+                <div className="sl-inline-process-frame">
+                  <AutoPlayVideo
+                    className="sl-inline-process-video"
+                    src={processAt.src}
+                    poster={processAt.poster}
+                    preload="metadata"
+                  />
+                </div>
                 {processAt.label && (
-                  <div className="sl-inline-process-readout">
+                  <figcaption className="sl-inline-process-readout">
                     <span className="sl-inline-process-readout-prefix">
                       &gt;&gt;
                     </span>
@@ -85,16 +93,8 @@ export function TerminalDescription({
                         {processAt.duration}
                       </span>
                     )}
-                  </div>
+                  </figcaption>
                 )}
-                <div className="sl-inline-process-frame">
-                  <AutoPlayVideo
-                    className="sl-inline-process-video"
-                    src={processAt.src}
-                    poster={processAt.poster}
-                    preload="metadata"
-                  />
-                </div>
               </figure>
             )}
           </Fragment>
