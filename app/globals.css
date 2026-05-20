@@ -3164,23 +3164,22 @@ html:has(.constellation-root){
     padding:16px 80px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
   }
 }
-/* Ricky Retouch / Split Logic: match the homepage hero's frame padding
-   so the exhibition hero video occupies the same viewport box as the
-   homepage hero. Same pattern as iso-iec-10646 above — symmetric
-   padding at wide desktop, heavy bottom-clearance at narrow widths
-   (mirrors the homepage breakpoints exactly). */
+/* Ricky Retouch / Split Logic: hero frame.
+   Previously a hard step at viewport 1100→1101 jumped frame padding
+   from 16/16/176 to 64/56/160, which made a window-drag-resize snap
+   visibly across that boundary. Now interpolated linearly across
+   1100→1280 so the artwork's margins grow continuously with the
+   viewport — Hufkens-tier resize behavior. Below 600 the dense-mobile
+   override still applies; landscape phones use their own reservation
+   (both kept below). Math: lerp(min, max) over the 180px transition
+   window 1100→1280. Top 16→64, sides 16→56, bottom 176→160 (bottom
+   tightens at desktop because the title bar carries less proportional
+   weight at wider viewports). */
 .ex-hero[data-slug="split-logic"] .ex-hero-frame{
-  /* Bottom padding reserves the title-bar safe-zone (canonical 160px =
-     `--ex-title-bottom` 64 + `--ex-title-clearance` 96) so the hero
-     video's bottom edge can never extend behind the title text. The
-     prior symmetric 64/64 padding lined the artwork's bottom edge up
-     with where the title sits, causing visible overlap. */
-  padding:64px 56px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
-}
-@media (max-width:1100px){
-  .ex-hero[data-slug="split-logic"] .ex-hero-frame{
-    padding:16px 16px 176px 16px;
-  }
+  padding:
+    clamp(16px, calc(16px + (100vw - 1100px) * 48 / 180), 64px)
+    clamp(16px, calc(16px + (100vw - 1100px) * 40 / 180), 56px)
+    clamp(160px, calc(176px - (100vw - 1100px) * 16 / 180), 176px);
 }
 @media (max-width:600px){
   .ex-hero[data-slug="split-logic"] .ex-hero-frame{
@@ -3196,14 +3195,13 @@ html:has(.constellation-root){
   }
 }
 /* Split Logic hero cap — peer exhibitions (equinox 95, space-time 85,
-   trails 86) all hold the work back from the frame edge for the
-   gallery-plate breathing room; previously Split Logic filled the
-   frame, which read closer to cinema-poster than museum plate.
-   92% lands between equinox and space-time — restrained margin
-   without losing the work's declarative presence. Desktop-only:
-   the mobile frame already gives tight 12–16px gutters where any
-   further cap would shrink the work too far. */
-@media (min-width:1101px){
+   trails 86) hold the work back from the frame edge for gallery-plate
+   breathing room. 92% lands between equinox and space-time: restrained
+   margin without losing the work's declarative presence. Applies from
+   721px upward; below 720 the `max-width:88vw / max-height:58vh` rule
+   in the mobile block takes over (88vw at vw=720 ≈ 92% of the 16/16
+   framed inner box, so the handoff is continuous). */
+@media (min-width:721px){
   .ex-hero[data-slug="split-logic"] .ex-hero-plate .ex-hero-video,
   .ex-hero[data-slug="split-logic"] .ex-hero-plate img{
     max-width:92%;max-height:92%;
