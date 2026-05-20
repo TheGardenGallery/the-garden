@@ -24,7 +24,7 @@ export function SplitLogicProcess({
   return (
     <section className="sl-process" aria-label="Studio process record">
       <div className="sl-process-inner">
-        <div className="sl-process-heading">log  ::  process</div>
+        <div className="sl-process-heading">studio</div>
 
         <figure className="sl-process-plate sl-process-plate--featured">
           {featured.label && (
