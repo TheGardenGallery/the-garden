@@ -31,6 +31,13 @@ export default async function Image() {
           alignItems: "center",
           justifyContent: "center",
           fontFamily: "Inter",
+          // Asymmetric bottom padding lifts the optical center of the
+          // available flex region from y=600 to y=540 (45% from top),
+          // which lands the wordmark at ~40% from the top of Twitter's
+          // 2:1 cropped view — the canonical masthead position on a
+          // magazine cover. iMessage's full 1:1 canvas reads the same
+          // shift as a subtle editorial lift, not a hard offset.
+          paddingBottom: 120,
         }}
       >
         {/*
