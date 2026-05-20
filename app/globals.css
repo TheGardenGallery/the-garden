@@ -6556,12 +6556,17 @@ html:has(.constellation-root){
 }
 .sl-process-plate--featured{
   /* Heading anchors left in the 1240 column to align with "Artist's
-     note"; plate centers in the same column at 960 wide. Lets the
-     plate read as the visual anchor of the section while the heading
-     stays at the typographic anchor position. */
+     note"; plate centers in the same column at 1100 wide. 1100 was
+     chosen to make the plate's rendered height (1100 × 466/959 ≈ 534)
+     match the inline clip's height (960 × 9/16 = 540) — because the
+     studio's aspect is wider (2.06:1) than the inline (16:9), a
+     960-wide plate would render shorter than the inline and read as
+     the secondary piece instead of the marquee. At 1100, the studio
+     becomes the larger visual statement that the editorial hierarchy
+     demands. */
   align-self:center;
   width:100%;
-  max-width:960px;
+  max-width:1100px;
 }
 .sl-process-frame{
   /* Aspect matches the actual content area of the studio capture
