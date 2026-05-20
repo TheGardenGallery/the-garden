@@ -6543,11 +6543,11 @@ html:has(.constellation-root){
   position:relative;
 }
 .sl-process-plate--featured{
-  /* Plate is narrower than the heading container (960 vs 1240) but
-     left-aligned inside the flex column so its left edge sits directly
-     under the "studio" heading — heading and plate stack as a single
-     anchored block, not centered separately. */
-  align-self:flex-start;
+  /* Heading anchors left in the 1240 column to align with "Artist's
+     note"; plate centers in the same column at 960 wide. Lets the
+     plate read as the visual anchor of the section while the heading
+     stays at the typographic anchor position. */
+  align-self:center;
   width:100%;
   max-width:960px;
 }
@@ -6565,12 +6565,14 @@ html:has(.constellation-root){
   color:transparent;font-size:0;
 }
 .sl-process-readout{
-  display:flex;align-items:baseline;gap:12px;
+  display:flex;align-items:baseline;gap:10px;
   font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size:10px;letter-spacing:0.06em;
   color:rgba(232,248,248,0.6);
   font-variant-numeric:tabular-nums;
-  /* Caption below the frame, left-aligned — catalog convention */
+  /* Match the inline clip's tight caption-to-frame gap exactly. Margin
+     reset because some browsers apply 1em to figcaption by default. */
+  margin:0;
   padding:10px 2px 0;
   user-select:none;
 }
