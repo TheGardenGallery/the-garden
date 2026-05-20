@@ -371,7 +371,21 @@ export function ExpandedArtwork({
          artworks. Plain opacity at a short duration lets the
          neighbouring-poster preload do the heavy lifting and the
          swipe lands cleanly on the next frame. */
-      initial={{ opacity: 0 }}
+      /* In snappy-swipe mode, the new artwork mounts at full opacity
+         from T=0 so the artwork (or at least its prefetched poster)
+         is visible the same frame as the tap. The previous initial:
+         opacity 0 with a 180ms fade-in was what the user saw as
+         "lightbox backdrop visible for half a second before the
+         artwork appears" — during the fade window the new motion.div
+         was 0–60% opaque while the lightbox bg layer underneath
+         showed through. With initial: 1 the new artwork is on top
+         immediately; the old artwork's slide-off exit still runs but
+         is fully occluded by the new one above it, so the visible
+         result is an instant cut to the next artwork.
+         Non-snappy (default) keeps the cinematic 180ms fade-in for
+         shorter exhibitions where each artwork warrants a beat of
+         dwell. */
+      initial={snappySwipe ? { opacity: 1 } : { opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={
         snappySwipe && exitDirection !== 0
