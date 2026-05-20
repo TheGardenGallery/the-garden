@@ -6532,7 +6532,13 @@ html:has(.constellation-root){
   letter-spacing:0.25em;
   text-transform:uppercase;
   color:rgba(255,255,255,0.28);
-  margin-bottom:56px;
+  /* 88px pause — Hufkens-tier breathing for a tiny-caps section anchor.
+     The work below is large; the heading needs enough white space above
+     it to read as the section's editorial command, not as a crowded
+     label. ~8.8× the heading's font-size, which is the standard
+     catalog ratio for "section title → centered work" composition. */
+  margin-bottom:88px;
+  line-height:1;
   font-variant-numeric:tabular-nums lining-nums;
 }
 .sl-process-plate{
