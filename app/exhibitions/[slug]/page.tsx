@@ -11,6 +11,7 @@ import { ExhibitionColophon } from "@/components/ExhibitionColophon";
 import { ExhibitionNav } from "@/components/ExhibitionNav";
 import { PieceGrid } from "@/components/PieceGrid";
 import { SplitLogicSystem } from "@/components/SplitLogicSystem";
+import { SplitLogicProcess } from "@/components/SplitLogicProcess";
 import { ZoomCatcher } from "@/components/ZoomCatcher";
 import { Reveal } from "@/components/Reveal";
 import { SplitLogicMagnifier } from "@/components/SplitLogicMagnifier";
@@ -137,6 +138,17 @@ export default async function ExhibitionDetailPage({
           pins={RICKY_PINS}
           anchor={RICKY_ANCHOR}
         />
+      )}
+
+      {/* Process docs come after the artist's annotated note — the
+          editorial frame closes, then the studio capture plays as a
+          coda before the colophon credits. Scoped to split-logic for
+          now; theming relies on the dot-lattice + console-plate
+          vocabulary unique to that page. */}
+      {exhibition.slug === "split-logic" && exhibition.processVideos && (
+        <Reveal>
+          <SplitLogicProcess process={exhibition.processVideos} />
+        </Reveal>
       )}
 
       {exhibition.exploreArtworks && exhibition.exploreArtworks.length > 0 && (

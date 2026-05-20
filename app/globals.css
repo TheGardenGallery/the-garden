@@ -6443,6 +6443,117 @@ html:has(.constellation-root){
   }
 }
 
+/* ---- Split Logic: process record ("LOG :: PROCESS") -------------
+   Coda section between the artist's annotated broadsheet and the
+   colophon. Themed as another instrument on the dashboard — same
+   console-plate vocabulary as `.sl-pager-step` and `.sl-pager-pos`
+   so the section reads as continuous with the rest of the page's
+   instrumentation feed, not a separate "BTS gallery". Solid-black
+   ground (dot lattice already painted by the page bg) with inset
+   highlights + outer halos that erase the dot grid around each plate.
+   The Saira Condensed heading echoes `.term-station-label` exactly;
+   the Space Mono readouts echo the bar telemetry above the piece grid. */
+.sl-process{
+  background:#000;
+  padding:96px var(--gutter) 96px;
+  position:relative;
+}
+.sl-process-inner{
+  max-width:1289px;
+  margin:0 auto;
+  display:flex;flex-direction:column;
+  gap:40px;
+}
+.sl-process-heading{
+  font-family:'Saira Condensed','Barlow',sans-serif;
+  font-weight:600;
+  font-size:11px;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--on-dark-fg-muted);
+  line-height:1;
+  margin-bottom:8px;
+}
+/* Plate = the same console chrome as the pager step (black plate, inset
+   highlight at top, inset seam at bottom, hairline outer border) so the
+   process section reads as a continuation of the dashboard hardware. */
+.sl-process-plate{
+  margin:0;
+  background:rgba(0,0,0,0.86);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  border-radius:4px;
+  padding:18px;
+  box-shadow:
+    inset 0 1px 0 rgba(232,248,248,0.08),
+    inset 0 -1px 0 rgba(0,0,0,0.55),
+    0 0 0 1px rgba(232,248,248,0.05);
+  position:relative;
+}
+/* Same halo treatment as .sl-pager-step::before — radial gradient that
+   kills the dot lattice in a soft ring around the plate so it reads as
+   an instrument lifted off the field, not a flat panel pasted on. */
+.sl-process-plate::before{
+  content:"";
+  position:absolute;
+  inset:-40px;
+  z-index:-1;
+  pointer-events:none;
+  background:radial-gradient(
+    ellipse 120% 90% at center,
+    #000 0%,
+    rgba(0,0,0,0.92) 55%,
+    rgba(0,0,0,0.5) 80%,
+    rgba(0,0,0,0) 100%
+  );
+}
+.sl-process-readout{
+  display:flex;align-items:baseline;gap:12px;
+  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size:11px;letter-spacing:0.06em;
+  color:rgba(232,248,248,0.82);
+  font-variant-numeric:tabular-nums;
+  padding:4px 4px 12px;
+  user-select:none;
+}
+.sl-process-readout-prefix{color:rgba(232,248,248,0.4);}
+.sl-process-readout-label{color:rgba(232,248,248,0.82);}
+.sl-process-readout-duration{
+  margin-left:auto;
+  color:rgba(232,248,248,0.4);
+}
+.sl-process-frame{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  overflow:hidden;
+  border-radius:2px;
+  background:#000;
+}
+.sl-process-video{
+  width:100%;height:100%;
+  object-fit:contain;
+  display:block;
+  color:transparent;font-size:0;
+}
+/* Ambient plate is narrower — visual companion, not a peer. Aligns
+   right so it reads as a satellite readout beside the featured plate
+   above, the way a secondary gauge sits in the margin of a primary
+   dial. */
+.sl-process-plate--ambient{
+  align-self:flex-end;
+  width:min(560px, 100%);
+}
+@media (max-width:760px){
+  .sl-process{padding:64px var(--gutter) 64px;}
+  .sl-process-inner{gap:28px;}
+  /* Mobile: ambient plate fills the column too, no satellite read. */
+  .sl-process-plate--ambient{
+    align-self:stretch;
+    width:100%;
+  }
+}
+
 .ex-colophon{
   border-top:1px solid var(--rule-thin);background:var(--paper);
   padding:80px var(--gutter) 96px;

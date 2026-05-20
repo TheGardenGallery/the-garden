@@ -201,6 +201,30 @@ export type Exhibition = {
   storage?: string;              // asset storage — e.g. "IPFS"
   presentedBy?: string;
   verseSeriesUrl?: string;       // external link to the exhibition's Verse series page
+  /** Studio process record — short ambient capture and/or longer
+      process film, themed as instrumentation feed (console plates,
+      monospace telemetry labels) when slug === "split-logic". Placed
+      between the artist note/grid and the colophon — the editorial
+      frame closes first, then the process docs play as a coda.
+      Either field is optional; the section renders whichever exist. */
+  processVideos?: {
+    /** Featured process film — poster + controls, click-to-play. Audio
+        kept. Reads as the deeper record viewers engage with. */
+    featured?: {
+      src: string;
+      poster: string;
+      label?: string;     // monospace telemetry label
+      duration?: string;  // displayed below — "03:11"
+    };
+    /** Ambient loop — autoplay, muted, no controls. Visual companion
+        to the featured film, not a peer. */
+    ambient?: {
+      src: string;
+      poster?: string;
+      label?: string;
+      duration?: string;
+    };
+  };
   /** Documents block on the exhibition page (press release PDF, artist
       interview, etc.). If present, renders the "Press & reading" colophon
       block. Absent for past exhibitions that never had formal docs. */

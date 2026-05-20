@@ -66,6 +66,20 @@ export const exhibitions: Exhibition[] = [
         alt: `Split Logic ${i + 1}`,
       };
     }),
+    processVideos: {
+      featured: {
+        src: "/images/ricky-retouch/process/process-film.mp4",
+        poster: "/images/ricky-retouch/process/process-film.jpg",
+        label: "capture_01  ::  studio.film",
+        duration: "03:11",
+      },
+      ambient: {
+        src: "/images/ricky-retouch/process/process-loop.mp4",
+        poster: "/images/ricky-retouch/process/process-loop.jpg",
+        label: "capture_02  ::  rmesh_pass  ::  loop",
+        duration: "00:34",
+      },
+    },
   },
   // === CURRENT ===
   {
