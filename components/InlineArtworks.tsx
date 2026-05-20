@@ -37,32 +37,95 @@ export function InlineArtworks({
 }) {
   const { ref, visible } = useScrollReveal<HTMLDivElement>();
 
-  // Play/pause each video based on its own visibility. Videos don't
-  // autoplay on mount — they only start when scrolled into view, then
-  // pause when scrolled off so they resume from currentTime (not the
-  // beginning) when the user scrolls back. Also frees the decoder so the
-  // other inline videos stay smooth.
+  // Two-tier visibility handling for inline videos:
+  //
+  //   1. PRELOAD (rootMargin: 800px) — when a video is within 800px
+  //      of the viewport, inject `<link rel="preload" as="video">`
+  //      so the browser fetches the bytes into HTTP cache before the
+  //      user actually reaches the artwork. Yoshi's inline videos
+  //      are 17-21MB each with the default preload="metadata"; without
+  //      this pre-warm, play() would fire and the browser would
+  //      still be fetching megabytes — visible on mobile as a 1-3s
+  //      poster-stall stutter before the first frame finally paints.
+  //
+  //   2. PLAY/PAUSE (threshold: 0.25) — actual playback toggle.
+  //      Resumes from currentTime so the user re-entering an artwork
+  //      sees the loop continue, not restart. Retries play() on
+  //      canplay/loadeddata events because iOS Safari's first
+  //      autoplay attempt silently fails when data isn't decoded yet.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const videos = Array.from(el.querySelectorAll("video"));
     if (videos.length === 0) return;
+
+    const tryPlay = (v: HTMLVideoElement) => {
+      v.muted = true;
+      if (v.paused) v.play().catch(() => {});
+    };
+
     if (typeof IntersectionObserver === "undefined") {
-      videos.forEach((v) => v.play().catch(() => {}));
+      videos.forEach(tryPlay);
       return;
     }
-    const io = new IntersectionObserver(
+
+    // Preload links — added once per video when approaching the
+    // viewport, then never removed until component unmounts. Avoids
+    // the thrash that comes from adding/removing on every state change.
+    const preloadLinks = new Map<HTMLVideoElement, HTMLLinkElement>();
+    const preloadIO = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const v = entry.target as HTMLVideoElement;
+          if (preloadLinks.has(v) || !v.src) return;
+          const link = document.createElement("link");
+          link.rel = "preload";
+          link.as = "video";
+          link.href = v.src;
+          document.head.appendChild(link);
+          preloadLinks.set(v, link);
+          preloadIO.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "800px 0px" }
+    );
+    videos.forEach((v) => preloadIO.observe(v));
+
+    // Retry play on data-ready events — iOS Safari often silently
+    // fails the first autoplay attempt on a fresh element when data
+    // isn't yet decoded.
+    const retryHandlers = new Map<HTMLVideoElement, () => void>();
+    videos.forEach((v) => {
+      const onReady = () => tryPlay(v);
+      v.addEventListener("loadedmetadata", onReady);
+      v.addEventListener("loadeddata", onReady);
+      v.addEventListener("canplay", onReady);
+      retryHandlers.set(v, onReady);
+    });
+
+    const playIO = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           const v = entry.target as HTMLVideoElement;
-          if (entry.isIntersecting) v.play().catch(() => {});
+          if (entry.isIntersecting) tryPlay(v);
           else v.pause();
         });
       },
       { threshold: 0.25 }
     );
-    videos.forEach((v) => io.observe(v));
-    return () => io.disconnect();
+    videos.forEach((v) => playIO.observe(v));
+
+    return () => {
+      preloadIO.disconnect();
+      playIO.disconnect();
+      preloadLinks.forEach((link) => link.remove());
+      retryHandlers.forEach((handler, v) => {
+        v.removeEventListener("loadedmetadata", handler);
+        v.removeEventListener("loadeddata", handler);
+        v.removeEventListener("canplay", handler);
+      });
+    };
   }, []);
 
   const cls = `ex-inline-artworks reveal${visible ? " reveal--visible" : ""}`;

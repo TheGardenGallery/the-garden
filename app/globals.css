@@ -2371,7 +2371,16 @@ html:has(.constellation-root){
 
 .ex-hero{
   position:relative;padding-top:var(--nav-height);
-  height:100vh;height:100dvh;overflow:hidden;
+  /* Locked to 100vh (modern equivalent of 100lvh — the LARGE
+     viewport, URL-bar-hidden). The earlier `100dvh` override caused
+     iOS Safari to resize the hero as the URL bar collapsed during
+     scroll, which made the contained media appear to zoom/move
+     (visible on Yoshi, Paul, and any other exhibition with a large
+     hero media). Using 100vh means the hero is the full URL-bar-
+     hidden viewport from the start; initial paint has the bar
+     overlaying the bottom edge, and as it collapses on scroll the
+     hero stays the same size — no resize-induced zoom. */
+  height:100vh;overflow:hidden;
   background:#f1f4f6;
 }
 .ex-hero[data-theme="dark"]{background:#0c0c10;}

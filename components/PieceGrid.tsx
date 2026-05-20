@@ -154,49 +154,50 @@ export function PieceGrid({
     return () => window.removeEventListener("keydown", onKey, true);
   }, [expanded, prev, next]);
 
-  // Preload the immediately-neighbouring posters and videos whenever
-  // the lightbox is open or moves. Without this, a swipe to the next
-  // artwork has to fetch the blurred-bg poster and the video src
-  // from network mid-transition — visible as a stutter / "weird
-  // load" behind the artwork.
-  //
-  // Two-channel prefetch:
-  //   1. Poster: `new Image()` is reliable across browsers — the
-  //      blurred-bg layer painting from cache means no flash.
-  //   2. Video: `<link rel="preload" as="video">` injected into
-  //      <head>. Unlike a hidden <video preload="auto"> element
-  //      (which iOS Safari doesn't reliably fetch bytes for without
-  //      a user gesture), the preload link is a hard browser hint
-  //      that fetches the resource regardless of visibility — and
-  //      when the actual <video> later mounts with the same URL it
-  //      reuses the preloaded bytes. The earlier hidden-video
-  //      approach was responsible for the ~1s pre-play delay on
-  //      iOS swipes.
+  // Persistent neighbor prefetch — accumulates across swipes instead
+  // of being torn down on every navigation. The previous version
+  // injected <link rel="preload"> on every expanded change and
+  // removed them via cleanup, which on rapid swipes meant downloads
+  // were being cancelled mid-flight (the user reported "choppy
+  // loading" between artworks). Now: track prefetched indices in a
+  // ref, only inject for indices not yet prefetched, and only clean
+  // up when the lightbox actually closes. The HTTP cache accumulates
+  // across the session so each swipe has a higher chance of hitting
+  // already-warmed bytes.
+  const prefetchedRef = useRef<Set<number>>(new Set());
+  const prefetchLinksRef = useRef<HTMLLinkElement[]>([]);
   useEffect(() => {
-    if (expanded === null || items.length <= 1) return;
+    if (expanded === null) {
+      // Lightbox closed — clean up all accumulated prefetches.
+      prefetchLinksRef.current.forEach((l) => l.remove());
+      prefetchLinksRef.current = [];
+      prefetchedRef.current = new Set();
+      return;
+    }
+    if (items.length <= 1) return;
     const ids = [
+      expanded,
       (expanded - 1 + items.length) % items.length,
       (expanded + 1) % items.length,
     ];
-    const links: HTMLLinkElement[] = [];
     ids.forEach((idx) => {
+      if (prefetchedRef.current.has(idx)) return;
       const it = items[idx];
       if (!it) return;
+      prefetchedRef.current.add(idx);
+      // Poster — instant via Image() cache.
       const img = new Image();
       img.src = it.poster;
+      // Video — `<link rel="preload" as="video">` is a browser hint
+      // that fetches the resource at high priority and reuses the
+      // bytes when the actual <video> mounts with the same URL.
       const link = document.createElement("link");
       link.rel = "preload";
       link.as = "video";
       link.href = it.video;
       document.head.appendChild(link);
-      links.push(link);
+      prefetchLinksRef.current.push(link);
     });
-    return () => {
-      // Remove the <link> nodes when navigating away from the lightbox
-      // or moving to a different index — leaving them in <head> would
-      // accumulate stale preload hints across sessions.
-      links.forEach((l) => l.remove());
-    };
   }, [expanded, items]);
 
   // Drive play/pause on the mounted cell videos. Only the currently
