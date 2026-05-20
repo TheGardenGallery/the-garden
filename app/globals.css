@@ -6451,13 +6451,13 @@ html:has(.constellation-root){
    inline-artworks 3-up — the prose flow stays primary; this is a quiet
    process beat between paragraphs. */
 .sl-inline-process{
-  /* Sits 40px wider on each side than the 680px prose column — a
-     subtle editorial breakout that signals "this is a beat, pay
-     attention" without overwhelming the column. Standard catalog move:
-     image gently exceeds the prose measure, prose returns to measure
-     below. */
-  margin:56px auto;
-  max-width:720px;
+  /* Editorial breakout: ~140px past the 680px prose column on each
+     side. Reads as a confident editorial pause, not a postage stamp.
+     Source is 1920×1080 so anything up to 1920 stays sharp; 960 leaves
+     headroom and keeps the figure from competing with the inline
+     artworks 3-up (1505px) further up the page. */
+  margin:72px auto;
+  max-width:960px;
   display:block;
 }
 .sl-inline-process-readout{
