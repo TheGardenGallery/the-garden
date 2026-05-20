@@ -6487,15 +6487,18 @@ html:has(.constellation-root){
   color:rgba(232,248,248,0.32);
 }
 .sl-inline-process-frame{
-  /* No chrome — the video is the visual. Inset highlights and outer
-     halo (coda-plate vocabulary) leaked at the edges when subpixel
-     rounding meant the video didn't perfectly cover the frame on every
-     viewport width. Stripped to a pure black ground with no border. */
+  /* Hairline plate edge — defines the work's boundary independently
+     of video content. Without it, dark moments in the source video
+     bleed into the page's black ground and the eye can't locate the
+     bottom edge of the frame, which makes the caption gap below read
+     as inconsistent. 6% white is enough to demarcate against #000
+     without competing with bright video content. */
   position:relative;
   width:100%;
   aspect-ratio:16/9;
   overflow:hidden;
   background:#000;
+  box-shadow:0 0 0 1px rgba(232,248,248,0.06);
 }
 .sl-inline-process-video{
   width:100%;height:100%;
@@ -6565,11 +6568,16 @@ html:has(.constellation-root){
   max-width:960px;
 }
 .sl-process-frame{
+  /* Hairline plate edge — same Hufkens-catalog move as the inline
+     clip. Without it, dark moments in the long-form Houdini capture
+     (3D viewport empty/black) bleed into the section's #000 ground
+     and the caption-to-frame gap reads as much larger than it is. */
   position:relative;
   width:100%;
   aspect-ratio:16/9;
   overflow:hidden;
   background:#000;
+  box-shadow:0 0 0 1px rgba(232,248,248,0.06);
 }
 .sl-process-video{
   width:100%;height:100%;
