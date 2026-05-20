@@ -81,7 +81,7 @@ export const exhibitions: Exhibition[] = [
         afterParagraphIndex: 2,
         src: "/images/ricky-retouch/process/process-loop.mp4",
         poster: "/images/ricky-retouch/process/process-loop.jpg",
-        label: "process_log",
+        label: "HOUDINI_PROCESS_CAPTURE",
       },
     },
   },
