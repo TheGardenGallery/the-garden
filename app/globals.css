@@ -5709,29 +5709,37 @@ html:has(.constellation-root){
 .piece-grid-overlay-bg{
   position:absolute;inset:0;
   background-size:cover;background-position:center;
-  /* Four stacked blurs at 40px each, same effective sigma as the
-     previous 2×57px (≈68 sigma either way) but FAR smoother —
-     CSS blur() is implemented as a 3-pass box-filter Gaussian
-     approximation, so 4 stacked CSS blurs = 12 cumulative box-
-     filter passes, which converges to true Gaussian at ~99.5%
-     vs the 2-pass version's ~95%. That last 4.5% was what showed
-     as the wide concentric/radial "shell" banding radiating from
-     the artwork to the corners — box-filter characteristic
-     artifact, not 8-bit color quantization (which is what the
-     ::after dither targets). Bigger compute cost (~2× the GPU
-     work) but the moody dark backdrop now reads as continuous
-     gradient instead of stepped shells.
-     Contrast 0.9 softens sharp transitions in the source before
-     the blur sees them; saturate bumped slightly to compensate. */
-  filter:blur(40px) blur(40px) blur(40px) blur(40px) saturate(1.4) brightness(0.42) contrast(0.9);
-  transform:scale(1.18);
+  /* Four stacked blurs at 40px each — 12 cumulative box-filter
+     passes ≈ 99.5% true Gaussian. Plus aggressive source softening
+     BEFORE the blur sees it: contrast 0.55 flattens the artwork's
+     dynamic range so there's far less bright-on-dark "energy" for
+     the blur to spread as visible halos/rays radiating from the
+     artwork's high-contrast edges. brightness 0.35 then compresses
+     the result deeper into black where any residual gradient steps
+     fall below perceptual threshold. saturate 1.6 keeps a hint of
+     the artwork's hue without amplifying the structural artifacts. */
+  filter:blur(40px) blur(40px) blur(40px) blur(40px) saturate(1.6) brightness(0.35) contrast(0.55);
+  /* Scale 1.5 (up from 1.18) pushes the artwork's high-contrast
+     corners further outside the viewport, so the visible region
+     of the blurred bg sits closer to the gradient's smooth middle
+     than to its edge-bloom periphery. */
+  transform:scale(1.5);
   pointer-events:none;
   z-index:-1;
-  /* Render layer isolation — keeps the ::after dither's blend-mode
-     composing only against this bg layer, not against the artwork
-     at z-index above. Without this the dither would faintly tint
-     the artwork too. */
   isolation:isolate;
+}
+/* Vignette mask — radial gradient that darkens the corners below
+   the perceptual threshold for any remaining bloom. The bloom rays
+   were most visible at the four corners where the diagonals from
+   the artwork meet the viewport edge; pulling those zones into
+   deeper black at low opacity hides the artifact entirely while
+   keeping the center backdrop's color tied to the artwork's palette. */
+.piece-grid-overlay-bg::before{
+  content:"";
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 80% at center, transparent 30%, #000 100%);
+  pointer-events:none;
+  z-index:0;
 }
 /* Banding suppression — overlay a fine SVG-turbulence noise dither
    on the blurred backdrop. The double-blur above gets us most of
