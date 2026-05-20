@@ -2842,11 +2842,6 @@ html:has(.constellation-root){
    frame, so the extra height (since source aspect is narrower than
    the frame's) gets clipped from the bottom — trimming the floor
    band away from where the title sits. */
-/* John Provencher / HAHA, over-time — full-bleed installation photo
-   with a centered black gallery-plate (4:3) holding the artist + title
-   in white. The photo continues to fill the hero edge-to-edge; the
-   plate sits over it like a museum nameplate hung on the wall the
-   photo shows. */
 .ex-hero[data-slug="haha-over-time"] .ex-hero-frame{padding:0;}
 .ex-hero[data-slug="haha-over-time"] .ex-hero-plate{
   width:100%;height:100%;
@@ -2858,23 +2853,16 @@ html:has(.constellation-root){
   object-position:left top;
   filter:none;
 }
+/* Title centered over the photo — sits in the cleaner middle of the
+   gallery wall area so it doesn't clash with the vertical black
+   lines or the floor band. */
 .ex-hero[data-slug="haha-over-time"] .ex-title-bar{
   left:50%;top:50%;bottom:auto;
   transform:translate(-50%,-50%);
-  background:#000;
-  width:min(300px, 65vw);
-  aspect-ratio:4/3;
-  padding:clamp(20px, 3vw, 32px);
-  display:flex;align-items:center;justify-content:center;
   text-align:center;
 }
 .ex-hero[data-slug="haha-over-time"] .ex-title-headline{
   align-items:center;
-}
-.ex-hero[data-slug="haha-over-time"] .ex-title-artist,
-.ex-hero[data-slug="haha-over-time"] .ex-title-title,
-.ex-hero[data-slug="haha-over-time"] .ex-title-title-link{
-  color:#fff;
 }
 /* Eric Andwer / Constraint — Hufkens-tier refinement.
    Single inline pair (Constraint #145 + #160), both 4:5 portrait,
