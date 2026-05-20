@@ -10,21 +10,21 @@ import { fetchExhibitions, fetchJournalEntries } from "@/lib/verse-api";
 import { getArtworkPalette } from "@/lib/palette";
 import { homepagePastPicks } from "@/lib/data/display-rules";
 
-// Homepage-only override: link-preview cards lead with the descriptive
-// line. Sub-pages keep their own per-page titles (set in each route's
-// generateMetadata) so a shared exhibition link shows the exhibition's
-// title instead of the homepage tagline.
-//
-// og:description and twitter:description are explicitly emptied so
-// the preview card shows just title + URL — without the override they
-// would inherit layout's `description` ("An online gallery for digital
-// art.") which is identical to the og:title above, doubling the same
-// line on iMessage/WhatsApp/Slack cards. Layout's `description` stays
-// in place for Google's search snippet on the homepage.
+// Homepage-only override: link-preview cards lead with the brand
+// name and use the tagline as the body line — gallery-card
+// convention (Hufkens, Gagosian, Zwirner all do the same). Prior
+// approach tried to lead with the descriptive line and empty
+// og:description, but Next.js auto-derives og:description from
+// layout's `description` when the page-level value is empty, so
+// Discord/Slack/iMessage rendered the same line twice. Description
+// here uses no trailing period (cleaner on social cards); layout's
+// `description` keeps the period for Google's search snippet where
+// it ends a proper sentence. Sub-pages set their own per-page
+// titles in each route's generateMetadata.
 export const metadata: Metadata = {
   openGraph: {
-    title: "An online gallery for digital art",
-    description: "",
+    title: "The Garden",
+    description: "An online gallery for digital art",
   },
   twitter: {
     // Re-declare card here — Next replaces the parent twitter object
@@ -35,8 +35,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@chilltulpa",
     creator: "@chilltulpa",
-    title: "An online gallery for digital art",
-    description: "",
+    title: "The Garden",
+    description: "An online gallery for digital art",
   },
 };
 

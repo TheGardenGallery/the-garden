@@ -5369,7 +5369,7 @@ html:has(.constellation-root){
   --phosphor-deep: rgba(255, 201, 122, 0.30);
   max-width:var(--content-max);
   margin:0 auto;
-  padding:28px var(--gutter) 12px;
+  padding:32px var(--gutter) 16px;
   background:#000;
   color:var(--on-dark-fg-soft);
   font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -5386,7 +5386,7 @@ html:has(.constellation-root){
   /* CRT bloom — picks up the active node's colour via --active-color
      pushed in by the React component on every walker step. */
   filter:drop-shadow(0 0 22px color-mix(in srgb, var(--active-color, var(--phosphor)) 32%, transparent));
-  transition:filter 700ms ease-out;
+  transition:filter 720ms ease-out;
 }
 /* Each cell is a phosphor tile sitting in a console-panel slot.
    Layered surface gives the tile volume:
@@ -5425,9 +5425,9 @@ html:has(.constellation-root){
     inset 1px 0 0 rgba(0,0,0,0.28),
     inset 0 -10px 16px -12px rgba(0,0,0,0.45);
   transition:
-    transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    filter 220ms ease-out,
-    box-shadow 280ms ease-out;
+    transform 240ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    filter 240ms ease-out,
+    box-shadow 240ms ease-out;
 }
 .sl-palette-cell:first-child{
   box-shadow:
@@ -5940,17 +5940,22 @@ html:has(.constellation-root){
    rather than the section's bg flashing through as it animates. */
 .exhibition-detail[data-slug="split-logic"] .piece-grid-section{
   background:transparent;
-  padding-top:14px;
+  padding-top:16px;
   /* No bottom padding — the counter owns its own offset from the
      grid (margin-top) and from the next section (margin-bottom),
      matching the chevrons' 42px standoff on the horizontal axis. */
   padding-bottom:0;
 }
 /* Overview keeps a solid bg behind its prose column for readability —
-   running mono body text directly over the lattice would noise it up. */
+   running mono body text directly over the lattice would noise it up.
+   The hairline border-top punctuates the hero→editorial boundary so
+   the page formally begins here rather than dissolving the hero into
+   the overview without a finish. Bottom padding 64 (2× base) closes
+   the Overview→Palette gap to a clean 96 (64 + 32) rather than 80. */
 .exhibition-detail[data-slug="split-logic"] .ex-overview{
   background:#000;
-  padding-bottom:48px;
+  padding-bottom:64px;
+  border-top:1px solid rgba(255,255,255,0.06);
 }
 .exhibition-detail[data-slug="split-logic"] .ex-facts{
   border-left-color:rgba(255,255,255,0.12);
@@ -5975,8 +5980,8 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="split-logic"] .ex-fact-label{
   font-family:'Saira Condensed','Barlow',sans-serif;
   font-weight:600;
-  letter-spacing:0.18em;
-  font-size:11px;
+  letter-spacing:0.25em;
+  font-size:10px;
 }
 .exhibition-detail[data-slug="split-logic"] .ex-fact-value{
   font-family:'Saira Condensed','Barlow',sans-serif;
@@ -6068,21 +6073,26 @@ html:has(.constellation-root){
    staggered by --idx — once the section enters the viewport (the
    `is-typing` class is added by the client component), the prose
    prints character-by-character like terminal output. */
-.ex-overview-body-terminal{
-  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace !important;
-  font-size:15px !important;line-height:1.7 !important;
-  letter-spacing:0.005em !important;
+/* Specificity raised to .ex-overview-body.ex-overview-body-terminal
+   (both classes always co-present in TerminalDescription markup) so
+   the terminal-mode styles win over the base `.ex-overview-body`
+   rules at every viewport — including the mobile font-size override
+   at line ~6843 — without resorting to !important. */
+.ex-overview-body.ex-overview-body-terminal{
+  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size:15px;line-height:1.7;
+  letter-spacing:0.005em;
   font-variant-numeric:tabular-nums;
   /* Widen the terminal body so its inline-artwork rows can break out
      of the standard 680px prose cap. Prose paragraphs are
      re-constrained to 680px below for readability; only the
      `.ex-inline-artworks` rows span the wider container. */
-  max-width:1440px !important;
+  max-width:1440px;
 }
-.ex-overview-body-terminal p{
-  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace !important;
-  font-size:15px !important;line-height:1.7 !important;
-  letter-spacing:0.005em !important;
+.ex-overview-body.ex-overview-body-terminal p{
+  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size:15px;line-height:1.7;
+  letter-spacing:0.005em;
   font-feature-settings:normal;
 }
 .ex-overview-body-terminal .term-station{
@@ -6155,6 +6165,10 @@ html:has(.constellation-root){
    solid bg, materializing dots only when hovered). */
 .exhibition-detail[data-slug="split-logic"] .ex-colophon{
   background:#000;border-top-color:rgba(255,255,255,0.08);
+  /* 32-base rhythm: 64 top (2× base) lands the colophon after the
+     studio plate's 96px tail with one composed pause rather than the
+     prior 200px chasm. */
+  padding-top:64px;
 }
 .exhibition-detail[data-slug="split-logic"] .col-label{color:var(--on-dark-fg-muted);}
 .exhibition-detail[data-slug="split-logic"] .col-title{color:var(--on-dark-fg);}
@@ -6163,6 +6177,11 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="split-logic"] .col-link .arrow{color:var(--on-dark-fg-muted);}
 .exhibition-detail[data-slug="split-logic"] .ex-nav{
   background:#000;border-top-color:rgba(255,255,255,0.08);
+  /* Closing hairline — echoes the rule vocabulary used at every other
+     major editorial boundary on the page (Hero/Overview, Broadsheet,
+     Colophon, Nav top). The page now opens and closes on the same
+     gesture rather than trailing off into whatever sits below. */
+  border-bottom:1px solid rgba(255,255,255,0.08);
 }
 .exhibition-detail[data-slug="split-logic"] .ex-nav a{
   color:var(--on-dark-fg);
@@ -6180,6 +6199,96 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="split-logic"] .ex-nav-label{color:var(--on-dark-fg-muted);}
 .exhibition-detail[data-slug="split-logic"] .ex-nav-line{color:var(--on-dark-fg);}
 .exhibition-detail[data-slug="split-logic"] .ex-nav-line .slash{color:var(--on-dark-fg-muted);}
+
+/* ── Hufkens cohesion pass ─────────────────────────────────────────
+   One column, one eyebrow voice, one white. Three scoped overrides
+   so the editorial spine reads as a single composed page rather
+   than a series of related-but-not-aligned sections. */
+
+/* 1. Content rail — palette strip, its readout, and piece grid join
+   the broadsheet and studio plate on the 1240 column. Previous 1289
+   was an unjustified specific that left a 49px offset between the
+   system index above and the editorial spine below. Readout tracks
+   the strip so the `>>` prompt sits on the same left edge as the
+   strip's first cell (the readout is the strip's labeled state). */
+.exhibition-detail[data-slug="split-logic"] .sl-palette-strip,
+.exhibition-detail[data-slug="split-logic"] .sl-palette-readout,
+.exhibition-detail[data-slug="split-logic"] .piece-grid{
+  max-width:1240px;
+}
+
+/* 2. Eyebrow voice — colophon and nav labels adopt the Saira
+   Condensed 10px / 0.25em / phosphor profile used by the broadsheet
+   and studio headings. Replaces colophon's Barlow 1.8px and nav's
+   Barlow 1.5px so all section markers on this page share one
+   instrument-label voice. */
+.exhibition-detail[data-slug="split-logic"] .col-label,
+.exhibition-detail[data-slug="split-logic"] .ex-nav-label{
+  font-family:'Saira Condensed','Barlow',sans-serif;
+  font-weight:600;
+  font-size:10px;
+  letter-spacing:0.25em;
+}
+
+/* 3. White family — the broadsheet and studio headings previously
+   used neutral white (rgba(255,255,255,…)) while every other on-dark
+   element on this page uses phosphor (rgba(232,248,248,…)). Alphas
+   preserved exactly so hierarchy stays where it was tuned; only the
+   tint shifts to the cool-cyan family that ties the whole page. */
+.exhibition-detail[data-slug="split-logic"] .broadsheet-heading{
+  color:rgba(232,248,248,0.28);
+}
+.exhibition-detail[data-slug="split-logic"] .broadsheet-idx{
+  color:rgba(232,248,248,0.18);
+}
+.exhibition-detail[data-slug="split-logic"] .broadsheet-entry p{
+  color:rgba(232,248,248,0.68);
+}
+.exhibition-detail[data-slug="split-logic"] .broadsheet-entry p em{
+  color:rgba(232,248,248,0.90);
+}
+.exhibition-detail[data-slug="split-logic"] .broadsheet-attribution{
+  color:rgba(232,248,248,0.20);
+}
+.exhibition-detail[data-slug="split-logic"] .sl-process-heading{
+  color:rgba(232,248,248,0.28);
+}
+
+/* 4. Broadsheet cadence — 96/96 (3× base) symmetric. Final off-grid
+   value on the page eliminated; broadsheet now sits in a disciplined
+   frame within the 32-base rhythm. Combined gaps: 96 (Grid bottom 0
+   + here 96) above; 128 (here 96 + sl-process top 32) below. */
+.exhibition-detail[data-slug="split-logic"] .broadsheet{
+  padding-top:96px;
+  padding-bottom:96px;
+}
+
+/* 5. Piece-cell number — phosphor tint joins the page's single
+   white family. Base opacity (0.55) and text-shadow kept — the
+   shadow provides a subtle dark halo so the numeral reads against
+   bright phosphor pixels inside Ricky's artworks. Cormorant italic
+   kept as the gallery-plate numeral convention (the one warm voice
+   that earns its place against the cool CRT vocabulary). */
+.exhibition-detail[data-slug="split-logic"] .piece-cell-number{
+  color:rgba(232,248,248,1);
+}
+
+/* 6. Hover-timing tier system — three speeds (240 / 480 / 720, clean
+   1× / 2× / 3× ratio) replace the prior scatter of 220 / 280 / 320 /
+   560 / 700. Tier 0 (240) for palette-cell micro-feedback; tier 1
+   (480) for editorial reveals (cell number fade, artwork lift); tier
+   2 (720) for atmospheric motion (CRT bloom). Palette-cell + strip
+   transitions are edited at the base class since those classes are
+   split-logic-only; cell-number and folder-art transitions are
+   scoped here since their base classes are shared. */
+.exhibition-detail[data-slug="split-logic"] .piece-cell-number{
+  transition:opacity 480ms var(--ease-slow);
+}
+@media (hover:hover){
+  .exhibition-detail[data-slug="split-logic"] .piece-cell:not(:disabled) .piece-folder-art{
+    transition:transform 480ms var(--ease-slow);
+  }
+}
 
 /* Mobile-specific refinements for Ricky's exhibition + the homepage
    hero of his work. Each addresses a problem visible on portrait
@@ -6255,6 +6364,11 @@ html:has(.constellation-root){
   .exhibition-detail[data-slug="split-logic"] .ex-nav a:last-child{
     align-items:flex-start;
     text-align:left;
+  }
+  /* Mobile cadence — broadsheet bottom 72 → 64 (4× of mobile's
+     16-base) closes Broadsheet→Studio gap to a clean 96 (64 + 32). */
+  .exhibition-detail[data-slug="split-logic"] .broadsheet{
+    padding-bottom:64px;
   }
 }
 
@@ -6490,14 +6604,16 @@ html:has(.constellation-root){
   color:rgba(232,248,248,0.32);
 }
 .sl-inline-process-frame{
-  /* No chrome — the work is the visual. Source is clean 1920×1080 with
-     bright content edge-to-edge, so no hairline is needed to define
-     the boundary against the page ground. */
+  /* Hairline at 8% white defines the plate edge against the page
+     ground — same edge protocol as the studio plate below. The work
+     sits within a presentation frame; the hairline is where the
+     frame ends. */
   position:relative;
   width:100%;
   aspect-ratio:16/9;
   overflow:hidden;
   background:#000;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08);
 }
 .sl-inline-process-video{
   width:100%;height:100%;
@@ -6520,7 +6636,10 @@ html:has(.constellation-root){
    the inline process clip) for confident editorial weight. */
 .sl-process{
   background:#000;
-  padding:100px var(--gutter) 120px;
+  /* 32-base rhythm: 32 top couples the studio eyebrow to the
+     broadsheet's tail above; 96 bottom (3× base) establishes a clean
+     pause before the colophon arrives. */
+  padding:32px var(--gutter) 96px;
   position:relative;
 }
 .sl-process-inner{
@@ -6541,12 +6660,8 @@ html:has(.constellation-root){
   letter-spacing:0.25em;
   text-transform:uppercase;
   color:rgba(255,255,255,0.28);
-  /* 88px pause — Hufkens-tier breathing for a tiny-caps section anchor.
-     The work below is large; the heading needs enough white space above
-     it to read as the section's editorial command, not as a crowded
-     label. ~8.8× the heading's font-size, which is the standard
-     catalog ratio for "section title → centered work" composition. */
-  margin-bottom:88px;
+  /* 32-base rhythm — eyebrow couples to the plate at one base unit. */
+  margin-bottom:32px;
   line-height:1;
   font-variant-numeric:tabular-nums lining-nums;
 }
@@ -6577,12 +6692,14 @@ html:has(.constellation-root){
      had ~74px of black bars baked into top and bottom of the 1920×
      1080 file — the encoded video now crops those out, so the frame
      ends exactly where the visible UI ends.
-     No chrome — same refined treatment as the inline. */
+     Hairline inset at 8% white defines the plate edge against the
+     pure black ground so the capture doesn't dissolve into the void. */
   position:relative;
   width:100%;
   aspect-ratio:959/466;
   overflow:hidden;
   background:#000;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08);
 }
 .sl-process-video{
   width:100%;height:100%;
@@ -6615,13 +6732,12 @@ html:has(.constellation-root){
   color:rgba(232,248,248,0.32);
 }
 @media (max-width:760px){
-  /* Tighter mobile section padding. The desktop 100/120 reads as
-     editorial breathing; on mobile that becomes ~17% of viewport
-     height of empty space at each end of the section, which crosses
-     from "breathing" into "broken page flow." 32/56 keeps the section
-     distinct from broadsheet above and colophon below without burning
-     scroll on empty pixels. */
-  .sl-process{padding:32px var(--gutter) 56px;}
+  /* Mobile section padding on a 16-base rhythm. Desktop 32/96 (1×/3×
+     of desktop's 32-base) tightens to 32/64 on mobile (2×/4× of
+     mobile's 16-base) — both clean multiples, both maintain editorial
+     hierarchy without burning scroll. Studio→Colophon gap becomes 128
+     (64 + 64) rather than the prior 120. */
+  .sl-process{padding:32px var(--gutter) 64px;}
   .sl-process-heading{margin-bottom:32px;}
 }
 
