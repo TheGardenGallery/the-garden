@@ -6568,13 +6568,15 @@ html:has(.constellation-root){
   max-width:960px;
 }
 .sl-process-frame{
-  /* Hairline plate edge — same Hufkens-catalog move as the inline
-     clip. Without it, dark moments in the long-form Houdini capture
-     (3D viewport empty/black) bleed into the section's #000 ground
-     and the caption-to-frame gap reads as much larger than it is. */
+  /* Aspect matches the actual content area of the studio capture
+     (1918×932, DAR 959:466 ≈ 2.06:1). The source screen-recording
+     had ~74px of black bars baked into top and bottom of the 1920×
+     1080 file — the encoded video now crops those out, so the frame
+     ends exactly where the visible UI ends. No more accidental black
+     space below the work pushing the caption gap. */
   position:relative;
   width:100%;
-  aspect-ratio:16/9;
+  aspect-ratio:959/466;
   overflow:hidden;
   background:#000;
   box-shadow:0 0 0 1px rgba(232,248,248,0.06);
