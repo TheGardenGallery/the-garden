@@ -6480,18 +6480,24 @@ html:has(.constellation-root){
   color:rgba(232,248,248,0.32);
 }
 .sl-inline-process-frame{
+  /* No chrome — the video is the visual. Inset highlights and outer
+     halo (coda-plate vocabulary) leaked at the edges when subpixel
+     rounding meant the video didn't perfectly cover the frame on every
+     viewport width. Stripped to a pure black ground with no border. */
   position:relative;
   width:100%;
   aspect-ratio:16/9;
   overflow:hidden;
-  border-radius:2px;
   background:#000;
-  box-shadow:
-    inset 0 1px 0 rgba(232,248,248,0.06),
-    inset 0 -1px 0 rgba(0,0,0,0.55),
-    0 0 0 1px rgba(232,248,248,0.04);
 }
 .sl-inline-process-video{
+  /* Absolute-fill instead of width/height:100% — anchors the video to
+     all four edges of the aspect-ratio frame, so subpixel rounding can't
+     leak a 1px gap where the black frame would otherwise show through.
+     The 16:9 source matches the 16:9 frame exactly, so object-fit:cover
+     does no cropping — it just guarantees full coverage. */
+  position:absolute;
+  inset:0;
   width:100%;height:100%;
   object-fit:cover;
   display:block;

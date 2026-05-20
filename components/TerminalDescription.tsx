@@ -78,6 +78,7 @@ export function TerminalDescription({
                     src={processAt.src}
                     poster={processAt.poster}
                     preload="metadata"
+                    loop
                   />
                 </div>
                 {processAt.label && (
