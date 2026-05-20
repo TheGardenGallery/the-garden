@@ -104,6 +104,17 @@ export function ZoomCatcher({
         return;
       }
 
+      // Don't intercept clicks inside the piece-grid. PieceGrid has
+      // its own lightbox keyed to the current sorted-page `items`
+      // array, which matches the visual order the user sees on
+      // screen. Routing grid clicks through here instead would cycle
+      // by the fixed exhibition-data order (sl-001 → sl-002 → …)
+      // regardless of the active colour-lock sort — the user
+      // reported as "lightbox is not cycling in order based on which
+      // artwork you click on within Ricky's grid." ZoomCatcher still
+      // handles hero + inline-artwork clicks below.
+      if (target.closest(".piece-grid")) return;
+
       // Prefer an explicit data-zoom-src ancestor (PieceGrid cells)
       // before falling back to a <video> element under the cursor.
       const zoomEl = target.closest("[data-zoom-src]") as HTMLElement | null;
