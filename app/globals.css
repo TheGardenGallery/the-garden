@@ -6487,18 +6487,14 @@ html:has(.constellation-root){
   color:rgba(232,248,248,0.32);
 }
 .sl-inline-process-frame{
-  /* Hairline plate edge — defines the work's boundary independently
-     of video content. Without it, dark moments in the source video
-     bleed into the page's black ground and the eye can't locate the
-     bottom edge of the frame, which makes the caption gap below read
-     as inconsistent. 6% white is enough to demarcate against #000
-     without competing with bright video content. */
+  /* No chrome — the work is the visual. Source is clean 1920×1080 with
+     bright content edge-to-edge, so no hairline is needed to define
+     the boundary against the page ground. */
   position:relative;
   width:100%;
   aspect-ratio:16/9;
   overflow:hidden;
   background:#000;
-  box-shadow:0 0 0 1px rgba(232,248,248,0.06);
 }
 .sl-inline-process-video{
   width:100%;height:100%;
@@ -6572,14 +6568,13 @@ html:has(.constellation-root){
      (1918×932, DAR 959:466 ≈ 2.06:1). The source screen-recording
      had ~74px of black bars baked into top and bottom of the 1920×
      1080 file — the encoded video now crops those out, so the frame
-     ends exactly where the visible UI ends. No more accidental black
-     space below the work pushing the caption gap. */
+     ends exactly where the visible UI ends.
+     No chrome — same refined treatment as the inline. */
   position:relative;
   width:100%;
   aspect-ratio:959/466;
   overflow:hidden;
   background:#000;
-  box-shadow:0 0 0 1px rgba(232,248,248,0.06);
 }
 .sl-process-video{
   width:100%;height:100%;
