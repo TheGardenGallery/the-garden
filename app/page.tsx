@@ -29,7 +29,12 @@ export const metadata: Metadata = {
   twitter: {
     // Re-declare card here — Next replaces the parent twitter object
     // rather than deep-merging, so omitting card drops it to "summary".
+    // `site` and `creator` must also be re-declared for the same reason
+    // (layout.tsx sets them at the root, but they'd be lost on this
+    // page's twitter override without this restatement).
     card: "summary_large_image",
+    site: "@chilltulpa",
+    creator: "@chilltulpa",
     title: "An online gallery for digital art",
     description: "",
   },

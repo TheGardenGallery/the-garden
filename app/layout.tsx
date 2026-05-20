@@ -24,12 +24,26 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
   title: "The Garden",
   description: "An online gallery for digital art.",
+  // Populates the byline of every social card (the "From The Garden"
+  // line on iMessage/WhatsApp/Slack, the source attribution on
+  // LinkedIn). openGraph deep-merges with per-page metadata, so
+  // siteName stays correct everywhere even when a page sets its own
+  // openGraph.title / description.
+  openGraph: {
+    siteName: "The Garden",
+    type: "website",
+  },
   // Force the edge-to-edge image card on Twitter/X — Next auto-picks
   // this when no explicit twitter object is set, but the moment a page
   // overrides any twitter.* field it falls back to plain "summary"
   // unless we declare card here at the layout level.
+  // `site` and `creator` attribute the card to @chilltulpa (provisional
+  // Garden handle); the homepage's metadata override re-declares both
+  // because Next replaces the twitter object rather than deep-merging.
   twitter: {
     card: "summary_large_image",
+    site: "@chilltulpa",
+    creator: "@chilltulpa",
   },
 };
 
@@ -83,6 +97,27 @@ export default function RootLayout({
           rel="preconnect"
           href="https://public-bucket-verse-dev.s3.eu-west-1.amazonaws.com"
           crossOrigin=""
+        />
+        {/* Organization schema for Google Knowledge Graph + "About this
+            result" attribution. Declares the brand entity, links to
+            official socials via sameAs, and points to the canonical
+            logo so Google can surface it in panel results. Kept at
+            the layout level so every route inherits the same entity
+            declaration. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "The Garden",
+              alternateName: "The Garden Gallery",
+              url: siteOrigin,
+              logo: `${siteOrigin}/icon.png`,
+              description: "An online gallery for digital art.",
+              sameAs: ["https://x.com/chilltulpa"],
+            }),
+          }}
         />
       </head>
       <body>
