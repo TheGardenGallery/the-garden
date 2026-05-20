@@ -2842,27 +2842,32 @@ html:has(.constellation-root){
    frame, so the extra height (since source aspect is narrower than
    the frame's) gets clipped from the bottom — trimming the floor
    band away from where the title sits. */
-.ex-hero[data-slug="haha-over-time"] .ex-hero-frame{padding:0;}
-.ex-hero[data-slug="haha-over-time"] .ex-hero-plate{
-  width:100%;height:100%;
+/* John Provencher / HAHA, over-time — hero as gallery title plate.
+   Previously a full-bleed installation photo with the title overlaid.
+   Now: paper ground, a centered black rectangle (4:3) holding the
+   artist + title in white. Reads like a museum wall plate between
+   rooms — pure typographic announcement, no image competing with the
+   lockup. */
+.ex-hero[data-slug="haha-over-time"] .ex-hero-frame{
+  display:none;
 }
-.ex-hero[data-slug="haha-over-time"] .ex-hero-plate img{
-  width:100%;height:100%;
-  max-width:none;max-height:none;
-  object-fit:cover;
-  object-position:left top;
-  filter:none;
-}
-/* Title centered over the photo — sits in the cleaner middle of the
-   gallery wall area so it doesn't clash with the vertical black
-   lines or the floor band. */
 .ex-hero[data-slug="haha-over-time"] .ex-title-bar{
   left:50%;top:50%;bottom:auto;
   transform:translate(-50%,-50%);
+  background:#000;
+  width:min(520px, 80vw);
+  aspect-ratio:4/3;
+  padding:clamp(32px, 5vw, 64px);
+  display:flex;align-items:center;justify-content:center;
   text-align:center;
 }
 .ex-hero[data-slug="haha-over-time"] .ex-title-headline{
   align-items:center;
+}
+.ex-hero[data-slug="haha-over-time"] .ex-title-artist,
+.ex-hero[data-slug="haha-over-time"] .ex-title-title,
+.ex-hero[data-slug="haha-over-time"] .ex-title-title-link{
+  color:#fff;
 }
 /* Eric Andwer / Constraint — Hufkens-tier refinement.
    Single inline pair (Constraint #145 + #160), both 4:5 portrait,
