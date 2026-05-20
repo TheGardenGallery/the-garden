@@ -88,9 +88,23 @@ export function PlotGrid({ artists, columns = defaultColumns }: PlotGridProps) {
       return columns;
     };
     setVisibleCols(compute());
-    const handler = () => setVisibleCols(compute());
+    // rAF-coalesce resize: drag-resize fires ~120Hz on modern displays
+    // and each tick previously triggered a setState + commit. Batching
+    // to the next frame keeps the column count fresh without burning
+    // commits on intermediate widths.
+    let raf = 0;
+    const handler = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        setVisibleCols(compute());
+      });
+    };
     window.addEventListener("resize", handler);
-    return () => window.removeEventListener("resize", handler);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("resize", handler);
+    };
   }, [columns]);
 
   const [hoverCol, setHoverCol] = useState<number | null>(null);

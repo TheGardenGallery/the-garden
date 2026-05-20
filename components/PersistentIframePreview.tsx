@@ -71,8 +71,22 @@ export function PersistentIframePreview({
       if (nav) setHeaderBottom(nav.getBoundingClientRect().bottom);
     };
     update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
+    // rAF-coalesce: drag-resize fires faster than the display refresh
+    // rate, and each tick called getBoundingClientRect (forced layout)
+    // + setState. Batching to a frame removes the layout thrash.
+    let raf = 0;
+    const handler = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        update();
+      });
+    };
+    window.addEventListener("resize", handler);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("resize", handler);
+    };
   }, []);
 
   useEffect(() => {

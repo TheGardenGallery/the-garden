@@ -303,7 +303,12 @@ export function PieceGrid({
                   // during a colour-lock shuffle, which read as
                   // "artworks didn't load" rather than refined
                   // sequencing. All entering cells fade in together.
-                  layout: { duration: 0.55, ease: [0.22, 0.61, 0.36, 1] },
+                  // Layout transition is skipped under prefers-reduced-
+                  // motion — vestibular users get instant repositioning
+                  // while opacity fade-in stays (fade is non-vestibular).
+                  layout: reduced
+                    ? { duration: 0 }
+                    : { duration: 0.55, ease: [0.22, 0.61, 0.36, 1] },
                   opacity: { duration: 0.55, ease: [0.22, 0.61, 0.36, 1] },
                 }}
                 className="piece-cell"

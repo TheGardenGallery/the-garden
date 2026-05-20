@@ -44,14 +44,28 @@ export function InterviewStationIndex({ count }: { count: number }) {
   // Also drive a top-edge progress rail on mobile.
   const [progress, setProgress] = useState(0);
   useEffect(() => {
-    const onScroll = () => {
+    const compute = () => {
       const h = document.documentElement;
       const max = h.scrollHeight - h.clientHeight;
       setProgress(max > 0 ? Math.min(1, h.scrollTop / max) : 0);
     };
-    onScroll();
+    compute();
+    // rAF-coalesce: scroll fires 100+Hz during momentum and each tick
+    // re-rendered the rail. Batching to the display refresh keeps the
+    // rail responsive while ending the wasted commits.
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        compute();
+      });
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   return (
