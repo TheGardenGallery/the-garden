@@ -3195,6 +3195,20 @@ html:has(.constellation-root){
     padding:16px 80px calc(var(--ex-title-bottom) + var(--ex-title-clearance));
   }
 }
+/* Split Logic hero cap — peer exhibitions (equinox 95, space-time 85,
+   trails 86) all hold the work back from the frame edge for the
+   gallery-plate breathing room; previously Split Logic filled the
+   frame, which read closer to cinema-poster than museum plate.
+   92% lands between equinox and space-time — restrained margin
+   without losing the work's declarative presence. Desktop-only:
+   the mobile frame already gives tight 12–16px gutters where any
+   further cap would shrink the work too far. */
+@media (min-width:1101px){
+  .ex-hero[data-slug="split-logic"] .ex-hero-plate .ex-hero-video,
+  .ex-hero[data-slug="split-logic"] .ex-hero-plate img{
+    max-width:92%;max-height:92%;
+  }
+}
 /* PERFECTL00P / Trails: balance the top padding to match the bottom
    title-clearance so Window Dysmorphia is vertically centered on the
    plate (default frame padding is asymmetric — 64 top vs. 160 bottom —
