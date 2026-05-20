@@ -4724,6 +4724,19 @@ html:has(.constellation-root){
 .ex-explore-iframe{
   width:100%;height:100%;border:0;display:block;background:transparent;
 }
+/* Static-frame poster overlay above the iframe — visible while the
+   live genart bundle (~2MB JS + shaders from IPFS for BASALT RT,
+   multi-second on mobile) is loading. Fades out 600ms after the
+   iframe's onLoad fires, giving the genart a beat to do its initial
+   canvas render before the still-frame disappears. Result: user
+   sees the artwork as a still the instant the page paints, then it
+   smoothly becomes alive — no empty-iframe loading state. */
+.ex-explore-iframe-poster{
+  position:absolute;inset:0;z-index:1;
+  width:100%;height:100%;object-fit:cover;
+  pointer-events:none;
+  transition:opacity 320ms var(--ease-slow);
+}
 .ex-explore-iframe-link{
   position:absolute;inset:0;z-index:2;display:block;
 }

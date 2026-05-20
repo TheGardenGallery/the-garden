@@ -90,6 +90,10 @@ function ExploreItem({
   fallbackWorkCount?: number;
 }) {
   const [animating, setAnimating] = useState(false);
+  // Iframe-poster fade gate: true once the iframe's genart has had
+  // time to render its first frame, at which point the static-frame
+  // image overlay can fade away to reveal the live version.
+  const [iframeReady, setIframeReady] = useState(false);
   const isGif = /\.gif$/i.test(item.image);
   const hasPoster = isGif && Boolean(item.poster);
   const staticSrc = item.poster ?? item.image;
@@ -124,8 +128,14 @@ function ExploreItem({
   // whole figure in a single <a> doesn't get the click-through —
   // iframes consume their own clicks. Render the iframe inside the
   // image cell and overlay a transparent anchor on top so the link
-  // still routes to verseUrl. The figcaption below stays a normal
-  // link via a separate wrapper.
+  // still routes to verseUrl. While the iframe's underlying genart
+  // bundle is loading (~2MB JS + shaders from IPFS for BASALT RT,
+  // multi-second on mobile), the static `item.image` is rendered as
+  // a positioned overlay above the iframe so the user sees the
+  // artwork's still-frame instantly. The image fades out 600ms
+  // after the iframe's onLoad fires (giving the genart time to do
+  // its initial canvas render), revealing the live version
+  // underneath as a smooth artwork-to-artwork crossfade.
   if (item.iframe) {
     return (
       <div className="ex-explore-item">
@@ -139,6 +149,20 @@ function ExploreItem({
               referrerPolicy="no-referrer"
               allow="autoplay; fullscreen"
               sandbox="allow-scripts allow-same-origin"
+              onLoad={() => {
+                window.setTimeout(() => setIframeReady(true), 600);
+              }}
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="ex-explore-iframe-poster"
+              src={item.image}
+              alt=""
+              draggable={false}
+              loading="eager"
+              decoding="async"
+              style={{ opacity: iframeReady ? 0 : 1 }}
+              aria-hidden="true"
             />
             <a
               className="ex-explore-iframe-link"
