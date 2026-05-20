@@ -51,19 +51,19 @@ export default async function Image() {
           style={{
             display: "flex",
             alignItems: "baseline",
-            fontSize: 160,
+            fontSize: 120,
             fontWeight: 700,
-            letterSpacing: -3,
+            letterSpacing: -2,
             lineHeight: 1,
           }}
         >
           <span>THE G</span>
           <svg
-            width="117"
-            height="117"
+            width="88"
+            height="88"
             viewBox="0 0 100 100"
             xmlns="http://www.w3.org/2000/svg"
-            style={{ marginLeft: -11, marginRight: 0 }}
+            style={{ marginLeft: -8, marginRight: 0 }}
           >
             <path
               d="M50 0 L100 100 L0 100 Z M50 46 L67 79 L33 79 Z"
