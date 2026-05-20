@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import type { Exhibition } from "@/lib/types";
 import { InlineArtworks } from "@/components/InlineArtworks";
+import { AutoPlayVideo } from "@/components/AutoPlayVideo";
 
 /**
  * Terminal-styled description: monospace + on-dark colors via the
@@ -12,11 +13,19 @@ import { InlineArtworks } from "@/components/InlineArtworks";
  * header above the prose. When `inlineArtworks` is provided, an
  * artwork row inserts after the matching `afterParagraphIndex`
  * paragraph — same component as the standard prose path, so the
- * visible-on-scroll video logic carries over. */
+ * visible-on-scroll video logic carries over.
+ *
+ * When `inlineProcess` is provided (Split Logic), a single small
+ * process clip embeds after its matching paragraph — annotated with a
+ * Space Mono `process_log` readout so it reads as documentation, not
+ * an artwork. AutoPlayVideo defers play until the element intersects
+ * the viewport, so the clip doesn't pull bytes off the wire until the
+ * reader scrolls there. */
 export function TerminalDescription({
   paragraphs,
   labels,
   inlineArtworks,
+  inlineProcess,
   fallbackUrl,
   fallbackYear,
   fallbackWorkCount,
@@ -24,6 +33,7 @@ export function TerminalDescription({
   paragraphs: string[];
   labels?: string[];
   inlineArtworks?: NonNullable<Exhibition["inlineArtworks"]>;
+  inlineProcess?: NonNullable<Exhibition["processVideos"]>["inline"];
   fallbackUrl?: string;
   fallbackYear?: number;
   fallbackWorkCount?: number;
@@ -39,6 +49,8 @@ export function TerminalDescription({
         const breakAt = inlineArtworks?.find(
           (g) => g.afterParagraphIndex === pi,
         );
+        const processAt =
+          inlineProcess?.afterParagraphIndex === pi ? inlineProcess : null;
         return (
           <Fragment key={pi}>
             <div className="term-station" data-station-index={pi}>
@@ -54,6 +66,36 @@ export function TerminalDescription({
                 fallbackYear={fallbackYear}
                 fallbackWorkCount={fallbackWorkCount}
               />
+            )}
+            {processAt && (
+              <figure
+                className="sl-inline-process"
+                aria-label="Studio process log"
+              >
+                {processAt.label && (
+                  <div className="sl-inline-process-readout">
+                    <span className="sl-inline-process-readout-prefix">
+                      &gt;&gt;
+                    </span>
+                    <span className="sl-inline-process-readout-label">
+                      {processAt.label}
+                    </span>
+                    {processAt.duration && (
+                      <span className="sl-inline-process-readout-duration">
+                        {processAt.duration}
+                      </span>
+                    )}
+                  </div>
+                )}
+                <div className="sl-inline-process-frame">
+                  <AutoPlayVideo
+                    className="sl-inline-process-video"
+                    src={processAt.src}
+                    poster={processAt.poster}
+                    preload="metadata"
+                  />
+                </div>
+              </figure>
             )}
           </Fragment>
         );

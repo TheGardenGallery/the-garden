@@ -73,11 +73,16 @@ export const exhibitions: Exhibition[] = [
         label: "capture_01  ::  studio.film",
         duration: "03:11",
       },
-      ambient: {
+      inline: {
+        // Place between P3 (visual lineage / 1970s sci-fi interfaces) and
+        // P4 (closing thought on instability). Lets the viewer see the
+        // system in motion — re-meshing, walkers tracing — right before
+        // reading Ricky's reflection that the grids "never fully resolve."
+        afterParagraphIndex: 2,
         src: "/images/ricky-retouch/process/process-loop.mp4",
         poster: "/images/ricky-retouch/process/process-loop.jpg",
-        label: "capture_02  ::  rmesh_pass  ::  loop",
-        duration: "00:34",
+        label: "process_log  ::  rmesh_pass",
+        duration: "00:34  ::  loop",
       },
     },
   },

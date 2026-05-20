@@ -21,6 +21,7 @@ export function ExhibitionOverview({ exhibition }: { exhibition: Exhibition }) {
             paragraphs={exhibition.description}
             labels={exhibition.descriptionLabels}
             inlineArtworks={exhibition.inlineArtworks}
+            inlineProcess={exhibition.processVideos?.inline}
             fallbackUrl={exhibition.verseSeriesUrl}
             fallbackYear={exhibition.year}
             fallbackWorkCount={exhibition.workCount}

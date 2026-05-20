@@ -201,24 +201,29 @@ export type Exhibition = {
   storage?: string;              // asset storage — e.g. "IPFS"
   presentedBy?: string;
   verseSeriesUrl?: string;       // external link to the exhibition's Verse series page
-  /** Studio process record — short ambient capture and/or longer
-      process film, themed as instrumentation feed (console plates,
-      monospace telemetry labels) when slug === "split-logic". Placed
-      between the artist note/grid and the colophon — the editorial
-      frame closes first, then the process docs play as a coda.
-      Either field is optional; the section renders whichever exist. */
+  /** Studio process record — featured film in the coda section, and/or
+      an inline process clip placed within the description prose. Themed
+      as instrumentation feed (console plates, monospace telemetry
+      labels) when slug === "split-logic". Either field is optional. */
   processVideos?: {
-    /** Featured process film — poster + controls, click-to-play. Audio
-        kept. Reads as the deeper record viewers engage with. */
+    /** Featured process film — placed in the coda section between the
+        artist note and the colophon. Poster + native <video controls>,
+        click-to-play, audio kept. Reads as the deeper record viewers
+        engage with on their terms. */
     featured?: {
       src: string;
       poster: string;
       label?: string;     // monospace telemetry label
       duration?: string;  // displayed below — "03:11"
     };
-    /** Ambient loop — autoplay, muted, no controls. Visual companion
-        to the featured film, not a peer. */
-    ambient?: {
+    /** Inline process clip — embedded within the description prose
+        after the paragraph at `afterParagraphIndex`. Autoplay-on-
+        intersect, muted, no controls. Annotated above with a Space Mono
+        readout so it reads as a process log, not an artwork. Sized
+        smaller than the inline-artworks 3-up so the prose flow stays
+        primary. */
+    inline?: {
+      afterParagraphIndex: number;
       src: string;
       poster?: string;
       label?: string;
