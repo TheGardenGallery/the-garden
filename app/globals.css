@@ -6491,13 +6491,6 @@ html:has(.constellation-root){
   background:#000;
 }
 .sl-inline-process-video{
-  /* Absolute-fill instead of width/height:100% — anchors the video to
-     all four edges of the aspect-ratio frame, so subpixel rounding can't
-     leak a 1px gap where the black frame would otherwise show through.
-     The 16:9 source matches the 16:9 frame exactly, so object-fit:cover
-     does no cropping — it just guarantees full coverage. */
-  position:absolute;
-  inset:0;
   width:100%;height:100%;
   object-fit:cover;
   display:block;
