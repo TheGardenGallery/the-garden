@@ -6515,8 +6515,14 @@ html:has(.constellation-root){
   position:relative;
 }
 .sl-process-inner{
-  max-width:760px;
+  /* Match .broadsheet-inner--annotated's container (1240px) so "studio"
+     sits at the same left X as "Artist's note" above. The featured
+     plate inside is narrower (960px) but left-aligned via align-self
+     so its left edge sits directly under the heading. */
+  max-width:1240px;
   margin:0 auto;
+  display:flex;
+  flex-direction:column;
 }
 .sl-process-heading{
   display:block;
@@ -6537,12 +6543,13 @@ html:has(.constellation-root){
   position:relative;
 }
 .sl-process-plate--featured{
-  /* Break out 100px past the 760 heading column on each side, landing
-     at 960 total — same width as the inline clip. Heading stays in the
-     760 column; the plate (frame + caption) extends wider. */
+  /* Plate is narrower than the heading container (960 vs 1240) but
+     left-aligned inside the flex column so its left edge sits directly
+     under the "studio" heading — heading and plate stack as a single
+     anchored block, not centered separately. */
+  align-self:flex-start;
+  width:100%;
   max-width:960px;
-  margin-left:calc((760px - 960px) / 2);
-  margin-right:calc((760px - 960px) / 2);
 }
 .sl-process-frame{
   position:relative;
@@ -6572,16 +6579,6 @@ html:has(.constellation-root){
 .sl-process-readout-duration{
   margin-left:auto;
   color:rgba(232,248,248,0.32);
-}
-@media (max-width:960px){
-  /* Below the 960 break-out target, the plate would extend past the
-     viewport gutters — collapse it back to the heading column so the
-     plate stays inside .sl-process-inner. */
-  .sl-process-plate--featured{
-    max-width:100%;
-    margin-left:0;
-    margin-right:0;
-  }
 }
 @media (max-width:760px){
   .sl-process{padding:64px var(--gutter) 72px;}
