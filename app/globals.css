@@ -5850,8 +5850,13 @@ html:has(.constellation-root){
   .piece-grid-section{padding:64px var(--gutter) 88px;}
   .piece-grid{grid-template-columns:repeat(2,1fr);gap:14px;}
   .piece-grid-overlay{padding:24px;}
-  .piece-nav-prev{left:8px;}
-  .piece-nav-next{right:8px;}
+  /* On phones, the centered plate sat at ~70vmin which left a lot of
+     dark/cream margin around the artwork; bump to 82vmin so the work
+     reads bigger while the nav arrows shift to 4px from the screen
+     edges (still a small breathing strip, not flush with the bezel). */
+  .piece-grid-expanded{width:min(720px, 82vmin);}
+  .piece-nav-prev{left:4px;}
+  .piece-nav-next{right:4px;}
 }
 
 /* ---- Split Logic: full-page dark treatment -------------------------
