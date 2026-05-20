@@ -59,13 +59,26 @@ export function InlineArtworks({
     const videos = Array.from(el.querySelectorAll("video"));
     if (videos.length === 0) return;
 
+    // Tracks which videos the play IO has marked as currently in-view.
+    // tryPlay() gates on this so the canplay/loadeddata retry handlers
+    // can't accidentally start an off-screen video if its data
+    // finishes loading after the user has already scrolled past.
+    // Without this gate, a video out of view but whose buffer just
+    // resolved would silently start playing — violating the "play
+    // only while watching" rule.
+    const inView = new Set<HTMLVideoElement>();
+
     const tryPlay = (v: HTMLVideoElement) => {
+      if (!inView.has(v)) return;
       v.muted = true;
       if (v.paused) v.play().catch(() => {});
     };
 
     if (typeof IntersectionObserver === "undefined") {
-      videos.forEach(tryPlay);
+      videos.forEach((v) => {
+        inView.add(v);
+        tryPlay(v);
+      });
       return;
     }
 
@@ -108,8 +121,13 @@ export function InlineArtworks({
       (entries) => {
         entries.forEach((entry) => {
           const v = entry.target as HTMLVideoElement;
-          if (entry.isIntersecting) tryPlay(v);
-          else v.pause();
+          if (entry.isIntersecting) {
+            inView.add(v);
+            tryPlay(v);
+          } else {
+            inView.delete(v);
+            v.pause();
+          }
         });
       },
       { threshold: 0.25 }
