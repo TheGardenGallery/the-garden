@@ -6466,11 +6466,11 @@ html:has(.constellation-root){
   font-size:10px;letter-spacing:0.06em;
   color:rgba(232,248,248,0.6);
   font-variant-numeric:tabular-nums;
-  /* Caption below the frame, left-aligned — catalog-plate convention
-     (image first, plate label beneath). 10px top reads as the visual
-     analog of a plate's hairline gap; 0 bottom because the figure's
-     own margin handles spacing into the next paragraph. */
-  padding:10px 2px 0;
+  /* Generous catalog-plate gap — Hufkens-convention is 24-32px below
+     a work for its caption label. 32px reads as "caption is a deliberate
+     plate" not "label glued to the work." Matches the studio readout
+     exactly for cohesive cross-section feel. */
+  padding:32px 2px 0;
   user-select:none;
 }
 .sl-inline-process-readout-prefix{color:rgba(232,248,248,0.32);}
@@ -6576,10 +6576,12 @@ html:has(.constellation-root){
   font-size:10px;letter-spacing:0.06em;
   color:rgba(232,248,248,0.6);
   font-variant-numeric:tabular-nums;
-  /* Match the inline clip's tight caption-to-frame gap exactly. Margin
-     reset because some browsers apply 1em to figcaption by default. */
+  /* Generous catalog-plate gap (32px) — matches the inline readout
+     exactly. Reads as "caption is a deliberate plate" not "label
+     glued to the work." Margin reset because some browsers apply
+     1em to figcaption by default. */
   margin:0;
-  padding:10px 2px 0;
+  padding:32px 2px 0;
   user-select:none;
 }
 .sl-process-readout-prefix{color:rgba(232,248,248,0.32);}
