@@ -8,11 +8,14 @@ import { AutoPlayVideo } from "./AutoPlayVideo";
  * closes (the works, the artist's note); the process film plays as a
  * coda before the credits.
  *
- * Featured clip uses AutoPlayVideo so it autoplays muted on intersect
- * and loops continuously, matching the inline-process clip's
- * behaviour. Controls stay on so a viewer who wants to scrub or pause
- * a long capture still can. Inline ambient (shorter loop) lives in
- * the description prose, rendered by TerminalDescription.
+ * Featured clip uses AutoPlayVideo with autoplay-on-intersect + loop +
+ * no controls — same treatment as the inline-process clip in the
+ * description prose. Controls were tried but the bottom control bar
+ * occupies the lower ~30-40px of the frame, which made the visual
+ * gap between frame-bottom and caption-top read as larger than the
+ * inline clip's matching 10px gap (controls aren't there to push the
+ * content down). Same ambient behaviour means matching gaps and a
+ * cohesive read across both clips.
  */
 export function SplitLogicProcess({
   process,
@@ -35,7 +38,6 @@ export function SplitLogicProcess({
               poster={featured.poster}
               preload="metadata"
               loop
-              controls
             />
           </div>
           {featured.label && (
