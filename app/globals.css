@@ -7232,10 +7232,11 @@ html:has(.constellation-root){
 .artist-reveal-artwork img{
   width:100%;height:auto;display:block;
 }
-/* John Provencher: wider frame than the default 510 because his
-   showcase is a landscape gallery installation (1.5:1) — at the
-   default width the half-clipped peek reads as a postage stamp. */
-.artist-reveal[data-slug="john-provencher"] .artist-reveal-artwork{
+/* John Provencher + Erik Swahn: wider frame than the default 510
+   because both showcases are 3:2 landscape (1.5:1) — at the default
+   width the half-clipped peek reads as a postage stamp. */
+.artist-reveal[data-slug="john-provencher"] .artist-reveal-artwork,
+.artist-reveal[data-slug="erik-swahn"] .artist-reveal-artwork{
   width:760px;
 }
 /* Paul Prudence: ISO/IEC 10646 is a tall portrait strip — at the
@@ -7308,10 +7309,12 @@ html:has(.constellation-root){
   aspect-ratio:1763 / 2400;
 }
 @media (max-width:720px){
-  .artist-reveal[data-slug="john-provencher"] .artist-reveal-artwork{
-    /* Wider cap for John's landscape installation, but the same inset
-       expression so there's still whitespace on both sides at every
-       phone width (the calc clamp wins below 540px viewports). */
+  .artist-reveal[data-slug="john-provencher"] .artist-reveal-artwork,
+  .artist-reveal[data-slug="erik-swahn"] .artist-reveal-artwork{
+    /* Wider cap for the 3:2 landscape showcases (John's installation
+       photo, Erik's Autoscope hero), but the same inset expression so
+       there's still whitespace on both sides at every phone width (the
+       calc clamp wins below 540px viewports). */
     max-width:min(33.75rem, calc(100% - 2rem));
   }
 }
