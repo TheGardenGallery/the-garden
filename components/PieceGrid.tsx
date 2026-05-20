@@ -12,12 +12,24 @@ export type PieceGridItem = {
 
 export function PieceGrid({
   items,
+  lightboxItems,
   cellOrder,
   eagerMount = false,
   wasdNav = false,
   snappySwipe = false,
 }: {
   items: PieceGridItem[];
+  /**
+   * Optional larger pool the lightbox cycles through when prev/next
+   * is pressed. `items` controls what cells get rendered on screen
+   * (typically the current page), while `lightboxItems` is the
+   * complete sorted collection so the user can navigate through the
+   * whole series from inside the lightbox without paginating the
+   * grid. When omitted, the lightbox cycles through `items` only.
+   * Clicked cells are looked up in lightboxItems by video URL to
+   * start cycling from the correct index.
+   */
+  lightboxItems?: PieceGridItem[];
   /**
    * Optional per-item visual order. `cellOrder[i]` gives the CSS `order`
    * value for the i-th item — the React array stays stable (so videoRefs,
@@ -83,16 +95,40 @@ export function PieceGrid({
   const reduced = useReducedMotion();
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
 
+  // The lightbox cycles through `lightboxItems` if provided (the full
+  // sorted collection), otherwise falls back to `items` (the current
+  // page). All `expanded` indices below refer to lightboxList.
+  const lightboxList = lightboxItems ?? items;
+
   const prev = useCallback(() => {
     setExpanded((cur) =>
-      cur === null ? null : (cur - 1 + items.length) % items.length
+      cur === null
+        ? null
+        : (cur - 1 + lightboxList.length) % lightboxList.length,
     );
-  }, [items.length]);
+  }, [lightboxList.length]);
   const next = useCallback(() => {
     setExpanded((cur) =>
-      cur === null ? null : (cur + 1) % items.length
+      cur === null ? null : (cur + 1) % lightboxList.length,
     );
-  }, [items.length]);
+  }, [lightboxList.length]);
+
+  // Click handler: translate the clicked cell's position in `items`
+  // into the equivalent position in lightboxList, so prev/next picks
+  // up the cycle from the artwork the user actually tapped.
+  const openLightbox = useCallback(
+    (cellIndex: number) => {
+      if (lightboxList === items) {
+        setExpanded(cellIndex);
+        return;
+      }
+      const it = items[cellIndex];
+      if (!it) return;
+      const idx = lightboxList.findIndex((x) => x.video === it.video);
+      setExpanded(idx >= 0 ? idx : 0);
+    },
+    [items, lightboxList],
+  );
 
   // Overlay-level swipe — fires prev/next when the user swipes
   // anywhere on the lightbox, not just on the artwork. Touches that
@@ -174,15 +210,15 @@ export function PieceGrid({
       prefetchedRef.current = new Set();
       return;
     }
-    if (items.length <= 1) return;
+    if (lightboxList.length <= 1) return;
     const ids = [
       expanded,
-      (expanded - 1 + items.length) % items.length,
-      (expanded + 1) % items.length,
+      (expanded - 1 + lightboxList.length) % lightboxList.length,
+      (expanded + 1) % lightboxList.length,
     ];
     ids.forEach((idx) => {
       if (prefetchedRef.current.has(idx)) return;
-      const it = items[idx];
+      const it = lightboxList[idx];
       if (!it) return;
       prefetchedRef.current.add(idx);
       // Poster — instant via Image() cache.
@@ -198,7 +234,7 @@ export function PieceGrid({
       document.head.appendChild(link);
       prefetchLinksRef.current.push(link);
     });
-  }, [expanded, items]);
+  }, [expanded, lightboxList]);
 
   // Drive play/pause on the mounted cell videos. Only the currently
   // hovered cell plays; everything else stays paused at its last
@@ -273,7 +309,7 @@ export function PieceGrid({
                 className="piece-cell"
                 data-zoom-src={item.video}
                 style={cellStyle}
-                onClick={() => setExpanded(i)}
+                onClick={() => openLightbox(i)}
                 onMouseEnter={() => handleEnter(cellKey)}
                 onMouseLeave={handleLeave}
                 onFocus={() => handleEnter(cellKey)}
@@ -383,15 +419,15 @@ export function PieceGrid({
           >
             <div
               className="piece-grid-overlay-bg"
-              style={{ backgroundImage: `url(${items[expanded].poster})` }}
+              style={{ backgroundImage: `url(${lightboxList[expanded].poster})` }}
               aria-hidden="true"
             />
             <ExpandedArtwork
               key={expanded}
-              item={items[expanded]}
+              item={lightboxList[expanded]}
               onClose={() => setExpanded(null)}
-              onPrev={items.length > 1 ? prev : undefined}
-              onNext={items.length > 1 ? next : undefined}
+              onPrev={lightboxList.length > 1 ? prev : undefined}
+              onNext={lightboxList.length > 1 ? next : undefined}
               snappySwipe={snappySwipe}
             />
 

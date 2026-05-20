@@ -349,6 +349,16 @@ export function SplitLogicSystem({
     return sortedIndices.slice(start, end).map((i) => gridItems[i]);
   }, [page, total, sortedIndices, gridItems]);
 
+  // Full sorted list — passed to PieceGrid as `lightboxItems` so the
+  // lightbox cycles through every piece in the active sort order,
+  // not just the 12 visible on the current page. Tap any artwork on
+  // any page → lightbox opens at that piece and prev/next walks the
+  // whole series in current-sort order.
+  const fullSortedItems = useMemo(
+    () => sortedIndices.map((i) => gridItems[i]),
+    [sortedIndices, gridItems],
+  );
+
   const handleZoneClick = (i: number) => {
     // No toggle-to-null — the system stays LOCKED at all times. The
     // page opens locked on white, and every swatch click just moves
@@ -514,7 +524,13 @@ export function SplitLogicSystem({
           </button>
         )}
 
-        <PieceGrid items={pageItems} eagerMount wasdNav snappySwipe />
+        <PieceGrid
+          items={pageItems}
+          lightboxItems={fullSortedItems}
+          eagerMount
+          wasdNav
+          snappySwipe
+        />
 
         {totalPages > 1 && (
           <button
