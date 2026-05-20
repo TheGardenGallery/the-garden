@@ -5170,9 +5170,35 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="simple-thoughts"] .ex-explore-image{
   background:#f5f3ee;
 }
+/* Simple Thoughts opts out of the universal mobile horizontal-scroll
+   pattern. The 8 panoramas (3:1 aspect) read best as a 2-col stacked
+   grid on mobile — a horizontal-scroll strip would fight the wide-
+   short aspect ratio and force the user to swipe sideways through
+   tiny letterboxed cells. Keep the page's pre-universal grid
+   behaviour. */
 @media (max-width:720px){
   .exhibition-detail[data-slug="simple-thoughts"] .ex-explore-row{
+    display:grid;
     grid-template-columns:repeat(2, 1fr);
+    gap:16px;
+    overflow-x:visible;
+    scroll-snap-type:none;
+    margin:0;
+    padding:0;
+    scroll-padding-left:0;
+  }
+  .exhibition-detail[data-slug="simple-thoughts"] .ex-explore-row::-webkit-scrollbar{
+    display:initial;
+  }
+  .exhibition-detail[data-slug="simple-thoughts"] .ex-explore-item{
+    flex:initial;
+    scroll-snap-align:none;
+  }
+  .exhibition-detail[data-slug="simple-thoughts"] .ex-explore-item:last-child{
+    margin-right:0;
+  }
+  .exhibition-detail[data-slug="simple-thoughts"] .ex-explore-item .ex-explore-figure{
+    gap:14px;
   }
 }
 
