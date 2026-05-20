@@ -6451,13 +6451,13 @@ html:has(.constellation-root){
    inline-artworks 3-up — the prose flow stays primary; this is a quiet
    process beat between paragraphs. */
 .sl-inline-process{
-  /* Editorial breakout: ~80px past the 680px prose column on each
-     side. 840px lands between confident-pause and postage-stamp and
-     packs the 1920px source into a denser display ratio than 960 did
-     (the walker dots read crisper at slightly smaller scale on non-
-     retina displays). */
-  margin:64px auto;
-  max-width:840px;
+  /* Editorial breakout: ~140px past the 680px prose column on each
+     side. Reads as a confident editorial pause, not a postage stamp.
+     Source is 1920×1080 so anything up to 1920 stays sharp; 960 leaves
+     headroom and keeps the figure from competing with the inline
+     artworks 3-up (1505px) further up the page. */
+  margin:72px auto;
+  max-width:960px;
   display:block;
 }
 .sl-inline-process-readout{
