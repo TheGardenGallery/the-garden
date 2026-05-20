@@ -6615,8 +6615,14 @@ html:has(.constellation-root){
   color:rgba(232,248,248,0.32);
 }
 @media (max-width:760px){
-  .sl-process{padding:64px var(--gutter) 72px;}
-  .sl-process-heading{margin-bottom:40px;}
+  /* Tighter mobile section padding. The desktop 100/120 reads as
+     editorial breathing; on mobile that becomes ~17% of viewport
+     height of empty space at each end of the section, which crosses
+     from "breathing" into "broken page flow." 32/56 keeps the section
+     distinct from broadsheet above and colophon below without burning
+     scroll on empty pixels. */
+  .sl-process{padding:32px var(--gutter) 56px;}
+  .sl-process-heading{margin-bottom:32px;}
 }
 
 .ex-colophon{
