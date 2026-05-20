@@ -31,13 +31,14 @@ export default async function Image() {
           alignItems: "center",
           justifyContent: "center",
           fontFamily: "Inter",
-          // Asymmetric bottom padding lifts the optical center of the
-          // available flex region from y=600 to y=540 (45% from top),
-          // which lands the wordmark at ~40% from the top of Twitter's
-          // 2:1 cropped view — the canonical masthead position on a
-          // magazine cover. iMessage's full 1:1 canvas reads the same
-          // shift as a subtle editorial lift, not a hard offset.
-          paddingBottom: 120,
+          // Subtle asymmetric lift: paddingBottom 60 centers the
+          // wordmark at y=570 (47.5% from top) on the full 1:1 canvas
+          // — soft enough to read as optical-center correction rather
+          // than explicit upper-third masthead, which matters because
+          // there's no supporting content below to anchor a stronger
+          // masthead read. Twitter's 2:1 crop puts the wordmark at
+          // ~45% from top, still slightly editorial.
+          paddingBottom: 60,
         }}
       >
         {/*
