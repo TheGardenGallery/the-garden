@@ -1,4 +1,5 @@
 import type { Exhibition } from "@/lib/types";
+import { AutoPlayVideo } from "./AutoPlayVideo";
 
 /**
  * Studio process record — themed as another instrument on the Split
@@ -7,11 +8,11 @@ import type { Exhibition } from "@/lib/types";
  * closes (the works, the artist's note); the process film plays as a
  * coda before the credits.
  *
- * Only renders the `featured` clip (long-form process documentary —
- * native <video controls>, click-to-play). The shorter ambient loop
- * lives inline in the description prose instead (rendered by
- * TerminalDescription), so the coda has a single quiet anchor rather
- * than two competing plates.
+ * Featured clip uses AutoPlayVideo so it autoplays muted on intersect
+ * and loops continuously, matching the inline-process clip's
+ * behaviour. Controls stay on so a viewer who wants to scrub or pause
+ * a long capture still can. Inline ambient (shorter loop) lives in
+ * the description prose, rendered by TerminalDescription.
  */
 export function SplitLogicProcess({
   process,
@@ -27,8 +28,18 @@ export function SplitLogicProcess({
         <div className="sl-process-heading">studio</div>
 
         <figure className="sl-process-plate sl-process-plate--featured">
+          <div className="sl-process-frame">
+            <AutoPlayVideo
+              className="sl-process-video"
+              src={featured.src}
+              poster={featured.poster}
+              preload="metadata"
+              loop
+              controls
+            />
+          </div>
           {featured.label && (
-            <div className="sl-process-readout">
+            <figcaption className="sl-process-readout">
               <span className="sl-process-readout-prefix">&gt;&gt;</span>
               <span className="sl-process-readout-label">{featured.label}</span>
               {featured.duration && (
@@ -36,21 +47,8 @@ export function SplitLogicProcess({
                   {featured.duration}
                 </span>
               )}
-            </div>
+            </figcaption>
           )}
-          <div className="sl-process-frame">
-            {/* Native controls; click-to-play; preload metadata so the
-                poster is visible and the seek bar accurate without
-                pulling the whole 9 MB on mount. */}
-            <video
-              className="sl-process-video"
-              src={featured.src}
-              poster={featured.poster}
-              controls
-              preload="metadata"
-              playsInline
-            />
-          </div>
         </figure>
       </div>
     </section>
