@@ -5720,6 +5720,31 @@ html:has(.constellation-root){
   transform:scale(1.18);
   pointer-events:none;
   z-index:-1;
+  /* Render layer isolation — keeps the ::after dither's blend-mode
+     composing only against this bg layer, not against the artwork
+     at z-index above. Without this the dither would faintly tint
+     the artwork too. */
+  isolation:isolate;
+}
+/* Banding suppression — overlay a fine SVG-turbulence noise dither
+   on the blurred backdrop. The double-blur above gets us most of
+   the way smooth, but 8-bit per-channel color quantizes the final
+   raster to 256 luminance steps; in the brightness=0.42 dark range
+   each step covers a perceptually-wide band. Adding ±1-step noise
+   randomly perturbs each pixel by a tiny luminance value, which
+   dithers smooth gradients into noise-textured transitions the eye
+   reads as continuous. Same trick film-grading uses for dark scenes.
+   Opacity 0.06 with mix-blend-mode:overlay is subtle enough to be
+   invisible as "grain" but enough to dissolve the remaining bands. */
+.piece-grid-overlay-bg::after{
+  content:"";
+  position:absolute;inset:0;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.65'/></svg>");
+  background-size:220px 220px;
+  background-repeat:repeat;
+  opacity:0.06;
+  mix-blend-mode:overlay;
+  pointer-events:none;
 }
 .piece-grid-expanded{
   position:relative;
