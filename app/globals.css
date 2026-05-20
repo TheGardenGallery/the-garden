@@ -2862,9 +2862,9 @@ html:has(.constellation-root){
   left:50%;top:50%;bottom:auto;
   transform:translate(-50%,-50%);
   background:#000;
-  width:min(360px, 70vw);
-  aspect-ratio:1;
-  padding:clamp(24px, 4vw, 44px);
+  width:min(300px, 65vw);
+  aspect-ratio:4/3;
+  padding:clamp(20px, 3vw, 32px);
   display:flex;align-items:center;justify-content:center;
   text-align:center;
 }
