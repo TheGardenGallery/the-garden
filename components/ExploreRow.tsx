@@ -90,10 +90,82 @@ function ExploreItem({
   fallbackWorkCount?: number;
 }) {
   const [animating, setAnimating] = useState(false);
-  // Iframe-poster fade gate: true once the iframe's genart has had
-  // time to render its first frame, at which point the static-frame
-  // image overlay can fade away to reveal the live version.
+  // Iframe-poster fade gate: true once the iframe's genart has
+  // actually inserted its canvas into the iframe DOM, detected via
+  // MutationObserver below. That's the precise moment to fade the
+  // static-frame poster overlay away to reveal the live version —
+  // not a guess-timeout after onLoad.
   const [iframeReady, setIframeReady] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  // Watch the iframe's contentDocument for a <canvas> element to
+  // appear. The `/api/genart/*` proxy makes the iframe same-origin
+  // so we can access its DOM. MutationObserver fires only on actual
+  // DOM changes (cheap, not a polling loop). Fallback timeout at
+  // 4s in case detection misses (cross-origin error, genart fails,
+  // etc.) so the poster doesn't get stuck overlaying a working
+  // iframe forever.
+  useEffect(() => {
+    if (!item.iframe) return;
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    let observer: MutationObserver | null = null;
+    let fallbackTimer: number | null = null;
+    let settled = false;
+
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      setIframeReady(true);
+      if (observer) observer.disconnect();
+      if (fallbackTimer !== null) window.clearTimeout(fallbackTimer);
+    };
+
+    const tryWatch = () => {
+      try {
+        const doc = iframe.contentDocument;
+        if (!doc) return false;
+        // If canvas is already there, settle immediately.
+        const existing = doc.querySelector("canvas");
+        if (existing && existing.width > 0 && existing.height > 0) {
+          settle();
+          return true;
+        }
+        // Otherwise observe future DOM changes.
+        observer = new MutationObserver(() => {
+          const c = doc.querySelector("canvas");
+          if (c && c.width > 0 && c.height > 0) settle();
+        });
+        observer.observe(doc.documentElement, {
+          childList: true,
+          subtree: true,
+        });
+        return true;
+      } catch {
+        // Cross-origin or other access error — caller will fall back
+        // to the timeout below.
+        return false;
+      }
+    };
+
+    const onLoad = () => {
+      tryWatch();
+    };
+    iframe.addEventListener("load", onLoad);
+    // Some browsers may not fire `load` again if the iframe is
+    // already loaded by the time this effect runs (cached); try
+    // immediately as well.
+    tryWatch();
+
+    fallbackTimer = window.setTimeout(settle, 4000);
+
+    return () => {
+      iframe.removeEventListener("load", onLoad);
+      if (observer) observer.disconnect();
+      if (fallbackTimer !== null) window.clearTimeout(fallbackTimer);
+    };
+  }, [item.iframe]);
   const isGif = /\.gif$/i.test(item.image);
   const hasPoster = isGif && Boolean(item.poster);
   const staticSrc = item.poster ?? item.image;
@@ -132,26 +204,33 @@ function ExploreItem({
   // bundle is loading (~2MB JS + shaders from IPFS for BASALT RT,
   // multi-second on mobile), the static `item.image` is rendered as
   // a positioned overlay above the iframe so the user sees the
-  // artwork's still-frame instantly. The image fades out 600ms
-  // after the iframe's onLoad fires (giving the genart time to do
-  // its initial canvas render), revealing the live version
-  // underneath as a smooth artwork-to-artwork crossfade.
+  // artwork's still-frame instantly.
+  //
+  // The fade-out timing watches for a <canvas> element to appear in
+  // the iframe's contentDocument via MutationObserver — the precise
+  // moment the genart starts rendering, no guess-timeout. The
+  // iframe is same-origin (loaded via /api/genart/* proxy) so DOM
+  // access works. Fallback timeout at 4s in case the genart fails
+  // or the canvas detection misses.
+  //
+  // Eager loading (no loading="lazy"): the page is structurally
+  // dedicated to these iframes (artist statement + 3 explore
+  // artworks); start fetching bytes on page mount so by the time
+  // the user reaches the explore section the genart is already
+  // running, not still bootstrapping.
   if (item.iframe) {
     return (
       <div className="ex-explore-item">
         <figure className="ex-explore-figure">
           <div className="ex-explore-image">
             <iframe
+              ref={iframeRef}
               className="ex-explore-iframe"
               src={item.iframe}
               title={item.alt}
-              loading="lazy"
               referrerPolicy="no-referrer"
               allow="autoplay; fullscreen"
               sandbox="allow-scripts allow-same-origin"
-              onLoad={() => {
-                window.setTimeout(() => setIframeReady(true), 600);
-              }}
             />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
