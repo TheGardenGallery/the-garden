@@ -6474,10 +6474,13 @@ html:has(.constellation-root){
      "off" side-by-side. */
   line-height:1;
   margin:0;
-  /* Hufkens catalog-plate gap: 48px below the work, the canonical
-     standalone-plate range where the caption stops feeling glued to
-     the work and starts reading as a deliberate catalog entry. */
-  padding:48px 2px 0;
+  /* Hufkens catalog-plate gap, fluid: 48px on desktop where the plate
+     is 540px tall (9% of height) → 24px on mobile where the plate is
+     ~193px tall (12% of height). Without the clamp, the desktop 48px
+     burns 25% of the mobile plate's height as caption gap, which
+     reads as "caption floating off the work" rather than "catalog
+     plate beneath the work." */
+  padding:clamp(24px, 5vw, 48px) 2px 0;
   user-select:none;
 }
 .sl-inline-process-readout-prefix{color:rgba(232,248,248,0.32);}
@@ -6598,8 +6601,11 @@ html:has(.constellation-root){
      line-height note on .sl-inline-process-readout above). */
   line-height:1;
   margin:0;
-  /* Hufkens catalog-plate gap (48px) — same as the inline. */
-  padding:48px 2px 0;
+  /* Fluid catalog-plate gap — same clamp as the inline readout
+     (clamp(24px, 5vw, 48px)). Studio plate has a wider aspect (2.06:1)
+     so its mobile height is even shorter than the inline's; the
+     fluid gap scales correctly down to 24px on small viewports. */
+  padding:clamp(24px, 5vw, 48px) 2px 0;
   user-select:none;
 }
 .sl-process-readout-prefix{color:rgba(232,248,248,0.32);}
