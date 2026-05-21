@@ -10,21 +10,33 @@ import { fetchExhibitions, fetchJournalEntries } from "@/lib/verse-api";
 import { getArtworkPalette } from "@/lib/palette";
 import { homepagePastPicks } from "@/lib/data/display-rules";
 
-// Homepage-only override: link-preview cards lead with the brand
-// name and use the tagline as the body line — gallery-card
-// convention (Hufkens, Gagosian, Zwirner all do the same). Prior
-// approach tried to lead with the descriptive line and empty
-// og:description, but Next.js auto-derives og:description from
-// layout's `description` when the page-level value is empty, so
-// Discord/Slack/iMessage rendered the same line twice. Description
-// here uses no trailing period (cleaner on social cards); layout's
-// `description` keeps the period for Google's search snippet where
-// it ends a proper sentence. Sub-pages set their own per-page
-// titles in each route's generateMetadata.
+// Homepage-only metadata override:
+//
+// 1) og:title / twitter:title carry the *tagline*, not the brand —
+//    "The Garden" already appears as the wordmark inside the OG image,
+//    so an additional "The Garden" chip on X/iMessage/Slack ends up
+//    duplicating the brand instead of saying anything new. The tagline
+//    in the title slot complements the image: image carries the brand,
+//    the title carries the value proposition. No trailing period —
+//    reads cleaner in card layouts. Layout's `description` keeps the
+//    period for Google's sentence-ending search snippet.
+// 2) alternates.canonical + openGraph.url anchor every scraped variant
+//    (www.thegarden.art, thegarden.art, https://thegarden.art/, …)
+//    to one canonical URL, so Discord/Slack/iMessage consolidate their
+//    OG caches instead of treating each typed variant as a separate
+//    page (which produced inconsistent cards depending on how the URL
+//    was entered).
+// 3) Sub-pages keep their own per-page titles via each route's
+//    generateMetadata, so a shared exhibition link still shows the
+//    exhibition's title instead of the homepage tagline.
 export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "The Garden",
+    title: "An online gallery for digital art",
     description: "An online gallery for digital art",
+    url: "/",
   },
   twitter: {
     // Re-declare card here — Next replaces the parent twitter object
@@ -35,7 +47,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@chilltulpa",
     creator: "@chilltulpa",
-    title: "The Garden",
+    title: "An online gallery for digital art",
     description: "An online gallery for digital art",
   },
 };
