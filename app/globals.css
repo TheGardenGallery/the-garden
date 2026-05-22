@@ -5909,11 +5909,17 @@ html:has(.constellation-root){
      bitmap, giving pixel-perfect uniformity across the viewport.
      Fixed attachment locks the pattern to the viewport so content
      scrolls past a stable field rather than dragging the lattice
-     with it (CRT-static feel). */
+     with it (CRT-static feel). Centered position so the lattice
+     shares a reference frame with the centered content column —
+     both anchor at viewport-x 50%, so the dot field falls as a
+     mirror on either side of the prose on every viewport width.
+     A 0 0 anchor gave a clean column on the left edge and a
+     fractional one on the right, since the pattern never agreed
+     with the centered content. */
   background-color:#000;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><circle cx='20' cy='20' r='4' fill='%23e8f8f8' opacity='0.008'/><circle cx='20' cy='20' r='2.5' fill='%23e8f8f8' opacity='0.018'/><circle cx='20' cy='20' r='1.6' fill='%23e8f8f8' opacity='0.04'/><circle cx='20' cy='20' r='1' fill='%23e8f8f8' opacity='0.1'/><circle cx='20' cy='20' r='0.7' fill='%23e8f8f8' opacity='0.4'/></svg>");
   background-size:40px 40px;
-  background-position:0 0;
+  background-position:50% 50%;
   background-attachment:fixed;
 }
 /* Sections become transparent so the page-level dot lattice shows
