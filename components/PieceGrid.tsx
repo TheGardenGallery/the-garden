@@ -17,7 +17,7 @@ export function PieceGrid({
   eagerMount = false,
   wasdNav = false,
   snappySwipe = false,
-  onClose,
+  onItemChange,
 }: {
   items: PieceGridItem[];
   /**
@@ -67,18 +67,14 @@ export function PieceGrid({
    */
   snappySwipe?: boolean;
   /**
-   * Fires once when the lightbox closes, with the item from
-   * `lightboxItems` (or `items`) that was last open. Lets a parent
-   * remember the visitor's place — e.g. Split Logic's hero anchor —
-   * without PieceGrid having to know about any specific memory.
+   * Fires on every non-null lightbox navigation, with the current
+   * item from `lightboxItems` (or `items`). Lets a parent track the
+   * visitor's position live — e.g. Split Logic's hero anchor — while
+   * keeping PieceGrid agnostic of any specific destination.
    */
-  onClose?: (item: PieceGridItem) => void;
+  onItemChange?: (item: PieceGridItem) => void;
 }) {
   const [expanded, setExpanded] = useState<number | null>(null);
-  // Mirrors ZoomCatcher's pattern: the last-open index is captured
-  // here so we can hand the item back to onClose on the close
-  // transition (by the time the effect fires, `expanded` is null).
-  const lastExpandedRef = useRef<number | null>(null);
   // Hover/mount state is keyed by the piece's stable video URL rather
   // than its current array index. The Split Logic system reshuffles
   // the items array when a colour zone is locked; tracking by index
@@ -142,19 +138,15 @@ export function PieceGrid({
     [items, lightboxList],
   );
 
-  // Publish the last-viewed item when the lightbox closes. Captures
-  // `expanded` into a ref while open so the close transition can hand
-  // the item to onClose (by then `expanded` is already null).
+  // Publish the current lightbox item live — each prev/next step
+  // surfaces the new artwork to onItemChange. Close (expanded → null)
+  // is ignored on purpose so the parent's state stays at the last
+  // viewed piece.
   useEffect(() => {
-    if (expanded !== null) {
-      lastExpandedRef.current = expanded;
-      return;
-    }
-    if (lastExpandedRef.current === null) return;
-    const it = lightboxList[lastExpandedRef.current];
-    lastExpandedRef.current = null;
-    if (it && onClose) onClose(it);
-  }, [expanded, lightboxList, onClose]);
+    if (expanded === null) return;
+    const it = lightboxList[expanded];
+    if (it) onItemChange?.(it);
+  }, [expanded, lightboxList, onItemChange]);
 
   // Overlay-level swipe — fires prev/next when the user swipes
   // anywhere on the lightbox, not just on the artwork. Touches that

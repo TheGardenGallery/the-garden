@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion } from "motion/react";
 import { AutoPlayVideo } from "./AutoPlayVideo";
 import { ZoomCatcher } from "./ZoomCatcher";
 import type { ExpandedArtworkItem } from "./ExpandedArtwork";
@@ -16,17 +15,21 @@ import {
 /**
  * Split-Logic-only hero memory. As the visitor pages through any
  * lightbox on the page (the ZoomCatcher one for hero+inline artworks
- * AND the piece-grid one), the artwork they were last looking at
- * when they closed becomes the new hero. The canonical hero is
- * preserved as items[0] in the page-wide collection, so the URL's
- * first impression for fresh visitors is never altered — the swap
- * is in-memory only and wipes when this anchor unmounts (which
- * happens on full reload or navigating off the exhibition).
+ * AND the piece-grid one), the anchor index updates live so the
+ * canonical hero plate becomes a window onto the same artwork they
+ * are looking at in the lightbox. Closing the lightbox leaves them
+ * facing that artwork — no animation, no settle; the state is just
+ * synced.
  *
- * SplitLogicHeroAnchor paints the anchored artwork over the
- * canonical hero plate via a crossfade. SplitLogicZoomCatcher is
- * just a thin bridge that hands ZoomCatcher's close-index back to
- * the shared store.
+ * The canonical hero (items[0]) is preserved as the default, so the
+ * URL's first impression for fresh visitors is never altered — the
+ * swap is in-memory only and resets when this anchor unmounts
+ * (navigating off the exhibition or a full reload).
+ *
+ * SplitLogicHeroAnchor renders the anchored artwork as a portal
+ * inside the canonical .ex-hero-plate. SplitLogicZoomCatcher is a
+ * thin bridge that pushes ZoomCatcher's current index back to the
+ * shared store on every navigation.
  */
 
 function useHeroAnchorIndex(): number {
@@ -66,32 +69,25 @@ export function SplitLogicHeroAnchor({
   }, []);
 
   if (!mount) return null;
+  if (anchorIndex === 0) return null;
+  const item = items[anchorIndex];
+  if (!item) return null;
 
+  // No `key` on AutoPlayVideo: re-using the same <video> element
+  // across anchor changes lets the browser swap sources via prop
+  // update (which is cheaper than mount/unmount) and keeps the
+  // intersection-observer wiring inside AutoPlayVideo alive.
   return createPortal(
-    <AnimatePresence>
-      {anchorIndex !== 0 && items[anchorIndex] && (
-        <motion.div
-          key={anchorIndex}
-          className="ex-hero-anchor-overlay"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          // Symmetric easeInOut, 500ms — film-style cross-dissolve.
-          // Both pieces share air evenly through the transition; the
-          // new one "arrives" rather than "snaps in."
-          transition={{ duration: 0.5, ease: [0.42, 0, 0.58, 1] }}
-        >
-          <AutoPlayVideo
-            className="ex-hero-video"
-            src={items[anchorIndex].video}
-            poster={items[anchorIndex].poster}
-            loop
-            preload="auto"
-            aria-label={items[anchorIndex].alt}
-          />
-        </motion.div>
-      )}
-    </AnimatePresence>,
+    <div className="ex-hero-anchor-overlay">
+      <AutoPlayVideo
+        className="ex-hero-video"
+        src={item.video}
+        poster={item.poster}
+        loop
+        preload="auto"
+        aria-label={item.alt}
+      />
+    </div>,
     mount,
   );
 }
@@ -100,5 +96,5 @@ export function SplitLogicZoomCatcher(props: {
   items: ExpandedArtworkItem[];
   scope: string;
 }) {
-  return <ZoomCatcher {...props} onClose={setHeroAnchorIndex} />;
+  return <ZoomCatcher {...props} onIndexChange={setHeroAnchorIndex} />;
 }

@@ -379,11 +379,11 @@ export function SplitLogicSystem({
     setPage(0);
   };
 
-  // Hand the piece-grid lightbox's last-viewed item back to the
-  // hero anchor store. Mapping is by video URL since the piece-grid
-  // tracks its own sort-order indices, which don't line up with the
-  // page-wide allArtworks order.
-  const onLightboxClose = useCallback(
+  // Live-sync the piece-grid lightbox's current item to the hero
+  // anchor store. Mapping is by video URL since the piece-grid
+  // tracks its own sort-order indices, which don't line up with
+  // the page-wide allArtworks order.
+  const onPieceLightboxItemChange = useCallback(
     (item: PieceGridItem) => {
       if (!allArtworks) return;
       const idx = allArtworks.findIndex((a) => a.video === item.video);
@@ -554,7 +554,7 @@ export function SplitLogicSystem({
           eagerMount
           wasdNav
           snappySwipe
-          onClose={onLightboxClose}
+          onItemChange={onPieceLightboxItemChange}
         />
 
         {totalPages > 1 && (
