@@ -5948,14 +5948,12 @@ html:has(.constellation-root){
 }
 /* Overview keeps a solid bg behind its prose column for readability —
    running mono body text directly over the lattice would noise it up.
-   The hairline border-top punctuates the hero→editorial boundary so
-   the page formally begins here rather than dissolving the hero into
-   the overview without a finish. Bottom padding 64 (2× base) closes
-   the Overview→Palette gap to a clean 96 (64 + 32) rather than 80. */
+   Hero→editorial transition is carried by whitespace alone; no rule.
+   Bottom padding 64 (2× base) closes the Overview→Palette gap to a
+   clean 96 (64 + 32) rather than 80. */
 .exhibition-detail[data-slug="split-logic"] .ex-overview{
   background:#000;
   padding-bottom:64px;
-  border-top:1px solid rgba(255,255,255,0.06);
 }
 .exhibition-detail[data-slug="split-logic"] .ex-facts{
   border-left-color:rgba(255,255,255,0.12);
