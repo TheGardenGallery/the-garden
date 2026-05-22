@@ -13,6 +13,8 @@ import {
 } from "@/lib/split-logic-buckets";
 import { SplitLogicPalette } from "./SplitLogicPalette";
 import { PieceGrid, type PieceGridItem } from "./PieceGrid";
+import { setHeroAnchorIndex } from "./hero-anchor-store";
+import type { ExpandedArtworkItem } from "./ExpandedArtwork";
 
 const PAGE_SIZE = 12;
 // Eight 45° hue bins gives a fuller rainbow without crowding the bar.
@@ -127,6 +129,7 @@ export function SplitLogicSystem({
   cells,
   gridItems,
   archetypeSimilarities = {},
+  allArtworks,
 }: {
   cells: WedgeCell[];
   gridItems: PieceGridItem[];
@@ -141,6 +144,14 @@ export function SplitLogicSystem({
    * Optional: if absent, sort falls back to distance-to-centroid.
    */
   archetypeSimilarities?: Record<string, number>;
+  /**
+   * Page-wide artwork collection (hero + inline + piece grid items in
+   * document order) used to map the piece-grid lightbox's close-item
+   * back to an index in the canonical hero memory store. Without it,
+   * piece-grid closes can't update the hero. Only passed for Split
+   * Logic.
+   */
+  allArtworks?: ExpandedArtworkItem[];
 }) {
   const [lockedZoneIdx, setLockedZoneIdx] = useState<number | null>(null);
   const [page, setPage] = useState(0);
@@ -368,6 +379,19 @@ export function SplitLogicSystem({
     setPage(0);
   };
 
+  // Hand the piece-grid lightbox's last-viewed item back to the
+  // hero anchor store. Mapping is by video URL since the piece-grid
+  // tracks its own sort-order indices, which don't line up with the
+  // page-wide allArtworks order.
+  const onLightboxClose = useCallback(
+    (item: PieceGridItem) => {
+      if (!allArtworks) return;
+      const idx = allArtworks.findIndex((a) => a.video === item.video);
+      if (idx > 0) setHeroAnchorIndex(idx);
+    },
+    [allArtworks],
+  );
+
   // Both directions wrap — paging through the series is a loop, not a
   // bounded list with dead ends. From page 0 the left arrow takes you
   // to the last page; from the last page the right arrow returns to 0.
@@ -530,6 +554,7 @@ export function SplitLogicSystem({
           eagerMount
           wasdNav
           snappySwipe
+          onClose={onLightboxClose}
         />
 
         {totalPages > 1 && (

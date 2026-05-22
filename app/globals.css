@@ -5592,6 +5592,18 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="split-logic"] .piece-cell{
   cursor:none;
 }
+/* Hero memory overlay — when the visitor's last lightbox position
+   isn't the canonical hero, SplitLogicHeroAnchor portals a video on
+   top of the plate to take its place. Inset:0 covers the plate's
+   inner box; the flex centering mirrors .ex-hero-plate so the
+   anchored .ex-hero-video lands in identical position to the
+   canonical one (it inherits the same 92% max sizing). The crossfade
+   itself is driven by motion-react opacity tweens. */
+.exhibition-detail[data-slug="split-logic"] .ex-hero-anchor-overlay{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:auto;
+}
 .sl-magnifier{
   position:fixed;
   /* Same dimensions as the nav logo's Δ (.logo .triangle is 0.73em

@@ -27,12 +27,32 @@ import type { ExpandedArtworkItem } from "./ExpandedArtwork";
 export function ZoomCatcher({
   items,
   scope,
+  onClose,
 }: {
   items: ExpandedArtworkItem[];
   scope: string;
+  /**
+   * Fires once when the lightbox closes, with the last index that
+   * was open. Lets a parent (e.g. SplitLogicHeroSession) remember
+   * the visitor's place without ZoomCatcher having to know about
+   * any specific hero-memory machinery.
+   */
+  onClose?: (lastIndex: number) => void;
 }) {
   const [index, setIndex] = useState<number | null>(null);
   const [arrowZone, setArrowZone] = useState<"left" | "right" | null>(null);
+  // Holds the most recent open index so we can hand it to onClose on
+  // the close transition (since `index` itself has already become null
+  // by the time the close effect runs).
+  const lastOpenIndexRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (index !== null) {
+      lastOpenIndexRef.current = index;
+    } else if (lastOpenIndexRef.current !== null) {
+      onClose?.(lastOpenIndexRef.current);
+      lastOpenIndexRef.current = null;
+    }
+  }, [index, onClose]);
 
   const prev = useCallback(() => {
     setIndex((i) => (i === null ? null : (i - 1 + items.length) % items.length));

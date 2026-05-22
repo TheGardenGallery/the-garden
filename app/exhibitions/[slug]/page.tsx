@@ -12,7 +12,10 @@ import { ExhibitionNav } from "@/components/ExhibitionNav";
 import { PieceGrid } from "@/components/PieceGrid";
 import { SplitLogicSystem } from "@/components/SplitLogicSystem";
 import { SplitLogicProcess } from "@/components/SplitLogicProcess";
-import { ZoomCatcher } from "@/components/ZoomCatcher";
+import {
+  SplitLogicHeroAnchor,
+  SplitLogicZoomCatcher,
+} from "@/components/SplitLogicHero";
 import { Reveal } from "@/components/Reveal";
 import { SplitLogicMagnifier } from "@/components/SplitLogicMagnifier";
 import { ArtistBroadsheet } from "@/components/ArtistBroadsheet";
@@ -102,11 +105,21 @@ export default async function ExhibitionDetailPage({
 
       <ExhibitionHero exhibition={exhibition} />
 
+      {/* Hero memory: both lightboxes on this page (the page-wide
+          ZoomCatcher AND the piece-grid one inside SplitLogicSystem)
+          commit their last-viewed item to a shared module-level
+          store. SplitLogicHeroAnchor reads from the store and paints
+          the anchored artwork over the canonical hero plate via a
+          crossfade. In-memory only; resets on unmount so a fresh
+          visit always opens on the canonical hero. */}
       {exhibition.slug === "split-logic" && allArtworks.length > 0 && (
-        <ZoomCatcher
-          items={allArtworks}
-          scope='.exhibition-detail[data-slug="split-logic"]'
-        />
+        <>
+          <SplitLogicHeroAnchor items={allArtworks} />
+          <SplitLogicZoomCatcher
+            items={allArtworks}
+            scope='.exhibition-detail[data-slug="split-logic"]'
+          />
+        </>
       )}
 
       {exhibition.slug === "split-logic" ? (
@@ -124,6 +137,7 @@ export default async function ExhibitionDetailPage({
               cells={await getSplitLogicFullPalette()}
               archetypeSimilarities={await getSplitLogicArchetypeSimilarities()}
               gridItems={exhibition.pieceGridFull ?? exhibition.pieceGrid}
+              allArtworks={allArtworks}
             />
           </Reveal>
         ) : (
