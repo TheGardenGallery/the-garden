@@ -5592,13 +5592,49 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="split-logic"] .piece-cell{
   cursor:none;
 }
-/* Hero memory overlay — when the visitor's last lightbox position
-   isn't the canonical hero, SplitLogicHeroAnchor portals a video on
-   top of the plate to take its place. Inset:0 covers the plate's
-   inner box; the flex centering mirrors .ex-hero-plate so the
-   anchored .ex-hero-video lands in identical position to the
-   canonical one (it inherits the same 92% max sizing). The crossfade
-   itself is driven by motion-react opacity tweens. */
+/* Hero memory: when the visitor's last lightbox position isn't the
+   canonical hero, SplitLogicHeroAnchor portals two layers — a
+   blurred-poster backdrop into .ex-hero (so the hero region adopts
+   the lightbox's framing) and a centered video overlay into
+   .ex-hero-plate (so the artwork lands in identical position to the
+   canonical hero, inheriting the existing 92% max sizing). Reads as
+   "your last lightbox view, embedded into the page." */
+
+/* Stacking context on the hero section so z-index:-1 on the backdrop
+   lands beneath static descendants (frame, plate, title-bar) without
+   bleeding behind .ex-hero itself. */
+.exhibition-detail[data-slug="split-logic"] .ex-hero{
+  isolation:isolate;
+}
+/* Blurred-poster backdrop — matches .piece-grid-overlay-bg precisely
+   so the visual treatment inside the hero is the same as inside the
+   lightbox modal. Same stacked blur, dim, contrast curve, transform
+   scale to hide blur-edge falloff. */
+.exhibition-detail[data-slug="split-logic"] .ex-hero-anchor-bg{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  filter:blur(57px) blur(57px) saturate(1.4) brightness(0.42) contrast(0.9);
+  transform:scale(1.18);
+  pointer-events:none;
+  z-index:-1;
+}
+/* Dither for banding suppression — identical pattern + parameters to
+   .piece-grid-overlay-bg::after so the dark backdrop renders the same
+   way here as in the lightbox. */
+.exhibition-detail[data-slug="split-logic"] .ex-hero-anchor-bg::after{
+  content:"";
+  position:absolute;inset:0;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.65'/></svg>");
+  background-size:220px 220px;
+  background-repeat:repeat;
+  opacity:0.06;
+  mix-blend-mode:overlay;
+  pointer-events:none;
+}
+/* Centered-video overlay — sits inside the plate, inheriting the
+   .ex-hero-video sizing (max 92% on desktop, 88vw/58vh on mobile).
+   Pointer-events stay auto so the video remains a lightbox trigger
+   via ZoomCatcher's src-match. */
 .exhibition-detail[data-slug="split-logic"] .ex-hero-anchor-overlay{
   position:absolute;inset:0;
   display:flex;align-items:center;justify-content:center;
