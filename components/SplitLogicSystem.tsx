@@ -370,13 +370,28 @@ export function SplitLogicSystem({
     [sortedIndices, gridItems],
   );
 
+  // Single animation lock shared by pagination AND colour-lock
+  // changes. PieceGrid runs a 550ms FLIP + opacity animation on
+  // every items prop change; stacking two mid-flight leaves motion's
+  // internal state inconsistent (cells stuck at opacity 0 / blank
+  // grid until reload). The lockout window matches that duration
+  // plus a small buffer so taps during the transition are dropped
+  // rather than queued.
+  const pageLockRef = useRef(false);
+
   const handleZoneClick = (i: number) => {
     // No toggle-to-null — the system stays LOCKED at all times. The
     // page opens locked on white, and every swatch click just moves
     // the lock to that swatch. Clicking the currently-locked
     // swatch is a no-op (already locked there).
+    if (pageLockRef.current) return;
+    if (i === lockedZoneIdx) return;
+    pageLockRef.current = true;
     setLockedZoneIdx(i);
     setPage(0);
+    window.setTimeout(() => {
+      pageLockRef.current = false;
+    }, 600);
   };
 
   // Live-sync the piece-grid lightbox's current item to the hero
@@ -397,14 +412,24 @@ export function SplitLogicSystem({
   // to the last page; from the last page the right arrow returns to 0.
   // No auto-scroll: if the user is using the pager, they're already
   // looking at the grid; scrollIntoView would only push the colour
-  // bar under the page nav and disorient them.
+  // bar under the page nav and disorient them. Gated by the shared
+  // pageLockRef defined above so rapid clicks can't pile up.
+  const guardedSetPage = useCallback((updater: (p: number) => number) => {
+    if (pageLockRef.current) return;
+    pageLockRef.current = true;
+    setPage(updater);
+    window.setTimeout(() => {
+      pageLockRef.current = false;
+    }, 600);
+  }, []);
+
   const goPrev = useCallback(() => {
-    setPage((p) => (p - 1 + totalPages) % totalPages);
-  }, [totalPages]);
+    guardedSetPage((p) => (p - 1 + totalPages) % totalPages);
+  }, [guardedSetPage, totalPages]);
 
   const goNext = useCallback(() => {
-    setPage((p) => (p + 1) % totalPages);
-  }, [totalPages]);
+    guardedSetPage((p) => (p + 1) % totalPages);
+  }, [guardedSetPage, totalPages]);
 
   // Track whether the section is in view so the global keyboard
   // listener only fires when the user is actually looking at the
