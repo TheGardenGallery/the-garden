@@ -42,6 +42,20 @@ const ADJACENCY_GROUPS: string[][] = [
   ["sl-057", "sl-022", "sl-088"],
   ["sl-062", "sl-055", "sl-021", "sl-059", "sl-071", "sl-074", "sl-030", "sl-040", "sl-029", "sl-041", "sl-035", "sl-054", "sl-024"],
   ["sl-097", "sl-089", "sl-083", "sl-039", "sl-031", "sl-032", "sl-081", "sl-082", "sl-091", "sl-026", "sl-052", "sl-072", "sl-005", "sl-006", "sl-011", "sl-010", "sl-060", "sl-046", "sl-050", "sl-063", "sl-016"],
+  // Curator-directed pairings for the three swapped artworks.
+  // Order in the group def controls render order within the cluster:
+  //   sl-097 then sl-019      → "19 after 97"
+  //   sl-077 then sl-011      → "11 next to 77"
+  //   sl-075 then sl-015      → "75 leads 15"
+  // The adjacency post-pass also forces both pieces into a single
+  // contiguous slot anchored at whichever of the two sorts earliest
+  // naturally — so for these to pair cleanly, both pieces must
+  // classify into the same colour bucket (the isWhitePiece override
+  // and FORCE_CHROMATIC list above handle the cases where stale
+  // pastel-classification would split a pair across buckets).
+  ["sl-097", "sl-019"],
+  ["sl-077", "sl-011"],
+  ["sl-075", "sl-015"],
 ];
 
 // Bar design — see lib/split-logic-buckets.ts for the bucket-derivation

@@ -89,11 +89,27 @@ function findDominantChromatic(
   return bestLch;
 }
 
-function isWhitePiece(
-  clusters: { lch: Oklch; weight: number }[],
-): boolean {
-  const top = findTopCluster(clusters);
-  return !!top && top.L >= MONO_BRIGHT_L_MIN && top.C < MONO_C_MAX;
+// Pieces that must always be classified as chromatic regardless of
+// what their cluster signature says. Used when a piece's visual is
+// clearly a colour family but the palette-extraction thresholds
+// classify it as pastel-monochrome — e.g. sl-015's soft pink ground
+// reads as red to the eye but has cluster top.C below MONO_C_MAX.
+const FORCE_CHROMATIC = new Set(["sl-015"]);
+
+function isWhitePiece(cell: WedgeCell): boolean {
+  if (FORCE_CHROMATIC.has(cell.wedgeId)) return false;
+  const top = findTopCluster(cell.clusters);
+  if (!top) return false;
+  if (top.L < MONO_BRIGHT_L_MIN || top.C >= MONO_C_MAX) return false;
+  // Pastel-but-chromatic override: the top cluster passes the
+  // pastel/desaturated test (high lightness, low chroma), but if
+  // the piece reports a high chromatic-pixel fraction AND a strong
+  // dominant hue band, it has a clearly identified colour family
+  // and belongs in that chromatic bucket — not the monochrome one.
+  if ((cell.chromaticFraction ?? 0) >= 0.5 && (cell.dominantStrength ?? 0) >= 0.4) {
+    return false;
+  }
+  return true;
 }
 
 function designButtonLch(centroid: Oklch): Oklch {
@@ -128,7 +144,7 @@ export function computeSplitLogicBuckets(cells: WedgeCell[]): BucketResult {
       assignment[i] = "rainbow";
       continue;
     }
-    if (isWhitePiece(cell.clusters)) {
+    if (isWhitePiece(cell)) {
       assignment[i] = "white";
       continue;
     }
