@@ -7131,10 +7131,36 @@ html:has(.constellation-root){
   aspect-ratio:1 / 1;
   overflow:hidden;
   background:#0a0a0a;
-  /* Whisper of elevation off the cream page — a single soft drop
-     shadow with negative spread so the shadow only shows below the
-     plate, not as a halo around it. */
-  box-shadow:0 14px 40px -22px rgba(20,16,8,0.22);
+  /* Two-tier elevation off the cream page:
+     - Inner short shadow (12px / -10 spread) for a crisp contact
+       under the plate's bottom edge — reads as the plate sitting ON
+       the paper, not hovering above it.
+     - Outer long shadow (54px / -16 spread) carries a softer warm
+       cast outward so vivid thumbnails (e.g. sl-075's orange) feel
+       grounded in the editorial frame rather than punching out of
+       it. Earlier single 0.22-alpha shadow was too thin for high-
+       contrast covers to read as "set into" the page. */
+  box-shadow:
+    0 10px 18px -10px rgba(20,16,8,0.32),
+    0 30px 54px -16px rgba(20,16,8,0.34);
+}
+/* Gentle inset vignette — radial fade from a clear centre to a soft
+   warm-dark corner. Catches a sliver of the cover's edge so the
+   thumbnail reads as a matted plate rather than a punched-in image.
+   Pointer-events:none so the underlying link still receives clicks.
+   Scoped to .journal-index-cover which is only rendered by the
+   interviews listing page, so no other page picks this up. */
+.journal-index-cover::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:radial-gradient(
+    ellipse at center,
+    transparent 55%,
+    rgba(20,16,8,0.20) 100%
+  );
+  z-index:1;
 }
 .journal-index-media{
   position:absolute;inset:0;
