@@ -89,9 +89,23 @@ export function PieceGrid({
   // that registers as the "glitch" feel during pagination and colour
   // locks. After the layout animation completes (~600ms), upgrade
   // preload so subsequent hovers play instantly from buffered data.
-  const [autoPreload, setAutoPreload] = useState(false);
+  //
+  // INITIAL MOUNT is special: there's no FLIP animation to protect,
+  // and the prior `useState(false) + 650ms timer` gate meant the
+  // first paint always rendered with preload="metadata" — visitors
+  // who hovered within ~650ms got a stalled-on-play stutter while
+  // the video had to fetch frame data on demand. Starting at `true`
+  // + skipping the first effect run lets initial visitors hover
+  // and play instantly, while page/colour-lock changes still pause-
+  // and-arm the gate so the animation doesn't fight the network.
+  const [autoPreload, setAutoPreload] = useState(true);
+  const firstAutoPreloadRunRef = useRef(true);
   useEffect(() => {
     if (!eagerMount) return;
+    if (firstAutoPreloadRunRef.current) {
+      firstAutoPreloadRunRef.current = false;
+      return;
+    }
     setAutoPreload(false);
     const t = window.setTimeout(() => setAutoPreload(true), 650);
     return () => window.clearTimeout(t);
