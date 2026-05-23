@@ -34,10 +34,11 @@ const ADJACENCY_GROUPS: string[][] = [
   ["sl-098", "sl-037", "sl-027", "sl-087", "sl-049"],
   ["sl-093", "sl-013"],
   ["sl-078", "sl-070", "sl-020"],
-  // sl-075 inserted right after sl-015 (the anchor). sl-015 stays
-  // the group lead so the whole cluster lands at sl-015's natural
-  // position; sl-075 is dragged in to sit beside it.
-  ["sl-015", "sl-075", "sl-076", "sl-067", "sl-066", "sl-073", "sl-038", "sl-064", "sl-008", "sl-086", "sl-080"],
+  // sl-075 leads sl-015 — put sl-075 first in the group definition
+  // so the adjacency post-pass renders it before sl-015 within the
+  // cluster. The cluster lands wherever the earliest-sorting member
+  // naturally sits.
+  ["sl-075", "sl-015", "sl-076", "sl-067", "sl-066", "sl-073", "sl-038", "sl-064", "sl-008", "sl-086", "sl-080"],
   ["sl-036", "sl-033", "sl-034", "sl-044", "sl-028", "sl-092", "sl-058", "sl-018"],
   // sl-075 used to anchor [sl-075, sl-045, sl-042] but now belongs
   // with sl-015 above; sl-045 and sl-042 keep their own pair.
