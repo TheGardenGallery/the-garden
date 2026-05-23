@@ -34,33 +34,21 @@ const ADJACENCY_GROUPS: string[][] = [
   ["sl-098", "sl-037", "sl-027", "sl-087", "sl-049"],
   ["sl-093", "sl-013"],
   ["sl-078", "sl-070", "sl-020"],
-  ["sl-015", "sl-076", "sl-067", "sl-066", "sl-073", "sl-038", "sl-064", "sl-008", "sl-086", "sl-080"],
+  // sl-075 inserted right after sl-015 (the anchor). sl-015 stays
+  // the group lead so the whole cluster lands at sl-015's natural
+  // position; sl-075 is dragged in to sit beside it.
+  ["sl-015", "sl-075", "sl-076", "sl-067", "sl-066", "sl-073", "sl-038", "sl-064", "sl-008", "sl-086", "sl-080"],
   ["sl-036", "sl-033", "sl-034", "sl-044", "sl-028", "sl-092", "sl-058", "sl-018"],
-  // sl-075 removed from this group; it now pairs with sl-015 in the
-  // curator-locked pair below. Leaving sl-075 here would drag the
-  // [sl-045, sl-042] pair to wherever sl-075 lands, which is no
-  // longer where those two should sit.
+  // sl-075 used to anchor [sl-075, sl-045, sl-042] but now belongs
+  // with sl-015 above; sl-045 and sl-042 keep their own pair.
   ["sl-045", "sl-042"],
-  // sl-019 removed from this group; same reasoning — its curator-
-  // locked pair with sl-097 below should be the only one that moves it.
-  ["sl-007", "sl-012", "sl-099", "sl-077", "sl-100", "sl-061", "sl-069", "sl-065", "sl-025", "sl-079", "sl-043", "sl-051", "sl-017", "sl-047", "sl-085"],
+  // sl-011 inserted right after sl-077; sl-007 stays the anchor.
+  ["sl-007", "sl-012", "sl-099", "sl-077", "sl-011", "sl-100", "sl-061", "sl-069", "sl-065", "sl-025", "sl-079", "sl-043", "sl-051", "sl-017", "sl-047", "sl-085"],
   ["sl-009", "sl-056", "sl-053", "sl-014", "sl-090", "sl-068", "sl-084", "sl-048", "sl-023"],
   ["sl-057", "sl-022", "sl-088"],
   ["sl-062", "sl-055", "sl-021", "sl-059", "sl-071", "sl-074", "sl-030", "sl-040", "sl-029", "sl-041", "sl-035", "sl-054", "sl-024"],
-  // sl-011 removed from this group; pinned to sl-077 below.
-  ["sl-097", "sl-089", "sl-083", "sl-039", "sl-031", "sl-032", "sl-081", "sl-082", "sl-091", "sl-026", "sl-052", "sl-072", "sl-005", "sl-006", "sl-010", "sl-060", "sl-046", "sl-050", "sl-063", "sl-016"],
-  // Curator-directed pairings for the three swapped artworks. Each
-  // new piece is ONLY in this pair (removed from any earlier group
-  // that used to include it) so the adjacency post-pass doesn't drag
-  // it back to its old cluster anchor. Combined with BUCKET_OVERRIDE
-  // in lib/split-logic-buckets.ts, each new piece lands in its
-  // anchor's bucket AND sits next to it within that bucket.
-  //   sl-097 then sl-019  → "19 after 97"
-  //   sl-077 then sl-011  → "11 next to 77"
-  //   sl-075 then sl-015  → "75 leads 15"
-  ["sl-097", "sl-019"],
-  ["sl-077", "sl-011"],
-  ["sl-075", "sl-015"],
+  // sl-019 inserted right after sl-097; sl-097 stays the anchor.
+  ["sl-097", "sl-019", "sl-089", "sl-083", "sl-039", "sl-031", "sl-032", "sl-081", "sl-082", "sl-091", "sl-026", "sl-052", "sl-072", "sl-005", "sl-006", "sl-010", "sl-060", "sl-046", "sl-050", "sl-063", "sl-016"],
 ];
 
 // Bar design — see lib/split-logic-buckets.ts for the bucket-derivation

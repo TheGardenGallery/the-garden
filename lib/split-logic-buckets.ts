@@ -89,18 +89,6 @@ function findDominantChromatic(
   return bestLch;
 }
 
-// Hard-lock bucket assignment: each entry maps a piece that should
-// IGNORE the colour-clustering algorithm and instead copy whichever
-// bucket its anchor piece lands in. Curator-directed: when a swapped
-// artwork's new visual visually belongs alongside a specific other
-// piece, this map pins them to the same bucket regardless of what
-// palette/embedding similarity would otherwise compute.
-const BUCKET_OVERRIDE: Record<string, string> = {
-  "sl-011": "sl-077", // 11 next to 77
-  "sl-019": "sl-097", // 19 after 97
-  "sl-075": "sl-015", // 75 leads 15
-};
-
 function isWhitePiece(
   clusters: { lch: Oklch; weight: number }[],
 ): boolean {
@@ -134,16 +122,8 @@ export function computeSplitLogicBuckets(cells: WedgeCell[]): BucketResult {
   const chromaticIdx: number[] = [];
   const chromaticDom: Oklch[] = [];
 
-  // Pieces in BUCKET_OVERRIDE are excluded from the natural
-  // classification (and from k-means centroid sampling) so their
-  // signatures don't perturb the rest of the clustering. After the
-  // algorithm assigns every other piece, the override pass below
-  // copies each target's anchor assignment verbatim.
-  const overrideTargets = new Set(Object.keys(BUCKET_OVERRIDE));
-
   for (let i = 0; i < cells.length; i++) {
     const cell = cells[i];
-    if (overrideTargets.has(cell.wedgeId)) continue;
     if (RAINBOW_IDS.has(cell.wedgeId)) {
       assignment[i] = "rainbow";
       continue;
@@ -185,24 +165,6 @@ export function computeSplitLogicBuckets(cells: WedgeCell[]): BucketResult {
       }
     }
     assignment[chromaticIdx[j]] = bestIdx;
-  }
-
-  // Apply curator-locked bucket overrides AFTER the algorithm has
-  // finished classifying every other piece. Each target copies its
-  // anchor's assignment verbatim — chromatic bucket index, "white",
-  // or "rainbow" — so it lands wherever the anchor lands without
-  // its own signature influencing the result.
-  for (let i = 0; i < cells.length; i++) {
-    const sourceId = BUCKET_OVERRIDE[cells[i].wedgeId];
-    if (!sourceId) continue;
-    const srcIdx = cells.findIndex((c) => c.wedgeId === sourceId);
-    if (srcIdx >= 0 && assignment[srcIdx] !== undefined) {
-      assignment[i] = assignment[srcIdx];
-    } else {
-      // Anchor missing — fall back to white so the piece still
-      // renders rather than crashing the bucket counters below.
-      assignment[i] = "white";
-    }
   }
 
   let whiteCount = 0;
