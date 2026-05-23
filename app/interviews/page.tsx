@@ -36,18 +36,30 @@ export default function JournalPage() {
 
               <div className="journal-index-cover">
                 <div className="journal-index-media">
-                  {iv.heroVideo ? (
-                    <AutoPlayVideo
-                      src={iv.heroVideo}
-                      poster={iv.heroPoster}
-                      loop
-                      muted
-                      playsInline
-                    />
-                  ) : iv.heroPoster ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={iv.heroPoster} alt="" />
-                  ) : null}
+                  {(() => {
+                    // Prefer listing-specific media when set so a show
+                    // can greet the index with one of its actual works
+                    // rather than the conversation's hero atmosphere.
+                    // Falls back to heroVideo/heroPoster otherwise.
+                    const video = iv.listingHeroVideo ?? iv.heroVideo;
+                    const poster = iv.listingHeroPoster ?? iv.heroPoster;
+                    if (video) {
+                      return (
+                        <AutoPlayVideo
+                          src={video}
+                          poster={poster}
+                          loop
+                          muted
+                          playsInline
+                        />
+                      );
+                    }
+                    if (poster) {
+                      // eslint-disable-next-line @next/next/no-img-element
+                      return <img src={poster} alt="" />;
+                    }
+                    return null;
+                  })()}
                 </div>
               </div>
 

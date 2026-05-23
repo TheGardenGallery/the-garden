@@ -29,6 +29,12 @@ export const interviews: Interview[] = [
       "A conversation with Ricky Retouch on grids, loops, typography, and the ghost of a system that could have existed. Recorded ahead of Split Logic.",
     heroVideo: "/images/ricky-retouch/split-logic-hero-blur.mp4",
     heroPoster: "/images/ricky-retouch/split-logic-hero-blur.jpg",
+    // Listing thumbnail uses sl-075 so the index card greets visitors
+    // with one of the actual works from the show instead of the
+    // blurred-hero atmosphere reused at the top of the conversation.
+    // Detail page (/interviews/ricky-retouch) keeps the original hero.
+    listingHeroVideo: "/images/ricky-retouch/works/sl-075.mp4",
+    listingHeroPoster: "/images/ricky-retouch/works/sl-075.jpg",
     sections: [
       {
         label: "SEC.01",

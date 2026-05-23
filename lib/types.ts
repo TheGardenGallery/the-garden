@@ -304,5 +304,13 @@ export type Interview = {
   preamble?: string;             // short editorial intro shown under the title block
   heroVideo?: string;            // silent looping clip behind the opening title plate
   heroPoster?: string;           // poster for heroVideo
+  /** Override media just for the /interviews listing thumbnail.
+   *  When set, the listing prefers these over heroVideo/heroPoster;
+   *  the detail page (/interviews/[slug]) keeps using heroVideo so
+   *  the conversation opens with its original surface. Use when a
+   *  show wants a different visual greeter on the index page than
+   *  the artist's chosen interview hero. */
+  listingHeroVideo?: string;
+  listingHeroPoster?: string;
   sections: InterviewSection[];
 };
