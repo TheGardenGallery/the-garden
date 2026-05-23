@@ -5606,15 +5606,21 @@ html:has(.constellation-root){
 .exhibition-detail[data-slug="split-logic"] .ex-hero{
   isolation:isolate;
 }
-/* Blurred-poster backdrop — matches .piece-grid-overlay-bg precisely
-   so the visual treatment inside the hero is the same as inside the
-   lightbox modal. Same stacked blur, dim, contrast curve, transform
-   scale to hide blur-edge falloff. */
+/* Blurred-poster backdrop. Same stacked blur + dim + dither stack
+   the lightbox modal uses, but with a much more aggressive
+   transform:scale(2.6). The hero plate sits the anchored video at
+   ~92% of the plate, smaller than the artwork appears in the
+   modal — and at 1.18× scale the blurred poster's recognisable
+   edges (same artwork, blurred) lined up just outside the sharper
+   foreground, reading as a ghost outline. Scaling 2.6× crops the
+   backdrop down to the artwork's CENTRE pixels, which after the
+   blur stack flatten into a uniform colour smear with no visible
+   shape — no edge to echo. */
 .exhibition-detail[data-slug="split-logic"] .ex-hero-anchor-bg{
   position:absolute;inset:0;
   background-size:cover;background-position:center;
   filter:blur(57px) blur(57px) saturate(1.4) brightness(0.42) contrast(0.9);
-  transform:scale(1.18);
+  transform:scale(2.6);
   pointer-events:none;
   z-index:-1;
 }
