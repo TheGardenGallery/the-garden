@@ -53,11 +53,23 @@ export function InlineArtworks({
   //      sees the loop continue, not restart. Retries play() on
   //      canplay/loadeddata events because iOS Safari's first
   //      autoplay attempt silently fails when data isn't decoded yet.
+  //
+  //   SPLIT LOGIC OVERRIDE: when this block is rendered inside the
+  //   split-logic exhibition page (detected at mount via closest()),
+  //   bypass the IO-gated preload and eagerly fetch on mount — the
+  //   curator wants those inline spreads to play instantly with no
+  //   buffer on mobile. Other exhibitions keep the conservative
+  //   IO-gated behaviour so a tab that opens to a Yoshi page doesn't
+  //   chew through 60-100 MB of inline-video bytes on first paint.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const videos = Array.from(el.querySelectorAll("video"));
     if (videos.length === 0) return;
+
+    const eagerLoadAll = !!el.closest(
+      '.exhibition-detail[data-slug="split-logic"]',
+    );
 
     // Tracks which videos the play IO has marked as currently in-view.
     // tryPlay() gates on this so the canplay/loadeddata retry handlers
@@ -82,28 +94,51 @@ export function InlineArtworks({
       return;
     }
 
-    // Preload links — added once per video when approaching the
-    // viewport, then never removed until component unmounts. Avoids
-    // the thrash that comes from adding/removing on every state change.
+    // Preload links — added once per video so the unmount cleanup
+    // can remove them. For Split Logic, inject immediately on mount
+    // (no IO gating) + flip preload to "auto" so the browser starts
+    // fetching the full video bytes before the user scrolls anywhere
+    // near the spread. For other exhibitions, IO-gate at 800px to
+    // avoid blowing through bandwidth on pages with 17-21MB clips.
     const preloadLinks = new Map<HTMLVideoElement, HTMLLinkElement>();
-    const preloadIO = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const v = entry.target as HTMLVideoElement;
-          if (preloadLinks.has(v) || !v.src) return;
-          const link = document.createElement("link");
-          link.rel = "preload";
-          link.as = "video";
-          link.href = v.src;
-          document.head.appendChild(link);
-          preloadLinks.set(v, link);
-          preloadIO.unobserve(entry.target);
-        });
-      },
-      { rootMargin: "800px 0px" }
-    );
-    videos.forEach((v) => preloadIO.observe(v));
+    const addPreloadLink = (v: HTMLVideoElement) => {
+      if (preloadLinks.has(v) || !v.src) return;
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "video";
+      link.href = v.src;
+      document.head.appendChild(link);
+      preloadLinks.set(v, link);
+    };
+
+    let preloadIO: IntersectionObserver | null = null;
+    if (eagerLoadAll) {
+      videos.forEach((v) => {
+        addPreloadLink(v);
+        // Flip the element's own preload hint from "metadata" (the
+        // SSR default) to "auto" and re-kick the network so the
+        // browser commits to fetching frames, not just the moov box.
+        v.preload = "auto";
+        try {
+          v.load();
+        } catch {
+          // Safari can throw if load() races a teardown; harmless.
+        }
+      });
+    } else {
+      preloadIO = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            const v = entry.target as HTMLVideoElement;
+            addPreloadLink(v);
+            preloadIO?.unobserve(entry.target);
+          });
+        },
+        { rootMargin: "800px 0px" }
+      );
+      videos.forEach((v) => preloadIO!.observe(v));
+    }
 
     // Retry play on data-ready events — iOS Safari often silently
     // fails the first autoplay attempt on a fresh element when data
@@ -135,7 +170,7 @@ export function InlineArtworks({
     videos.forEach((v) => playIO.observe(v));
 
     return () => {
-      preloadIO.disconnect();
+      preloadIO?.disconnect();
       playIO.disconnect();
       preloadLinks.forEach((link) => link.remove());
       retryHandlers.forEach((handler, v) => {

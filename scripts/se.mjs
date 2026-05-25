@@ -1,0 +1,11 @@
+import { chromium } from "playwright";
+const browser = await chromium.launch({ channel: "chrome" });
+const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+const page = await ctx.newPage();
+await page.goto(`https://etherscan.io/address/0xbfcac1b335b800919618900b10d0337bfa8dd073`, { waitUntil: "domcontentloaded", timeout: 60000 });
+await page.waitForTimeout(5000);
+const text = await page.evaluate(() => document.body.innerText.slice(0, 3000));
+console.log(text);
+const html = await page.evaluate(() => document.body.innerHTML.length);
+console.log("html length:", html);
+await browser.close();
