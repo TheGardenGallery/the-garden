@@ -43,9 +43,10 @@ const ADJACENCY_GROUPS: string[][] = [
   // sl-075 used to anchor [sl-075, sl-045, sl-042] but now belongs
   // with sl-015 above; sl-045 and sl-042 keep their own pair.
   ["sl-045", "sl-042"],
-  // sl-011 inserted right after sl-077; sl-007 stays the anchor.
-  ["sl-007", "sl-012", "sl-099", "sl-077", "sl-011", "sl-100", "sl-061", "sl-069", "sl-065", "sl-025", "sl-079", "sl-043", "sl-051", "sl-017", "sl-047", "sl-085"],
-  ["sl-009", "sl-056", "sl-053", "sl-014", "sl-090", "sl-068", "sl-084", "sl-048", "sl-023"],
+  ["sl-007", "sl-012", "sl-099", "sl-077", "sl-100", "sl-061", "sl-069", "sl-065", "sl-025", "sl-079", "sl-043", "sl-051", "sl-017", "sl-047", "sl-085"],
+  // sl-011 hard-locked between sl-009 and sl-056 per curator placement;
+  // bucket math in lib/split-logic-buckets.ts is untouched.
+  ["sl-009", "sl-011", "sl-056", "sl-053", "sl-014", "sl-090", "sl-068", "sl-084", "sl-048", "sl-023"],
   ["sl-057", "sl-022", "sl-088"],
   ["sl-062", "sl-055", "sl-021", "sl-059", "sl-071", "sl-074", "sl-030", "sl-040", "sl-029", "sl-041", "sl-035", "sl-054", "sl-024"],
   // sl-019 inserted right after sl-097; sl-097 stays the anchor.
@@ -161,7 +162,16 @@ export function SplitLogicSystem({
    */
   allArtworks?: ExpandedArtworkItem[];
 }) {
+  // Two-layer lock state so rapid swatch clicks stay responsive.
+  // displayLockIdx drives the colour bar UI (updates instantly on every
+  // click). lockedZoneIdx drives the sort + page reset (lags behind by
+  // the PieceGrid FLIP transition so animations never stack). The
+  // trailing-edge chain in applyZone catches the sort up to whatever
+  // the user finally landed on.
   const [lockedZoneIdx, setLockedZoneIdx] = useState<number | null>(null);
+  const [displayLockIdx, setDisplayLockIdx] = useState<number | null>(null);
+  const lockedZoneRef = useRef<number | null>(null);
+  const displayLockRef = useRef<number | null>(null);
   const [page, setPage] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
   // Auto-lock to the white zone on first paint so the page starts in
@@ -215,7 +225,12 @@ export function SplitLogicSystem({
     if (zoneKeys.length === 0) return;
     const whiteIdx = zoneKeys.indexOf("white");
     initialLockAppliedRef.current = true;
-    if (whiteIdx >= 0) setLockedZoneIdx(whiteIdx);
+    if (whiteIdx >= 0) {
+      setDisplayLockIdx(whiteIdx);
+      displayLockRef.current = whiteIdx;
+      setLockedZoneIdx(whiteIdx);
+      lockedZoneRef.current = whiteIdx;
+    }
   }, [zoneKeys]);
 
   // Warm the poster cache for every piece in the series, idle-time,
@@ -378,28 +393,50 @@ export function SplitLogicSystem({
     [sortedIndices, gridItems],
   );
 
-  // Single animation lock shared by pagination AND colour-lock
-  // changes. PieceGrid runs a 550ms FLIP + opacity animation on
-  // every items prop change; stacking two mid-flight leaves motion's
-  // internal state inconsistent (cells stuck at opacity 0 / blank
-  // grid until reload). The lockout window matches that duration
-  // plus a small buffer so taps during the transition are dropped
-  // rather than queued.
+  // Single animation lock shared by pagination AND colour-lock changes.
+  // PieceGrid runs a 550ms FLIP + opacity animation on every items prop
+  // change; stacking two mid-flight leaves motion's internal state
+  // inconsistent (cells stuck at opacity 0 / blank grid until reload).
+  // The lockout window matches that duration plus a small buffer.
+  //
+  // Pagination still drops mid-transition taps — there's no meaningful
+  // way to queue "next page" while a flight is in progress. Colour-lock
+  // clicks use the trailing-edge pattern in applyZone below: the bar's
+  // displayed lock updates instantly on every click, and once the
+  // in-flight transition settles we re-apply if the user has moved on
+  // to a different swatch. Result: spammable bar, no stacked animations.
   const pageLockRef = useRef(false);
 
-  const handleZoneClick = (i: number) => {
-    // No toggle-to-null — the system stays LOCKED at all times. The
-    // page opens locked on white, and every swatch click just moves
-    // the lock to that swatch. Clicking the currently-locked
-    // swatch is a no-op (already locked there).
-    if (pageLockRef.current) return;
-    if (i === lockedZoneIdx) return;
+  const applyZone = (i: number) => {
     pageLockRef.current = true;
     setLockedZoneIdx(i);
+    lockedZoneRef.current = i;
     setPage(0);
     window.setTimeout(() => {
       pageLockRef.current = false;
+      // Trailing edge: if the user clicked through to a different swatch
+      // while we were animating, chain into that one now.
+      const pending = displayLockRef.current;
+      if (pending !== null && pending !== lockedZoneRef.current) {
+        applyZone(pending);
+      }
     }, 600);
+  };
+
+  const handleZoneClick = (i: number) => {
+    // No toggle-to-null — the system stays LOCKED at all times. Clicking
+    // the currently-displayed swatch is a no-op. Compare via the ref so
+    // the dedupe still works inside a burst of clicks where setState
+    // hasn't flushed between handlers.
+    if (i === displayLockRef.current) return;
+    setDisplayLockIdx(i);
+    displayLockRef.current = i;
+    if (!pageLockRef.current) {
+      applyZone(i);
+      return;
+    }
+    // Lock is in flight — applyZone's trailing-edge timeout will pick
+    // up displayLockRef.current and chain the next transition.
   };
 
   // Live-sync the piece-grid lightbox's current item to the hero
@@ -547,7 +584,7 @@ export function SplitLogicSystem({
     <div ref={sectionRef}>
       <SplitLogicPalette
         cells={zoneCells}
-        lockedIdx={lockedZoneIdx}
+        lockedIdx={displayLockIdx}
         onCellClick={handleZoneClick}
       />
 
