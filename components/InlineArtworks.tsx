@@ -37,7 +37,8 @@ export function InlineArtworks({
 }) {
   const { ref, visible } = useScrollReveal<HTMLDivElement>();
 
-  // Two-tier visibility handling for inline videos:
+  // Visibility handling for inline videos. Default behaviour is two
+  // IO-gated tiers; Split Logic overrides both.
   //
   //   1. PRELOAD (rootMargin: 800px) — when a video is within 800px
   //      of the viewport, inject `<link rel="preload" as="video">`
@@ -53,19 +54,33 @@ export function InlineArtworks({
   //      sees the loop continue, not restart. Retries play() on
   //      canplay/loadeddata events because iOS Safari's first
   //      autoplay attempt silently fails when data isn't decoded yet.
+  //
+  //   3. SPLIT LOGIC OVERRIDE — when this block is mounted inside the
+  //      Split Logic exhibition page (detected via DOM closest()),
+  //      bypass both gates. Preload eagerly on mount, flip the
+  //      element's `preload` from "metadata" to "auto", call load()
+  //      to commit to fetching full frames, then mark every video
+  //      as in-view and start playback immediately. We also skip
+  //      the pause-on-offscreen behaviour so the loops keep running
+  //      through the whole page. Curator wants the three inline grids
+  //      moving from first paint on both desktop and mobile, not when
+  //      the user scrolls down to them.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const videos = Array.from(el.querySelectorAll("video"));
     if (videos.length === 0) return;
 
+    const eagerAlways = !!el.closest(
+      '.exhibition-detail[data-slug="split-logic"]',
+    );
+
     // Tracks which videos the play IO has marked as currently in-view.
     // tryPlay() gates on this so the canplay/loadeddata retry handlers
     // can't accidentally start an off-screen video if its data
     // finishes loading after the user has already scrolled past.
-    // Without this gate, a video out of view but whose buffer just
-    // resolved would silently start playing — violating the "play
-    // only while watching" rule.
+    // In eagerAlways mode every video is added on mount and never
+    // removed, so playback never depends on scroll position.
     const inView = new Set<HTMLVideoElement>();
 
     const tryPlay = (v: HTMLVideoElement) => {
@@ -82,28 +97,48 @@ export function InlineArtworks({
       return;
     }
 
-    // Preload links — added once per video when approaching the
-    // viewport, then never removed until component unmounts. Avoids
-    // the thrash that comes from adding/removing on every state change.
+    // Preload links — added once per video so the unmount cleanup
+    // can remove them. eagerAlways injects on mount + flips the
+    // element's preload from "metadata" to "auto" + calls load() so
+    // the browser commits to fetching full frame data, not just the
+    // moov box. Otherwise IO-gate at 800px to conserve bandwidth on
+    // exhibitions with heavy inline clips.
     const preloadLinks = new Map<HTMLVideoElement, HTMLLinkElement>();
-    const preloadIO = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const v = entry.target as HTMLVideoElement;
-          if (preloadLinks.has(v) || !v.src) return;
-          const link = document.createElement("link");
-          link.rel = "preload";
-          link.as = "video";
-          link.href = v.src;
-          document.head.appendChild(link);
-          preloadLinks.set(v, link);
-          preloadIO.unobserve(entry.target);
-        });
-      },
-      { rootMargin: "800px 0px" }
-    );
-    videos.forEach((v) => preloadIO.observe(v));
+    const addPreloadLink = (v: HTMLVideoElement) => {
+      if (preloadLinks.has(v) || !v.src) return;
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "video";
+      link.href = v.src;
+      document.head.appendChild(link);
+      preloadLinks.set(v, link);
+    };
+
+    let preloadIO: IntersectionObserver | null = null;
+    if (eagerAlways) {
+      videos.forEach((v) => {
+        addPreloadLink(v);
+        v.preload = "auto";
+        try {
+          v.load();
+        } catch {
+          // Safari can throw if load() races a teardown; harmless.
+        }
+      });
+    } else {
+      preloadIO = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            const v = entry.target as HTMLVideoElement;
+            addPreloadLink(v);
+            preloadIO?.unobserve(entry.target);
+          });
+        },
+        { rootMargin: "800px 0px" }
+      );
+      videos.forEach((v) => preloadIO!.observe(v));
+    }
 
     // Retry play on data-ready events — iOS Safari often silently
     // fails the first autoplay attempt on a fresh element when data
@@ -117,26 +152,37 @@ export function InlineArtworks({
       retryHandlers.set(v, onReady);
     });
 
-    const playIO = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const v = entry.target as HTMLVideoElement;
-          if (entry.isIntersecting) {
-            inView.add(v);
-            tryPlay(v);
-          } else {
-            inView.delete(v);
-            v.pause();
-          }
-        });
-      },
-      { threshold: 0.25 }
-    );
-    videos.forEach((v) => playIO.observe(v));
+    // Play behaviour. eagerAlways marks every video as in-view on
+    // mount and plays immediately; never pauses on scroll. Otherwise
+    // gate play/pause on viewport intersection at threshold 0.25.
+    let playIO: IntersectionObserver | null = null;
+    if (eagerAlways) {
+      videos.forEach((v) => {
+        inView.add(v);
+        tryPlay(v);
+      });
+    } else {
+      playIO = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const v = entry.target as HTMLVideoElement;
+            if (entry.isIntersecting) {
+              inView.add(v);
+              tryPlay(v);
+            } else {
+              inView.delete(v);
+              v.pause();
+            }
+          });
+        },
+        { threshold: 0.25 }
+      );
+      videos.forEach((v) => playIO!.observe(v));
+    }
 
     return () => {
-      preloadIO.disconnect();
-      playIO.disconnect();
+      preloadIO?.disconnect();
+      playIO?.disconnect();
       preloadLinks.forEach((link) => link.remove());
       retryHandlers.forEach((handler, v) => {
         v.removeEventListener("loadedmetadata", handler);
