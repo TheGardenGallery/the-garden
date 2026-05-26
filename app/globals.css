@@ -5861,7 +5861,11 @@ html:has(.constellation-root){
      artwork reads as a centered plate with breathing room — never
      filling the screen edge to edge. */
   width:min(720px, 70vmin);
-  aspect-ratio:1;
+  /* Same --piece-cell-aspect variable the grid cells use (default 1).
+     Lightbox is inside the SplitLogicSystem subtree, so Ricky's
+     1456:1500 override cascades and the plate matches the source frame
+     exactly — no cover-fit crop into the bottom text band when expanded. */
+  aspect-ratio:var(--piece-cell-aspect, 1);
   cursor:zoom-out;
   /* No box-shadow / border-radius — at higher zoom the artwork
      scales past this frame and a styled empty container would show
