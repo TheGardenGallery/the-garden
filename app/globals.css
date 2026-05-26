@@ -5712,7 +5712,11 @@ html:has(.constellation-root){
   position:relative;
   appearance:none;border:0;padding:0;background:transparent;
   font:inherit;color:inherit;text-align:left;cursor:pointer;
-  aspect-ratio:1;
+  /* Cell aspect is overrideable via --piece-cell-aspect on any ancestor
+     (currently set by SplitLogicSystem to 1456/1500 to match Ricky's
+     source renders so the bottom text band isn't trimmed by cover-fit).
+     Defaults to square for any other exhibition that consumes PieceGrid. */
+  aspect-ratio:var(--piece-cell-aspect, 1);
   display:block;width:100%;
   border-radius:1px;overflow:hidden;
   /* On a black ground, a light hairline carries the card edge and a
@@ -5736,7 +5740,7 @@ html:has(.constellation-root){
 .piece-folder-art{
   position:absolute;left:0;top:0;
   width:100%;
-  aspect-ratio:1;
+  aspect-ratio:var(--piece-cell-aspect, 1);
   /* Match the cell's barely-smoothed radius so when the piece lifts
      on hover, its bottom corners curve in step with the cell rather
      than reading as a hard horizontal cutoff. */
@@ -5775,7 +5779,7 @@ html:has(.constellation-root){
 .piece-cell-number{
   position:absolute;left:0;top:0;
   width:100%;
-  aspect-ratio:1;
+  aspect-ratio:var(--piece-cell-aspect, 1);
   display:flex;align-items:center;justify-content:center;
   z-index:3;
   pointer-events:none;

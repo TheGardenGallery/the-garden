@@ -580,8 +580,18 @@ export function SplitLogicSystem({
     }
   };
 
+  // Override the global .piece-cell aspect (default 1) to match the
+  // 1456:1500 source frames so the curator's bottom text band isn't
+  // trimmed by the default object-fit cover. Cascades from this root
+  // div into .piece-cell / .piece-folder-art / .piece-cell-number via
+  // a CSS custom property. Scoped intentionally to Split Logic — other
+  // exhibitions consuming PieceGrid keep their square default.
+  const sectionStyle = {
+    ["--piece-cell-aspect" as string]: "1456 / 1500",
+  } as React.CSSProperties;
+
   return (
-    <div ref={sectionRef}>
+    <div ref={sectionRef} style={sectionStyle}>
       <SplitLogicPalette
         cells={zoneCells}
         lockedIdx={displayLockIdx}
