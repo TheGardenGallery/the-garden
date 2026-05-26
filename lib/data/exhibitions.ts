@@ -1,5 +1,17 @@
 import type { Exhibition } from "@/lib/types";
 
+// Poster file versions for Split Logic pieces whose still frame was
+// regenerated after first deploy. The /images/ static path ships with
+// `Cache-Control: public, max-age=31536000, immutable`, so returning
+// visitors keep showing a previous still from local cache for up to a
+// year even after a new deploy. Renaming the file on disk (and bumping
+// here) is the only reliable cache-bust. Bump to v3 next time, etc.
+// MP4s don't need this; the videos are picked up on first cache miss.
+const SPLIT_LOGIC_POSTER_VERSIONS: Record<number, number> = {
+  11: 2,
+  19: 2,
+};
+
 export const exhibitions: Exhibition[] = [
   // === UPCOMING ===
   {
@@ -59,11 +71,14 @@ export const exhibitions: Exhibition[] = [
       };
     }),
     pieceGridFull: Array.from({ length: 100 }, (_, i) => {
-      const n = String(i + 1).padStart(3, "0");
+      const idx = i + 1;
+      const n = String(idx).padStart(3, "0");
+      const v = SPLIT_LOGIC_POSTER_VERSIONS[idx];
+      const posterSuffix = v ? `-v${v}` : "";
       return {
         video: `/images/ricky-retouch/works/sl-${n}.mp4`,
-        poster: `/images/ricky-retouch/works/sl-${n}.jpg`,
-        alt: `Split Logic ${i + 1}`,
+        poster: `/images/ricky-retouch/works/sl-${n}${posterSuffix}.jpg`,
+        alt: `Split Logic ${idx}`,
       };
     }),
     processVideos: {
