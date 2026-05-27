@@ -8756,7 +8756,8 @@ html:has(.interview-root) body{background:var(--iv-bg);}
     height:44px;
   }
   .exhibition-detail[data-slug="split-logic"] .sla-input{
-    font-size:13.5px;
+    /* 16px minimum so iOS Safari doesn't auto-zoom on focus. */
+    font-size:16px;
   }
   .exhibition-detail[data-slug="split-logic"] .sla-input::placeholder{
     overflow:hidden;text-overflow:ellipsis;

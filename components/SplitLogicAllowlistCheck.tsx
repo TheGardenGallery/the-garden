@@ -7,7 +7,6 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { isEligible } from "@/lib/data/split-logic-allowlist";
 
 type Status = "idle" | "eligible" | "ineligible";
 
@@ -32,7 +31,7 @@ export function SplitLogicAllowlistCheck() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const submitTimeoutRef = useRef<number | null>(null);
 
-  const submit = useCallback(() => {
+  const submit = useCallback(async () => {
     const v = value.trim();
     if (!v) {
       setError("ENTER AN ADDRESS");
@@ -43,19 +42,44 @@ export function SplitLogicAllowlistCheck() {
       return;
     }
     setError(null);
-    const ok = isEligible(v);
     const normalized = v.toLowerCase();
-    setStatus(ok ? "eligible" : "ineligible");
-    setSubmittedAddr(normalized);
+
+    // Fire the lookup and the 650ms beat in parallel. Whichever
+    // finishes last gates the modal open — so on fast networks the
+    // user gets the deliberate beat, and on slower networks the
+    // beat is effectively the loading state. Indicator on the
+    // arrow stays in "idle" until the answer arrives, which is the
+    // right semantic.
     if (submitTimeoutRef.current !== null) {
       window.clearTimeout(submitTimeoutRef.current);
     }
-    // brief beat so the right-edge indicator is registered before
-    // the modal takes focus.
-    submitTimeoutRef.current = window.setTimeout(
-      () => setModalOpen(true),
-      650,
-    );
+    const beat = new Promise<void>((resolve) => {
+      submitTimeoutRef.current = window.setTimeout(() => resolve(), 650);
+    });
+
+    let ok = false;
+    try {
+      const res = await fetch(
+        `/api/split-logic/check-allowlist?address=${encodeURIComponent(
+          normalized,
+        )}`,
+      );
+      if (res.ok) {
+        const data = (await res.json()) as { eligible?: boolean };
+        ok = Boolean(data.eligible);
+      } else {
+        setError("CHECK FAILED — TRY AGAIN");
+        return;
+      }
+    } catch {
+      setError("NETWORK ERROR — TRY AGAIN");
+      return;
+    }
+
+    setStatus(ok ? "eligible" : "ineligible");
+    setSubmittedAddr(normalized);
+    await beat;
+    setModalOpen(true);
   }, [value]);
 
   // If the input value drifts away from the submitted address, drop
