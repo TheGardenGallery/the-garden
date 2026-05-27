@@ -8589,3 +8589,346 @@ html:has(.interview-root) body{background:var(--iv-bg);}
   .iv-qa-idx{flex-direction:row;align-items:baseline;gap:10px;top:0;}
   .iv-qa-mark{line-height:1;padding:0;}
 }
+
+/* ---- Split Logic: allowlist access check ------------------------
+   Terminal-referenced eligibility section after the studio process
+   coda, before the colophon. Visitors paste an ETH address; a
+   right-edge indicator reports the result (soft green pulse =
+   eligible, sharp red bar = denied) and a modal opens with the
+   release / denial copy. CRT-referenced, not CRT-literal:
+   monospace + prompt + cursor are the only terminal cues; no
+   scanlines, no glow. Restraint is the brief. */
+/* Hufkens-level rhythm: cathedral-quiet padding at the section
+   edges; the label lands as its own moment ~40px above the field;
+   help text sits 20px under the underline. The whole block is a
+   single editorial gesture, not a control panel. */
+.exhibition-detail[data-slug="split-logic"] .split-logic-allowlist{
+  padding:128px 24px 160px;
+  display:flex;justify-content:center;
+}
+.exhibition-detail[data-slug="split-logic"] .sla-inner{
+  width:100%;
+  /* Box width fits the 42-char Ethereum address + breath + arrow,
+     so the arrow lands close to where the address ends rather than
+     floating on a wide empty rail. */
+  max-width:524px;
+  display:flex;flex-direction:column;
+  /* Pure-black plate sits behind the text block so it reads cleanly
+     against the page's phosphor dot lattice. Right padding is 22px
+     smaller than left — that 22px is exactly the inset the underline
+     uses to land on the arrow tip, so the visible content's left
+     edge (text) and right edge (arrow tip) both sit 40px from the
+     box edges. */
+  background:#000;
+  padding:32px 18px 32px 40px;
+}
+.exhibition-detail[data-slug="split-logic"] .sla-label{
+  margin:0 0 14px;
+  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size:10.5px;
+  font-weight:400;
+  letter-spacing:0.24em;
+  text-transform:uppercase;
+  color:rgba(232,248,248,0.78);
+}
+.exhibition-detail[data-slug="split-logic"] .sla-form{
+  display:flex;flex-direction:column;gap:14px;
+}
+
+/* Bottom-border-only field: input + icon submit on a single
+   editorial underline. No box, no chrome — just type and a line.
+   Underline ends at the visual right edge of the arrow icon, not
+   at the button's outer padding, so the line and the arrow tip
+   share one vertical alignment. */
+.exhibition-detail[data-slug="split-logic"] .sla-field{
+  position:relative;
+  display:flex;align-items:center;
+  height:48px;
+  border:0;
+  background:transparent;
+}
+.exhibition-detail[data-slug="split-logic"] .sla-field::after{
+  content:"";
+  position:absolute;
+  left:0;
+  /* Underline ends precisely at the arrow tip. The SVG arrow only
+     occupies x=5–19 of its 24-unit viewBox, so the visual tip sits
+     ~4px inside the icon's right edge. Right offset = button right
+     padding (18) + that 4px inset = 22. */
+  right:22px;
+  bottom:0;
+  height:1px;
+  background:rgba(232,248,248,0.34);
+  transition:background-color 200ms ease;
+  pointer-events:none;
+}
+.exhibition-detail[data-slug="split-logic"] .sla-field:focus-within::after{
+  background:rgba(232,248,248,0.75);
+}
+.exhibition-detail[data-slug="split-logic"] .sla-field:focus-within .sla-input::placeholder{
+  color:rgba(232,248,248,0.75);
+}
+.exhibition-detail[data-slug="split-logic"] .sla-input{
+  flex:1;
+  min-width:0;
+  height:100%;
+  background:transparent;
+  border:0;
+  outline:none;
+  padding:0 4px 0 0;
+  color:var(--on-dark-fg, rgba(232,248,248,0.95));
+  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size:15px;
+  letter-spacing:0.01em;
+  caret-color:var(--on-dark-fg, rgba(232,248,248,0.95));
+}
+.exhibition-detail[data-slug="split-logic"] .sla-input::placeholder{
+  color:rgba(232,248,248,0.22);
+  font-family:inherit;
+}
+
+/* Icon submit — full input height × 18px inline padding gives a
+   generous click target that still reads as a tasteful editorial
+   chevron, not a chunky button. Arrow colour rides verification
+   state: muted at rest, white on hover/focus, green on eligible,
+   red on ineligible. */
+.exhibition-detail[data-slug="split-logic"] .sla-submit-icon{
+  appearance:none;
+  background:transparent;
+  border:0;
+  height:100%;
+  padding:0 18px;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--on-dark-fg-muted, rgba(232,248,248,0.55));
+  cursor:pointer;
+  transition:color 160ms ease, transform 160ms ease;
+  flex:none;
+}
+.exhibition-detail[data-slug="split-logic"] .sla-submit-icon svg{display:block;}
+.exhibition-detail[data-slug="split-logic"] .sla-submit-icon:hover{
+  color:#ffffff;
+  transform:translateX(1px);
+}
+.exhibition-detail[data-slug="split-logic"] .sla-submit-icon:focus-visible{
+  outline:1px solid rgba(255,255,255,0.55);
+  outline-offset:-2px;
+}
+.exhibition-detail[data-slug="split-logic"] .sla-field[data-status="eligible"] .sla-submit-icon{
+  color:#5ed27c;
+}
+.exhibition-detail[data-slug="split-logic"] .sla-field[data-status="ineligible"] .sla-submit-icon{
+  color:#ef5a5a;
+}
+
+.exhibition-detail[data-slug="split-logic"] .sla-help,
+.exhibition-detail[data-slug="split-logic"] .sla-error{
+  margin:0;
+  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size:11px;
+  letter-spacing:0.04em;
+}
+.exhibition-detail[data-slug="split-logic"] .sla-help{
+  color:rgba(232,248,248,0.58);
+  line-height:1.7;
+}
+.exhibition-detail[data-slug="split-logic"] .sla-error{
+  color:#ef5a5a;
+  text-transform:uppercase;
+  letter-spacing:0.10em;
+}
+
+@media (max-width:560px){
+  .exhibition-detail[data-slug="split-logic"] .split-logic-allowlist{
+    padding:88px 24px 112px;
+  }
+  .exhibition-detail[data-slug="split-logic"] .sla-inner{
+    /* Mirror desktop asymmetry: left padding = right padding +
+       mobile underline inset (18px), so text-left and arrow-tip
+       both sit ~22px from the box edges. */
+    padding:24px 4px 24px 22px;
+  }
+  .exhibition-detail[data-slug="split-logic"] .sla-label{
+    margin-bottom:12px;
+  }
+  .exhibition-detail[data-slug="split-logic"] .sla-field{
+    height:44px;
+  }
+  .exhibition-detail[data-slug="split-logic"] .sla-input{
+    font-size:13.5px;
+  }
+  .exhibition-detail[data-slug="split-logic"] .sla-input::placeholder{
+    overflow:hidden;text-overflow:ellipsis;
+  }
+  .exhibition-detail[data-slug="split-logic"] .sla-submit-icon{
+    padding:0 14px;
+  }
+  .exhibition-detail[data-slug="split-logic"] .sla-field::after{
+    right:18px;
+  }
+}
+
+/* Modal portal lives at document.body, so its styles can't be
+   scoped to the exhibition wrapper. All selectors below use the
+   `.sla-` prefix which is exclusive to this feature. */
+/* Modal lives at document.body so it can't inherit the
+   exhibition-detail scoped selection. Mirror the Split Logic
+   selection palette here so highlight reads the same as the
+   page text behind it. */
+.sla-modal ::selection{
+  background-color:rgba(232,248,248,0.85);
+  color:#000;
+}
+.sla-modal{
+  position:fixed;inset:0;z-index:1000;
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;
+  background:rgba(0,0,0,0.78);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  animation:sla-modal-in 220ms ease-out;
+}
+.sla-card{
+  position:relative;
+  width:100%;max-width:520px;
+  background:#0a0b0c;
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:2px;
+  box-shadow:0 24px 80px rgba(0,0,0,0.6);
+  color:rgba(232,248,248,0.95);
+  font-family:'Space Mono', ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  outline:none;
+  animation:sla-card-in 280ms cubic-bezier(0.2,0.8,0.2,1);
+}
+.sla-card[data-status="eligible"]{
+  border-top:1px solid rgba(94,210,124,0.40);
+}
+.sla-card[data-status="ineligible"]{
+  border-top:1px solid rgba(239,90,90,0.40);
+}
+/* Head is a 3-column grid that mirrors the body's detail grid —
+   the first two columns share widths so "ACCESS" lines up with
+   "OPENING" below and "GRANTED" lines up with the value column.
+   Third column holds the triangle close button. */
+.sla-card-head{
+  display:grid;
+  grid-template-columns:116px 1fr auto;
+  column-gap:40px;
+  align-items:center;
+  padding:20px 28px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  min-height:56px;
+}
+.sla-card-head-label,
+.sla-card-head-value{
+  margin:0;
+  font-size:12.5px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  line-height:1.4;
+}
+.sla-card-head-label--granted,
+.sla-card-head-value--granted{
+  color:#5ed27c;
+}
+.sla-card-head-value--denied{
+  grid-column:1 / span 2;
+  text-transform:none;
+  letter-spacing:0.02em;
+  font-size:12.5px;
+  color:#ef5a5a;
+}
+/* Triangle close button — the gallery's logomark in the same green
+   or red as the status, used as the dismiss affordance. */
+.sla-card-close{
+  appearance:none;background:transparent;border:0;
+  padding:6px;
+  cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:opacity 160ms ease, transform 160ms ease;
+}
+.sla-card-close:hover{
+  opacity:0.72;
+}
+.sla-card-close:focus-visible{
+  outline:1px solid rgba(255,255,255,0.45);
+  outline-offset:1px;
+}
+.sla-card-close-tri{
+  display:block;
+  width:14px;height:14px;
+  clip-path:polygon(50% 0%, 100% 100%, 0% 100%);
+}
+.sla-card-close[data-status="granted"] .sla-card-close-tri{
+  background:#5ed27c;
+}
+.sla-card-close[data-status="denied"] .sla-card-close-tri{
+  background:#ef5a5a;
+}
+.sla-card-body{
+  padding:28px 28px;
+  display:flex;flex-direction:column;gap:20px;
+}
+/* Catalog plate: label + value share one baseline at one type size.
+   Label column width matches the head so "OPENING" sits directly
+   under "ACCESS" and the values line up under "GRANTED". */
+.sla-card-detail{
+  margin:0;
+  display:grid;
+  grid-template-columns:116px 1fr;
+  column-gap:40px;
+  row-gap:12px;
+  align-items:baseline;
+  font-size:12.5px;
+  line-height:1.4;
+}
+.sla-row{
+  display:contents;
+}
+.sla-row-label{
+  margin:0;
+  color:rgba(232,248,248,0.42);
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+}
+.sla-row-value{
+  margin:0;
+  color:rgba(232,248,248,0.92);
+  letter-spacing:0.02em;
+  font-variant-numeric:tabular-nums;
+}
+.sla-card-copy{
+  margin:0;
+  font-size:13px;
+  line-height:1.55;
+  color:rgba(232,248,248,0.78);
+  letter-spacing:0.01em;
+}
+.sla-card-link{
+  color:var(--on-dark-fg, rgba(232,248,248,0.95));
+  text-decoration:underline;
+  text-underline-offset:3px;
+  text-decoration-thickness:1px;
+  text-decoration-color:rgba(232,248,248,0.45);
+  transition:color 140ms ease, text-decoration-color 140ms ease;
+}
+.sla-card-link:hover{
+  color:#ffffff;
+  text-decoration-color:rgba(232,248,248,0.85);
+}
+@media (max-width:520px){
+  .sla-card-body{padding:22px 18px 22px;}
+  .sla-card-head{padding:12px 12px 10px;font-size:11px;}
+}
+
+@keyframes sla-modal-in{
+  from { opacity:0; }
+  to   { opacity:1; }
+}
+@keyframes sla-card-in{
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:none; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .sla-modal,.sla-card{animation:none;transition:none;}
+}

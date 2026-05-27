@@ -12,6 +12,7 @@ import { ExhibitionNav } from "@/components/ExhibitionNav";
 import { PieceGrid } from "@/components/PieceGrid";
 import { SplitLogicSystem } from "@/components/SplitLogicSystem";
 import { SplitLogicProcess } from "@/components/SplitLogicProcess";
+import { SplitLogicAllowlistCheck } from "@/components/SplitLogicAllowlistCheck";
 import {
   SplitLogicHeroAnchor,
   SplitLogicZoomCatcher,
@@ -162,6 +163,17 @@ export default async function ExhibitionDetailPage({
       {exhibition.slug === "split-logic" && exhibition.processVideos && (
         <Reveal>
           <SplitLogicProcess process={exhibition.processVideos} />
+        </Reveal>
+      )}
+
+      {/* Allowlist eligibility check — Split Logic only. Sits after
+          the process coda and before any cross-show row, as a quiet
+          "now collect" beat ahead of the colophon. Self-contained
+          client component; does not share state with
+          SplitLogicSystem so the PieceGrid FLIP lock is unaffected. */}
+      {exhibition.slug === "split-logic" && (
+        <Reveal>
+          <SplitLogicAllowlistCheck />
         </Reveal>
       )}
 
