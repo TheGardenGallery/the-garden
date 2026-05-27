@@ -10,7 +10,7 @@
 /* ---- TOKENS --------------------------------------------------------- */
 :root{
   /* Layout */
-  --nav-height: 70px;
+  --nav-height: 60px;
   --content-max: 1440px;
   --gutter: 40px;
   --logo-width: 131px;
@@ -332,7 +332,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--ink);outline-offset
 nav,.site-nav{
   position:fixed;top:0;left:0;right:0;z-index:200;
   display:flex;align-items:center;justify-content:space-between;
-  padding:24px var(--gutter);
+  padding:20px var(--gutter);
   background:var(--nav-bg, var(--paper));
   border-bottom:1px solid var(--nav-rule, var(--rule));
   color:var(--nav-fg, #000);
@@ -673,8 +673,9 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
        on the gutter while the tap target stays full size. */
     margin-left:calc((10px - 44px) / 2);
   }
-  :root{--nav-height:60px;--gutter:28px;}
-  nav,.site-nav{padding:20px var(--gutter);}
+  /* Nav height + padding now match the desktop defaults (60px /
+     20px) — no need to override here. Only the gutter shrinks. */
+  :root{--gutter:28px;}
   footer{padding:56px var(--gutter) 32px;}
 }
 @media (max-width:600px){
