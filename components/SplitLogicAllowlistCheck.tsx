@@ -319,14 +319,14 @@ function Row({ label, value }: { label: string; value: string }) {
 // Helpers
 // ──────────────────────────────────────────────────────────────────
 
-// Canonical mint window in CDT (UTC-5): opens 11:00 AM Jun 04,
-// closes 10:00 AM Jun 05. Public sale begins at the same instant
-// as the AL opens. Stored as UTC ISO so each visitor's browser
-// converts to their local timezone.
-const AL_OPEN_ISO = "2026-06-04T16:00:00Z";
-const AL_OPEN_FALLBACK = "JUN 04 · 11:00 AM CDT";
-const AL_CLOSE_ISO = "2026-06-05T15:00:00Z";
-const AL_CLOSE_FALLBACK = "JUN 05 · 10:00 AM CDT";
+// Canonical mint window in CDT (UTC-5): AL opens 11:00 AM Jun 03,
+// closes 10:00 AM Jun 04. Public sale begins 11:00 AM Jun 04 (one
+// hour after the AL closes). Stored as UTC ISO so each visitor's
+// browser converts to their local timezone.
+const AL_OPEN_ISO = "2026-06-03T16:00:00Z";
+const AL_OPEN_FALLBACK = "JUN 03 · 11:00 AM CDT";
+const AL_CLOSE_ISO = "2026-06-04T15:00:00Z";
+const AL_CLOSE_FALLBACK = "JUN 04 · 10:00 AM CDT";
 const PUBLIC_SALE_ISO = "2026-06-04T16:00:00Z";
 const PUBLIC_SALE_FALLBACK = "JUN 04 · 11:00 AM CDT";
 
