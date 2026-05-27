@@ -109,7 +109,7 @@ export function SplitLogicAllowlistCheck() {
               inputMode="text"
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              placeholder="0x0000000000000000000000000000000000000000"
+              placeholder="0x0000…0000"
               spellCheck={false}
               autoComplete="off"
               autoCorrect="off"

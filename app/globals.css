@@ -8740,13 +8740,14 @@ html:has(.interview-root) body{background:var(--iv-bg);}
 
 @media (max-width:560px){
   .exhibition-detail[data-slug="split-logic"] .split-logic-allowlist{
-    padding:88px 24px 112px;
+    padding:88px 32px 112px;
   }
   .exhibition-detail[data-slug="split-logic"] .sla-inner{
     /* Mirror desktop asymmetry: left padding = right padding +
        mobile underline inset (18px), so text-left and arrow-tip
-       both sit ~22px from the box edges. */
-    padding:24px 4px 24px 22px;
+       both sit 28px from the box edges. More breath than desktop
+       to give mobile the room it needs. */
+    padding:24px 10px 24px 28px;
   }
   .exhibition-detail[data-slug="split-logic"] .sla-label{
     margin-bottom:12px;
