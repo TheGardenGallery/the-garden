@@ -165,7 +165,7 @@ export const artists: Artist[] = [
     slug: "perfectl00p",
     name: "PERFECTL00P",
     coord: { row: "P", col: 2 },
-    bio: `PERFECTL00P is a multidisciplinary artist from Colorado in the United States. His art is high saturation, high contrast, looping works. With a retro-computing aesthetic, his work has a focus on human computer interactions and inescapable situations.`,
+    bio: `L00P is a multidisciplinary artist creating looping visual works rooted in retro computing culture and early software aesthetics. Originally a sound designer and composer for interactive media, he now blends multiple software tools to create endless, hypnotic visuals dense with glitches, artifacts, and nostalgic iconography.\n\nWhile his work is deeply digital and computer-based, his daily life is not. He lives in the mountains of Colorado, homeschools his kids, and values a quieter pace. This contrast shapes a pursuit of flow — allowing ideas to move continuously, forward and back, grounded in rhythm and repetition. Each piece is designed to resolve by beginning again, moving toward something that feels perfect.`,
     socials: [
       { label: "Instagram", href: "https://www.instagram.com/perfectl00p" },
       { label: "X", href: "https://x.com/PERFECTL00P" },
