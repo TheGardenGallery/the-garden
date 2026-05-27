@@ -6388,13 +6388,14 @@ html:has(.constellation-root){
     grid-template-columns:1fr 1fr;
     gap:20px 24px;
   }
-  /* Equalise inter-section spacing on mobile. The title bar already
-     sits 32px above the hero's bottom edge, and the facts panel
-     itself has a 32px margin-bottom to the description below. So
-     overview padding-top of 0 gives a 32px title-to-facts gap that
-     matches the facts-to-description gap exactly. */
+  /* Breathing room between the hero's bottom edge and the facts grid.
+     The title-bar's 32px standoff lives inside the hero (above the
+     hero's bottom edge), so it does not create any visible gap to the
+     facts panel below — without explicit padding here the red hero
+     plate ran right into the WORKS/OPENS row. 48px reads as a clean
+     section break while keeping mobile vertical rhythm tight. */
   .exhibition-detail[data-slug="split-logic"] .ex-overview{
-    padding-top:0;
+    padding-top:48px;
     padding-bottom:32px;
   }
   .exhibition-detail[data-slug="split-logic"] .piece-grid-section{
