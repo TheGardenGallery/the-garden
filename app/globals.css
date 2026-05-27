@@ -4410,8 +4410,8 @@ html:has(.constellation-root){
 .broadsheet-attribution::before{content:"— ";}
 
 @media (max-width:720px){
-  .broadsheet{padding:48px var(--gutter) 72px;}
-  .broadsheet-heading{margin-bottom:40px;}
+  .broadsheet{padding:28px var(--gutter) 72px;}
+  .broadsheet-heading{margin-bottom:32px;}
   .broadsheet-body{gap:36px;}
   .broadsheet-entry{
     grid-template-columns:28px 1fr;

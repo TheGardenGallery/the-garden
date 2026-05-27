@@ -96,7 +96,13 @@ function HeroMedia({ exhibition }: { exhibition: Exhibition }) {
       muted
       loop
       playsInline
-      preload="auto"
+      // preload="metadata" so the multi-MB MP4 body doesn't
+      // download on the critical render path — the poster image
+      // (the actual LCP element) renders fast, then the video
+      // streams in once autoplay triggers. Trade-off: ~300-800ms
+      // before motion begins, against ~25s of LCP saved on slow
+      // mobile networks.
+      preload="metadata"
       aria-label={label}
     />
   ) : exhibition.hero ? (
