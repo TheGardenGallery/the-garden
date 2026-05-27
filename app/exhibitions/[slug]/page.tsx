@@ -87,18 +87,16 @@ export default async function ExhibitionDetailPage({
 
   return (
     <div className="exhibition-detail" data-slug={exhibition.slug}>
-      {/* Kick off the hero video fetch during HTML parse so the browser
-          starts buffering before React hydrates the <video>. Without
-          this, autoplay begins with an empty buffer on slow connections
-          and the first seconds stutter. */}
-      {exhibition.heroVideo && (
-        <link
-          rel="preload"
-          as="video"
-          href={exhibition.heroVideo}
-          type="video/mp4"
-        />
-      )}
+      {/* Hero video downloads start once the <video> element hydrates
+          (preload="auto" on the element itself). We used to also emit
+          a <link rel="preload" as="video"> here to pre-warm the fetch
+          during HTML parse, but that drove a 3–22 MB MP4 onto the
+          critical render path, bandwidth-starving the poster image
+          (the actual LCP element) — Lighthouse mobile LCP > 5s.
+          Trade-off accepted: brief (~300–800ms) interval where the
+          poster image holds before motion begins. The poster IS the
+          hero composition, so the transition reads as a fade-in
+          rather than a broken state. */}
 
       {exhibition.slug === "split-logic" && (
         <SplitLogicMagnifier tones={await getSplitLogicMagnifierTones()} />
