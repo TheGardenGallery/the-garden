@@ -4324,7 +4324,7 @@ html:has(.constellation-root){
    paragraphs, large mono, extreme leading. Scroll-reveal fade-in. */
 
 .broadsheet{
-  padding:100px var(--gutter) 120px;
+  padding:32px var(--gutter) 120px;
   background:#000;
   border-top:1px solid rgba(255,255,255,0.06);
   /* No scroll-reveal — the broadsheet sits below a transparent-bg
