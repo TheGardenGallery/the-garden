@@ -22,6 +22,8 @@ export const exhibitions: Exhibition[] = [
     year: 2026,
     month: "Jun",
     date: "June 4, 2026",
+    allowlistDate: "June 3, 2026",
+    publicSaleDate: "June 4, 2026",
     location: "Verse",
     status: "upcoming",
     workCount: 100,

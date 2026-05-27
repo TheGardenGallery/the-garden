@@ -103,6 +103,11 @@ export type Exhibition = {
   year: number;
   month: string;         // "Jul" — short, for past archive
   date: string;          // "July 2024" — long form
+  /** When present (with `publicSaleDate`), the facts sidebar swaps the
+      single "Opens" row for two dated rows: "Allowlist" + "Public sale".
+      Plain display strings; not parsed. */
+  allowlistDate?: string;
+  publicSaleDate?: string;
   location: string;
   status: ExhibitionStatus;
   description?: string[];        // paragraphs (HTML allowed in prose)
