@@ -12,6 +12,8 @@ type Status = "idle" | "eligible" | "ineligible";
 
 const ADDR_RE = /^0[xX][0-9a-fA-F]{40}$/;
 
+const VERSE_SERIES_URL = "https://verse.works/series/split-logic-by-ricky-retouch";
+
 /**
  * Split Logic-only allowlist eligibility check. Visitor types an
  * Ethereum address; on submit, the right-edge triangle (the gallery's
@@ -280,7 +282,7 @@ function SLAModal({
 function MintDetails({ isEligible }: { isEligible: boolean }) {
   return (
     <dl className="sla-card-detail" aria-label="Mint details">
-      <Row label="PLATFORM" value="Verse" />
+      <Row label="PLATFORM" value="Verse" href={VERSE_SERIES_URL} />
       {isEligible ? (
         <>
           <Row
@@ -306,11 +308,32 @@ function MintDetails({ isEligible }: { isEligible: boolean }) {
 }
 
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({
+  label,
+  value,
+  href,
+}: {
+  label: string;
+  value: string;
+  href?: string;
+}) {
   return (
     <div className="sla-row">
       <dt className="sla-row-label">{label}</dt>
-      <dd className="sla-row-value">{value}</dd>
+      <dd className="sla-row-value">
+        {href ? (
+          <a
+            className="sla-card-link"
+            href={href}
+            target="_blank"
+            rel="noopener"
+          >
+            {value}
+          </a>
+        ) : (
+          value
+        )}
+      </dd>
     </div>
   );
 }
