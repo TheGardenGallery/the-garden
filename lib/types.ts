@@ -109,6 +109,10 @@ export type Exhibition = {
   allowlistDate?: string;
   publicSaleDate?: string;
   location: string;
+  /** When set, the facts-sidebar "Platform" value links out to this URL.
+      Opt-in per show; absent everywhere else so only the intended page
+      gets a linked platform name. */
+  locationUrl?: string;
   status: ExhibitionStatus;
   description?: string[];        // paragraphs (HTML allowed in prose)
   descriptionLabels?: string[];  // optional code-headers per paragraph (paired index-by-index with `description`); when present and `descriptionTypewriter` is on, each paragraph renders as a labeled "data station" staggered across a wider grid — echoes Ricky-style label clusters

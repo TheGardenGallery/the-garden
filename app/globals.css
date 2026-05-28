@@ -3878,6 +3878,14 @@ html:has(.constellation-root){
   color:var(--ink);
   font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1;
 }
+a.ex-fact-value-link{
+  text-decoration:underline;
+  text-decoration-thickness:1px;
+  text-underline-offset:3px;
+  text-decoration-color:color-mix(in srgb, currentColor 45%, transparent);
+  transition:text-decoration-color 150ms ease;
+}
+a.ex-fact-value-link:hover{text-decoration-color:currentColor;}
 .ex-footnote{
   display:block;
   font-size:0.82em;line-height:1.55;

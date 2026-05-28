@@ -39,7 +39,7 @@ export function ExhibitionOverview({ exhibition }: { exhibition: Exhibition }) {
 }
 
 function ExhibitionFacts({ exhibition }: { exhibition: Exhibition }) {
-  const facts: { label: string; value: string }[] = [];
+  const facts: { label: string; value: string; href?: string }[] = [];
   if (exhibition.workCount) facts.push({ label: "Works", value: String(exhibition.workCount) });
   if (exhibition.allowlistDate && exhibition.publicSaleDate) {
     facts.push({ label: "Allowlist", value: exhibition.allowlistDate });
@@ -50,7 +50,8 @@ function ExhibitionFacts({ exhibition }: { exhibition: Exhibition }) {
       value: exhibition.date,
     });
   }
-  if (exhibition.location) facts.push({ label: "Platform", value: exhibition.location });
+  if (exhibition.location)
+    facts.push({ label: "Platform", value: exhibition.location, href: exhibition.locationUrl });
   if (exhibition.chain) facts.push({ label: "Chain", value: exhibition.chain });
   if (exhibition.tokenStandard) facts.push({ label: "Token standard", value: exhibition.tokenStandard });
   if (exhibition.storage) facts.push({ label: "Storage", value: exhibition.storage });
@@ -60,7 +61,18 @@ function ExhibitionFacts({ exhibition }: { exhibition: Exhibition }) {
       {facts.map((f) => (
         <div key={f.label} className="ex-fact">
           <span className="ex-fact-label">{f.label}</span>
-          <span className="ex-fact-value">{f.value}</span>
+          {f.href ? (
+            <a
+              className="ex-fact-value ex-fact-value-link"
+              href={f.href}
+              target="_blank"
+              rel="noopener"
+            >
+              {f.value}
+            </a>
+          ) : (
+            <span className="ex-fact-value">{f.value}</span>
+          )}
         </div>
       ))}
     </aside>
