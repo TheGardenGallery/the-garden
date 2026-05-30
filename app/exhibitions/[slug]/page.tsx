@@ -26,6 +26,7 @@ import {
   getSplitLogicMagnifierTones,
 } from "@/lib/split-logic-palette";
 import type { Exhibition } from "@/lib/types";
+import type { Metadata } from "next";
 
 export async function generateStaticParams() {
   const all = await fetchExhibitions();
@@ -36,11 +37,51 @@ export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
-}) {
+}): Promise<Metadata> {
   const { slug } = await params;
   const ex = await fetchExhibition(slug);
   if (!ex) return { title: "Not found | The Garden" };
-  return { title: `${ex.title} · ${ex.artistName} | The Garden` };
+  const title = `${ex.title} · ${ex.artistName} | The Garden`;
+
+  // Per-exhibition OG cards are opt-in: socials cache crops forever, so
+  // each card has to be deliberately composed, not auto-generated. Split
+  // Logic gets a hand-built card — the DRO 9.3 / SL wireframe-lens piece
+  // letterboxed on cream so the whole work reads in feed, uncropped, as
+  // one continuous editorial object.
+  if (slug === "split-logic") {
+    const ogTitle = `${ex.title} · ${ex.artistName}`;
+    const ogDescription =
+      "Procedural terminal works built from screen partitions, grid structures, moving fields, coded labels, and rule-based color.";
+    const ogImage = {
+      url: "/images/ricky-retouch/split-logic-og.jpg",
+      width: 1200,
+      height: 630,
+      alt: `${ex.title} by ${ex.artistName} — distorted wireframe lens on cream paper, with DRO 9.3 and SL coded readouts.`,
+    };
+    return {
+      title,
+      alternates: { canonical: `/exhibitions/${slug}` },
+      openGraph: {
+        title: ogTitle,
+        description: ogDescription,
+        url: `/exhibitions/${slug}`,
+        images: [ogImage],
+      },
+      // Re-declare twitter wholesale — Next replaces the parent twitter
+      // object rather than deep-merging, so card/site/creator from
+      // layout.tsx would silently drop without restating them here.
+      twitter: {
+        card: "summary_large_image",
+        site: "@chilltulpa",
+        creator: "@chilltulpa",
+        title: ogTitle,
+        description: ogDescription,
+        images: [ogImage.url],
+      },
+    };
+  }
+
+  return { title };
 }
 
 export default async function ExhibitionDetailPage({
