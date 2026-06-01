@@ -895,6 +895,14 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   width:auto;
   height:auto;
 }
+/* Hufkens-refinement (scoped to split-logic homepage hero only): the
+   plate carries NO drop-shadow. Hufkens lets the work sit flat on the
+   ground with zero chrome — a cast shadow reads as a "card" effect,
+   which is exactly the decorative cue the reference avoids. */
+.hero[data-slug="split-logic"] .slide-video,
+.hero[data-slug="split-logic"] .slide img{
+  filter:none;
+}
 /* Reserve space at the bottom of the homepage Split Logic slide so the
    video's bottom edge clears the .hero-card (artist + title + status +
    "Learn more" lockup at `bottom: 64px; max-width: 380px`). Card height
@@ -904,6 +912,14 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
    symmetric padding. */
 .hero[data-slug="split-logic"] .slide{
   padding-bottom:220px;
+  /* Top breathing room off the header hairline. The slide centres its
+     plate, but the 220px bottom reservation (for the caption lockup)
+     skews the centring upward — in a tall window the 800px plate then
+     rides close to the nav hairline. A generous, viewport-aware top
+     padding pushes the plate down so the gap above it reads as
+     deliberate gallery air, scaling with window height. Scoped to
+     split-logic; other slides keep their 64px symmetric padding. */
+  padding-top:clamp(72px, 12vh, 152px);
 }
 /* Slightly larger hero card lockup for dense featured homepage works. */
 .hero[data-hero-copy-treatment="featured-lockup"] .hero-artist,
@@ -936,6 +952,12 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   content:'';position:absolute;left:0;bottom:0;width:min(480px,45%);height:min(280px,36%);
   background:radial-gradient(ellipse at bottom left, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 70%);
   pointer-events:none;z-index:1;
+}
+/* Hufkens-refinement (split-logic only): no readability vignette behind
+   the caption. The reference never paints a gradient scrim under text —
+   the lockup stands on the clean ground unaided. */
+.hero[data-slug="split-logic"]::after{
+  display:none;
 }
 
 .hero-card{position:absolute;bottom:64px;left:40px;background:transparent;padding:0;max-width:380px;z-index:3;}
@@ -976,6 +998,28 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .hero-link{display:inline-flex;align-items:baseline;gap:8px;font-family:'Cormorant','Title CJK',serif;font-style:italic;font-size:14px;line-height:1;color:rgba(245,243,239,0.85);text-decoration:none;margin-top:16px;}
 .hero-link-label{position:relative;}
 .hero-link-arrow{font-style:normal;font-size:13px;line-height:1;position:relative;top:1px;}
+/* ── Hufkens-refinement: split-logic homepage caption ──────────────────
+   Scoped to .hero[data-slug="split-logic"] so no other hero slide is
+   affected. Per the verified Hufkens baseline:
+   - Weight is ALWAYS 400 (the artist name was 500 — the only "bold" on
+     the card). Hierarchy now comes purely from roman-vs-italic + the
+     grey meta, never from weight.
+   - Meta is mixed-case grey, NOT 10px uppercase tracked-out. Hufkens
+     metadata is a quiet grey line (#aeaeae register), same family, no
+     letter-spacing, no caps. */
+.hero[data-slug="split-logic"] .hero-artist{
+  font-weight:400;
+}
+.hero[data-slug="split-logic"] .hero-meta{
+  font-family:'Cormorant','Title CJK',serif;
+  font-size:15px;
+  line-height:1.2;
+  letter-spacing:0;
+  text-transform:none;
+  font-weight:400;
+  color:rgba(245,243,239,0.5);
+  margin-top:14px;
+}
 /* Unified hover: fade every text element in the hero card to gray,
    same treatment as homepage exhibition cards. Per-theme dim target
    so the result reads as "dimmed" against both paper and dark. */
