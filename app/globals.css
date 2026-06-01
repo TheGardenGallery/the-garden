@@ -7161,6 +7161,12 @@ a.ex-fact-value-link:hover{text-decoration-color:currentColor;}
   box-shadow:
     0 10px 18px -10px rgba(20,16,8,0.32),
     0 30px 54px -16px rgba(20,16,8,0.34);
+  /* Own compositor layer — the video, the vignette ::after, and the
+     box-shadow all live inside this stacking context so the browser
+     never has to repaint the surrounding page when the video decodes
+     or the hover-transform tweens. */
+  isolation:isolate;
+  contain:layout paint;
 }
 /* Gentle inset vignette — radial fade from a clear centre to a soft
    warm-dark corner. Catches a sliver of the cover's edge so the
@@ -7179,6 +7185,14 @@ a.ex-fact-value-link:hover{text-decoration-color:currentColor;}
     rgba(20,16,8,0.20) 100%
   );
   z-index:1;
+  /* Promote the vignette onto its own static compositor layer so the
+     gradient is rasterised once and simply re-composited — it never
+     repaints when the video below it decodes a new frame. translateZ
+     is the promotion; we deliberately do NOT set will-change:opacity
+     here because the overlay's opacity never animates, and a standing
+     will-change hint just pins extra layer memory for no benefit. */
+  transform:translateZ(0);
+  backface-visibility:hidden;
 }
 .journal-index-media{
   position:absolute;inset:0;
@@ -7187,13 +7201,20 @@ a.ex-fact-value-link:hover{text-decoration-color:currentColor;}
 .journal-index-media img{
   width:100%;height:100%;display:block;
   object-fit:cover;
-  /* Hover-scale anchored at 1.012 so static state is already lightly
-     "leaning in" — on hover the media settles back to 1.0, like a
-     held breath releasing. The reverse direction of most hover-zooms
-     reads more cinematic than aggressive. */
-  transform:scale(1.012);
-  transition:transform 1100ms cubic-bezier(0.22,0.61,0.36,1);
-  will-change:transform;
+  /* Static state sits at the identity transform (scale 1). A looping
+     video held at a *fractional* scale (the old 1.012) forces the
+     compositor to re-sample the video texture on every decoded frame —
+     that per-frame resample is exactly the micro-stutter that read on
+     the resting card. At scale 1 the decoded frame maps 1:1 to its
+     layer and composites with no filtering, so the loop is glass-smooth
+     before you ever touch it. */
+  transform:scale(1);
+  /* The zoom now lives only on hover (the conventional, jank-free
+     direction). Long duration + the same silk bezier keeps the motion
+     unhurried. backface-visibility pins the element to its own layer so
+     the tween composites instead of re-rasterising mid-flight. */
+  transition:transform 1400ms cubic-bezier(0.16,1,0.3,1);
+  backface-visibility:hidden;
 }
 
 /* --- Caption (the editorial pull) ------------------------------------- */
@@ -7238,9 +7259,16 @@ a.ex-fact-value-link:hover{text-decoration-color:currentColor;}
 
 /* --- Hover ------------------------------------------------------------- */
 @media (hover:hover){
+  /* Gentle settle-in on hover. The card lifts toward the reader by a
+     hair (1.018) — small enough to feel like attention rather than a
+     zoom, large enough to register. The 1400ms silk bezier on the base
+     rule carries the motion; will-change is applied only while the row
+     is actually hovered so the compositor layer is promoted on demand
+     and released afterwards, instead of standing permanently. */
   .journal-index-row:hover .journal-index-media video,
   .journal-index-row:hover .journal-index-media img{
-    transform:scale(1.0);
+    transform:scale(1.018);
+    will-change:transform;
   }
 }
 
@@ -7270,7 +7298,11 @@ a.ex-fact-value-link:hover{text-decoration-color:currentColor;}
   }
   .journal-index-cover{
     margin-top:0;
-    aspect-ratio:4 / 3;
+    /* Match the artwork's native square (source is 1456×1500 ≈ 1:1).
+       The old 9/10 made the plate narrower than the source, so
+       object-fit:cover silently cropped the left and right edges off
+       the piece. 1:1 shows the full composition with no crop. */
+    aspect-ratio:1 / 1;
   }
   .journal-index-caption{
     align-self:start;
