@@ -894,6 +894,12 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
   max-width:min(800px, 88vmin, 100%);
   width:auto;
   height:auto;
+  /* Fidelity (split-logic, dpr-2 displays): the source video tops out at
+     1200px, so at the 800px display cap a retina screen asks for ~1600px
+     and the browser upscales. high-quality interpolation keeps that
+     unavoidable upscale as clean as possible; the 1600px poster (wired in
+     data) carries a razor-sharp first paint before the video decodes. */
+  image-rendering:-webkit-optimize-contrast;
 }
 /* Hufkens-refinement (scoped to split-logic homepage hero only): the
    plate carries NO drop-shadow. Hufkens lets the work sit flat on the
@@ -902,6 +908,12 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
 .hero[data-slug="split-logic"] .slide-video,
 .hero[data-slug="split-logic"] .slide img{
   filter:none;
+  /* Fix #2: the shared .slide/.slide-video rule carries transition:all,
+     which animates *every* property — including max-width/max-height as
+     the window resizes, and layout props — producing subtle lag. Restrict
+     to compositor-safe transform+opacity so resize is instant native
+     reflow and only intentional motion tweens. Scoped to split-logic. */
+  transition:transform 1400ms cubic-bezier(0.16,1,0.3,1), opacity 600ms ease;
 }
 /* Reserve space at the bottom of the homepage Split Logic slide so the
    video's bottom edge clears the .hero-card (artist + title + status +
@@ -912,6 +924,9 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
    symmetric padding. */
 .hero[data-slug="split-logic"] .slide{
   padding-bottom:220px;
+  /* Fix #2 (cont.): also drop transition:all from the slide wrapper so a
+     resize doesn't animate its layout box. */
+  transition:opacity 600ms ease;
   /* Top breathing room off the header hairline. The slide centres its
      plate, but the 220px bottom reservation (for the caption lockup)
      skews the centring upward — in a tall window the 800px plate then

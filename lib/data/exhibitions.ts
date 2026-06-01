@@ -32,6 +32,7 @@ export const exhibitions: Exhibition[] = [
     tokenStandard: "ERC-721",
     storage: "IPFS",
     homepageHeroVideo: "/images/ricky-retouch/split-logic-hero.mp4",
+    homepageHeroVideoPoster: "/images/ricky-retouch/split-logic-hero.jpg",
     heroVideo: "/images/ricky-retouch/split-logic-hero.mp4",
     heroVideoPoster: "/images/ricky-retouch/split-logic-hero.jpg",
     heroTheme: "dark",
