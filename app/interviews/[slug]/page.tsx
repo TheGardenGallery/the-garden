@@ -25,18 +25,18 @@ export async function generateMetadata({
   const ogTitle = `${interview.artistName} · ${interview.title}`;
   const ogDescription = interview.preamble;
 
-  // Per-interview OG card: 1200×630 with the full artwork plate centered,
+  // Per-interview OG card: 1200×630 with the full artwork frame centered,
   // uncropped, on white — no text lockup. Socials cache crops forever, so
-  // this is a deliberate asset, not auto-generated. The -v2 filename is a
-  // deliberate cache-bust over the earlier title-lockup version. Ricky's is
-  // the only one wired up for now; others fall back to the site default.
+  // this is a deliberate asset, not auto-generated. The -v3 filename is a
+  // deliberate cache-bust over earlier versions. Ricky's is the only one
+  // wired up for now; others fall back to the site default.
   const ogImage =
     slug === "ricky-retouch"
       ? {
-          url: "/images/ricky-retouch/unknown-variables-og-v2.jpg",
+          url: "/images/ricky-retouch/unknown-variables-og-v3.jpg",
           width: 1200,
           height: 630,
-          alt: `${interview.title} — ${interview.artistName}: orange phosphor-grid terminal plate centered on white.`,
+          alt: `${interview.title} — ${interview.artistName}: white-on-black phosphor-terminal maze frame centered on white.`,
         }
       : null;
 
