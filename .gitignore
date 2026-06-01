@@ -36,3 +36,6 @@ next-env.d.ts
 
 # transformers.js / Xenova model weights downloaded at build/runtime
 /.cache/
+
+# OG card render scaffold — internal preview HTML, not shipped to prod
+/public/_og-preview/
