@@ -880,9 +880,18 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
      relative, which ignored the slide's reserved card-zone at the
      bottom and let the video extend right into the title-card area.
      With 100% of the slide content, the video's height is bounded by
-     whatever vertical room the slide's padding leaves. */
-  max-height:100%;
-  max-width:100%;
+     whatever vertical room the slide's padding leaves.
+
+     Hufkens-restraint ceiling: 100% alone let the near-square plate
+     balloon to nearly full width in tall/square windows (the art chased
+     the window instead of holding its poise). An absolute min(580px,
+     78vmin) cap holds the plate at a calm fixed scale with generous
+     negative space on every side — the work sits IN the room rather
+     than filling it — and eases down via vmin on smaller screens so it
+     never overflows. min() with 100% keeps the slide-padding bound as
+     the upper guard. */
+  max-height:min(580px, 78vmin, 100%);
+  max-width:min(580px, 78vmin, 100%);
   width:auto;
   height:auto;
 }
@@ -3205,7 +3214,14 @@ html:has(.constellation-root){
 @media (min-width:721px){
   .ex-hero[data-slug="split-logic"] .ex-hero-plate .ex-hero-video,
   .ex-hero[data-slug="split-logic"] .ex-hero-plate img{
-    max-width:92%;max-height:92%;
+    /* Same Hufkens-restraint ceiling as the homepage hero so the two
+       Split Logic plates read at one consistent scale. The 92% bound
+       was relative to the framed inner box, so in a tall/square window
+       the inner box was large and 92% of it still ballooned. min(580px,
+       78vmin, 92%) holds the plate at a calm absolute size with air
+       around it, falls back to 92% as the upper guard, and eases down
+       via vmin on smaller screens. */
+    max-width:min(580px, 78vmin, 92%);max-height:min(580px, 78vmin, 92%);
   }
 }
 /* PERFECTL00P / Trails: balance the top padding to match the bottom
