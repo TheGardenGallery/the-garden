@@ -2462,6 +2462,24 @@ html:has(.constellation-root){
    homepage hero. The series' varied palettes read as lit plates
    floating in negative space against black. */
 .ex-hero[data-slug="split-logic"]{background:#000000;}
+/* Split Logic title-bar anchored in FLUID viewport-ratio units so it
+   scales in lockstep with the fluid hero title (which is itself
+   clamp(... 1.1vw ...)). The shared .ex-title-bar uses fixed px offsets
+   (left:--gutter / bottom:64px); against a viewport-scaling font those
+   static offsets make the lockup appear to drift/shift as you resize.
+   Expressing the anchor as vw/vh ratios — clamped so it never runs away
+   on extreme sizes — keeps the title hard-locked to the same relative
+   corner at every width. --ex-title-bottom is set to the SAME fluid
+   value so the frame's reserved title safe-zone tracks the title and the
+   artwork's contain-fit can never collide with it. Scoped to split-logic
+   only; every other exhibition keeps the original px anchoring. */
+.ex-hero[data-slug="split-logic"]{
+  --ex-title-bottom:clamp(40px, 7vh, 88px);
+}
+.ex-hero[data-slug="split-logic"] .ex-title-bar{
+  left:clamp(24px, 2.8vw, 56px);
+  bottom:clamp(40px, 7vh, 88px);
+}
 /* Canonical hero framing. The frame reserves a title safe-zone at
    the bottom so the artwork's contain-fit can never extend into the
    title-bar's territory at any viewport aspect ratio.
