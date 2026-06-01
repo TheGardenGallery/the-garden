@@ -18,9 +18,48 @@ export async function generateMetadata({
   const { slug } = await params;
   const interview = getInterview(slug);
   if (!interview) return {};
+
+  // Document title stays descriptive; the social card title is the clean
+  // "Artist · Title" lockup (middle-dot, no em-dashes).
+  const docTitle = `${interview.artistName} · ${interview.title} — The Garden`;
+  const ogTitle = `${interview.artistName} · ${interview.title}`;
+  const ogDescription = interview.preamble;
+
+  // Per-interview OG card: hand-cropped 1200×630 of the listing composition
+  // (artwork plate + title lockup on paper). Socials cache crops forever,
+  // so this is a deliberate asset, not auto-generated. Ricky's is the only
+  // one wired up for now; others fall back to the site default.
+  const ogImage =
+    slug === "ricky-retouch"
+      ? {
+          url: "/images/ricky-retouch/unknown-variables-og.jpg",
+          width: 1200,
+          height: 630,
+          alt: `${interview.title} — ${interview.artistName}: orange phosphor-grid terminal plate with the Split Logic readout.`,
+        }
+      : null;
+
   return {
-    title: `${interview.artistName} — ${interview.exhibitionTitle ?? "Interview"} — The Garden`,
-    description: interview.preamble,
+    title: docTitle,
+    description: ogDescription,
+    alternates: { canonical: `/interviews/${slug}` },
+    openGraph: {
+      title: ogTitle,
+      description: ogDescription,
+      url: `/interviews/${slug}`,
+      ...(ogImage ? { images: [ogImage] } : {}),
+    },
+    // Re-declare twitter wholesale — Next replaces (not deep-merges) the
+    // parent twitter object, so card/site/creator from layout.tsx would
+    // silently drop if not restated here.
+    twitter: {
+      card: "summary_large_image",
+      site: "@chilltulpa",
+      creator: "@chilltulpa",
+      title: ogTitle,
+      description: ogDescription,
+      ...(ogImage ? { images: [ogImage.url] } : {}),
+    },
   };
 }
 

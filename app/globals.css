@@ -230,6 +230,21 @@ footer ::selection{background-color:rgba(245,243,239,0.12);color:var(--on-dark-f
   background-color:rgba(232, 248, 248, 0.85);
   color:#000;
 }
+/* Ricky's interview page sits on a near-black phosphor ground
+   (--iv-bg #0a0a0a) but has no selection rule of its own, so the global
+   default (dark ink on a ~10%-opacity dark plate) renders selected text
+   invisible against the page. Mirror the Split Logic inverse selection —
+   cream-cyan plate, dark ink — so highlighted text reads with high
+   contrast and stays in the phosphor tonal family. Scoped to
+   .interview-root only. */
+.interview-root ::selection{
+  background-color:rgba(232, 248, 248, 0.85);
+  color:#000;
+}
+.interview-root ::-moz-selection{
+  background-color:rgba(232, 248, 248, 0.85);
+  color:#000;
+}
 
 /* ---- NO-SELECT: images + grid interactives ------------------------- */
 img{-webkit-user-select:none;user-select:none;-webkit-user-drag:none;user-drag:none;pointer-events:auto;}
