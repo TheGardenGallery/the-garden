@@ -4,6 +4,8 @@ import type { Exhibition } from "@/lib/types";
 import { preserveHyphens } from "@/lib/typography";
 import { InlineArtworks } from "@/components/InlineArtworks";
 import { TerminalDescription } from "@/components/TerminalDescription";
+import { AllowlistMintBeat } from "@/components/AllowlistMintBeat";
+import { mintPhase, SL_ALLOWLIST_OPEN_FALLBACK } from "@/lib/split-logic-mint";
 
 /**
  * Exhibition overview section: facts sidebar + prose column. Prose is
@@ -39,10 +41,23 @@ export function ExhibitionOverview({ exhibition }: { exhibition: Exhibition }) {
 }
 
 function ExhibitionFacts({ exhibition }: { exhibition: Exhibition }) {
-  const facts: { label: string; value: string; href?: string }[] = [];
+  const facts: { label: string; value: string; href?: string; node?: React.ReactNode }[] = [];
   if (exhibition.workCount) facts.push({ label: "Works", value: String(exhibition.workCount) });
   if (exhibition.allowlistDate && exhibition.publicSaleDate) {
-    facts.push({ label: "Allowlist", value: exhibition.allowlistDate });
+    facts.push({
+      label: "Allowlist",
+      value: exhibition.allowlistDate,
+      // Split Logic's allowlist row goes live during the presale window via
+      // the shared phase machinery; other shows keep the static date.
+      node:
+        exhibition.slug === "split-logic" ? (
+          <AllowlistMintBeat
+            serverPhase={mintPhase(Date.now())}
+            fallback={SL_ALLOWLIST_OPEN_FALLBACK}
+            style="long"
+          />
+        ) : undefined,
+    });
     facts.push({ label: "Public sale", value: exhibition.publicSaleDate });
   } else if (exhibition.date) {
     facts.push({
@@ -71,7 +86,7 @@ function ExhibitionFacts({ exhibition }: { exhibition: Exhibition }) {
               {f.value}
             </a>
           ) : (
-            <span className="ex-fact-value">{f.value}</span>
+            <span className="ex-fact-value">{f.node ?? f.value}</span>
           )}
         </div>
       ))}

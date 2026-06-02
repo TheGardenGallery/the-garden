@@ -17,6 +17,40 @@ export const SL_ALLOWLIST_CLOSE_FALLBACK = "JUN 04 · 10:00 AM CDT";
 export const SL_PUBLIC_SALE_ISO = "2026-06-04T16:00:00Z";
 export const SL_PUBLIC_SALE_FALLBACK = "JUN 04 · 11:00 AM CDT";
 
+// ── Mint phase ──────────────────────────────────────────────────────
+// The allowlist presale is LIVE for a window (open → close), not a single
+// instant. Surfaces that show the allowlist beat should read as "live" only
+// during that window, then stop claiming live once it closes — anything else
+// is dishonest. Derived from the same UTC instants above so the homepage
+// hero, the exhibitions row, and the facts sidebar can never disagree.
+export type MintPhase = "before" | "allowlist" | "after";
+
+// Quiet, refined live label. One middot, sentence-case status — hierarchy
+// from the contrast between the roman label and the live state, not caps.
+export const SL_ALLOWLIST_LIVE_LABEL = "Allowlist Presale · Live Now";
+
+/**
+ * Which mint phase a given instant falls in. Pure in `nowMs` so server
+ * (request-time) and client (after mount / at the boundary) derive the same
+ * answer — no hydration drift.
+ */
+export function mintPhase(nowMs: number): MintPhase {
+  const open = Date.parse(SL_ALLOWLIST_OPEN_ISO);
+  const close = Date.parse(SL_ALLOWLIST_CLOSE_ISO);
+  if (nowMs < open) return "before";
+  if (nowMs < close) return "allowlist";
+  return "after";
+}
+
+/** ms until the next phase boundary from `nowMs`, or null if none remain. */
+export function msUntilNextMintPhase(nowMs: number): number | null {
+  const open = Date.parse(SL_ALLOWLIST_OPEN_ISO);
+  const close = Date.parse(SL_ALLOWLIST_CLOSE_ISO);
+  if (nowMs < open) return open - nowMs;
+  if (nowMs < close) return close - nowMs;
+  return null;
+}
+
 // Format a UTC instant into a localized, viewer-timezone wall-clock string.
 // Used by both the homepage Hero and the allowlist modal so the two surfaces
 // always agree. `style: "long"` → "June 3 · 11:00 AM CDT" (homepage voice);

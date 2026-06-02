@@ -16,8 +16,11 @@ import { LocalMintTime } from "./LocalMintTime";
 import {
   SL_ALLOWLIST_OPEN_ISO,
   SL_ALLOWLIST_OPEN_FALLBACK_LONG,
+  SL_ALLOWLIST_LIVE_LABEL,
+  mintPhase,
 } from "@/lib/split-logic-mint";
 import { useLiveStatus } from "@/lib/use-live-status";
+import { useMintPhase } from "@/lib/use-mint-phase";
 
 export type HeroSlide = {
   exhibition: Exhibition;
@@ -126,6 +129,11 @@ export function Hero({ slides }: HeroProps) {
     { status: displayed?.status ?? "past", liveStart: displayed?.liveStart },
     displayed?.status ?? "past",
   );
+
+  // Live allowlist phase (before → allowlist → after), hydration-safe. The
+  // initial arg is computed identically on server (SSR) and first client
+  // render, so the HTML matches; the hook flips it at each boundary.
+  const mintPhaseLive = useMintPhase(mintPhase(Date.now()));
 
   if (slides.length === 0) return null;
   const current = slides[index % slides.length];
@@ -257,8 +265,12 @@ export function Hero({ slides }: HeroProps) {
                     <div className="hero-title">{ex.title}</div>
                   </div>
                   <div className="hero-meta">
-                    {liveStatus === "upcoming" ? (
-                      ex.slug === "split-logic" ? (
+                    {ex.slug === "split-logic" ? (
+                      mintPhaseLive === "allowlist" ? (
+                        // Allowlist window is open — quiet live status, no
+                        // "Upcoming" prefix (it's no longer upcoming).
+                        SL_ALLOWLIST_LIVE_LABEL
+                      ) : (
                         <>
                           {"Upcoming · "}
                           <LocalMintTime
@@ -267,15 +279,9 @@ export function Hero({ slides }: HeroProps) {
                             style="long"
                           />
                         </>
-                      ) : (
-                        `Upcoming · ${ex.homepageDate ?? ex.date}`
                       )
-                    ) : liveStatus === "current" && ex.liveStart ? (
-                      // A show that crossed its liveStart (it carries a mint
-                      // instant) — quiet, unshouted "live" beat. Distinguishes
-                      // a freshly-dropped show from a natively-current one,
-                      // which has no liveStart and keeps its date line.
-                      "Now live"
+                    ) : liveStatus === "upcoming" ? (
+                      `Upcoming · ${ex.homepageDate ?? ex.date}`
                     ) : (
                       ex.date
                     )}

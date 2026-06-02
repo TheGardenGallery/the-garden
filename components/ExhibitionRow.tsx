@@ -2,6 +2,8 @@ import Image from "next/image";
 import { TransitionLink } from "./TransitionLink";
 import type { CSSProperties } from "react";
 import type { Exhibition } from "@/lib/types";
+import { AllowlistMintBeat } from "./AllowlistMintBeat";
+import { mintPhase, SL_ALLOWLIST_OPEN_FALLBACK } from "@/lib/split-logic-mint";
 
 type ExhibitionRowProps = {
   exhibition: Exhibition;
@@ -72,11 +74,21 @@ export function ExhibitionRow({ exhibition, variant = "card" }: ExhibitionRowPro
           <div className="row-meta-right">
             {/* For an upcoming featured drop, lead with the allowlist open
                 date — the same beat the homepage hero surfaces — so the two
-                surfaces agree. Falls back to the public-sale `date`. */}
+                surfaces agree. For Split Logic this beat goes live
+                ("Allowlist Presale · Live Now") during the window via the
+                shared phase machinery. Falls back to the public-sale date. */}
             <div className="row-dates">
-              {exhibition.status === "upcoming" && exhibition.allowlistDate
-                ? exhibition.allowlistDate
-                : exhibition.date}
+              {exhibition.slug === "split-logic" ? (
+                <AllowlistMintBeat
+                  serverPhase={mintPhase(Date.now())}
+                  fallback={SL_ALLOWLIST_OPEN_FALLBACK}
+                  style="long"
+                />
+              ) : exhibition.status === "upcoming" && exhibition.allowlistDate ? (
+                exhibition.allowlistDate
+              ) : (
+                exhibition.date
+              )}
             </div>
             {exhibition.location && <div className="row-location">{exhibition.location}</div>}
           </div>
