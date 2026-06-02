@@ -24,7 +24,7 @@ export const interviews: Interview[] = [
     interviewer: "Ivan Zhyzhkevych",
     interviewerRole: "Curator",
     number: "001",
-    date: "May 2026",
+    date: "June 2026",
     preamble:
       "A conversation with Ricky Retouch on grids, loops, typography, and the ghost of a system that could have existed. Recorded ahead of Split Logic.",
     heroVideo: "/images/ricky-retouch/split-logic-hero-blur.mp4",

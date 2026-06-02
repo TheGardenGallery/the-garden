@@ -18,7 +18,7 @@ export const journalEntries: JournalEntry[] = [
     kicker: "Split Logic",
     headline: "Ricky Retouch: Unknown Variables",
     byline: "Ivan Zhyzhkevych, Curator",
-    date: "May 2026",
+    date: "June 2026",
     excerpt:
       "Grids, loops, typography, and the ghost of a system that could have existed.",
     hero: "/images/ricky-retouch/unknown-variables-hero.png",

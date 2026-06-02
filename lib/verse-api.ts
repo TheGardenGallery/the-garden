@@ -16,6 +16,7 @@ import { artists } from "@/lib/data/artists";
 import { exhibitions as seedExhibitions } from "@/lib/data/exhibitions";
 import { journalEntries } from "@/lib/data/journal";
 import type { Artist, Exhibition, JournalEntry } from "@/lib/types";
+import { resolveStatus } from "@/lib/exhibition-status";
 
 const VERSE_ENDPOINT = "https://verse.works/query";
 
@@ -137,9 +138,13 @@ export async function fetchArtists(): Promise<Artist[]> {
 
 export async function fetchExhibitions(): Promise<Exhibition[]> {
   const verseMap = await getVerseBySlug();
-  return seedExhibitions.map((ex) =>
-    mergeExhibitionWithVerse(ex, verseMap.get(ex.slug))
-  );
+  // Resolve effective status once, at request time, from a single clock —
+  // an upcoming show whose liveStart has passed reads as current everywhere.
+  const now = Date.now();
+  return seedExhibitions.map((ex) => {
+    const merged = mergeExhibitionWithVerse(ex, verseMap.get(ex.slug));
+    return { ...merged, status: resolveStatus(merged, now) };
+  });
 }
 
 export async function fetchExhibition(
@@ -150,6 +155,7 @@ export async function fetchExhibition(
   const ex = seedExhibitions[idx];
   const verseMap = await getVerseBySlug();
   const merged = mergeExhibitionWithVerse(ex, verseMap.get(slug));
+  const withStatus = { ...merged, status: resolveStatus(merged, Date.now()) };
   const toLink = (e: Exhibition) => ({
     slug: e.slug,
     artistName: e.artistName,
@@ -157,12 +163,12 @@ export async function fetchExhibition(
   });
   const last = seedExhibitions.length - 1;
   return {
-    ...merged,
+    ...withStatus,
     prev:
-      merged.prev ??
+      withStatus.prev ??
       toLink(seedExhibitions[idx > 0 ? idx - 1 : last]),
     next:
-      merged.next ??
+      withStatus.next ??
       toLink(seedExhibitions[idx < last ? idx + 1 : 0]),
   };
 }

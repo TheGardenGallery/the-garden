@@ -12,6 +12,12 @@ import {
   getHeroCopyTreatment,
   getHeroTreatment,
 } from "@/lib/data/display-rules";
+import { LocalMintTime } from "./LocalMintTime";
+import {
+  SL_ALLOWLIST_OPEN_ISO,
+  SL_ALLOWLIST_OPEN_FALLBACK_LONG,
+} from "@/lib/split-logic-mint";
+import { useLiveStatus } from "@/lib/use-live-status";
 
 export type HeroSlide = {
   exhibition: Exhibition;
@@ -110,6 +116,16 @@ export function Hero({ slides }: HeroProps) {
       for (const l of links) l.remove();
     };
   }, [slides]);
+
+  // Effective status of the currently displayed slide, live. Server value
+  // matches the SSR'd HTML (no hydration flash); the hook re-resolves after
+  // mount and flips to "current" at the exact liveStart instant. Hook runs
+  // unconditionally (slides may be empty) to preserve hook order.
+  const displayed = slides[index % Math.max(slides.length, 1)]?.exhibition;
+  const liveStatus = useLiveStatus(
+    { status: displayed?.status ?? "past", liveStart: displayed?.liveStart },
+    displayed?.status ?? "past",
+  );
 
   if (slides.length === 0) return null;
   const current = slides[index % slides.length];
@@ -241,13 +257,32 @@ export function Hero({ slides }: HeroProps) {
                     <div className="hero-title">{ex.title}</div>
                   </div>
                   <div className="hero-meta">
-                    {ex.status === "upcoming"
-                      ? `Upcoming · ${ex.date}`
-                      : ex.date}
+                    {liveStatus === "upcoming" ? (
+                      ex.slug === "split-logic" ? (
+                        <>
+                          {"Upcoming · "}
+                          <LocalMintTime
+                            iso={SL_ALLOWLIST_OPEN_ISO}
+                            fallback={SL_ALLOWLIST_OPEN_FALLBACK_LONG}
+                            style="long"
+                          />
+                        </>
+                      ) : (
+                        `Upcoming · ${ex.homepageDate ?? ex.date}`
+                      )
+                    ) : liveStatus === "current" && ex.liveStart ? (
+                      // A show that crossed its liveStart (it carries a mint
+                      // instant) — quiet, unshouted "live" beat. Distinguishes
+                      // a freshly-dropped show from a natively-current one,
+                      // which has no liveStart and keeps its date line.
+                      "Now live"
+                    ) : (
+                      ex.date
+                    )}
                   </div>
                   <span className="hero-link">
                     <span className="hero-link-label">
-                      {ex.status === "upcoming"
+                      {liveStatus === "upcoming"
                         ? "Learn more"
                         : "View Exhibition"}
                     </span>

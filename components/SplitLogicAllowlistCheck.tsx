@@ -7,6 +7,15 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import {
+  SL_ALLOWLIST_OPEN_ISO as AL_OPEN_ISO,
+  SL_ALLOWLIST_OPEN_FALLBACK as AL_OPEN_FALLBACK,
+  SL_ALLOWLIST_CLOSE_ISO as AL_CLOSE_ISO,
+  SL_ALLOWLIST_CLOSE_FALLBACK as AL_CLOSE_FALLBACK,
+  SL_PUBLIC_SALE_ISO as PUBLIC_SALE_ISO,
+  SL_PUBLIC_SALE_FALLBACK as PUBLIC_SALE_FALLBACK,
+  formatMintTime,
+} from "@/lib/split-logic-mint";
 
 type Status = "idle" | "eligible" | "ineligible";
 
@@ -287,17 +296,17 @@ function MintDetails({ isEligible }: { isEligible: boolean }) {
         <>
           <Row
             label="OPENING"
-            value={formatMintTime(AL_OPEN_ISO, AL_OPEN_FALLBACK)}
+            value={formatMintTime(AL_OPEN_ISO, AL_OPEN_FALLBACK, "upper")}
           />
           <Row
             label="CLOSING"
-            value={formatMintTime(AL_CLOSE_ISO, AL_CLOSE_FALLBACK)}
+            value={formatMintTime(AL_CLOSE_ISO, AL_CLOSE_FALLBACK, "upper")}
           />
         </>
       ) : (
         <Row
           label="PUBLIC SALE"
-          value={formatMintTime(PUBLIC_SALE_ISO, PUBLIC_SALE_FALLBACK)}
+          value={formatMintTime(PUBLIC_SALE_ISO, PUBLIC_SALE_FALLBACK, "upper")}
         />
       )}
       <Row label="PRICE" value="0.1 ETH" />
@@ -338,48 +347,3 @@ function Row({
   );
 }
 
-// ──────────────────────────────────────────────────────────────────
-// Helpers
-// ──────────────────────────────────────────────────────────────────
-
-// Canonical mint window in CDT (UTC-5): AL opens 11:00 AM Jun 03,
-// closes 10:00 AM Jun 04. Public sale begins 11:00 AM Jun 04 (one
-// hour after the AL closes). Stored as UTC ISO so each visitor's
-// browser converts to their local timezone.
-const AL_OPEN_ISO = "2026-06-03T16:00:00Z";
-const AL_OPEN_FALLBACK = "JUN 03 · 11:00 AM CDT";
-const AL_CLOSE_ISO = "2026-06-04T15:00:00Z";
-const AL_CLOSE_FALLBACK = "JUN 04 · 10:00 AM CDT";
-const PUBLIC_SALE_ISO = "2026-06-04T16:00:00Z";
-const PUBLIC_SALE_FALLBACK = "JUN 04 · 11:00 AM CDT";
-
-function formatMintTime(iso: string, fallback: string): string {
-  try {
-    const parts = new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "2-digit",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-      timeZoneName: "short",
-    }).formatToParts(new Date(iso));
-    let month = "";
-    let day = "";
-    let hour = "";
-    let minute = "";
-    let dayPeriod = "";
-    let tz = "";
-    for (const p of parts) {
-      if (p.type === "month") month = p.value;
-      else if (p.type === "day") day = p.value;
-      else if (p.type === "hour") hour = p.value;
-      else if (p.type === "minute") minute = p.value;
-      else if (p.type === "dayPeriod") dayPeriod = p.value;
-      else if (p.type === "timeZoneName") tz = p.value;
-    }
-    if (!month || !day || !hour || !minute || !tz) return fallback;
-    return `${month} ${day} · ${hour}:${minute} ${dayPeriod} ${tz}`.toUpperCase();
-  } catch {
-    return fallback;
-  }
-}

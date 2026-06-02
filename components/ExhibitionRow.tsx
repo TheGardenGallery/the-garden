@@ -70,7 +70,14 @@ export function ExhibitionRow({ exhibition, variant = "card" }: ExhibitionRowPro
         </div>
         {variant === "featured" ? (
           <div className="row-meta-right">
-            <div className="row-dates">{exhibition.date}</div>
+            {/* For an upcoming featured drop, lead with the allowlist open
+                date — the same beat the homepage hero surfaces — so the two
+                surfaces agree. Falls back to the public-sale `date`. */}
+            <div className="row-dates">
+              {exhibition.status === "upcoming" && exhibition.allowlistDate
+                ? exhibition.allowlistDate
+                : exhibition.date}
+            </div>
             {exhibition.location && <div className="row-location">{exhibition.location}</div>}
           </div>
         ) : (

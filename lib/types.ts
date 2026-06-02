@@ -108,6 +108,22 @@ export type Exhibition = {
       Plain display strings; not parsed. */
   allowlistDate?: string;
   publicSaleDate?: string;
+  /** UTC ISO instant at which an `upcoming` show flips to `current` (e.g.
+      the moment its sale/allowlist opens). When set and in the past, the
+      single-source-of-truth `resolveStatus()` (lib/exhibition-status.ts)
+      treats the show as `current` — so the homepage Hero label, the
+      /exhibitions columns, and the overview facts all transition together
+      at the exact instant, no redeploy required. Absent ⇒ `status` is used
+      verbatim. Not parsed for display; see split-logic-mint.ts for the
+      localized wall-clock string. */
+  liveStart?: string;
+  /** Optional override for the date string shown ONLY in the homepage
+      Hero card (`Upcoming · {homepageDate}`). When absent the Hero falls
+      back to `date`. Lets the homepage surface a different beat (e.g. the
+      allowlist open with a time) without disturbing the exhibition page,
+      listing rows, or facts sidebar, which all key off `date`. Plain
+      display string; not parsed. */
+  homepageDate?: string;
   location: string;
   /** When set, the facts-sidebar "Platform" value links out to this URL.
       Opt-in per show; absent everywhere else so only the intended page
