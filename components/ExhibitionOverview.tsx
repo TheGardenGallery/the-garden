@@ -5,7 +5,7 @@ import { preserveHyphens } from "@/lib/typography";
 import { InlineArtworks } from "@/components/InlineArtworks";
 import { TerminalDescription } from "@/components/TerminalDescription";
 import { AllowlistMintBeat } from "@/components/AllowlistMintBeat";
-import { mintPhase, SL_ALLOWLIST_OPEN_FALLBACK } from "@/lib/split-logic-mint";
+import { SL_ALLOWLIST_OPEN_FALLBACK } from "@/lib/split-logic-mint";
 
 /**
  * Exhibition overview section: facts sidebar + prose column. Prose is
@@ -52,7 +52,6 @@ function ExhibitionFacts({ exhibition }: { exhibition: Exhibition }) {
       node:
         exhibition.slug === "split-logic" ? (
           <AllowlistMintBeat
-            serverPhase={mintPhase(Date.now())}
             fallback={SL_ALLOWLIST_OPEN_FALLBACK}
             style="long"
           />

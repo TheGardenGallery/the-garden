@@ -3,7 +3,7 @@ import { TransitionLink } from "./TransitionLink";
 import type { CSSProperties } from "react";
 import type { Exhibition } from "@/lib/types";
 import { AllowlistMintBeat } from "./AllowlistMintBeat";
-import { mintPhase, SL_ALLOWLIST_OPEN_FALLBACK } from "@/lib/split-logic-mint";
+import { SL_ALLOWLIST_OPEN_FALLBACK } from "@/lib/split-logic-mint";
 
 type ExhibitionRowProps = {
   exhibition: Exhibition;
@@ -80,7 +80,6 @@ export function ExhibitionRow({ exhibition, variant = "card" }: ExhibitionRowPro
             <div className="row-dates">
               {exhibition.slug === "split-logic" ? (
                 <AllowlistMintBeat
-                  serverPhase={mintPhase(Date.now())}
                   fallback={SL_ALLOWLIST_OPEN_FALLBACK}
                   style="long"
                 />
