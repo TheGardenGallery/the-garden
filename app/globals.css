@@ -6163,6 +6163,24 @@ a.ex-fact-value-link:hover{text-decoration-color:currentColor;}
    on the page, hierarchy carried by opacity. */
 .exhibition-detail[data-slug="split-logic"] .ex-overview-body{color:var(--on-dark-fg-soft);}
 .exhibition-detail[data-slug="split-logic"] .ex-overview-body p{color:var(--on-dark-fg-soft);}
+/* Resize stability + reading measure (desktop, >1000px where the facts
+   panel is absolute-positioned at right:var(--gutter)). The terminal body
+   is intentionally widened to 1440px so inline-artwork rows can break out,
+   but its PARAGRAPHS had no measure cap — they sprawled the full container
+   width, running right under the absolute facts panel. On resize every line
+   re-wrapped across a 100+ char measure, and because the text extended into
+   the sidebar's column the whole right edge read as jittery. Constrain the
+   prose paragraphs to a fixed 680px measure pinned to the LEFT (the body
+   itself stays full-width for the wide artwork rows), so the text column is
+   a calm left column and the facts panel a stable right column — two
+   intentional columns that don't interact during resize. Fixed px (not ch)
+   so the measure can't breathe with the viewport. */
+@media (min-width:1001px){
+  .exhibition-detail[data-slug="split-logic"] .ex-overview-body.ex-overview-body-terminal p{
+    max-width:680px;
+    margin-right:auto;
+  }
+}
 /* Three-up inline-artworks row for split-logic — the standard rule
    above lays them in 2 columns, which would orphan the third on its
    own line. Stretch the container so three crops fit comfortably. */
