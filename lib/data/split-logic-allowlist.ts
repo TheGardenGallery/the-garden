@@ -85,6 +85,7 @@ const ALLOWLIST = new Set<string>([
   "0x11b5b8810d3483c0eb37b6f7f073b07a258ec23b",
   "0x11d0c0df8d6f05945ee0d0eb505f583b4fc52c2a",
   "0x11d91151f54d4edc390ba4fc650afdaef4b676ee",
+  "0x11ebaa109a0a0388f82c5bdea6fafc0ec78cb4d1",
   "0x1223e13ff2316d55efc0a67fb53b80f1cf9dee70",
   "0x12a0e25e62c1dbd32e505446062b26aecb65f028",
   "0x12d8fab6bbf47bf8b01c24e644d4d22c10cf558c",
