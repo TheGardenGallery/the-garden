@@ -26,7 +26,7 @@ export const exhibitions: Exhibition[] = [
     publicSaleDate: "June 4, 2026",
     location: "Verse",
     locationUrl: "https://verse.works/series/split-logic-by-ricky-retouch",
-    status: "upcoming",
+    status: "current",
     liveStart: "2026-06-03T16:00:00Z",
     workCount: 100,
     chain: "Ethereum",
