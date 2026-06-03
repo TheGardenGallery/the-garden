@@ -6142,6 +6142,41 @@ a.ex-fact-value-link:hover{text-decoration-color:currentColor;}
   font-size:clamp(30px, calc(1.1vw + 20px), 42px);
   line-height:1.0;
 }
+/* "Collect Via Verse" CTA — the logistics counterpart to the title's
+   identity, pinned bottom-right on the same baseline (gallery caption
+   idiom: identity left / action right). Deliberately NOT the loud display
+   title face — that would read as a second headline. Instead the page's
+   own meta voice (Saira Condensed, tracked, uppercase) at a quiet size,
+   ink-muted, no box / no underline / no fill. A hairline arrow brightens
+   and nudges on hover (focus-isolation, Rams restraint). */
+.ex-hero-collect{
+  position:absolute;right:var(--gutter);bottom:var(--ex-title-bottom);
+  z-index:3;
+  display:inline-flex;align-items:baseline;gap:0.5em;
+  font-family:'Saira Condensed','Barlow',sans-serif;
+  font-weight:600;font-style:normal;
+  font-size:13px;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--on-dark-fg-muted);
+  text-decoration:none;
+  transition:color 240ms ease;
+}
+.ex-hero-collect::after{
+  content:"\2192"; /* → */
+  font-weight:500;letter-spacing:0;
+  transition:transform 240ms ease;
+}
+@media (hover:hover){
+  .ex-hero-collect:hover{color:var(--on-dark-fg);}
+  .ex-hero-collect:hover::after{transform:translateX(3px);}
+}
+.ex-hero-collect:focus-visible{
+  outline:1px solid var(--on-dark-fg-muted);
+  outline-offset:4px;
+  color:var(--on-dark-fg);
+}
+@media (max-width:720px){
+  .ex-hero-collect{right:24px;bottom:24px;font-size:11px;letter-spacing:0.18em;}
+}
 .exhibition-detail[data-slug="split-logic"] .ex-fact-label{
   font-family:'Saira Condensed','Barlow',sans-serif;
   font-weight:600;

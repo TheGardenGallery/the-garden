@@ -68,6 +68,21 @@ export function ExhibitionHero({ exhibition }: { exhibition: Exhibition }) {
           </h1>
         </div>
       </header>
+
+      {/* Split Logic only: a "Collect Via Verse" call-to-action anchored
+          bottom-right of the hero, mirroring the title's bottom-left. Same
+          Big Shoulders Display treatment as the hero title text so it reads
+          as part of the hero rather than a bolted-on button. */}
+      {exhibition.slug === "split-logic" && exhibition.locationUrl && (
+        <a
+          className="ex-hero-collect"
+          href={exhibition.locationUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Collect Via Verse
+        </a>
+      )}
     </section>
   );
 }
