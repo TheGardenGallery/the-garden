@@ -49,10 +49,7 @@ export default async function ExhibitionsPage() {
           <h2 className="ex-section-title">Upcoming</h2>
           <div className="exhibitions-list">
             {upcoming.length === 0 ? (
-              <EmptyState
-                title="Nothing on the horizon, just yet."
-                body="Join the newsletter to hear first."
-              />
+              <EmptyState title="Nothing on the horizon, just yet." />
             ) : (
               upcoming.map((ex) => (
                 <ExhibitionRow
