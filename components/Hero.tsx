@@ -17,6 +17,7 @@ import {
   SL_ALLOWLIST_OPEN_ISO,
   SL_ALLOWLIST_OPEN_FALLBACK_LONG,
   SL_ALLOWLIST_LIVE_LABEL,
+  SL_PUBLIC_SALE_LIVE_LABEL,
   mintPhase,
 } from "@/lib/split-logic-mint";
 import { useLiveStatus } from "@/lib/use-live-status";
@@ -270,6 +271,9 @@ export function Hero({ slides }: HeroProps) {
                         // Allowlist window is open — quiet live status, no
                         // "Upcoming" prefix (it's no longer upcoming).
                         SL_ALLOWLIST_LIVE_LABEL
+                      ) : mintPhaseLive === "public" ? (
+                        // Public sale is live — same quiet live treatment.
+                        SL_PUBLIC_SALE_LIVE_LABEL
                       ) : (
                         <>
                           {"Upcoming · "}

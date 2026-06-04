@@ -7,6 +7,8 @@ import {
   msUntilNextMintPhase,
   SL_ALLOWLIST_OPEN_ISO,
   SL_ALLOWLIST_LIVE_LABEL,
+  SL_PUBLIC_SALE_LIVE_LABEL,
+  type MintPhase,
 } from "@/lib/split-logic-mint";
 
 /**
@@ -16,6 +18,7 @@ import {
  *
  *   before / after  → the open instant, localized to the viewer
  *   allowlist (live) → "Allowlist Presale · Live Now"
+ *   public   (live) → "Public Sale · Live Now"
  *
  * FLASH-FREE BY CONSTRUCTION: the server and first client paint ALWAYS render
  * the localized-time path (identical to LocalMintTime's own SSR output), so a
@@ -34,14 +37,15 @@ export function AllowlistMintBeat({
   fallback: string;
   style?: "long" | "upper";
 }) {
-  // Starts false on server + first paint → always the time path initially.
-  const [live, setLive] = useState(false);
+  // Null on server + first paint → always the time path initially (no flash).
+  // After mount we resolve the real phase and swap in the matching live label.
+  const [phase, setPhase] = useState<MintPhase | null>(null);
 
   useEffect(() => {
     let id: number;
     const MAX = 2_147_483_647; // setTimeout 32-bit cap (~24.8 days)
     const tick = () => {
-      setLive(mintPhase(Date.now()) === "allowlist");
+      setPhase(mintPhase(Date.now()));
       const delay = msUntilNextMintPhase(Date.now());
       if (delay === null) return; // no further boundaries
       id = window.setTimeout(tick, Math.min(delay, MAX));
@@ -50,7 +54,8 @@ export function AllowlistMintBeat({
     return () => window.clearTimeout(id);
   }, []);
 
-  if (live) return <span>{SL_ALLOWLIST_LIVE_LABEL}</span>;
+  if (phase === "allowlist") return <span>{SL_ALLOWLIST_LIVE_LABEL}</span>;
+  if (phase === "public") return <span>{SL_PUBLIC_SALE_LIVE_LABEL}</span>;
   return (
     <LocalMintTime iso={SL_ALLOWLIST_OPEN_ISO} fallback={fallback} style={style} />
   );

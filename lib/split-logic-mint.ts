@@ -23,11 +23,16 @@ export const SL_PUBLIC_SALE_FALLBACK = "JUN 04 · 11:00 AM CDT";
 // during that window, then stop claiming live once it closes — anything else
 // is dishonest. Derived from the same UTC instants above so the homepage
 // hero, the exhibitions row, and the facts sidebar can never disagree.
-export type MintPhase = "before" | "allowlist" | "after";
+// "after" is the brief gap between allowlist close and public-sale open;
+// "public" is the public sale being live (open, indefinite — no further
+// boundary). Splitting these lets the surfaces claim "Public Sale · Live Now"
+// only once the sale is actually open, never during the gap hour.
+export type MintPhase = "before" | "allowlist" | "after" | "public";
 
 // Quiet, refined live label. One middot, sentence-case status — hierarchy
 // from the contrast between the roman label and the live state, not caps.
 export const SL_ALLOWLIST_LIVE_LABEL = "Allowlist Presale · Live Now";
+export const SL_PUBLIC_SALE_LIVE_LABEL = "Public Sale · Live Now";
 
 /**
  * Which mint phase a given instant falls in. Pure in `nowMs` so server
@@ -37,17 +42,21 @@ export const SL_ALLOWLIST_LIVE_LABEL = "Allowlist Presale · Live Now";
 export function mintPhase(nowMs: number): MintPhase {
   const open = Date.parse(SL_ALLOWLIST_OPEN_ISO);
   const close = Date.parse(SL_ALLOWLIST_CLOSE_ISO);
+  const publicSale = Date.parse(SL_PUBLIC_SALE_ISO);
   if (nowMs < open) return "before";
   if (nowMs < close) return "allowlist";
-  return "after";
+  if (nowMs < publicSale) return "after";
+  return "public";
 }
 
 /** ms until the next phase boundary from `nowMs`, or null if none remain. */
 export function msUntilNextMintPhase(nowMs: number): number | null {
   const open = Date.parse(SL_ALLOWLIST_OPEN_ISO);
   const close = Date.parse(SL_ALLOWLIST_CLOSE_ISO);
+  const publicSale = Date.parse(SL_PUBLIC_SALE_ISO);
   if (nowMs < open) return open - nowMs;
   if (nowMs < close) return close - nowMs;
+  if (nowMs < publicSale) return publicSale - nowMs;
   return null;
 }
 
