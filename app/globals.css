@@ -3508,8 +3508,8 @@ html:has(.constellation-root){
    shadow, and a hairline top highlight so the button reads as a
    subtle physical surface against the page. */
 .exhibition-detail[data-slug="solve-un-solve"] .ex-hero-plate .ex-hero-iframe-refresh{
-  width:34px;height:34px;
-  transform:translate(-50%, calc(100% + 20px));
+  width:40px;height:40px;
+  transform:translate(-50%, calc(100% + 40px));
   background:linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.30) 100%);
   backdrop-filter:blur(6px);
   -webkit-backdrop-filter:blur(6px);
@@ -3523,7 +3523,7 @@ html:has(.constellation-root){
   transition:color 0.3s ease-out, box-shadow 0.3s ease-out, background 0.3s ease-out;
 }
 .exhibition-detail[data-slug="solve-un-solve"] .ex-hero-plate .ex-hero-iframe-refresh svg{
-  width:14px;height:14px;
+  width:16px;height:16px;
 }
 @media (hover:hover){
   .exhibition-detail[data-slug="solve-un-solve"] .ex-hero-plate .ex-hero-iframe-refresh:hover{
