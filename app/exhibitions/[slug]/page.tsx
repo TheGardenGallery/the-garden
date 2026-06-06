@@ -18,6 +18,8 @@ import {
   SplitLogicZoomCatcher,
 } from "@/components/SplitLogicHero";
 import { Reveal } from "@/components/Reveal";
+import { TrajectoryNavigator } from "@/components/TrajectoryNavigator";
+import { TRAJECTORY_CSS } from "@/components/trajectory-styles";
 import { SplitLogicMagnifier } from "@/components/SplitLogicMagnifier";
 import { ArtistBroadsheet } from "@/components/ArtistBroadsheet";
 import {
@@ -202,6 +204,23 @@ export default async function ExhibitionDetailPage({
       {exhibition.slug === "split-logic" && exhibition.processVideos && (
         <Reveal>
           <SplitLogicProcess process={exhibition.processVideos} />
+        </Reveal>
+      )}
+
+      {/* Trajectory — an inline walk through Ricky's four series (Surface Sets
+          → Low Language → New North → Split Logic), embedded right after the
+          process coda so the studio footage hands off into the arc that frames
+          where Split Logic sits. Embedded mode: in-flow section, glow confined
+          to itself (not the full-screen /trajectory overlay). split-logic only. */}
+      {exhibition.slug === "split-logic" && (
+        <Reveal>
+          <div className="trj-embed">
+            <TrajectoryNavigator embedded />
+          </div>
+          <style
+            // eslint-disable-next-line react/no-unknown-property
+            dangerouslySetInnerHTML={{ __html: TRAJECTORY_CSS }}
+          />
         </Reveal>
       )}
 
