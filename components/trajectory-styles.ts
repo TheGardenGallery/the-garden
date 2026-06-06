@@ -352,6 +352,8 @@ export const TRAJECTORY_CSS = `
     padding:clamp(30px,6vh,48px) 0 44px;
   }
   .trj-h1{ font-size:clamp(21px,6.4vw,28px); }
+  /* on mobile the whole section centres (title, eyebrow, series labels, body) */
+  .trj-head{ text-align:center; }
 
   /* A phone can't fit three large cards side-by-side, so the coverflow becomes
      a single confident centred artwork — cleaner and more legible than forcing
@@ -381,20 +383,20 @@ export const TRAJECTORY_CSS = `
     opacity:.78;
     padding:0;
     gap:.4em;
-    text-align:left;
-    align-items:flex-start;
+    text-align:center;
+    align-items:center;
   }
   .trj-cell:hover{ transform:none; }
   .trj-cell.is-active{ transform:none; opacity:1; }
-  /* the lift rail sits just beneath the label lockup, left-anchored in flat mode */
-  .trj-cell-rail{ position:static; left:auto; transform:none; margin-top:.55em; }
+  /* the lift rail sits just beneath the label lockup, centred in flat mode */
+  .trj-cell-rail{ position:static; left:auto; transform:none; margin:.55em auto 0; }
   .trj-cell.is-active .trj-cell-rail{ width:32px; }
   .trj-cell:hover .trj-cell-rail{ width:0; }
   .trj-cell.is-active:hover .trj-cell-rail{ width:32px; }
 
-  /* reading copy left-aligned to the same column edge */
-  .trj-read{ max-width:100%; align-items:flex-start; text-align:left; }
-  .trj-read-thread{ text-align:left; }
+  /* reading copy centred on mobile */
+  .trj-read{ max-width:90vw; align-items:center; text-align:center; }
+  .trj-read-thread{ text-align:center; }
   .trj-read-body{ text-align:left; }
 }
 

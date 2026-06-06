@@ -96,7 +96,7 @@ const SERIES: Series[] = [
 const N = SERIES.length;
 
 export function TrajectoryNavigator({ embedded = false }: { embedded?: boolean } = {}) {
-  const [active, setActive] = useState(N - 1); // open on the latest work
+  const [active, setActive] = useState(0); // open on the first series (Surface Sets)
   const [workIdx, setWorkIdx] = useState(0);
   const prevActive = useRef(active);
 
