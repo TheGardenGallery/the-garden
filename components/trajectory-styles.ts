@@ -381,6 +381,10 @@ export const TRAJECTORY_CSS = `
     --x:0px;
     transform:translate(-50%, -50%) scale(calc(1 - 0.06 * var(--mag)));
   }
+  /* fill the square content box so the only black inside the frame is the
+     uniform padding mat on all four edges — no uneven contain-letterbox on
+     the slightly non-square Split Logic poster (1456x1500). */
+  .trj-card .trj-card-media{ object-fit:cover; }
   .trj-card.is-flank{
     opacity:0;
     pointer-events:none;
