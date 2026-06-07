@@ -63,6 +63,20 @@ export const TRAJECTORY_CSS = `
   position:absolute; inset:0;
   mix-blend-mode:screen;
 }
+/* fine film grain over the lightbox — a whisper of analog texture so the glow
+   reads as a lit surface, not flat digital colour. SVG fractal noise, very low
+   opacity, soft-light blend so it modulates without dimming. Sits above the
+   glow, below the content. */
+.trj-ambient::before{
+  content:"";
+  position:absolute; inset:0;
+  z-index:1;
+  pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:160px 160px;
+  opacity:.045;
+  mix-blend-mode:soft-light;
+}
 /* all real content sits above the glow */
 .trj-head, .trj-deck, .trj-grid, .trj-read{ position:relative; z-index:1; }
 
@@ -260,7 +274,10 @@ export const TRAJECTORY_CSS = `
 .trj-grid{
   position:static !important;
   display:grid; grid-template-columns:repeat(4,1fr);
-  width:100%; gap:0;
+  /* constrained to roughly the deck's visual width and centred, so the index
+     sits directly under the artwork it labels rather than stretching to the
+     section edges — a more contained, composed relationship. */
+  width:100%; max-width:920px; margin-inline:auto; gap:0;
 }
 .trj-cell{
   position:relative; background:none; border:0; cursor:pointer;
@@ -422,16 +439,21 @@ export const TRAJECTORY_CSS = `
 .trj-embed ::-moz-selection{ background:rgba(232,248,248,.86); color:#161410; }
 
 .trj-root--embedded{
-  /* full-bleed inside the exhibition page: span the whole section width
-     (matching the other full-width sections) instead of the standalone
-     route's narrow 1180px reading column. Inner padding gives breathing room. */
-  width:100%; max-width:none;
+  /* The CONTENT matches the exhibition page's column discipline (1440px frame,
+     40px gutters, labels at x=40) — but the section's dark ground + ambient glow
+     fill the FULL width via .trj-embed, so wide viewports never show dark side
+     bands. Only the inner content is capped/centred. */
+  width:100%; max-width:1440px; margin-inline:auto;
   min-height:0;               /* flow at natural content height */
-  padding:clamp(48px,9vh,104px) clamp(24px,6vw,96px) clamp(48px,9vh,104px);
+  padding:clamp(64px,10vh,120px) 40px clamp(64px,10vh,120px);
 }
-/* ambient glow stays within the embedded section, not fixed to the viewport */
+/* ambient glow fills the FULL-WIDTH .trj-embed section (edge to edge), not the
+   capped content box — so it never leaves dark gutters beside the content. */
+.trj-embed{ position:relative; }
 .trj-root--embedded .trj-ambient{
   position:absolute;
+  left:50%; transform:translateX(-50%);
+  width:100vw; max-width:100vw;
 }
 
 /* On the artist's own exhibition page the 'RICKY RETOUCH' eyebrow is
