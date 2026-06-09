@@ -228,7 +228,7 @@ export function TrajectoryNavigator({ embedded = false }: { embedded?: boolean }
 
       <header className="trj-head">
         <div className="trj-kicker">Ricky Retouch</div>
-        <h1 className="trj-h1">Four seasons of one practice</h1>
+        <h1 className="trj-h1">Four seasons + one practice</h1>
       </header>
 
       {/* DECK: the current series' works as a floating scroll-deck:

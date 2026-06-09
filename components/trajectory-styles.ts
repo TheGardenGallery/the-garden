@@ -374,8 +374,11 @@ export const TRAJECTORY_CSS = `
 @media (max-width:600px){
   .trj-root{
     justify-content:flex-start;
-    gap:clamp(24px,4.5vh,38px);
-    padding:clamp(30px,6vh,48px) 0 44px;
+    /* tighter, fixed vertical rhythm (not vh-coupled) so the section reads as
+       ONE composed unit, not five loosely-stacked blocks. Per-block spacing is
+       tuned individually below; this is the baseline between blocks. */
+    gap:22px;
+    padding:clamp(28px,5vh,40px) 0 36px;
   }
   .trj-h1{ font-size:clamp(21px,6.4vw,28px); }
   /* on mobile the whole section centres (title, eyebrow, series labels, body) */
@@ -383,7 +386,9 @@ export const TRAJECTORY_CSS = `
 
   /* A phone can't fit three large cards side-by-side, so the coverflow becomes
      a single confident centred artwork — cleaner and more legible than forcing
-     overlapping flanks. Still swipeable; the deck just shows one at a time. */
+     overlapping flanks. Still swipeable; the deck just shows one at a time.
+     Pull the deck up close to the title so they read as one lockup. */
+  .trj-head{ margin-bottom:-4px; }
   .trj-deck-stage{ height:min(85vw,380px); }
   .trj-card{
     width:min(85vw,380px);
@@ -398,13 +403,14 @@ export const TRAJECTORY_CSS = `
     opacity:0;
     pointer-events:none;
   }
+  /* counter sits snug under the deck — it belongs to the artwork above it */
+  .trj-plate-nav{ margin-top:14px; }
 
-  /* timeline: clean 2x2 of floating labels — NO borders, generous row gap.
-     On mobile everything shares one flush-left column (title is already left),
-     so labels + their rails left-align too — a single clean vertical edge. */
+  /* timeline: clean 2x2 of floating labels — NO borders. Centred lockups, tight
+     enough that the four series read as one index grouped under the deck. */
   .trj-grid{
     grid-template-columns:repeat(2,1fr);
-    row-gap:clamp(20px,4vh,30px);
+    row-gap:18px;
     column-gap:clamp(16px,5vw,28px);
     perspective:none;
   }
@@ -419,15 +425,18 @@ export const TRAJECTORY_CSS = `
   .trj-cell:hover{ transform:none; }
   .trj-cell.is-active{ transform:none; opacity:1; }
   /* the lift rail sits just beneath the label lockup, centred in flat mode */
-  .trj-cell-rail{ position:static; left:auto; transform:none; margin:.55em auto 0; }
+  .trj-cell-rail{ position:static; left:auto; transform:none; margin:.5em auto 0; }
   .trj-cell.is-active .trj-cell-rail{ width:32px; }
   .trj-cell:hover .trj-cell-rail{ width:0; }
   .trj-cell.is-active:hover .trj-cell-rail{ width:32px; }
 
-  /* reading copy centred on mobile */
-  .trj-read{ max-width:90vw; align-items:center; text-align:center; }
+  /* reading copy is its own movement — give it slightly more air above to set
+     it apart from the index. Container + short thread label centre, but the
+     multi-line BODY paragraph stays left-aligned (centring a long paragraph is
+     an amateur tell); a constrained measure keeps it visually on-axis. */
+  .trj-read{ max-width:90vw; align-items:center; text-align:center; margin-top:6px; }
   .trj-read-thread{ text-align:center; }
-  .trj-read-body{ text-align:left; }
+  .trj-read-body{ text-align:left; max-width:42ch; }
 }
 
 
