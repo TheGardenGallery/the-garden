@@ -374,11 +374,11 @@ export const TRAJECTORY_CSS = `
 @media (max-width:600px){
   .trj-root{
     justify-content:flex-start;
-    /* tighter, fixed vertical rhythm (not vh-coupled) so the section reads as
-       ONE composed unit, not five loosely-stacked blocks. Per-block spacing is
-       tuned individually below; this is the baseline between blocks. */
-    gap:22px;
-    padding:clamp(28px,5vh,40px) 0 36px;
+    /* breathing vertical rhythm — generous enough that the blocks aren't
+       cramped, but a single composed unit (not the old uniform ~38px that read
+       as five disconnected cards). Gently viewport-aware with a tight ceiling. */
+    gap:clamp(30px,4.5vh,40px);
+    padding:clamp(36px,6vh,52px) 0 44px;
   }
   .trj-h1{ font-size:clamp(21px,6.4vw,28px); }
   /* on mobile the whole section centres (title, eyebrow, series labels, body) */
@@ -386,9 +386,7 @@ export const TRAJECTORY_CSS = `
 
   /* A phone can't fit three large cards side-by-side, so the coverflow becomes
      a single confident centred artwork — cleaner and more legible than forcing
-     overlapping flanks. Still swipeable; the deck just shows one at a time.
-     Pull the deck up close to the title so they read as one lockup. */
-  .trj-head{ margin-bottom:-4px; }
+     overlapping flanks. Still swipeable; the deck just shows one at a time. */
   .trj-deck-stage{ height:min(85vw,380px); }
   .trj-card{
     width:min(85vw,380px);
@@ -403,14 +401,14 @@ export const TRAJECTORY_CSS = `
     opacity:0;
     pointer-events:none;
   }
-  /* counter sits snug under the deck — it belongs to the artwork above it */
-  .trj-plate-nav{ margin-top:14px; }
+  /* counter sits under the deck with a touch of air */
+  .trj-plate-nav{ margin-top:clamp(14px,2vh,18px); }
 
-  /* timeline: clean 2x2 of floating labels — NO borders. Centred lockups, tight
-     enough that the four series read as one index grouped under the deck. */
+  /* timeline: clean 2x2 of floating labels — NO borders. Centred lockups with
+     a comfortable row gap so the four series read as a composed index. */
   .trj-grid{
     grid-template-columns:repeat(2,1fr);
-    row-gap:18px;
+    row-gap:clamp(22px,3.2vh,28px);
     column-gap:clamp(16px,5vw,28px);
     perspective:none;
   }
@@ -471,11 +469,14 @@ export const TRAJECTORY_CSS = `
 .trj-embed::before,
 .trj-embed::after{
   content:""; position:absolute; left:0; right:0;
-  height:clamp(150px,22vh,260px);
+  /* overhang the section edge by 1px so a fractional device-pixel boundary
+     can never leave a warm-ground hairline between the band's solid-black edge
+     and the page; the +2px height absorbs the overhang at both ends. */
+  height:calc(clamp(150px,22vh,260px) + 2px);
   z-index:1; pointer-events:none;
 }
 .trj-embed::before{
-  top:0;
+  top:-1px;
   background:linear-gradient(to bottom,
     #000 0%,
     rgba(0,0,0,0.92) 14%,
@@ -485,13 +486,20 @@ export const TRAJECTORY_CSS = `
     rgba(0,0,0,0) 100%);
 }
 .trj-embed::after{
-  bottom:0;
+  bottom:-1px;
+  /* taller + a longer solid-black hold at the edge: the bottom of the section
+     is empty padding below the reading copy, so the band must carry the warm
+     ground all the way to black across that whole zone — otherwise the band's
+     transparent end stops partway and the warm ground continues beneath it,
+     leaving a soft tonal step partway down the gap. */
+  height:calc(clamp(220px,30vh,360px) + 2px);
   background:linear-gradient(to top,
     #000 0%,
-    rgba(0,0,0,0.92) 14%,
-    rgba(0,0,0,0.70) 32%,
-    rgba(0,0,0,0.40) 54%,
-    rgba(0,0,0,0.16) 76%,
+    #000 18%,
+    rgba(0,0,0,0.86) 34%,
+    rgba(0,0,0,0.58) 52%,
+    rgba(0,0,0,0.28) 72%,
+    rgba(0,0,0,0.10) 86%,
     rgba(0,0,0,0) 100%);
 }
 .trj-embed ::selection{ background:rgba(232,248,248,.86); color:#161410; }
