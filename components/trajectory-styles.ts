@@ -388,21 +388,21 @@ export const TRAJECTORY_CSS = `
      a single confident centred artwork — cleaner and more legible than forcing
      overlapping flanks. Still swipeable; the deck just shows one at a time. */
   .trj-deck-stage{ height:min(85vw,380px); }
-  /* MOBILE: nothing cropped. The card hugs the artwork's true aspect ratio so
-     object-fit:contain fills it with NO letterbox and the only black inside the
-     frame is the EVEN padding mat on all four edges. The 3 early series are
-     square (1:1); Split Logic is 1456x1500 (0.971, slightly tall) — letting the
-     card height follow the image keeps the mat even for every series instead of
-     cropping (cover) or uneven-letterboxing (contain in a forced-square card).
-     Card stays transform-centred, so height:auto re-centres cleanly. */
+  /* MOBILE: nothing cropped, and NO load flash. The card holds a fixed SQUARE
+     box (reserved up front) so it never reflows; the media is given an explicit
+     square aspect-ratio too, so a <video> reserves the correct box immediately
+     instead of flashing its 300x150 intrinsic default and snapping once metadata
+     loads. object-fit:contain shows every artwork whole — the 3 early series are
+     square (fill exactly), Split Logic (1456x1500, 0.971) gets a ~5px even
+     letterbox inside the square, imperceptible and far better than a crop or a
+     wrong-rectangle flash. */
   .trj-card{
     width:min(85vw,380px);
-    height:auto;
-    aspect-ratio:auto;
+    aspect-ratio:1/1;
     --x:0px;
     transform:translate(-50%, -50%) scale(calc(1 - 0.06 * var(--mag)));
   }
-  .trj-card .trj-card-media{ object-fit:contain; height:auto; }
+  .trj-card .trj-card-media{ object-fit:contain; width:100%; height:100%; aspect-ratio:1/1; }
   .trj-card.is-flank{
     opacity:0;
     pointer-events:none;

@@ -100,6 +100,12 @@ export function TrajectoryNavigator({ embedded = false }: { embedded?: boolean }
   const [workIdx, setWorkIdx] = useState(0);
   const prevActive = useRef(active);
 
+  // Registry of the deck's <video> elements by work index, so an effect can
+  // play the CENTRE and pause the rest when the centre changes — the ref
+  // callback alone only fires on mount, not when isCenter flips on an
+  // already-mounted element (the common swipe case).
+  const deckVideos = useRef<Map<number, HTMLVideoElement>>(new Map());
+
   const series = SERIES[active];
   const works = series.works;
 
@@ -134,6 +140,21 @@ export function TrajectoryNavigator({ embedded = false }: { embedded?: boolean }
       imgs.length = 0;
     };
   }, []);
+
+  // Play the CENTRE deck video and pause the rest whenever the centre work (or
+  // series) changes. Runs after render so the registry is populated; the ref
+  // callback can't do this on its own because it doesn't fire when isCenter
+  // flips on an element that stays mounted across a swipe.
+  useEffect(() => {
+    deckVideos.current.forEach((el, i) => {
+      if (i === workIdx) {
+        const p = el.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      } else {
+        el.pause();
+      }
+    });
+  }, [workIdx, active]);
 
   useEffect(() => {
     if (lastAmbient.current === ambientUrl) return;
@@ -263,25 +284,24 @@ export function TrajectoryNavigator({ embedded = false }: { embedded?: boolean }
                 onClick={() => !isCenter && setWorkIdx(i)}
                 aria-hidden={!isCenter}
               >
-                {isCenter && w.video ? (
+                {w.video ? (
                   <video
                     className="trj-card-media"
                     src={w.video}
                     poster={w.poster}
-                    aria-label={w.alt}
-                    autoPlay
+                    aria-label={isCenter ? w.alt : ""}
                     loop
                     muted
                     playsInline
                     preload="auto"
                     ref={(el) => {
-                      // swallow the autoplay play() promise rejection that some
-                      // browsers throw before a user gesture — keeps the console
-                      // clean and never blocks the poster→video handoff.
-                      if (el) {
-                        const p = el.play();
-                        if (p && typeof p.catch === "function") p.catch(() => {});
-                      }
+                      // Register/unregister this slot's <video> so the
+                      // play-centre/pause-flanks effect can drive it as the
+                      // centre changes. Keeping the SAME <video> mounted per
+                      // slot (we no longer swap to <img> off-centre) is what
+                      // stops the cold poster→blank→play pop on every swipe.
+                      if (el) deckVideos.current.set(i, el);
+                      else deckVideos.current.delete(i);
                     }}
                   />
                 ) : (
