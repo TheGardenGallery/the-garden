@@ -388,15 +388,21 @@ export const TRAJECTORY_CSS = `
      a single confident centred artwork — cleaner and more legible than forcing
      overlapping flanks. Still swipeable; the deck just shows one at a time. */
   .trj-deck-stage{ height:min(85vw,380px); }
+  /* MOBILE: nothing cropped. The card hugs the artwork's true aspect ratio so
+     object-fit:contain fills it with NO letterbox and the only black inside the
+     frame is the EVEN padding mat on all four edges. The 3 early series are
+     square (1:1); Split Logic is 1456x1500 (0.971, slightly tall) — letting the
+     card height follow the image keeps the mat even for every series instead of
+     cropping (cover) or uneven-letterboxing (contain in a forced-square card).
+     Card stays transform-centred, so height:auto re-centres cleanly. */
   .trj-card{
     width:min(85vw,380px);
+    height:auto;
+    aspect-ratio:auto;
     --x:0px;
     transform:translate(-50%, -50%) scale(calc(1 - 0.06 * var(--mag)));
   }
-  /* fill the square content box so the only black inside the frame is the
-     uniform padding mat on all four edges — no uneven contain-letterbox on
-     the slightly non-square Split Logic poster (1456x1500). */
-  .trj-card .trj-card-media{ object-fit:cover; }
+  .trj-card .trj-card-media{ object-fit:contain; height:auto; }
   .trj-card.is-flank{
     opacity:0;
     pointer-events:none;
