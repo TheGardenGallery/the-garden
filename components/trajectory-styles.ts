@@ -77,8 +77,8 @@ export const TRAJECTORY_CSS = `
   opacity:.045;
   mix-blend-mode:soft-light;
 }
-/* all real content sits above the glow */
-.trj-head, .trj-deck, .trj-grid, .trj-read{ position:relative; z-index:1; }
+/* all real content sits above the glow AND above the edge-fade bands */
+.trj-head, .trj-deck, .trj-grid, .trj-read{ position:relative; z-index:2; }
 
 /* two cross-fading slots — the new art fades up as the old fades out.
    A plain ease (not the house overshoot curve) keeps opacity monotonic so the
@@ -94,25 +94,25 @@ export const TRAJECTORY_CSS = `
   position:absolute;
   background-size:cover;
   background-position:center;
-  /* lift hard + saturate so even Ricky's near-black works emit real colour */
-  filter:saturate(1.6) brightness(1.7) contrast(1.05);
+  /* lift colour out of even Ricky's near-black works so the bloom reads as a
+     genuinely lit surface — confident presence, just shy of the original blast */
+  filter:saturate(1.6) brightness(1.62) contrast(1.04);
   will-change:transform;
 }
-/* NEAR bloom — the principal coloured wash, drifts gently */
+/* NEAR bloom — the principal coloured wash, drifts gently. Lit with real
+   presence; the section ground now dissolves into the page (see .trj-embed
+   top/bottom fade) so the glow integrates rather than reading as a panel. */
 .trj-ambient-near{
   inset:-26%;
-  /* contrast keeps tonal depth so light-grounded works (Low Language's cream)
-     don't wash the page to flat white; brightness is restrained for the same
-     reason — the dark Garden ground must always read through the bloom. */
-  filter:blur(115px) saturate(1.5) brightness(1.16) contrast(1.12);
-  opacity:.38;
+  filter:blur(118px) saturate(1.5) brightness(1.16) contrast(1.08);
+  opacity:.44;
   animation:trjDriftNear 64s ease-in-out infinite alternate;
 }
 /* FAR bloom — larger, softer, dimmer; atmospheric depth behind the near layer */
 .trj-ambient-far{
   inset:-45%;
-  filter:blur(200px) saturate(1.7) brightness(1.08) contrast(1.1);
-  opacity:.26;
+  filter:blur(205px) saturate(1.64) brightness(1.08) contrast(1.06);
+  opacity:.30;
   animation:trjDriftFar 92s ease-in-out infinite alternate;
 }
 @keyframes trjDriftNear{
@@ -126,32 +126,41 @@ export const TRAJECTORY_CSS = `
 @media (prefers-reduced-motion:reduce){
   .trj-ambient-near, .trj-ambient-far{ animation:none; }
 }
-/* A scrim that keeps the bloom concentrated behind the DECK (upper area) and
-   calms the lower zone, so the timeline labels and reading copy sit on a clean,
-   sleek ground — not washed by glow. Top + bottom scrims protect both the
-   title and the reading text; the radial centres high, over the artwork. */
+/* An enveloping vignette that dissolves the bloom into the ground on EVERY
+   edge — not just top/bottom. The faint glow has no perceptible boundary: it
+   lifts gently in the centre and falls all the way back to the ground tone
+   (#161410) toward the perimeter, so there is no glow-vs-black seam anywhere.
+   A soft full-field veil of the ground colour sits over the whole layer too,
+   so the transition from glow to ground crosses a shared tone rather than
+   jumping to pure black. */
 .trj-ambient::after{
   content:""; position:absolute; inset:0;
   background:
+    /* gentle vertical settle — keeps title + reading copy on clean ground */
     linear-gradient(
       to bottom,
-      rgba(22,20,16,0.46) 0%,
-      rgba(22,20,16,0.10) 14%,
-      transparent 26%,
-      transparent 52%,
-      rgba(22,20,16,0.34) 74%,
-      rgba(22,20,16,0.62) 100%
+      rgba(22,20,16,0.40) 0%,
+      rgba(22,20,16,0.12) 16%,
+      rgba(22,20,16,0.06) 50%,
+      rgba(22,20,16,0.20) 80%,
+      rgba(22,20,16,0.44) 100%
     ),
+    /* enveloping radial — feathers the bloom back to the ground on all sides;
+       wide + soft so there is no hard ring, the colour just melts outward. */
     radial-gradient(
-      ellipse 110% 80% at 50% 32%,
-      transparent 42%,
-      rgba(22,20,16,0.30) 72%,
-      rgba(22,20,16,0.58) 100%
-    );
+      ellipse 96% 92% at 50% 42%,
+      transparent 22%,
+      rgba(22,20,16,0.34) 58%,
+      rgba(22,20,16,0.74) 84%,
+      rgba(22,20,16,0.94) 100%
+    ),
+    /* a faint full-field veil of the ground tone so glow→ground shares a
+       midtone — kills the figure/ground contrast that read as "too much". */
+    linear-gradient(rgba(22,20,16,0.22), rgba(22,20,16,0.22));
 }
 
 /* ---- header ---- */
-.trj-head{ text-align:left; align-self:stretch; position:relative; z-index:1; }
+.trj-head{ text-align:left; align-self:stretch; position:relative; z-index:2; }
 .trj-kicker{
   font-family:var(--eyebrow);
   font-weight:600; font-size:11px; letter-spacing:.28em;
@@ -438,6 +447,43 @@ export const TRAJECTORY_CSS = `
   font-family:'Barlow',sans-serif;
   -webkit-font-smoothing:antialiased;
   display:flex; justify-content:center;
+}
+/* Dissolve the section into the page on the TOP and BOTTOM edges. The page
+   ground is pure black (#000) while this section is warm near-black (#161410);
+   without this, the tonal step reads as a separate rectangular panel pieced
+   onto the page. These bands fade the page-black into the section ground (and
+   back out) so the section has no hard horizontal seam above or below — it
+   emerges from and returns to the page continuously. Tall + multi-stop so the
+   dissolve is an imperceptible S-curve, not a linear ramp with a visible elbow.
+   z-index:1 sits the bands ABOVE the ambient ground/glow (z-index:0) so they
+   actually blend the warm section ground down to page-black at the edges — but
+   BELOW the readable content (.trj-head/.trj-deck/.trj-grid/.trj-read are
+   z-index:2) so they never veil the title or artwork. pointer-events:none. */
+.trj-embed::before,
+.trj-embed::after{
+  content:""; position:absolute; left:0; right:0;
+  height:clamp(150px,22vh,260px);
+  z-index:1; pointer-events:none;
+}
+.trj-embed::before{
+  top:0;
+  background:linear-gradient(to bottom,
+    #000 0%,
+    rgba(0,0,0,0.92) 14%,
+    rgba(0,0,0,0.70) 32%,
+    rgba(0,0,0,0.40) 54%,
+    rgba(0,0,0,0.16) 76%,
+    rgba(0,0,0,0) 100%);
+}
+.trj-embed::after{
+  bottom:0;
+  background:linear-gradient(to top,
+    #000 0%,
+    rgba(0,0,0,0.92) 14%,
+    rgba(0,0,0,0.70) 32%,
+    rgba(0,0,0,0.40) 54%,
+    rgba(0,0,0,0.16) 76%,
+    rgba(0,0,0,0) 100%);
 }
 .trj-embed ::selection{ background:rgba(232,248,248,.86); color:#161410; }
 .trj-embed ::-moz-selection{ background:rgba(232,248,248,.86); color:#161410; }
