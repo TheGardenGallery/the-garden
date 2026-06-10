@@ -39,3 +39,7 @@ next-env.d.ts
 
 # OG card render scaffold — internal preview HTML, not shipped to prod
 /public/_og-preview/
+
+# local dev-server keepalive helpers (machine-specific, not for repo)
+scripts/dev-keepalive.sh
+scripts/dev-run.sh
