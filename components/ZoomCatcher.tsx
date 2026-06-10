@@ -126,6 +126,18 @@ export function ZoomCatcher({
       // handles hero + inline-artwork clicks below.
       if (target.closest(".piece-grid")) return;
 
+      // Don't intercept clicks inside the embedded Trajectory deck.
+      // The deck (.trj-root) has its own coverflow centring: clicking a
+      // flank card calls setWorkIdx to bring it to centre. Its Split
+      // Logic works are <video> elements whose src lives in this
+      // catcher's `items`, so without this guard the capture-phase
+      // listener fires first, opens the full lightbox and the deck's
+      // own onClick never runs — the user reported Split Logic cards
+      // "go straight to lightbox" while the other series (still images,
+      // not in items) centre normally. Let the deck handle its own
+      // clicks; the page-wide lightbox stays for hero + inline artworks.
+      if (target.closest(".trj-root")) return;
+
       // Prefer an explicit data-zoom-src ancestor (PieceGrid cells)
       // before falling back to a <video> element under the cursor.
       const zoomEl = target.closest("[data-zoom-src]") as HTMLElement | null;
