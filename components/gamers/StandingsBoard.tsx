@@ -43,25 +43,37 @@ function tierColor(rank: number): string {
 }
 
 export default function StandingsBoard() {
-  // Top 10 only, shown in a ~7-row-tall scroll window you scroll WITHIN — see
-  // ~7 at once, scroll through the 10. The page doesn't move while you're in it.
-  const LIMIT = 10;
+  // Full field of 1000, shown in a ~7-row-tall scroll window you scroll WITHIN —
+  // see ~7 at once, scroll all the way down to rank 1000. The page stays put.
+  const LIMIT = 1000;
   const [entries, setEntries] = useState<Entry[]>(() => fetchStandings(LIMIT));
 
   // refs to each row element by entry id, for FLIP measurement
   const rowRefs = useRef<Map<string, HTMLLIElement>>(new Map());
+  const scrollRef = useRef<HTMLDivElement>(null);
   // springs driving each row's Y offset (one per id), persist across ticks
   const springs = useRef<Map<string, Spring>>(new Map());
   const rafRef = useRef<number>(0);
   const animating = useRef(false);
 
-  // ---- live tick: rerank + FLIP ------------------------------------------
+  // ---- live tick: rerank + FLIP (ONLY for rows in/near the visible window —
+  // measuring all 1000 rows each tick would stutter; off-screen rows just snap) ----
   const applyTick = useCallback((next: Entry[]) => {
     const limited = next.slice(0, LIMIT);
-    // FIRST: record current pixel positions before the DOM reorders
+
+    // visible band of the scroll window (+ a margin), so we only FLIP what's seen
+    const sc = scrollRef.current;
+    const viewTop = sc ? sc.getBoundingClientRect().top - 200 : -Infinity;
+    const viewBot = sc ? sc.getBoundingClientRect().bottom + 200 : Infinity;
+    const inView = (el: HTMLElement) => {
+      const r = el.getBoundingClientRect();
+      return r.bottom >= viewTop && r.top <= viewBot;
+    };
+
+    // FIRST: record current pixel positions before the DOM reorders (visible only)
     const firstTop = new Map<string, number>();
     rowRefs.current.forEach((el, id) => {
-      firstTop.set(id, el.getBoundingClientRect().top);
+      if (inView(el)) firstTop.set(id, el.getBoundingClientRect().top);
     });
 
     setEntries(limited);
@@ -69,10 +81,10 @@ export default function StandingsBoard() {
     // LAST + INVERT + PLAY happens after paint, via rAF below
     requestAnimationFrame(() => {
       let needsAnim = false;
-      rowRefs.current.forEach((el, id) => {
+      firstTop.forEach((prev, id) => {
+        const el = rowRefs.current.get(id);
+        if (!el) return;
         const lastTop = el.getBoundingClientRect().top;
-        const prev = firstTop.get(id);
-        if (prev == null) return;
         const dy = prev - lastTop; // how far it must appear to start from
         if (Math.abs(dy) < 0.5) return;
         let sp = springs.current.get(id);
@@ -151,7 +163,7 @@ export default function StandingsBoard() {
       {/* self-contained scroll window: ~7 rows tall, scrolls WITHIN; CSS
           overscroll-behavior:contain keeps the page still until you reach an
           edge, so you scroll through the 10 without the page moving. */}
-      <div className="lb-scroll" style={{ height: ROW_H * VISIBLE_ROWS }}>
+      <div className="lb-scroll" ref={scrollRef} style={{ height: ROW_H * VISIBLE_ROWS }}>
         <ol className="lb-list" role="list">
           {entries.map((e) => {
             // arcade-style points score (wins weighted), shown as a plain number

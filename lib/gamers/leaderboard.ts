@@ -26,7 +26,7 @@ export type Entry = {
 
 export const WINDOW_HOURS = 24;
 export const EVOLVE_TOP_N = 100;
-export const TOTAL_ARTWORKS = 256; // mock pool size (real edition TBA)
+export const TOTAL_ARTWORKS = 1000; // mock pool size (real edition TBA)
 
 // fxhash seed alphabet + format, matching the piece (oo + 49 chars)
 const ALPHABET =
