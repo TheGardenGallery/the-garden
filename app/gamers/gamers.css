@@ -770,6 +770,7 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
    contains the scroll so the page stays put until you hit an edge. ---- */
 .lb-scroll {
   overflow-y: auto;
+  overflow-x: hidden; /* vertical scroll only — never sideways */
   overscroll-behavior: contain;
   /* a quiet, refined scrollbar — hairline, tier-neutral, no chrome */
   scrollbar-width: thin;
@@ -856,10 +857,6 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   font-variant-numeric: tabular-nums;
   color: var(--tier, var(--ink));
 }
-.lb-score-unit {
-  font-size: 11px;
-}
-
 /* ---- the username ---- */
 .lb-c-handle {
   display: flex;

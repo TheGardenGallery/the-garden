@@ -154,8 +154,8 @@ export default function StandingsBoard() {
       <div className="lb-scroll" style={{ height: ROW_H * VISIBLE_ROWS }}>
         <ol className="lb-list" role="list">
           {entries.map((e) => {
-            const total = e.wins + e.losses;
-            const rate = total ? Math.round(e.wins / total * 100) : 0;
+            // arcade-style points score (wins weighted), shown as a plain number
+            const score = (e.wins * 100).toLocaleString("en-US");
             const moved = e.rank - e.prevRank;
             return (
               <li
@@ -193,12 +193,9 @@ export default function StandingsBoard() {
                     )}
                   </span>
 
-                  {/* SCORE: win rate */}
+                  {/* SCORE: arcade-style points number */}
                   <span className="lb-c-score">
-                    <span className="lb-score-num">{rate}</span>
-                    <span className="lb-score-unit dim" aria-hidden>
-                      %
-                    </span>
+                    <span className="lb-score-num">{score}</span>
                   </span>
 
                   {/* PILOT: username */}
