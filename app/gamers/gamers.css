@@ -13,7 +13,10 @@
   font-style: normal;
 }
 
-.gamers-root {
+/* Scoped to the GAMERS route only: these root-level rules apply when the page
+   (main.surface) is present, so they never leak onto other Garden pages.
+   Everything else in this file is class-based and only matches GAMERS markup. */
+html:has(main.surface) {
   /* Theme is driven at runtime from the artwork's baked-in palette.
      These are neutral fallbacks before the piece reports its color. */
   --bg: #0a0a0a;
@@ -35,10 +38,10 @@
   --space-4: 72px;   /* section breaks around rules */
 }
 
-.gamers-root *, .gamers-root { box-sizing: border-box; }
+main.surface * { box-sizing: border-box; }
 
-.gamers-root,
-.gamers-root {
+html:has(main.surface),
+html:has(main.surface) body {
   margin: 0;
   padding: 0;
   background: var(--bg);
@@ -55,48 +58,47 @@
 }
 
 /* Smooth color crossfade across the whole surface when a new iteration loads */
-.gamers-root,
-.gamers-root .surface,
-.gamers-root .hairline {
+.surface,
+.hairline {
   transition: background-color 600ms ease, color 600ms ease,
     border-color 600ms ease;
 }
 
-.gamers-root a { color: inherit; text-decoration: none; }
-.gamers-root a:hover { opacity: 0.6; }
+a { color: inherit; text-decoration: none; }
+a:hover { opacity: 0.6; }
 
 /* CP437 type wants generous tracking to breathe (refined, not cramped) */
-.gamers-root .mono {
+.mono {
   font-family: "MBytePC230", "Courier New", monospace;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-.gamers-root .surface {
+.surface {
   background: transparent; /* the absolute world-plate (z-index 0) shows through */
   color: var(--ink);
 }
 
 /* hairline rules — Dieter-Rams restraint, never heavy borders */
-.gamers-root .hairline { border: 0; border-top: var(--rule) solid var(--hair); }
+.hairline { border: 0; border-top: var(--rule) solid var(--hair); }
 
-.gamers-root ::selection { background: var(--ink); color: var(--bg); }
+::selection { background: var(--ink); color: var(--bg); }
 
 /* ============================================================
    LAYOUT
    ============================================================ */
 
-.gamers-root main.surface {
+main.surface {
   position: relative;     /* anchor the absolutely-positioned world-plate */
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
 
-.gamers-root .dim { color: var(--ink-dim); }
+.dim { color: var(--ink-dim); }
 
 /* ambient snow/dust particle layer — fixed, full-viewport, behind all content */
-.gamers-root .snow {
+.snow {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -106,7 +108,7 @@
   image-rendering: pixelated;
 }
 /* keep page content above the world-plate (0) and snow (1) */
-.gamers-root .surface > *:not(.snow):not(.reticle):not(.worldplate) { position: relative; z-index: 2; }
+.surface > *:not(.snow):not(.reticle):not(.worldplate) { position: relative; z-index: 2; }
 
 /* --- background world plate (our design asset; HUD-stripped terrain) --------
    The world belongs to the FIRST VIEW: it glows behind the framed artwork (a
@@ -115,7 +117,7 @@
    and sized to the first screen, so every reading section below sits on the
    clean near-black ground — text legibility never depends on what palette a
    re-roll produced. */
-.gamers-root .worldplate {
+.worldplate {
   position: absolute;
   top: 0;
   left: 0;
@@ -129,7 +131,7 @@
   pointer-events: none;
   background: var(--bg);  /* solid theme base until/behind the plate */
 }
-.gamers-root .worldplate-frame {
+.worldplate-frame {
   position: absolute;
   /* scale up and center so the terrain fills the plate edge-to-edge (cover).
      Tall enough that it covers the plate's TOP edge too (past y=0, behind the
@@ -152,7 +154,7 @@
   will-change: opacity;
 }
 /* on the dark ground the colourful terrain glows — reveal opacity once painted */
-.gamers-root .worldplate-frame[data-shown="true"] { opacity: 0.92; }
+.worldplate-frame[data-shown="true"] { opacity: 0.92; }
 
 /* scrim: a single, LONG, gentle vertical fade. The world stays full in the
    hero, then melts into black over a generous span with many eased stops (no
@@ -160,7 +162,7 @@
    hidden bottom edge. ONE gradient only — a horizontal centre-darkening band
    used to live here too, but with text now on its own dark zone it served no
    purpose and just blotched the blur unevenly, so it's gone. */
-.gamers-root .worldplate::after {
+.worldplate::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -178,7 +180,7 @@
 }
 
 /* targeting-reticle custom cursor */
-.gamers-root .reticle {
+.reticle {
   position: fixed;
   top: 0;
   left: 0;
@@ -191,22 +193,22 @@
   transition: opacity 180ms ease;
   will-change: transform;
 }
-.gamers-root .reticle svg { display: block; overflow: visible; }
-.gamers-root .reticle .rt-stroke {
+.reticle svg { display: block; overflow: visible; }
+.reticle .rt-stroke {
   fill: none;
   stroke: currentColor;
   stroke-width: 1;
 }
-.gamers-root .reticle .rt-fill { fill: currentColor; }
+.reticle .rt-fill { fill: currentColor; }
 /* the reticle is a constant precise instrument — it never changes shape.
    Targets respond to being targeted (see .reroll:hover), not the cursor. */
 
-/* hide the native cursor site-wide only while the reticle is active */
+/* hide the native cursor only while the reticle is active (scoped to the page) */
 .gamers-root.reticle-on,
 .gamers-root.reticle-on * { cursor: none !important; }
 
 /* --- top status bar / ticker ------------------------------- */
-.gamers-root .topbar {
+.topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -231,9 +233,9 @@
   100% { border-bottom-color: var(--hair); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .gamers-root .topbar { animation: none; }
+  .topbar { animation: none; }
 }
-.gamers-root .topbar .tb-mid {
+.topbar .tb-mid {
   color: var(--ink-dim);
   white-space: nowrap;
   overflow: hidden;
@@ -250,14 +252,14 @@
   100% { color: var(--ink-dim); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .gamers-root .topbar .tb-mid { animation: none; }
+  .topbar .tb-mid { animation: none; }
 }
-.gamers-root .topbar .tb-left,
-.gamers-root .topbar .tb-right { flex: 0 0 auto; }
+.topbar .tb-left,
+.topbar .tb-right { flex: 0 0 auto; }
 
 /* --- first view: artwork + title fill the viewport ---------- */
 /* header is ~50px now; fill the rest so the statement sits below the fold */
-.gamers-root .firstview {
+.firstview {
   min-height: calc(100svh - 50px);
   display: flex;
   flex-direction: column;
@@ -267,14 +269,14 @@
 }
 
 /* --- hero --------------------------------------------------- */
-.gamers-root .hero {
+.hero {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.gamers-root .hero-stage {
+.hero-stage {
   position: relative;
   /* width drives size (aspect-ratio fixes height). Sized to leave the hero room
      to breathe within the first view — not so large it crowds the header/title.
@@ -299,13 +301,13 @@
   100% { transform: translateY(-1.5px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .gamers-root .hero-stage { animation: none; }
+  .hero-stage { animation: none; }
 }
 
 /* chunky white dashed frame sitting OUTSIDE the artwork (see DashedFrame.tsx).
    Rendered as an SVG with a pathLength-normalised dash pattern so all four
    corners are identical and clean at any size. Sits 18px out from the artwork. */
-.gamers-root .dashed-frame {
+.dashed-frame {
   position: absolute;
   inset: -18px; /* the gap: how far the dashes sit out from the artwork */
   width: calc(100% + 36px);
@@ -316,7 +318,7 @@
 
 /* the iframe renders the piece at high resolution (sized in JS) and is scaled
    down via an inline transform */
-.gamers-root .frame-wrap {
+.frame-wrap {
   position: absolute;
   inset: 0;
   display: grid;
@@ -326,9 +328,9 @@
   /* refined easing, matched to the world-plate crossfade for a cohesive re-roll */
   transition: opacity 900ms cubic-bezier(0.4, 0, 0.2, 1);
 }
-.gamers-root .frame-wrap[data-ready="true"] { opacity: 1; }
+.frame-wrap[data-ready="true"] { opacity: 1; }
 
-.gamers-root .piece {
+.piece {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -342,7 +344,7 @@
 }
 
 /* readout under the hero: re-roll + hash */
-.gamers-root .hero-readout {
+.hero-readout {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -350,7 +352,7 @@
   letter-spacing: 0.14em;
   padding: var(--space-3) var(--pad) 0; /* stage → reroll (rhythm unit) */
 }
-.gamers-root .reroll {
+.reroll {
   font: inherit;
   letter-spacing: inherit;
   text-transform: uppercase;
@@ -362,19 +364,19 @@
   transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
 }
 /* the target acknowledges the reticle: border + a faint ink fill, crisp + quiet */
-.gamers-root .reroll:hover {
+.reroll:hover {
   border-color: var(--ink);
   background: color-mix(in srgb, var(--ink) 8%, transparent);
 }
-.gamers-root .reroll span { display: inline-block; margin-right: 4px; }
-.gamers-root .hero-readout .hash { color: var(--ink-dim); }
+.reroll span { display: inline-block; margin-right: 4px; }
+.hero-readout .hash { color: var(--ink-dim); }
 /* quiet fade-in when the seed resolves (compositor thread → smooth even while
    the artwork boots blocks the main thread). The element is remounted via a
    React key on value change, so this replays each new hash. */
-.gamers-root .hero-readout .hash {
+.hero-readout .hash {
   animation: hash-fade 420ms ease both;
 }
-.gamers-root .hero-readout .hash[data-resolving="true"] {
+.hero-readout .hash[data-resolving="true"] {
   animation: none;
   opacity: 0.5;
   letter-spacing: 0.16em;
@@ -384,16 +386,16 @@
   to   { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .gamers-root .hero-readout .hash { animation: none; }
+  .hero-readout .hash { animation: none; }
 }
 
 /* --- title -------------------------------------------------- */
-.gamers-root .titleblock {
+.titleblock {
   text-align: center;
   padding: 0 var(--pad);
   margin-top: var(--space-3); /* reroll → title (rhythm unit) */
 }
-.gamers-root .title {
+.title {
   margin: 0;
   font-size: clamp(40px, 11vw, 128px);
   line-height: 0.9;
@@ -435,9 +437,9 @@
   100%  { transform: translate(0, 0); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .gamers-root .title { animation: none; }
+  .title { animation: none; }
 }
-.gamers-root .subtitle {
+.subtitle {
   margin: 26px 0 0; /* title → name: a touch more drop so it isn't crowding GAMERS */
   font-size: clamp(11px, 1.6vw, 14px);
   letter-spacing: 0.18em;
@@ -445,7 +447,7 @@
 }
 
 /* --- rules / sections -------------------------------------- */
-.gamers-root .section-rule {
+.section-rule {
   width: min(100% - 2 * var(--pad), var(--maxw));
   margin: var(--space-4) auto; /* uniform section break (rhythm unit) */
 }
@@ -458,19 +460,19 @@
    That keeps the page's "intelligence" (it knows the artwork's colour) without
    a vibrant block competing with the work. The accent uses --title-alt, which
    is hue-true but lifted to read against the dark ground (see color.ts). */
-.gamers-root .colophon {
+.colophon {
   position: relative;
   /* no extra top margin — the first .section-rule inside owns the section break
      rhythm (--space-4), same as every other break. Stacking both doubled it. */
 }
 
-.gamers-root .statement {
+.statement {
   width: min(100% - 2 * var(--pad), 720px);
   margin: 0 auto;
   text-align: center;
 }
 /* base type for the sign-off line (size/leading); .signoff adds italic+colour */
-.gamers-root .lede {
+.lede {
   font-family: "MBytePC230", "Courier New", monospace;
   font-size: clamp(14px, 2.1vw, 19px);
   line-height: 1.7;
@@ -480,7 +482,7 @@
 
 /* statement: a small dimmed readout line resolving into a large pull-quote
    (hierarchy by size, all 400 weight) */
-.gamers-root .readout {
+.readout {
   font-family: "MBytePC230", "Courier New", monospace;
   font-size: clamp(11px, 1.5vw, 14px);
   line-height: 1.8;
@@ -489,7 +491,7 @@
   max-width: 46ch;
   margin: 0 auto;
 }
-.gamers-root .pullquote {
+.pullquote {
   font-family: "MBytePC230", "Courier New", monospace;
   font-size: clamp(22px, 4.2vw, 44px);
   line-height: 1.18;
@@ -499,7 +501,7 @@
   text-wrap: balance;
 }
 /* closing sign-off — set apart by colour + italic, never bold (Rams) */
-.gamers-root .signoff {
+.signoff {
   margin-top: 2.2em;
   font-style: italic;
   color: var(--ink-dim);
@@ -507,28 +509,28 @@
 }
 
 /* game-grade hover: per-letter springs + CP437 dust particles (rAF-driven) */
-.gamers-root .signoff-row {
+.signoff-row {
   margin-top: var(--space-2); /* pullquote → signoff (rhythm unit) */
   text-align: center; /* centers the inline-block wrap */
 }
-.gamers-root .signoff-wrap {
+.signoff-wrap {
   position: relative;
   display: inline-block; /* shrink-wraps the text so the canvas aligns 1:1 */
   cursor: default;
 }
-.gamers-root .signoff {
+.signoff {
   margin-top: 0;
   display: inline-block;
   position: relative;
 }
-.gamers-root .signoff-letter {
+.signoff-letter {
   display: inline-block;
   transform-origin: 50% 100%;
   will-change: transform;
 }
-.gamers-root .signoff-space { display: inline-block; }
+.signoff-space { display: inline-block; }
 /* dust canvas overlays the line, extending a little below for the kick-up */
-.gamers-root .signoff-dust {
+.signoff-dust {
   position: absolute;
   left: 0;
   top: 0;
@@ -537,7 +539,7 @@
 }
 
 /* --- spec readout grid (NET STATUS / MEM DUMP motif) -------- */
-.gamers-root .readout-grid {
+.readout-grid {
   width: min(100% - 2 * var(--pad), var(--maxw));
   margin: 0 auto;
   display: grid;
@@ -546,22 +548,22 @@
   font-size: 12px;
   letter-spacing: 0.08em;
 }
-.gamers-root .spec {
+.spec {
   display: flex;
   align-items: baseline;
   gap: 8px;
   padding: 9px 0;
   border-bottom: var(--rule) solid var(--hair);
 }
-.gamers-root .spec-k { flex: 0 0 auto; }
-.gamers-root .spec-dots {
+.spec-k { flex: 0 0 auto; }
+.spec-dots {
   flex: 1 1 auto;
   align-self: center;
   height: 0;
   border-bottom: var(--rule) dotted var(--hair);
   transform: translateY(-2px);
 }
-.gamers-root .spec-v {
+.spec-v {
   flex: 0 0 auto;
   /* the iteration's colour as a precise accent — hue-true, lifted to read on the
      dark ground (--title-alt). The page knows the artwork's colour; it states it
@@ -571,16 +573,16 @@
 }
 /* COLOUR row spans the full grid width as the iteration's signature finale,
    rather than sitting orphaned in one column (odd item count). */
-.gamers-root .spec-full { grid-column: 1 / -1; }
+.spec-full { grid-column: 1 / -1; }
 /* COLOUR row value: chip + label sit on one baseline */
-.gamers-root .spec-colour {
+.spec-colour {
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 /* the paint chip — the artwork's EXACT baked colour (--art), a crisp little
    square with a hairline so it's visible even on near-black iterations */
-.gamers-root .colour-chip {
+.colour-chip {
   width: 11px;
   height: 11px;
   flex: 0 0 auto;
@@ -591,7 +593,7 @@
 }
 
 /* --- footer ------------------------------------------------- */
-.gamers-root .footer {
+.footer {
   margin: 0 auto;
   /* align the footer's content edges with the rules + spec grid above
      (same --maxw container), not the full viewport width */
@@ -609,20 +611,19 @@
 
 /* --- responsive (iPhone 13 Mini: 375px) -------------------- */
 @media (max-width: 640px) {
-  .gamers-root .topbar .tb-mid { display: none; }
-  .gamers-root .readout-grid { grid-template-columns: 1fr; }
+  .topbar .tb-mid { display: none; }
+  .readout-grid { grid-template-columns: 1fr; }
   /* on phones the artwork reads larger with a less-letterbox aspect; cap its
      height by svh so it never crowds the title off a short phone screen, and
      keep it full-bleed (no inset mat) like desktop */
-  .gamers-root .hero-stage {
+  .hero-stage {
     aspect-ratio: 4 / 3;
     max-height: 40svh;
   }
   /* prevent any horizontal overflow from the oversized title */
-  .gamers-root .title { letter-spacing: 0.02em; overflow-wrap: anywhere; }
-  .gamers-root .footer { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .title { letter-spacing: 0.02em; overflow-wrap: anywhere; }
+  .footer { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
 
 /* never allow horizontal scroll from the big type */
-.gamers-root,
-.gamers-root { overflow-x: hidden; }
+html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
