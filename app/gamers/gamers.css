@@ -700,3 +700,318 @@ main.surface {
 
 /* never allow horizontal scroll from the big type */
 html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
+
+/* ============================================================
+   STANDINGS — the global GAMERS leaderboard (/gamers/standings)
+   A CRT scoreboard read as a gallery checklist: dotted-leader
+   catalogue rows, hierarchy by size + colour (never weight),
+   live world thumbnails, spring-reordered ranks. The "game"
+   energy is in the motion + live data, not decoration.
+   ============================================================ */
+
+/* topbar link (used on both the hero ticker and the standings back-link) */
+.gamers-root .tb-link {
+  color: var(--ink-dim);
+  text-decoration: none;
+  letter-spacing: inherit;
+  transition: color 160ms ease;
+}
+.gamers-root .tb-link:hover { color: var(--ink); }
+
+.standings-surface { min-height: 100dvh; }
+
+/* the standings column shares the page max-width + padding rhythm */
+.standings {
+  position: relative;
+  z-index: 2;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: calc(var(--space-4) + 50px) var(--pad) var(--space-4);
+}
+
+.standings-title-block { margin-bottom: var(--space-3); }
+.standings .subtitle { margin-top: var(--space-1); }
+
+/* ---- board masthead: three catalogue lines (STANDINGS / RESETS / TIER) ---- */
+.lb-head {
+  display: grid;
+  gap: 10px;
+  margin-bottom: var(--space-2);
+}
+.lb-head-line {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+.lb-head-k { flex: 0 0 auto; text-transform: uppercase; }
+.lb-head-sep {
+  flex: 1 1 auto;
+  height: 0;
+  border-bottom: 1px dotted var(--hair);
+  transform: translateY(-3px);
+}
+.lb-head-v { flex: 0 0 auto; color: var(--ink); }
+/* the countdown ticks — give it the iteration accent so it reads "live" */
+.lb-clock {
+  color: var(--cga-cyan);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+}
+
+/* arcade DNA: authentic CGA hues. Cyan is the high-score-screen signature
+   (headers); the rank tiers walk warm→cool down the board, evoking the
+   per-row rainbow of a Pac-Man-era table but muted to read gallery-grade. */
+.gamers-root {
+  --cga-cyan: #55ffff;
+  --cga-white: #f4f4f4;
+  --cga-yellow: #ffff55;
+  --cga-l-red: #ff5555;
+  --cga-magenta: #ff55ff;
+  --cga-l-green: #55ff55;
+  --cga-l-blue: #5555ff;
+  --cga-brown: #ffaa55;
+}
+
+/* ---- column legend ---- */
+.lb-legend {
+  display: grid;
+  grid-template-columns: 56px 64px 1fr 110px 168px;
+  align-items: center;
+  gap: 16px;
+  padding: 0 14px 10px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cga-cyan);
+}
+
+/* ---- the list ---- */
+.lb-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.lb-row {
+  position: relative;
+  border-bottom: 1px solid var(--hair);
+  /* GPU hint: rows get transform-animated on rerank */
+  will-change: transform;
+}
+.lb-row-btn {
+  display: grid;
+  grid-template-columns: 56px 64px 1fr 110px 168px;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  padding: 0 14px;
+  background: none;
+  border: 0;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: none; /* the reticle is the cursor */
+  transition: background-color 200ms ease;
+}
+.lb-row-btn:hover { background: rgba(232, 232, 232, 0.035); }
+
+/* rank numeral — large CP437, the strongest type on the row */
+.lb-c-rank {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.lb-rank-num {
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--tier, var(--ink));
+}
+.lb-delta {
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+.lb-delta.up { color: var(--title-alt); }
+.lb-delta.down { color: var(--ink-dim); }
+
+/* ---- thumbnail: a live world, zoom-scrolls in on hover ---- */
+.lb-c-thumb { display: flex; }
+.lb-thumb {
+  position: relative;
+  width: 56px;
+  height: 40px;
+  overflow: hidden;
+  background: #000;
+  /* hairline frame, echoing the hero's framed-window read */
+  box-shadow: inset 0 0 0 1px var(--hair);
+}
+/* resting placeholder — a cheap seed-tinted gradient, zero GPU. Each row gets
+   a distinct hue (--thumb-hue) so the column reads as 100 different worlds. */
+.lb-thumb-still {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    160deg,
+    hsl(var(--thumb-hue, 200) 55% 22%),
+    hsl(calc(var(--thumb-hue, 200) + 28) 45% 9%)
+  );
+  opacity: 0.9;
+  transition: opacity 300ms ease;
+}
+.lb-thumb[data-live="true"] .lb-thumb-still { opacity: 0; }
+.lb-thumb-frame {
+  position: absolute;
+  /* the live world canvas is large; we cover the little thumb and let hover
+     scale it up + drift, so the world reads as a window zooming toward you */
+  top: 50%;
+  left: 50%;
+  width: 220px;
+  height: 138px;
+  border: 0;
+  transform: translate(-50%, -50%) scale(0.62);
+  transform-origin: center;
+  /* spring-like ease curve; the snap comes from the cubic, the feel from the
+     overshoot in the timing function (real physics on the rows themselves) */
+  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 620ms ease;
+  filter: saturate(0.9) brightness(0.92);
+  pointer-events: none;
+}
+.lb-row-btn:hover .lb-thumb-frame,
+.lb-thumb[data-live="true"] .lb-thumb-frame {
+  /* zoom UP and scroll slightly down-into the scene — "interesting way" */
+  transform: translate(-50%, -54%) scale(0.92);
+  filter: saturate(1.05) brightness(1.06);
+}
+
+/* ---- handle ---- */
+.lb-c-handle {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+}
+.lb-handle {
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--tier, var(--ink));
+}
+
+/* ---- record (W · L) ---- */
+.lb-c-record {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.lb-w { color: var(--ink); }
+.lb-l { font-size: 13px; }
+
+/* ---- win-rate bar — the one place the artwork accent earns its keep ---- */
+.lb-c-rate {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.lb-bar {
+  position: relative;
+  flex: 1 1 auto;
+  height: 4px;
+  background: rgba(232, 232, 232, 0.10);
+  overflow: hidden;
+}
+.lb-bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  height: 100%;
+  background: var(--tier, var(--title-alt));
+  transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.lb-rate-num {
+  flex: 0 0 auto;
+  width: 38px;
+  text-align: right;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-dim);
+}
+
+/* ---- EVOLVED (top-100) — prestige by restraint, not a trophy ---- */
+.lb-row[data-evolved="true"] {
+  /* a single hairline underglow in the artwork accent — quiet, precise */
+  box-shadow: inset 2px 0 0 -1px var(--title-alt);
+}
+.lb-evolved {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--title-alt);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.lb-row[data-evolved="true"]:hover .lb-evolved {
+  opacity: 0.85;
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lb-thumb-frame,
+  .lb-bar-fill,
+  .lb-evolved { transition: none; }
+}
+
+/* ---- arcade sprite wink: a tiny CP437 "ghost" tucked by the footer, the
+   way the high-score screen parks one in the corner. Pure type, no asset.
+   Drifts a hair on a slow loop — a wink, not a mascot. ------------------- */
+.lb-sprite {
+  display: inline-block;
+  margin-left: 14px;
+  color: var(--cga-magenta);
+  font-size: 16px;
+  line-height: 1;
+  transform: translateY(1px);
+  animation: lb-sprite-bob 3.2s ease-in-out infinite;
+}
+@keyframes lb-sprite-bob {
+  0%, 100% { transform: translate(0, 1px); }
+  50% { transform: translate(3px, -1px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lb-sprite { animation: none; }
+}
+
+/* ---- mobile (iPhone 13 Mini = 375px) ---- */
+@media (max-width: 560px) {
+  .standings { padding: calc(var(--space-4) + 40px) var(--pad) var(--space-3); }
+  .lb-legend { display: none; }
+  .lb-row-btn {
+    grid-template-columns: 40px 48px 1fr;
+    grid-template-rows: auto auto;
+    gap: 4px 12px;
+    padding: 10px 8px;
+    align-items: center;
+  }
+  .lb-row { height: auto !important; }
+  .lb-c-rank { grid-row: 1 / span 2; }
+  .lb-rank-num { font-size: 19px; }
+  .lb-thumb { width: 48px; height: 34px; }
+  .lb-c-thumb { grid-row: 1 / span 2; }
+  .lb-c-handle { grid-column: 3; grid-row: 1; }
+  /* record + rate share row 2 under the handle */
+  .lb-c-record { grid-column: 3; grid-row: 2; font-size: 12px; }
+  .lb-c-rate {
+    grid-column: 3;
+    grid-row: 2;
+    justify-self: end;
+    max-width: 120px;
+  }
+  .lb-handle { font-size: 14px; }
+}

@@ -3,6 +3,7 @@ import Signoff from "@/components/gamers/Signoff";
 import Snow from "@/components/gamers/Snow";
 import Reticle from "@/components/gamers/Reticle";
 import WorldPlate from "@/components/gamers/WorldPlate";
+import Link from "next/link";
 
 export default function Page() {
   return (
@@ -19,7 +20,11 @@ export default function Page() {
         <span className="tb-mid" aria-hidden>
           ▓▒░ MISSION CONTROL // ALL SYSTEMS NOMINAL ░▒▓
         </span>
-        <span className="tb-right">GAMERS</span>
+        <span className="tb-right">
+          <Link href="/gamers/standings" className="tb-link">
+            STANDINGS →
+          </Link>
+        </span>
       </header>
 
       {/* first view — fills the viewport: artwork + title sit here, the
