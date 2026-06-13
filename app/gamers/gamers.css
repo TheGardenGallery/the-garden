@@ -814,95 +814,35 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
 }
 .lb-row-btn:hover { opacity: 1; }
 
-/* ---- the artwork rectangle: live world cheap-at-rest / live-on-hover, with a
-   transparent overlay scrim and the rank number tucked in the corner. ---- */
+/* ---- the RANK box: a plain white rectangle with the black rank number,
+   centered. No artwork, no hover. ---- */
 .lb-c-art {
   position: relative;
   width: 116px;
   height: 60px;
-  overflow: hidden;
-  background: #000;
-  /* NO border / frame — just the image */
-}
-.lb-thumb {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #000;
-}
-.lb-thumb-still {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    150deg,
-    hsl(var(--thumb-hue, 200) 48% 26%),
-    hsl(calc(var(--thumb-hue, 200) + 30) 40% 8%)
-  );
-  transition: opacity 280ms ease;
-}
-.lb-thumb[data-live="true"] .lb-thumb-still { opacity: 0; }
-.lb-thumb-frame {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 232px;
-  height: 145px;
-  border: 0;
-  transform: translate(-50%, -50%) scale(0.5);
-  transform-origin: center;
-  transition: transform 640ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 640ms ease;
-  filter: saturate(0.95) brightness(0.92);
-  pointer-events: none;
-}
-.lb-row-btn:hover .lb-thumb-frame,
-.lb-thumb[data-live="true"] .lb-thumb-frame {
-  transform: translate(-50%, -55%) scale(0.62);
-  filter: saturate(1.05) brightness(1.04);
-}
-
-/* transparent overlay so the CENTERED rank number always reads over the art —
-   a soft central fade (radial vignette), not a flat wash, keeping the work visible */
-.lb-art-scrim {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse 60% 80% at 50% 50%,
-    rgba(9, 9, 11, 0.6) 0%,
-    rgba(9, 9, 11, 0.32) 45%,
-    rgba(9, 9, 11, 0) 80%
-  );
-  pointer-events: none;
-}
-/* rank number — CENTERED on the artwork, tier-coloured, lifted over the fade */
-.lb-art-rank {
-  position: absolute;
-  inset: 0;
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+/* rank number — centered in the white box, pure black */
+.lb-art-rank {
   font-size: 22px;
   line-height: 1;
   letter-spacing: 0.06em;
   font-variant-numeric: tabular-nums;
-  color: var(--tier, var(--ink));
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
-  pointer-events: none;
+  color: #000;
 }
-/* movement delta, tucked quietly in the bottom-right corner of the art */
+/* movement delta, tucked quietly in the bottom-right corner of the box */
 .lb-delta {
   position: absolute;
   right: 6px;
   bottom: 5px;
   font-size: 8px;
   line-height: 1;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
-  pointer-events: none;
 }
-.lb-delta.up { color: var(--pal-saffron); }
-.lb-delta.down { color: rgba(232, 232, 232, 0.6); }
+.lb-delta.up { color: var(--pal-peacock); }
+.lb-delta.down { color: rgba(0, 0, 0, 0.4); }
 
 /* ---- the score: win-rate %, the one strong number on the row ---- */
 .lb-c-score {
@@ -949,8 +889,6 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lb-thumb-still,
-  .lb-thumb-frame,
   .lb-row-btn { transition: none; }
 }
 

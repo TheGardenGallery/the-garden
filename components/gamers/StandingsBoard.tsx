@@ -178,11 +178,8 @@ export default function StandingsBoard() {
                   onClick={() => pitchHero(e)}
                   aria-label={`Pitch ${e.handle}'s artwork as the hero, rank ${e.rank}`}
                 >
-                  {/* RANK: the artwork rectangle with the rank number centred on
-                      it over a soft fade so it always reads */}
+                  {/* RANK: a plain white box with the black rank number */}
                   <span className="lb-c-art">
-                    <Thumb fxhash={e.fxhash} id={e.id} />
-                    <span className="lb-art-scrim" aria-hidden />
                     <span className="lb-art-rank">
                       {e.rank.toString().padStart(2, "0")}
                     </span>
@@ -220,68 +217,5 @@ export default function StandingsBoard() {
         </ol>
       </div>
     </section>
-  );
-}
-
-/**
- * Thumb — a per-row artwork preview that is CHEAP AT REST and LIVE ON HOVER.
- *
- * WHY: a live WebGL world per row × 100 rows = 100 GPU renderers = the page
- * melts (same class of problem as the hero/world-plate thermal lag). A
- * leaderboard thumbnail doesn't need to animate until you look at it. So at
- * rest we show a static, seed-tinted placeholder (zero GPU); on hover we mount
- * the real live world iframe and let it zoom-scroll in. We keep it mounted for
- * a short grace period after the pointer leaves so a scan back up the list is
- * instant, then unmount to release the context. At most a couple are ever live.
- */
-function Thumb({ fxhash, id }: { fxhash: string; id: string }) {
-  const [live, setLive] = useState(false);
-  const offTimer = useRef<number>(0);
-
-  // a stable, cheap tint derived from the seed — gives each resting thumb a
-  // distinct colour so the column reads as 100 different worlds, not 100 blanks.
-  const hue = (() => {
-    let h = 0;
-    for (let i = 2; i < fxhash.length; i++) h = (h * 31 + fxhash.charCodeAt(i)) % 360;
-    return h;
-  })();
-
-  const enter = useCallback(() => {
-    window.clearTimeout(offTimer.current);
-    setLive(true);
-  }, []);
-  const leave = useCallback(() => {
-    window.clearTimeout(offTimer.current);
-    offTimer.current = window.setTimeout(() => setLive(false), 1200);
-  }, []);
-
-  useEffect(() => () => window.clearTimeout(offTimer.current), []);
-
-  return (
-    <span
-      className="lb-thumb"
-      data-id={id}
-      data-live={live ? "true" : "false"}
-      onMouseEnter={enter}
-      onMouseLeave={leave}
-      style={
-        {
-          "--thumb-hue": `${hue}`,
-        } as React.CSSProperties
-      }
-    >
-      {/* cheap resting placeholder — pure CSS, no GPU */}
-      <span className="lb-thumb-still" aria-hidden />
-      {live && (
-        <iframe
-          className="lb-thumb-frame"
-          title=""
-          aria-hidden
-          tabIndex={-1}
-          scrolling="no"
-          src={`/gamers/piece-bg/index.html?fxhash=${encodeURIComponent(fxhash)}`}
-        />
-      )}
-    </span>
   );
 }
