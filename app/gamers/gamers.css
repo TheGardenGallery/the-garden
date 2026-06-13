@@ -269,11 +269,25 @@ main.surface {
 }
 
 /* --- hero --------------------------------------------------- */
-.hero {
+/* `.hero` COLLIDES with the Garden's homepage/exhibition hero in the shared
+   global stylesheet (app/globals.css: `.hero{height:100dvh;overflow:hidden;
+   padding-top:var(--nav-height);background:#0c0c10}`). That global is loaded on
+   every route, so it leaks in here and blows this hero up to a full viewport —
+   pushing the GAMERS title block far below the fold and breaking the first-view
+   composition. Scope under `.gamers-root` so we win on specificity (0,2,0 vs the
+   global's 0,1,0), and explicitly undo the Garden hero's box model so this hero
+   is content-sized again. */
+.gamers-root .hero {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* neutralise the Garden global `.hero` (full-viewport gallery hero) */
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  padding-top: 0;
+  background: transparent;
 }
 
 .hero-stage {
