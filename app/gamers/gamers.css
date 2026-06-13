@@ -723,15 +723,16 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   --pal-moss:    #4a6da8;   /* deep slate-blue — the field */
 }
 
-/* the board is a CENTERED table — a tighter centered column than the full
-   content width, sharing the page's centered axis with the title/statement. */
+/* the board is a CENTERED table — wider, with the three columns spread EVENLY
+   (RANK / SCORE / PILOT each get equal share of the width) so they're not
+   squished to the left. */
 .lb {
-  width: min(100% - 2 * var(--pad), 620px);
+  width: min(100% - 2 * var(--pad), 860px);
   margin: 0 auto;
   padding: 0;
-  /* one shared 3-column grid template for BOTH the header row and the data
-     rows, so RANK / SCORE / PILOT line up exactly over their values */
-  --lb-grid: 116px 96px 1fr;
+  /* one shared grid for header + rows; equal columns = even spacing. The art
+     rectangle sits at the left of the RANK column at its fixed size. */
+  --lb-grid: 1fr 1fr 1fr;
 }
 .colophon > .lb { margin-top: var(--space-4); }
 
@@ -931,8 +932,6 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   letter-spacing: 0.05em;
   color: var(--ink);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 /* EVOLVED — a single tiny tier-coloured word, surfaces on hover only */
 .lb-evolved {
@@ -957,9 +956,10 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
 
 /* ---- mobile (iPhone 13 Mini = 375px) ---- */
 @media (max-width: 560px) {
-  .lb { --lb-grid: 92px 76px 1fr; }
-  .lb-row-btn { gap: 14px; }
+  .lb { --lb-grid: 1fr 1fr 1fr; }
+  .lb-row-btn { gap: 12px; }
+  .lb-c-art { width: 84px; height: 48px; }
   .lb-art-rank { font-size: 19px; }
   .lb-score-num { font-size: 18px; }
-  .lb-handle { font-size: 14px; }
+  .lb-handle { font-size: 13px; }
 }
