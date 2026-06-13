@@ -735,36 +735,19 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
 }
 .colophon > .lb { margin-top: var(--space-4); }
 
-/* ---- one tight header line (centered) ---- */
-.lb-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 16px;
-  /* the section label wants clear separation from the data block below it —
-     more air than the within-block rhythm, per Hufkens label→content contrast */
-  margin-bottom: var(--space-2);
-}
+/* ---- single centered title (like HIGH SCORES) ---- */
 .lb-title {
-  font-size: 13px;
+  margin: 0 0 var(--space-3);
+  text-align: center;
+  font-size: 15px;
+  font-weight: 400;
   letter-spacing: 0.34em;
   color: var(--ink);
   text-transform: uppercase;
 }
-.lb-head-meta {
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-.lb-clock {
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
 
-/* ---- column headers — share the row grid so RANK/SCORE/PILOT sit over their
-   columns. Tiny uppercase labels, dim, with a hairline beneath. ---- */
+/* ---- column headers — share the row grid; LEFT-aligned within each column,
+   like the arcade RANK/SCORE/NAME header. Hairline beneath. ---- */
 .lb-cols {
   display: grid;
   grid-template-columns: var(--lb-grid);
@@ -777,8 +760,8 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
-.lb-col-rank { text-align: center; }
-.lb-col-score { text-align: left; }
+.lb-col-rank,
+.lb-col-score,
 .lb-col-pilot { text-align: left; }
 
 

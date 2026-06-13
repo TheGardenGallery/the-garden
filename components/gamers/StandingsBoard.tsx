@@ -4,8 +4,6 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import {
   fetchStandings,
   subscribeTicks,
-  windowSecondsRemaining,
-  EVOLVE_TOP_N,
   type Entry,
 } from "@/lib/gamers/leaderboard";
 import { Spring } from "@/lib/gamers/spring";
@@ -44,22 +42,11 @@ function tierColor(rank: number): string {
   return "var(--pal-moss)"; // deep slate field (beyond the visible 10)
 }
 
-function fmtCountdown(total: number): string {
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-  const p = (n: number) => n.toString().padStart(2, "0");
-  return `${p(h)}:${p(m)}:${p(s)}`;
-}
-
 export default function StandingsBoard() {
   // Top 10 only, shown in a ~7-row-tall scroll window you scroll WITHIN — see
   // ~7 at once, scroll through the 10. The page doesn't move while you're in it.
   const LIMIT = 10;
   const [entries, setEntries] = useState<Entry[]>(() => fetchStandings(LIMIT));
-  const [countdown, setCountdown] = useState<number>(() =>
-    windowSecondsRemaining()
-  );
 
   // refs to each row element by entry id, for FLIP measurement
   const rowRefs = useRef<Map<string, HTMLLIElement>>(new Map());
@@ -138,12 +125,6 @@ export default function StandingsBoard() {
     };
   }, [applyTick]);
 
-  // ---- window countdown ---------------------------------------------------
-  useEffect(() => {
-    const id = setInterval(() => setCountdown(windowSecondsRemaining()), 1000);
-    return () => clearInterval(id);
-  }, []);
-
   // ---- click → pitch as hero (seam) --------------------------------------
   const pitchHero = useCallback((e: Entry) => {
     window.dispatchEvent(
@@ -156,17 +137,9 @@ export default function StandingsBoard() {
   }, []);
 
   return (
-    <section className="lb mono" aria-label="Global standings">
-      {/* one tight header line — section label left, live window right */}
-      <div className="lb-head">
-        <span className="lb-title">STANDINGS</span>
-        <span className="lb-head-meta dim">
-          GLOBAL · TOP {EVOLVE_TOP_N} EVOLVE
-        </span>
-        <span className="lb-clock" aria-live="off">
-          {fmtCountdown(countdown)}
-        </span>
-      </div>
+    <section className="lb mono" aria-label="Leaderboard">
+      {/* single centered title */}
+      <h2 className="lb-title">LEADERBOARD</h2>
 
       {/* column headers — align with the row grid below */}
       <div className="lb-cols dim" aria-hidden>
