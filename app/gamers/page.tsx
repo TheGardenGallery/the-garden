@@ -3,7 +3,7 @@ import Signoff from "@/components/gamers/Signoff";
 import Snow from "@/components/gamers/Snow";
 import Reticle from "@/components/gamers/Reticle";
 import WorldPlate from "@/components/gamers/WorldPlate";
-import Link from "next/link";
+import StandingsBoard from "@/components/gamers/StandingsBoard";
 
 export default function Page() {
   return (
@@ -20,11 +20,7 @@ export default function Page() {
         <span className="tb-mid" aria-hidden>
           ▓▒░ MISSION CONTROL // ALL SYSTEMS NOMINAL ░▒▓
         </span>
-        <span className="tb-right">
-          <Link href="/gamers/standings" className="tb-link">
-            STANDINGS →
-          </Link>
-        </span>
+        <span className="tb-right">GAMERS</span>
       </header>
 
       {/* first view — fills the viewport: artwork + title sit here, the
@@ -62,6 +58,14 @@ export default function Page() {
             <Signoff text="Fly high, space cowboy." />
           </div>
         </section>
+
+        <hr className="hairline section-rule" />
+
+        {/* ── STANDINGS ── the global leaderboard, woven between the statement
+            and the spec readout. Every minted world ranked by the last 24h of
+            wins; the daily top 100 earn an evolution. Reads as a continuation
+            of the catalogue, not a separate screen. */}
+        <StandingsBoard />
 
         <hr className="hairline section-rule" />
 

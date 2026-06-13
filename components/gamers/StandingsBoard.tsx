@@ -5,7 +5,6 @@ import {
   fetchStandings,
   subscribeTicks,
   windowSecondsRemaining,
-  WINDOW_HOURS,
   EVOLVE_TOP_N,
   type Entry,
 } from "@/lib/gamers/leaderboard";
@@ -28,7 +27,7 @@ import { Spring } from "@/lib/gamers/spring";
  *                             underglow in the artwork accent, not a trophy.
  */
 
-const ROW_H = 64; // px, must match .lb-row height in CSS
+const ROW_H = 44; // px, must match .lb-row height in CSS (tight catalogue line)
 
 /**
  * Rank → CGA tier colour. Evokes the Pac-Man high-score screen's per-row
@@ -55,8 +54,10 @@ function fmtCountdown(total: number): string {
 }
 
 export default function StandingsBoard() {
-  // how many rows to show — keep the scaffold light; real board paginates
-  const LIMIT = 100;
+  // Inline on the exhibition page between the statement and the spec readout:
+  // a tight TOP set reads like a high-score table, not an endless list. The
+  // full board lives behind "VIEW FULL STANDINGS" once we wire pagination.
+  const LIMIT = 10;
   const [entries, setEntries] = useState<Entry[]>(() => fetchStandings(LIMIT));
   const [countdown, setCountdown] = useState<number>(() =>
     windowSecondsRemaining()
@@ -157,41 +158,16 @@ export default function StandingsBoard() {
   }, []);
 
   return (
-    <div className="lb">
-      {/* board masthead — extends the MISSION CONTROL fiction */}
-      <div className="lb-head mono">
-        <div className="lb-head-line">
-          <span className="lb-head-k dim">STANDINGS</span>
-          <span className="lb-head-sep" aria-hidden />
-          <span className="lb-head-v">
-            GLOBAL · ROLLING {WINDOW_HOURS}H
-          </span>
-        </div>
-        <div className="lb-head-line">
-          <span className="lb-head-k dim">WINDOW RESETS</span>
-          <span className="lb-head-sep" aria-hidden />
-          <span className="lb-head-v lb-clock" aria-live="off">
-            {fmtCountdown(countdown)}
-          </span>
-        </div>
-        <div className="lb-head-line">
-          <span className="lb-head-k dim">EVOLUTION TIER</span>
-          <span className="lb-head-sep" aria-hidden />
-          <span className="lb-head-v">
-            TOP {EVOLVE_TOP_N} · WINNERS EVOLVE ▲
-          </span>
-        </div>
-      </div>
-
-      <hr className="hairline section-rule" />
-
-      {/* column legend */}
-      <div className="lb-legend mono dim" aria-hidden>
-        <span className="lb-c-rank">#</span>
-        <span className="lb-c-thumb" />
-        <span className="lb-c-handle">PILOT</span>
-        <span className="lb-c-record">W · L</span>
-        <span className="lb-c-rate">WIN RATE</span>
+    <section className="lb mono" aria-label="Global standings">
+      {/* one tight header line — section label left, live window right */}
+      <div className="lb-head">
+        <span className="lb-title">STANDINGS</span>
+        <span className="lb-head-meta dim">
+          GLOBAL · TOP {EVOLVE_TOP_N} EVOLVE
+        </span>
+        <span className="lb-clock" aria-live="off">
+          {fmtCountdown(countdown)}
+        </span>
       </div>
 
       <ol className="lb-list" role="list">
@@ -202,7 +178,7 @@ export default function StandingsBoard() {
           return (
             <li
               key={e.id}
-              className="lb-row mono"
+              className="lb-row"
               data-evolved={e.evolved ? "true" : "false"}
               ref={(el) => {
                 if (el) rowRefs.current.set(e.id, el);
@@ -221,14 +197,15 @@ export default function StandingsBoard() {
                 aria-label={`Pitch ${e.handle}'s artwork as the hero`}
               >
                 <span className="lb-c-rank">
-                  <span className="lb-rank-num">{e.rank}</span>
+                  <span className="lb-rank-num">
+                    {e.rank.toString().padStart(2, "0")}
+                  </span>
                   {moved !== 0 && (
                     <span
                       className={`lb-delta ${moved < 0 ? "up" : "down"}`}
                       aria-hidden
                     >
                       {moved < 0 ? "▲" : "▼"}
-                      {Math.abs(moved)}
                     </span>
                   )}
                 </span>
@@ -240,37 +217,34 @@ export default function StandingsBoard() {
                 <span className="lb-c-handle">
                   <span className="lb-handle">{e.handle}</span>
                   {e.evolved && (
-                    <span className="lb-evolved" aria-label="evolved">
-                      ▲ EVOLVED
+                    <span className="lb-evolved" aria-hidden>
+                      EVOLVED
                     </span>
                   )}
                 </span>
 
-                <span className="lb-c-record">
-                  <span className="lb-w">{e.wins}</span>
-                  <span className="lb-dot dim" aria-hidden>
-                    ·
-                  </span>
-                  <span className="lb-l dim">{e.losses}</span>
+                <span className="lb-bar" aria-hidden>
+                  <span
+                    className="lb-bar-fill"
+                    style={{ width: `${(rate * 100).toFixed(1)}%` }}
+                  />
                 </span>
 
-                <span className="lb-c-rate">
-                  <span className="lb-bar" aria-hidden>
-                    <span
-                      className="lb-bar-fill"
-                      style={{ width: `${(rate * 100).toFixed(1)}%` }}
-                    />
-                  </span>
-                  <span className="lb-rate-num">
-                    {(rate * 100).toFixed(0)}%
-                  </span>
+                <span className="lb-rate-num">
+                  {(rate * 100).toFixed(0)}
+                </span>
+
+                <span className="lb-c-record dim">
+                  {e.wins}<span aria-hidden>·</span>{e.losses}
                 </span>
               </button>
             </li>
           );
         })}
       </ol>
-    </div>
+
+      <div className="lb-foot dim">VIEW FULL STANDINGS →</div>
+    </section>
   );
 }
 
