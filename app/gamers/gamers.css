@@ -709,18 +709,18 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
    hierarchy by size + colour only. Tight catalogue rhythm.
    ============================================================ */
 
-/* Palette: the Svenskt Tenn / Josef Frank register — saturated, named, harmonious
-   colour used with discipline (NOT a bright generated-HSL arcade rainbow). The
-   rank tiers walk this curated set as a confident "gradient of standing" that
-   reads gallery-grade against the dark ground: saffron at the crown, descending
-   through sienna, madder, violet, peacock, to moss in the field. */
+/* Palette: a COOL, electric register — saturated cyans, teals, blues and cool
+   violets used with discipline (named, harmonious, NOT a warm earth set and NOT
+   a generated-HSL rainbow). The rank tiers walk this set as a confident, cool
+   "gradient of standing" against the dark ground: an electric aqua crown
+   descending through teal, azure, indigo, cool violet, to a deep slate field. */
 .gamers-root {
-  --pal-saffron: #e8b13a;   /* saffron ochre — the crown */
-  --pal-sienna:  #d07440;   /* burnt sienna */
-  --pal-madder:  #c0405e;   /* crimson madder */
-  --pal-violet:  #7d5cb0;   /* royal violet */
-  --pal-peacock: #3f9b96;   /* peacock teal */
-  --pal-moss:    #8aa64a;   /* moss green — the field */
+  --pal-saffron: #3df0d0;   /* electric aqua — the crown (name kept for the ramp) */
+  --pal-sienna:  #2bd4c4;   /* bright teal */
+  --pal-madder:  #2aa8e0;   /* azure / cyan-blue */
+  --pal-violet:  #4f7bf0;   /* electric indigo */
+  --pal-peacock: #7d6cf0;   /* cool violet */
+  --pal-moss:    #4a6da8;   /* deep slate-blue — the field */
 }
 
 /* the board shares the colophon's content column EXACTLY (same width + centering
