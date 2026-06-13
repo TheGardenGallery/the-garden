@@ -3,15 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * DashedFrame — the chunky white dashed rectangle that sits OUTSIDE the artwork.
+ * DashedFrame — camera-viewfinder geometry sitting OUTSIDE the artwork.
  *
- * Robust clean corners via SVG `pathLength`: we normalise the rect's perimeter
- * to a fixed virtual length (4 * SEG_PER_SIDE) so EACH SIDE is exactly the same
- * number of normalised units, then use a dasharray that divides a side evenly.
- * Because every side is identical in normalised space and a dash starts at unit
- * 0 (a corner), all four corners get the identical dash phase — clean at ANY
- * size/aspect. (The old CSS gradient-edges landed dashes at a different phase on
- * each differently-sized side, so every corner looked different / shoddy.)
+ * Solid L-brackets at TL/TR/BL/BR plus dashed segments running between them on
+ * each side. Each dashed segment derives its own period from its pixel length
+ * so the pattern starts AND ends with a half-dash flush against the bracket
+ * arms — no random mid-cycle truncation, so all four corners read identically.
  */
 export default function DashedFrame() {
   const ref = useRef<SVGSVGElement>(null);
@@ -22,7 +19,12 @@ export default function DashedFrame() {
     if (!el) return;
     const measure = () => {
       const r = el.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) setBox({ w: r.width, h: r.height });
+      // Round to integer pixels. Subpixel dimensions (from dvw/dvh sizing)
+      // cause anti-aliased strokes on the right/bottom edges that don't match
+      // the crisp left/top, so each corner reads differently. Snap to integers.
+      const w = Math.round(r.width);
+      const h = Math.round(r.height);
+      if (w > 0 && h > 0) setBox({ w, h });
     };
     measure();
     const ro = new ResizeObserver(measure);
@@ -37,17 +39,43 @@ export default function DashedFrame() {
   const THICK = 5;
   const inset = THICK / 2;
 
-  // Normalised perimeter: each side = 1000 units → total 4000. A dash period
-  // that divides 1000 evenly (e.g. 50 → 20 periods/side) guarantees a dash at
-  // every corner and identical corners on all four sides.
-  const SIDE = 1000;
-  const PATH_LEN = SIDE * 4;
-  const PERIODS_PER_SIDE = 20;        // 20 dashes per side
-  const period = SIDE / PERIODS_PER_SIDE; // = 50
-  const dash = period * 0.62;          // ~31 units dash
-  const gap = period - dash;           // ~19 units gap
-  // start with the dash centred on each corner: offset back by half a dash
-  const dashOffset = -dash / 2;
+  // Target dash period in pixels; per-side we round so the pattern fits cleanly.
+  const TARGET_PERIOD = 22;
+  const DASH_RATIO = 0.55;
+
+  /**
+   * For a dashed segment of pixel length L, pick a period that divides L into a
+   * whole number of cycles AND starts/ends with a half-dash flush to the corner.
+   * Path length L = N * period → dashOffset = -dash/2 puts a half-dash at both
+   * ends (since the visible pattern is symmetric about the path's centre).
+   */
+  function fit(L: number) {
+    const N = Math.max(1, Math.round(L / TARGET_PERIOD));
+    const period = L / N;
+    const dash = period * DASH_RATIO;
+    const gap = period - dash;
+    return { dash, gap, offset: -dash / 2 };
+  }
+
+  if (!box) {
+    return (
+      <svg ref={ref} className="dashed-frame" aria-hidden preserveAspectRatio="none" />
+    );
+  }
+
+  const { w, h } = box;
+  const x0 = inset;
+  const y0 = inset;
+  const x1 = w - inset;
+  const y1 = h - inset;
+  // Corner arm length scales with the shorter side so brackets stay balanced;
+  // floor at 28px so brackets read on small viewports.
+  const a = Math.max(28, Math.min(w, h) * 0.08);
+
+  const hLen = x1 - x0 - 2 * a; // top/bottom dashed length
+  const vLen = y1 - y0 - 2 * a; // left/right dashed length
+  const hFit = fit(hLen);
+  const vFit = fit(vLen);
 
   return (
     <svg
@@ -55,22 +83,43 @@ export default function DashedFrame() {
       className="dashed-frame"
       aria-hidden
       preserveAspectRatio="none"
-      viewBox={box ? `0 0 ${box.w} ${box.h}` : undefined}
+      viewBox={`0 0 ${w} ${h}`}
+      shapeRendering="crispEdges"
     >
-      {box && (
-        <rect
-          x={inset}
-          y={inset}
-          width={box.w - THICK}
-          height={box.h - THICK}
-          fill="none"
-          stroke="#fff"
-          strokeWidth={THICK}
-          pathLength={PATH_LEN}
-          strokeDasharray={`${dash} ${gap}`}
-          strokeDashoffset={dashOffset}
+      <g
+        fill="none"
+        stroke="#fff"
+        strokeWidth={THICK}
+        strokeLinecap="butt"
+        strokeLinejoin="miter"
+      >
+        <path d={`M ${x0} ${y0 + a} L ${x0} ${y0} L ${x0 + a} ${y0}`} />
+        <path d={`M ${x1 - a} ${y0} L ${x1} ${y0} L ${x1} ${y0 + a}`} />
+        <path d={`M ${x1} ${y1 - a} L ${x1} ${y1} L ${x1 - a} ${y1}`} />
+        <path d={`M ${x0 + a} ${y1} L ${x0} ${y1} L ${x0} ${y1 - a}`} />
+      </g>
+      <g fill="none" stroke="#fff" strokeWidth={THICK} strokeLinecap="butt">
+        <path
+          d={`M ${x0 + a} ${y0} L ${x1 - a} ${y0}`}
+          strokeDasharray={`${hFit.dash} ${hFit.gap}`}
+          strokeDashoffset={hFit.offset}
         />
-      )}
+        <path
+          d={`M ${x0 + a} ${y1} L ${x1 - a} ${y1}`}
+          strokeDasharray={`${hFit.dash} ${hFit.gap}`}
+          strokeDashoffset={hFit.offset}
+        />
+        <path
+          d={`M ${x0} ${y0 + a} L ${x0} ${y1 - a}`}
+          strokeDasharray={`${vFit.dash} ${vFit.gap}`}
+          strokeDashoffset={vFit.offset}
+        />
+        <path
+          d={`M ${x1} ${y0 + a} L ${x1} ${y1 - a}`}
+          strokeDasharray={`${vFit.dash} ${vFit.gap}`}
+          strokeDashoffset={vFit.offset}
+        />
+      </g>
     </svg>
   );
 }

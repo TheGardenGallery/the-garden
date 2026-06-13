@@ -30,7 +30,10 @@ export default function Page() {
 
         {/* title block */}
         <div className="titleblock">
-          <h1 className="mono title">GAMERS</h1>
+          <h1 className="mono title text-fit">
+            <span><span>GAMERS</span></span>
+            <span aria-hidden="true">GAMERS</span>
+          </h1>
           <p className="mono subtitle">itsgalo</p>
         </div>
       </section>
@@ -73,10 +76,7 @@ export default function Page() {
         <hr className="hairline section-rule" />
 
         <footer className="footer mono">
-          <span>© ITSGALO 2026</span>
-          <span className="dim">
-            TYPE: MBYTEPC230 CGA · THE ULTIMATE OLDSCHOOL PC FONT PACK (CC BY-SA 4.0)
-          </span>
+          <span>2026</span>
         </footer>
       </section>
     </main>

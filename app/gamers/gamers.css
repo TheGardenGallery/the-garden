@@ -13,6 +13,20 @@
   font-style: normal;
 }
 
+/* Registered custom props for the fit-to-width text technique
+   (kizu.dev/fit-to-width — tan(atan2()) divides one length by another so the
+   ratio comes out unitless and font-size can scale to container width). */
+@property --captured-length {
+  syntax: "<length>";
+  initial-value: 0px;
+  inherits: true;
+}
+@property --captured-length2 {
+  syntax: "<length>";
+  initial-value: 0px;
+  inherits: true;
+}
+
 /* Scoped to the GAMERS route only: these root-level rules apply when the page
    (main.surface) is present, so they never leak onto other Garden pages.
    Everything else in this file is class-based and only matches GAMERS markup. */
@@ -119,13 +133,11 @@ main.surface {
    re-roll produced. */
 .worldplate {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  /* taller than one screen so the world's hard container edge sits well below
-     the fold (never near where the eye rests); the long scrim below melts it
-     into black gradually, so there is no abrupt seam anywhere on screen. */
-  height: 145dvh;
+  inset: 0;
+  /* cover the full page height — the world (top) fades through the scrim into
+     a solid dark ground that extends all the way to the footer, so there is no
+     visible seam where the gradient stops and the body bg begins. */
+  height: 100%;
   z-index: 0;             /* backdrop layer; content sits at z-index 2 */
   overflow: hidden;
   pointer-events: none;
@@ -133,17 +145,17 @@ main.surface {
 }
 .worldplate-frame {
   position: absolute;
-  /* scale up and center so the terrain fills the plate edge-to-edge (cover).
-     Tall enough that it covers the plate's TOP edge too (past y=0, behind the
-     header) — otherwise the plate's near-black base shows as a dark band under
-     the header. The blur's soft edge needs this extra margin. */
-  top: 50%;
+  /* Anchor the iframe to the TOP of the plate (not centred) — the plate now
+     extends the full page height, so centring would leave a dark band above
+     the canvas. Translating slightly above 0 covers the blur's soft edge so
+     the world meets the topbar with no gap. */
+  top: 0;
   left: 50%;
   width: 130vw;
   height: 165vh;
   /* soften the world into an out-of-focus backdrop — the framed artwork stays
      the sharp subject, the world behind it reads as atmosphere. */
-  transform: translate(-50%, -50%) scale(1.06);
+  transform: translate(-50%, -8vh) scale(1.06);
   filter: blur(14px);
   border: 0;
   /* crossfade between worlds on re-roll: each layer boots hidden, then fades up
@@ -166,16 +178,20 @@ main.surface {
   content: "";
   position: absolute;
   inset: 0;
+  /* Scrim stops are in dvh (viewport-relative) so the world fades at the same
+     screen position regardless of how tall the page is — keeps the
+     atmosphere anchored to where the hero sits, while the plate itself can
+     extend the full page height behind the colophon. */
   background: linear-gradient(
     to bottom,
-    rgba(9, 9, 11, 0) 0%,
-    rgba(9, 9, 11, 0) 30%,
-    rgba(9, 9, 11, 0.10) 40%,
-    rgba(9, 9, 11, 0.28) 48%,
-    rgba(9, 9, 11, 0.50) 55%,
-    rgba(9, 9, 11, 0.72) 62%,
-    rgba(9, 9, 11, 0.90) 70%,
-    rgba(9, 9, 11, 1) 80%
+    rgba(9, 9, 11, 0) 0dvh,
+    rgba(9, 9, 11, 0) 43.5dvh,
+    rgba(9, 9, 11, 0.10) 58dvh,
+    rgba(9, 9, 11, 0.28) 69.6dvh,
+    rgba(9, 9, 11, 0.50) 79.75dvh,
+    rgba(9, 9, 11, 0.72) 89.9dvh,
+    rgba(9, 9, 11, 0.90) 101.5dvh,
+    rgba(9, 9, 11, 1) 116dvh
   );
 }
 
@@ -265,7 +281,10 @@ main.surface {
   flex-direction: column;
   justify-content: center;
   gap: 0;
-  padding-bottom: clamp(12px, 3svh, 40px);
+  /* Section break to the colophon is owned by the colophon's first child
+     (var(--space-4) margin-top) so the rhythm is set in ONE place — no
+     stacked padding+margin that doubles the gap. */
+  padding-bottom: 0;
 }
 
 /* --- hero --------------------------------------------------- */
@@ -292,30 +311,15 @@ main.surface {
 
 .hero-stage {
   position: relative;
-  /* width drives size (aspect-ratio fixes height). Sized to leave the hero room
-     to breathe within the first view — not so large it crowds the header/title.
-     The svh cap reins it in on short viewports. */
-  width: min(100% - 2 * var(--pad), 1560px, calc(42svh * (1280 / 633)));
-  margin: clamp(28px, 5svh, 64px) auto 0; /* air below the header bar; eases on short screens */
+  /* Full-bleed contain with a 0.5dvw / 0.5dvh inset on every edge — the
+     largest box that fits the 1280:633 aspect inside (100dvw - 1dvw) wide and
+     (100dvh - 1dvh) tall. min() picks whichever dimension is the constraint. */
+  width: min(calc(100dvw - 12dvw), calc(48dvh * (1280 / 633)));
+  /* topbar → canvas: same section-break rhythm as the colophon — every major
+     break in the page is exactly var(--space-4). */
+  margin: var(--space-4) auto 0;
   aspect-ratio: 1280 / 633;
-  /* full-bleed: artwork fills the stage edge-to-edge, no inset mat */
   padding: 0;
-  /* refined lift off the page — a soft, layered, low-opacity shadow (felt, not
-     a hard drop). Tight contact shadow + a broad diffuse one for depth. */
-  box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.10),
-    0 18px 48px -12px rgba(0, 0, 0, 0.28);
-  /* barely-there idle drift — very low intensity. Applied to the stage (not the
-     inner scaled canvas) so it can't reintroduce the pixel-resample flicker. */
-  animation: hero-drift 11s ease-in-out infinite;
-}
-@keyframes hero-drift {
-  0%   { transform: translateY(-1.5px); }
-  50%  { transform: translateY(1.5px); }
-  100% { transform: translateY(-1.5px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-stage { animation: none; }
 }
 
 /* chunky white dashed frame sitting OUTSIDE the artwork (see DashedFrame.tsx).
@@ -409,9 +413,54 @@ main.surface {
   padding: 0 var(--pad);
   margin-top: var(--space-3); /* reroll → title (rhythm unit) */
 }
+/* GAMERS title uses fit-to-width: the visible span scales its font-size so the
+   word always exactly fills the line. base font-size = floor, --max-font-size
+   = ceiling. The trig math (tan(atan2)) makes the unitless ratio possible. */
+.gamers-root .text-fit {
+  display: flex;
+  container-type: inline-size;
+  --captured-length: initial;
+  --support-sentinel: var(--captured-length, 9999px);
+}
+.gamers-root .text-fit > [aria-hidden] { visibility: hidden; }
+.gamers-root .text-fit > :not([aria-hidden]) {
+  flex-grow: 1;
+  container-type: inline-size;
+  --captured-length: 100cqi;
+  --available-space: var(--captured-length);
+}
+.gamers-root .text-fit > :not([aria-hidden]) > * {
+  --support-sentinel: inherit;
+  --captured-length: 100cqi;
+  --ratio: tan(atan2(
+    var(--available-space),
+    var(--available-space) - var(--captured-length)
+  ));
+  --font-size: clamp(
+    1em,
+    1em * var(--ratio),
+    var(--max-font-size, infinity * 1px) - var(--support-sentinel)
+  );
+  inline-size: var(--available-space);
+}
+.gamers-root .text-fit > :not([aria-hidden]) > *:not(.text-fit) {
+  display: block;
+  font-size: var(--font-size);
+}
+@container (inline-size > 0) {
+  .gamers-root .text-fit > :not([aria-hidden]) > *:not(.text-fit) {
+    white-space: nowrap;
+  }
+}
+
 .title {
-  margin: 0;
-  font-size: clamp(40px, 11vw, 128px);
+  margin: 0 auto;
+  /* Cap the fit-to-width container at 60% of the viewport so GAMERS never
+     overshoots — the text scales to fill this box, not the full title block. */
+  max-width: 45dvw;
+  /* base = floor; --max-font-size = ceiling for the fit-to-width scaler. */
+  font-size: 40px;
+  --max-font-size: 45dvw;
   line-height: 0.9;
   /* hierarchy by SIZE, never weight — CP437 is single-weight; force true 400
      and never let the browser synthesise fake bold (it smears the bitmap) */
@@ -461,9 +510,15 @@ main.surface {
 }
 
 /* --- rules / sections -------------------------------------- */
-.section-rule {
-  width: min(100% - 2 * var(--pad), var(--maxw));
-  margin: var(--space-4) auto; /* uniform section break (rhythm unit) */
+/* Hairlines removed — sections break with pure whitespace rhythm instead. */
+.section-rule { display: none; }
+/* Restore the section break rhythm the rules used to provide. The rules had
+   var(--space-4) of margin top AND bottom = 2× --space-4 between sections; we
+   approximate that here with --space-4 on each child to keep it taut. */
+.colophon > .statement,
+.colophon > .readout-grid,
+.colophon > .footer {
+  margin-top: var(--space-4);
 }
 
 /* ── SECOND HALF: the colophon ────────────────────────────────────────────
@@ -567,7 +622,6 @@ main.surface {
   align-items: baseline;
   gap: 8px;
   padding: 9px 0;
-  border-bottom: var(--rule) solid var(--hair);
 }
 .spec-k { flex: 0 0 auto; }
 .spec-dots {
@@ -617,10 +671,15 @@ main.surface {
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  padding: 18px 0 28px;
+  /* equal top/bottom padding sits the footer on the page rhythm rather than
+     trailing off with an arbitrary 28px tail */
+  padding: var(--space-2) 0;
   font-size: 10px;
   letter-spacing: 0.1em;
   color: var(--ink-dim);
+  /* neutralise globals.css's `footer { background:#000 }` Garden-wide rule —
+     the dark plate already provides the ground here. */
+  background: transparent;
 }
 
 /* --- responsive (iPhone 13 Mini: 375px) -------------------- */

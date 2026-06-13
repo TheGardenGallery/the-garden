@@ -41,9 +41,14 @@ export default function Hero() {
   // with a CSS transform (like object-fit: contain). Resizing only changes the
   // scale factor — no remount, no reboot, no reflow jank, never crops.
   //
-  // The base is rendered LARGE (≈2x a typical hero) so the contain-scale always
-  // DOWNscales = crisp supersampling, and never upscales (which would blur).
-  const BASE_W = 2100; // fixed high-res render (keeps it sharp at any stage size)
+  // The piece reads window.innerWidth to size its canvas; below ~1700px wide
+  // the HUD elements (DAMAGE, hash readout, corner brackets) get cropped at
+  // the canvas edges, so the iframe boots at a safe high base. The visual
+  // "artifacting" complaint at 2100 wasn't from too many pixels — it was the
+  // nearest-neighbor downscale aliasing. Switching the canvas's
+  // image-rendering from `pixelated` to `auto` (see piece/index.html) makes
+  // the scale smooth instead of jaggy.
+  const BASE_W = 2100;
   const BASE_H = 1037;
 
   // Measure the stage and compute a uniform scale so the fixed iframe fits.
@@ -118,6 +123,15 @@ export default function Hero() {
     setSeed(makeFxHash());
     setNonce((n) => n + 1);
   }, []);
+
+  /**
+   * Arrow / Space / PageUp / PageDown scroll-lock for the game iframe is now
+   * handled INSIDE the iframe (see /public/gamers/piece/index.html). That
+   * script is registered before the game's bundle runs, claims capture-phase
+   * priority for keydown, and preventDefaults the scroll keys — so the browser
+   * never tries to scroll the parent in the first place, and the game's own
+   * handler still receives the key (preventDefault doesn't stop propagation).
+   */
 
   return (
     <section className="hero" aria-label="GAMERS — live generative artwork">

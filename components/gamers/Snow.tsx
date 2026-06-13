@@ -40,8 +40,28 @@ export default function Snow() {
     const dpr = Math.min(Math.round(window.devicePixelRatio || 1), 2);
     let w = 0;
     let h = 0;
+    const flakes: Flake[] = [];
+    const rnd = (a: number, b: number) => a + Math.random() * (b - a);
+    const pick = <T,>(arr: T[]) => arr[(Math.random() * arr.length) | 0];
+    // integer square sizes (CSS px) so they stay sharp at the CGA grid
+    const SIZES = [1, 2, 2, 3, 3, 4];
+
+    function newFlake(): Flake {
+      return {
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vy: rnd(14, 34),          // slow fall
+        vx: rnd(-6, 6),           // light lateral drift
+        size: pick(SIZES),
+        alpha: rnd(0.28, 0.7),
+        phase: Math.random() * Math.PI * 2,
+        sway: rnd(4, 14),
+      };
+    }
 
     function resize() {
+      const prevW = w;
+      const prevH = h;
       w = window.innerWidth;
       h = window.innerHeight;
       cv.width = Math.round(w * dpr);
@@ -52,28 +72,26 @@ export default function Snow() {
       // speck is a crisp pixel-aligned square — no anti-aliased blur
       c.setTransform(1, 0, 0, 1, 0, 0);
       c.imageSmoothingEnabled = false;
+
+      // Density scales with area (~1 flake per 7k px²). On EVERY resize we
+      // rescale existing flake positions into the new viewport and top up the
+      // population to the new target — without this, entering fullscreen from
+      // a smaller window leaves the snow concentrated in the old box.
+      const target = Math.round((w * h) / 7000);
+      if (prevW > 0 && prevH > 0) {
+        const sx = w / prevW;
+        const sy = h / prevH;
+        for (const f of flakes) {
+          f.x *= sx;
+          f.y *= sy;
+        }
+      }
+      while (flakes.length < target) flakes.push(newFlake());
+      // shed slowly when the viewport shrinks (avoid a population spike that
+      // would re-bloom on the next growth event); 20% slack keeps a buffer.
+      while (flakes.length > target * 1.2) flakes.pop();
     }
     resize();
-
-    // density scales with viewport area: ~1 flake per 7k px² (≈2× the old count)
-    const count = Math.round((w * h) / 7000);
-    const flakes: Flake[] = [];
-    const rnd = (a: number, b: number) => a + Math.random() * (b - a);
-    const pick = <T,>(arr: T[]) => arr[(Math.random() * arr.length) | 0];
-    // integer square sizes (CSS px) so they stay sharp at the CGA grid
-    const SIZES = [1, 2, 2, 3, 3, 4];
-    for (let i = 0; i < count; i++) {
-      flakes.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vy: rnd(14, 34),          // slow fall
-        vx: rnd(-6, 6),           // light lateral drift
-        size: pick(SIZES),
-        alpha: rnd(0.28, 0.7),
-        phase: Math.random() * Math.PI * 2,
-        sway: rnd(4, 14),
-      });
-    }
 
     // read the themed ink colour (r,g,b) so snow matches the iteration
     function inkRGB(): string {
@@ -133,6 +151,12 @@ export default function Snow() {
     }
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("resize", resize);
+    // `resize` is unreliable for some viewport changes (entering fullscreen on
+    // macOS via the green button, mobile chrome show/hide, the Fullscreen API).
+    // A ResizeObserver on <html> catches every viewport-dimension change.
+    document.addEventListener("fullscreenchange", resize);
+    const ro = new ResizeObserver(resize);
+    ro.observe(document.documentElement);
 
     return () => {
       running = false;
@@ -140,6 +164,8 @@ export default function Snow() {
       clearInterval(tintTimer);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("resize", resize);
+      document.removeEventListener("fullscreenchange", resize);
+      ro.disconnect();
     };
   }, []);
 

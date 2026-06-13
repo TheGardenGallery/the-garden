@@ -5,6 +5,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>GAMERS by itsgalo</title>
+  <!--
+    Scroll-lock guard. Registered BEFORE the game's scripts so it wins
+    capture-phase priority and can preventDefault on arrow / page-scroll keys
+    before any other listener gets a chance. preventDefault doesn't stop
+    propagation, so the game's own keydown handler still receives the key for
+    gameplay — only the browser's "scroll the parent" fallback is killed.
+  -->
+  <script>
+    (function () {
+      var SCROLL_KEYS = {
+        "ArrowUp": 1, "ArrowDown": 1, "ArrowLeft": 1, "ArrowRight": 1,
+        "PageUp": 1, "PageDown": 1, "Home": 1, "End": 1, " ": 1, "Spacebar": 1
+      };
+      function block(e) {
+        if (SCROLL_KEYS[e.key]) e.preventDefault();
+      }
+      window.addEventListener("keydown", block, { capture: true, passive: false });
+      document.addEventListener("keydown", block, { capture: true, passive: false });
+    })();
+  </script>
   <script src="./fxhash.min.js"></script>
   <style>
     html, body {
