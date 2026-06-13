@@ -168,6 +168,13 @@ export default function StandingsBoard() {
         </span>
       </div>
 
+      {/* column headers — align with the row grid below */}
+      <div className="lb-cols dim" aria-hidden>
+        <span className="lb-col-rank">RANK</span>
+        <span className="lb-col-score">SCORE</span>
+        <span className="lb-col-pilot">PILOT</span>
+      </div>
+
       {/* self-contained scroll window: ~7 rows tall, scrolls WITHIN; CSS
           overscroll-behavior:contain keeps the page still until you reach an
           edge, so you scroll through the 10 without the page moving. */}
@@ -198,11 +205,12 @@ export default function StandingsBoard() {
                   onClick={() => pitchHero(e)}
                   aria-label={`Pitch ${e.handle}'s artwork as the hero, rank ${e.rank}`}
                 >
-                  {/* rectangle artwork + transparent overlay + tucked rank number */}
+                  {/* RANK: the artwork rectangle with the rank number centred on
+                      it over a soft fade so it always reads */}
                   <span className="lb-c-art">
                     <Thumb fxhash={e.fxhash} id={e.id} />
                     <span className="lb-art-scrim" aria-hidden />
-                    <span className="lb-art-rank" aria-hidden>
+                    <span className="lb-art-rank">
                       {e.rank.toString().padStart(2, "0")}
                     </span>
                     {moved !== 0 && (
@@ -215,7 +223,7 @@ export default function StandingsBoard() {
                     )}
                   </span>
 
-                  {/* the score — win rate */}
+                  {/* SCORE: win rate */}
                   <span className="lb-c-score">
                     <span className="lb-score-num">{rate}</span>
                     <span className="lb-score-unit dim" aria-hidden>
@@ -223,7 +231,7 @@ export default function StandingsBoard() {
                     </span>
                   </span>
 
-                  {/* the username */}
+                  {/* PILOT: username */}
                   <span className="lb-c-handle">
                     <span className="lb-handle">{e.handle}</span>
                     {e.evolved && (

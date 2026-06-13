@@ -723,24 +723,27 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   --pal-moss:    #4a6da8;   /* deep slate-blue — the field */
 }
 
-/* the board shares the colophon's content column EXACTLY (same width + centering
-   as the spec readout it sits beside), so it aligns with the page, never bleeds
-   wider than the text it's woven between. */
+/* the board is a CENTERED table — a tighter centered column than the full
+   content width, sharing the page's centered axis with the title/statement. */
 .lb {
-  width: min(100% - 2 * var(--pad), var(--maxw));
+  width: min(100% - 2 * var(--pad), 620px);
   margin: 0 auto;
   padding: 0;
+  /* one shared 3-column grid template for BOTH the header row and the data
+     rows, so RANK / SCORE / PILOT line up exactly over their values */
+  --lb-grid: 116px 96px 1fr;
 }
 .colophon > .lb { margin-top: var(--space-4); }
 
-/* ---- one tight header line ---- */
+/* ---- one tight header line (centered) ---- */
 .lb-head {
   display: flex;
   align-items: baseline;
+  justify-content: center;
   gap: 16px;
   /* the section label wants clear separation from the data block below it —
      more air than the within-block rhythm, per Hufkens label→content contrast */
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 .lb-title {
   font-size: 13px;
@@ -749,7 +752,6 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   text-transform: uppercase;
 }
 .lb-head-meta {
-  flex: 1 1 auto;
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -760,6 +762,24 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
+
+/* ---- column headers — share the row grid so RANK/SCORE/PILOT sit over their
+   columns. Tiny uppercase labels, dim, with a hairline beneath. ---- */
+.lb-cols {
+  display: grid;
+  grid-template-columns: var(--lb-grid);
+  align-items: baseline;
+  gap: 20px;
+  padding: 0 2px var(--space-1);
+  margin-bottom: var(--space-1);
+  border-bottom: 1px solid var(--hair);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.lb-col-rank { text-align: center; }
+.lb-col-score { text-align: left; }
+.lb-col-pilot { text-align: left; }
 
 
 /* ---- the scroll window: ~7 rows tall, scrolls WITHIN. overscroll-behavior
@@ -793,8 +813,7 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
 }
 .lb-row-btn {
   display: grid;
-  /* artwork rectangle · score(win-rate %) · username */
-  grid-template-columns: 116px 64px 1fr;
+  grid-template-columns: var(--lb-grid); /* RANK(art) · SCORE · PILOT */
   align-items: center;
   gap: 20px;
   width: 100%;
@@ -860,33 +879,35 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   filter: saturate(1.05) brightness(1.04);
 }
 
-/* transparent overlay scrim so the tucked number always reads over the art —
-   a soft corner gradient, not a flat wash (keeps the artwork visible) */
+/* transparent overlay so the CENTERED rank number always reads over the art —
+   a soft central fade (radial vignette), not a flat wash, keeping the work visible */
 .lb-art-scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(9, 9, 11, 0.62) 0%,
-    rgba(9, 9, 11, 0.2) 38%,
-    rgba(9, 9, 11, 0) 62%
+  background: radial-gradient(
+    ellipse 60% 80% at 50% 50%,
+    rgba(9, 9, 11, 0.6) 0%,
+    rgba(9, 9, 11, 0.32) 45%,
+    rgba(9, 9, 11, 0) 80%
   );
   pointer-events: none;
 }
-/* tucked rank number — gallery-plate style, tier-coloured, bottom... top-left */
+/* rank number — CENTERED on the artwork, tier-coloured, lifted over the fade */
 .lb-art-rank {
   position: absolute;
-  top: 5px;
-  left: 7px;
-  font-size: 17px;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
   line-height: 1;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   font-variant-numeric: tabular-nums;
   color: var(--tier, var(--ink));
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
   pointer-events: none;
 }
-/* movement delta, tucked in the opposite (bottom-right) corner, very quiet */
+/* movement delta, tucked quietly in the bottom-right corner of the art */
 .lb-delta {
   position: absolute;
   right: 6px;
@@ -953,11 +974,9 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
 
 /* ---- mobile (iPhone 13 Mini = 375px) ---- */
 @media (max-width: 560px) {
-  .lb-row-btn {
-    grid-template-columns: 96px 52px 1fr;
-    gap: 14px;
-  }
-  .lb-c-art { width: 96px; height: 52px; }
+  .lb { --lb-grid: 92px 76px 1fr; }
+  .lb-row-btn { gap: 14px; }
+  .lb-art-rank { font-size: 19px; }
   .lb-score-num { font-size: 18px; }
   .lb-handle { font-size: 14px; }
 }
