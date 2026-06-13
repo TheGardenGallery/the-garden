@@ -88,13 +88,14 @@ function buildPool(): Entry[] {
 
 const POOL = buildPool();
 
-/** Rank a set of entries by win-rate then wins (ties broken by id for stability). */
+/** Rank by SCORE (wins) descending — so rank 1 always has the highest score.
+ *  Win-rate breaks ties, then id for stability. */
 function rerank(entries: Entry[]): Entry[] {
   const scored = [...entries].sort((a, b) => {
+    if (b.wins !== a.wins) return b.wins - a.wins;
     const wrA = a.wins / Math.max(1, a.wins + a.losses);
     const wrB = b.wins / Math.max(1, b.wins + b.losses);
     if (wrB !== wrA) return wrB - wrA;
-    if (b.wins !== a.wins) return b.wins - a.wins;
     return a.id.localeCompare(b.id);
   });
   scored.forEach((e, i) => {
