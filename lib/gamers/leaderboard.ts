@@ -63,8 +63,11 @@ const HANDLE_PARTS_B = [
 function makeHandle(rnd: () => number, i: number): string {
   const a = HANDLE_PARTS_A[Math.floor(rnd() * HANDLE_PARTS_A.length)];
   const b = HANDLE_PARTS_B[Math.floor(rnd() * HANDLE_PARTS_B.length)];
-  const n = Math.floor(rnd() * 99);
-  return `${a}_${b}${n.toString().padStart(2, "0")}`;
+  // consume the same rnd() draw as before so the downstream deterministic
+  // sequence (fxhash, wins, …) is unchanged, but DON'T append the number —
+  // handles read as plain `word_word` (e.g. atom_cowboy), no trailing digits.
+  rnd();
+  return `${a}_${b}`;
 }
 
 /** Build the deterministic seed pool once (stable handles + seeds per id). */

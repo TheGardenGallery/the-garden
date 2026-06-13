@@ -727,51 +727,106 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
    (RANK / SCORE / PILOT each get equal share of the width) so they're not
    squished to the left. */
 .lb {
-  width: min(100% - 2 * var(--pad), 860px);
+  /* a definite, centred width so the 1fr PILOT track resolves identically in
+     the header grid and the row grid (shared-grid contract → labels sit exactly
+     over values). Sized to hold the widest handle with arcade breathing room. */
+  width: min(100% - 2 * var(--pad), 880px);
   margin: 0 auto;
   padding: 0;
-  /* one shared grid for header + rows; equal columns = even spacing. The art
-     rectangle sits at the left of the RANK column at its fixed size. */
-  --lb-grid: 1fr 1fr 1fr;
+  /* one shared grid for header + rows so labels sit EXACTLY over their values.
+     Arcade order: RANK (ordinal) · PILOT (name) · SCORE (the loud hero, right). */
+  --lb-col-gap: var(--space-3);
+  --lb-grid: 120px 1fr 168px;
+  /* reserved scrollbar-gutter width of the row scroll window; the header
+     mirrors it as padding-right so both grids share an identical content box. */
+  --lb-sbw: 11px;
+  /* ---- hard 3D EXTRUSION (Space Invaders logo look), shared by rank/name/score.
+     Replaces the soft phosphor glow. Built as a text-shadow chain:
+     (1) a dark CONTOUR ring hugging the glyph (the black outline in the ref),
+     (2) a DEPTH STACK stepping down-left in a DARKER shade of the row's own hue
+         (currentColor), so each rainbow row extrudes in its own colour, the side
+         faces reading a tone or two down from the bright front face.
+     currentColor resolves at the element, so one definition serves every tier. */
+  --lb-3d:
+    /* contour ring — dark edge around the front face */
+    1px 0 0 rgba(0,0,0,0.9), -1px 0 0 rgba(0,0,0,0.9),
+    0 1px 0 rgba(0,0,0,0.9), 0 -1px 0 rgba(0,0,0,0.9),
+    /* depth stack — receding down-left, darkening tier hue */
+    -1px 1px 0 color-mix(in srgb, currentColor 62%, #000),
+    -2px 2px 0 color-mix(in srgb, currentColor 58%, #000),
+    -3px 3px 0 color-mix(in srgb, currentColor 54%, #000),
+    -4px 4px 0 color-mix(in srgb, currentColor 50%, #000),
+    -5px 5px 0 color-mix(in srgb, currentColor 45%, #000),
+    -6px 6px 0 color-mix(in srgb, currentColor 40%, #000),
+    -7px 7px 0 color-mix(in srgb, currentColor 34%, #000),
+    -8px 8px 0 color-mix(in srgb, currentColor 28%, #000),
+    /* far edge contour so the extrusion bottom stays crisp on black */
+    -9px 9px 0 rgba(0,0,0,0.85);
 }
-.colophon > .lb { margin-top: var(--space-4); }
+/* The leaderboard is a HEAVY feature block (big glowing 3D type, ~786px tall) —
+   the standard var(--space-4) section break makes it feel cramped against the
+   statement above and the spec readout below. A heavier block earns more air.
+   The page's rhythm system has each block own its OWN margin-top (one place per
+   gap, no stacking). So we give a generous, scale-DERIVED feature break
+   (--space-4 + --space-3 = 130px) to the board's top AND to the block that
+   follows it (the spec readout) — that puts the bigger breath symmetrically
+   above and below the board without double-counting any gap. */
+.colophon > .lb,
+.colophon > .lb ~ .readout-grid {
+  margin-top: calc(var(--space-4) + var(--space-3));
+}
 
-/* ---- single centered title (like HIGH SCORES) ---- */
+/* ---- single centered title (like HIGH SCORES) — glowing arcade phosphor ---- */
 .lb-title {
   margin: 0 0 var(--space-3);
   text-align: center;
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 400;
   letter-spacing: 0.34em;
-  color: var(--ink);
+  color: #fff;
   text-transform: uppercase;
+  /* white phosphor bloom */
+  text-shadow:
+    0 0 1px rgba(255, 255, 255, 0.9),
+    0 0 8px rgba(255, 255, 255, 0.45),
+    0 0 18px rgba(190, 220, 255, 0.25);
 }
 
-/* ---- column headers — share the row grid; LEFT-aligned within each column,
-   like the arcade RANK/SCORE/NAME header. Hairline beneath. ---- */
+/* ---- column headers — share the row grid; dim glowing labels, NO rule
+   (authentic arcade screens have no chrome lines). ---- */
 .lb-cols {
   display: grid;
   grid-template-columns: var(--lb-grid);
   align-items: baseline;
-  gap: 20px;
-  padding: 0 2px var(--space-1);
-  margin-bottom: var(--space-1);
-  border-bottom: 1px solid var(--hair);
+  gap: var(--lb-col-gap);
+  /* match the scroll window's reserved scrollbar gutter so the header grid and
+     the row grid have the SAME content width → score right-edges align. */
+  padding: 0 var(--lb-sbw) var(--space-2) 12px;
+  margin-bottom: 0;
   font-size: 10px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
+  color: rgba(190, 210, 235, 0.45);
 }
 .lb-col-rank,
-.lb-col-score,
 .lb-col-pilot { text-align: left; }
+.lb-col-score { text-align: right; } /* score header sits over the right-aligned hero */
 
 
 /* ---- the scroll window: ~7 rows tall, scrolls WITHIN. overscroll-behavior
-   contains the scroll so the page stays put until you hit an edge. ---- */
+   contains the scroll so the page stays put until you hit an edge. A faint
+   CRT scanline field + vignette is laid OVER the rows (pointer-events:none) so
+   the board reads as glowing phosphor photographed off an arcade monitor. ---- */
+.lb-stage {
+  position: relative; /* containing block for the .lb-crt overlay */
+}
 .lb-scroll {
+  position: relative;
   overflow-y: auto;
   overflow-x: hidden; /* vertical scroll only — never sideways */
   overscroll-behavior: contain;
+  scrollbar-gutter: stable; /* always reserve the gutter so the row content box
+                               width is stable and matches the header */
   /* a quiet, refined scrollbar — hairline, tier-neutral, no chrome */
   scrollbar-width: thin;
   scrollbar-color: var(--hair) transparent;
@@ -786,6 +841,12 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   background: rgba(232, 232, 232, 0.3);
 }
 
+/* No scanline-filter overlay — laying a stripe gradient over everything is the
+   cliché "retro filter" tell that reads as generic. Authentic CRT feel comes
+   from the PHOSPHOR itself: the bright text blooms and bleeds light into the
+   dark around it (see the layered glow text-shadows on .lb-rank-ord /
+   .lb-handle / .lb-score-num). The near-black ground does the rest. */
+
 /* ---- the list: borderless rows ---- */
 .lb-list {
   list-style: none;
@@ -798,66 +859,51 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
 }
 .lb-row-btn {
   display: grid;
-  grid-template-columns: var(--lb-grid); /* RANK(art) · SCORE · PILOT */
+  grid-template-columns: var(--lb-grid); /* RANK · PILOT · SCORE */
   align-items: center;
-  gap: 20px;
+  gap: var(--lb-col-gap);
   width: 100%;
   height: 100%;
-  padding: 8px 2px;
+  padding: 8px 0 8px 12px; /* left pad (mirrored on the header) gives the
+                              down-left 3D extrusion room off the board edge;
+                              no right pad so SCORE's right edge meets the scroll
+                              client edge, aligning with the header's gutter */
   background: none;
   border: 0;
-  color: var(--ink);
+  color: var(--tier, var(--ink));
   font: inherit;
   text-align: left;
   cursor: none;
-  transition: opacity 180ms ease;
-  opacity: 0.94;
+  transition: filter 180ms ease;
 }
-.lb-row-btn:hover { opacity: 1; }
+/* hover brightens the whole glowing row a touch (target responds, not cursor) */
+.lb-row-btn:hover { filter: brightness(1.18); }
 
-/* ---- the RANK box: a plain white rectangle with the black rank number,
-   centered. No artwork, no hover. ---- */
-.lb-c-art {
+/* ---- RANK: bare extruded arcade ordinal (1ST … 10TH), no box, no chrome ---- */
+.lb-c-rank {
   position: relative;
-  width: 116px;
-  height: 60px;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-/* rank number — centered in the white box, pure black */
-.lb-art-rank {
-  font-size: 22px;
-  line-height: 1;
-  letter-spacing: 0.06em;
-  font-variant-numeric: tabular-nums;
-  color: #000;
-}
-/* movement delta, tucked quietly in the bottom-right corner of the box */
-.lb-delta {
-  position: absolute;
-  right: 6px;
-  bottom: 5px;
-  font-size: 8px;
-  line-height: 1;
-}
-.lb-delta.up { color: var(--pal-peacock); }
-.lb-delta.down { color: rgba(0, 0, 0, 0.4); }
-
-/* ---- the score: win-rate %, the one strong number on the row ---- */
-.lb-c-score {
   display: flex;
   align-items: baseline;
-  gap: 2px;
+  gap: 6px;
 }
-.lb-score-num {
-  font-size: 20px;
+.lb-rank-ord {
+  font-size: 34px;
+  line-height: 1;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
   color: var(--tier, var(--ink));
+  text-shadow: var(--lb-3d); /* hard 3D extrusion (see --lb-3d on .lb) */
 }
-/* ---- the username ---- */
+/* movement delta — universal scoreboard convention: climbed = green ▲,
+   dropped = red ▼. Small, riding next to the ordinal. */
+.lb-delta {
+  font-size: 9px;
+  line-height: 1;
+}
+.lb-delta.up { color: #36e07a; text-shadow: 0 0 6px rgba(54, 224, 122, 0.5); }
+.lb-delta.down { color: #ff5a4d; text-shadow: 0 0 6px rgba(255, 90, 77, 0.5); }
+
+/* ---- PILOT: the username, glowing in the row hue ---- */
 .lb-c-handle {
   display: flex;
   align-items: baseline;
@@ -865,24 +911,25 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   min-width: 0;
 }
 .lb-handle {
-  font-size: 15px;
-  letter-spacing: 0.05em;
-  color: var(--ink);
+  font-size: 30px;
+  letter-spacing: 0.02em;
+  color: var(--tier, var(--ink));
   white-space: nowrap;
+  text-shadow: var(--lb-3d); /* hard 3D extrusion */
 }
-/* EVOLVED — a single tiny tier-coloured word, surfaces on hover only */
-.lb-evolved {
-  flex: 0 0 auto;
-  font-size: 8px;
-  letter-spacing: 0.22em;
-  color: var(--tier, var(--pal-saffron));
-  opacity: 0;
-  transform: translateX(-3px);
-  transition: opacity 180ms ease, transform 180ms ease;
+
+/* ---- SCORE: the loud right-aligned hero number, glowing in the row hue ---- */
+.lb-c-score {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end; /* hero sits at the right edge, arcade-style */
 }
-.lb-row-btn:hover .lb-evolved {
-  opacity: 0.8;
-  transform: translateX(0);
+.lb-score-num {
+  font-size: 36px;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--tier, var(--ink));
+  text-shadow: var(--lb-3d); /* hard 3D extrusion — the loud hero */
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -891,10 +938,13 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
 
 /* ---- mobile (iPhone 13 Mini = 375px) ---- */
 @media (max-width: 560px) {
-  .lb { --lb-grid: 1fr 1fr 1fr; }
-  .lb-row-btn { gap: 12px; }
-  .lb-c-art { width: 84px; height: 48px; }
-  .lb-art-rank { font-size: 19px; }
-  .lb-score-num { font-size: 18px; }
-  .lb-handle { font-size: 13px; }
+  .lb {
+    width: auto; /* relax the desktop max-content hug — fill the column */
+    max-width: calc(100% - 2 * var(--pad));
+    --lb-grid: 76px 1fr 96px; /* RANK · PILOT · SCORE */
+    --lb-col-gap: var(--space-2);
+  }
+  .lb-rank-ord { font-size: 24px; }
+  .lb-handle { font-size: 22px; }
+  .lb-score-num { font-size: 26px; }
 }
