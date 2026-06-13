@@ -50,10 +50,14 @@ export default function Reticle() {
     let s = 0;
     let shown = false;
     let last = performance.now();
+    let lastMeasure = last;
 
-    // Response time (s). Smaller = snappier; a targeting cursor wants near-1:1
-    // with a whisper of lag, not a loose spring.
-    const SMOOTH = reduce ? 0 : 0.05;
+    // Response time (s). Smaller = snappier. A targeting cursor wants to feel
+    // locked 1:1 to the pointer in free space (only enough smoothing to kill
+    // sub-pixel jitter), and a gentler glide ONLY while riding the frame border
+    // (where the easing IS the intended motion, sliding around corners).
+    const FREE_SMOOTH = reduce ? 0 : 0.012;
+    const BORDER_SMOOTH = reduce ? 0 : 0.05;
 
     // forbidden zone = .hero-stage box expanded by a clearance
     const FRAME_PAD = 44;
@@ -173,8 +177,20 @@ export default function Reticle() {
     function frame(now: number) {
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
-      measureForbidden();
+      // Do NOT re-measure the forbidden box EVERY frame — getBoundingClientRect
+      // forces a synchronous layout, and at 120fps alongside the two live WebGL
+      // renderers that reflow starves this rAF, making the reticle visibly trail
+      // the pointer (that was the felt "tracking slightly off"). Scroll/resize
+      // re-measure is wired below; we additionally re-measure at a low cadence
+      // (~6x/s) so a late layout shift (e.g. the world-plate fading in) can't
+      // leave the keep-out box stale — at 1/20th the reflow cost of per-frame.
+      if (now - lastMeasure > 160) {
+        measureForbidden();
+        lastMeasure = now;
+      }
       const f = forbid;
+      const overArt = !!f && inside(tx, ty);
+      const SMOOTH = overArt ? BORDER_SMOOTH : FREE_SMOOTH;
       const a = SMOOTH <= 0 ? 1 : 1 - Math.exp(-dt / SMOOTH);
 
       if (f && inside(tx, ty)) {
