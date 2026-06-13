@@ -1,0 +1,628 @@
+/* ============================================================
+   GAMERS — itsgalo  ·  exhibition page
+   Font: MBytePC230 CGA (The Ultimate Oldschool PC Font Pack,
+   CC BY-SA 4.0, int10h.org). 8x8 CP437 bitmap — scale in 8px steps.
+   ============================================================ */
+
+@font-face {
+  font-family: "MBytePC230";
+  src: url("/gamers/fonts/Web437_MBytePC230_CGA.woff2") format("woff2"),
+       url("/gamers/fonts/Web437_MBytePC230_CGA.woff") format("woff");
+  font-display: block;
+  font-weight: normal;
+  font-style: normal;
+}
+
+.gamers-root {
+  /* Theme is driven at runtime from the artwork's baked-in palette.
+     These are neutral fallbacks before the piece reports its color. */
+  --bg: #0a0a0a;
+  --ink: #e8e8e8;          /* readable text on --bg */
+  --ink-dim: rgba(232, 232, 232, 0.55);
+  --hair: rgba(232, 232, 232, 0.22);  /* barely-there hairlines */
+  --art: #888;            /* the iteration's artwork colour (set at runtime) */
+  --title-alt: #e8e8e8; /* accent: derived on-palette colour, lifted to read on dark */
+
+  --rule: 1px;
+
+  --maxw: 1200px;
+  --pad: clamp(16px, 4vw, 48px);
+
+  /* vertical rhythm scale — one base unit, consistent multiples (Hufkens) */
+  --space-1: 12px;   /* tight: title↔name */
+  --space-2: 28px;   /* close pairs: readout↔pullquote, pull↔signoff */
+  --space-3: 58px;   /* block separations: stage↔reroll, reroll↔title */
+  --space-4: 72px;   /* section breaks around rules */
+}
+
+.gamers-root *, .gamers-root { box-sizing: border-box; }
+
+.gamers-root,
+.gamers-root {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "MBytePC230", "Courier New", monospace;
+  /* CP437 is a bitmap face; keep it crisp, no smoothing wobble */
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+  /* never synthesise bold on the bitmap face (it smears glyphs); allow
+     synthetic oblique for the intentional sign-off italic only */
+  font-synthesis: style;
+  transition: background-color 600ms ease, color 600ms ease;
+}
+
+/* Smooth color crossfade across the whole surface when a new iteration loads */
+.gamers-root,
+.gamers-root .surface,
+.gamers-root .hairline {
+  transition: background-color 600ms ease, color 600ms ease,
+    border-color 600ms ease;
+}
+
+.gamers-root a { color: inherit; text-decoration: none; }
+.gamers-root a:hover { opacity: 0.6; }
+
+/* CP437 type wants generous tracking to breathe (refined, not cramped) */
+.gamers-root .mono {
+  font-family: "MBytePC230", "Courier New", monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.gamers-root .surface {
+  background: transparent; /* the absolute world-plate (z-index 0) shows through */
+  color: var(--ink);
+}
+
+/* hairline rules — Dieter-Rams restraint, never heavy borders */
+.gamers-root .hairline { border: 0; border-top: var(--rule) solid var(--hair); }
+
+.gamers-root ::selection { background: var(--ink); color: var(--bg); }
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+
+.gamers-root main.surface {
+  position: relative;     /* anchor the absolutely-positioned world-plate */
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.gamers-root .dim { color: var(--ink-dim); }
+
+/* ambient snow/dust particle layer — fixed, full-viewport, behind all content */
+.gamers-root .snow {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  z-index: 1;             /* above the world-plate (0), below content (2) */
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+/* keep page content above the world-plate (0) and snow (1) */
+.gamers-root .surface > *:not(.snow):not(.reticle):not(.worldplate) { position: relative; z-index: 2; }
+
+/* --- background world plate (our design asset; HUD-stripped terrain) --------
+   The world belongs to the FIRST VIEW: it glows behind the framed artwork (a
+   window into the world bleeding out around it) and then scrolls away into the
+   dark room. It is anchored to the top of the page (NOT fixed to the viewport)
+   and sized to the first screen, so every reading section below sits on the
+   clean near-black ground — text legibility never depends on what palette a
+   re-roll produced. */
+.gamers-root .worldplate {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* taller than one screen so the world's hard container edge sits well below
+     the fold (never near where the eye rests); the long scrim below melts it
+     into black gradually, so there is no abrupt seam anywhere on screen. */
+  height: 145dvh;
+  z-index: 0;             /* backdrop layer; content sits at z-index 2 */
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bg);  /* solid theme base until/behind the plate */
+}
+.gamers-root .worldplate-frame {
+  position: absolute;
+  /* scale up and center so the terrain fills the plate edge-to-edge (cover).
+     Tall enough that it covers the plate's TOP edge too (past y=0, behind the
+     header) — otherwise the plate's near-black base shows as a dark band under
+     the header. The blur's soft edge needs this extra margin. */
+  top: 50%;
+  left: 50%;
+  width: 130vw;
+  height: 165vh;
+  /* soften the world into an out-of-focus backdrop — the framed artwork stays
+     the sharp subject, the world behind it reads as atmosphere. */
+  transform: translate(-50%, -50%) scale(1.06);
+  filter: blur(14px);
+  border: 0;
+  /* crossfade between worlds on re-roll: each layer boots hidden, then fades up
+     to its display opacity while the outgoing layer fades out — smooth dissolve,
+     never a hard cut. */
+  opacity: 0;
+  transition: opacity 900ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity;
+}
+/* on the dark ground the colourful terrain glows — reveal opacity once painted */
+.gamers-root .worldplate-frame[data-shown="true"] { opacity: 0.92; }
+
+/* scrim: a single, LONG, gentle vertical fade. The world stays full in the
+   hero, then melts into black over a generous span with many eased stops (no
+   fast ramp = no visible "line"), reaching solid black well before the plate's
+   hidden bottom edge. ONE gradient only — a horizontal centre-darkening band
+   used to live here too, but with text now on its own dark zone it served no
+   purpose and just blotched the blur unevenly, so it's gone. */
+.gamers-root .worldplate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(9, 9, 11, 0) 0%,
+    rgba(9, 9, 11, 0) 30%,
+    rgba(9, 9, 11, 0.10) 40%,
+    rgba(9, 9, 11, 0.28) 48%,
+    rgba(9, 9, 11, 0.50) 55%,
+    rgba(9, 9, 11, 0.72) 62%,
+    rgba(9, 9, 11, 0.90) 70%,
+    rgba(9, 9, 11, 1) 80%
+  );
+}
+
+/* targeting-reticle custom cursor */
+.gamers-root .reticle {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 26px;
+  height: 26px;
+  pointer-events: none;
+  opacity: 0;
+  color: var(--ink);
+  transition: opacity 180ms ease;
+  will-change: transform;
+}
+.gamers-root .reticle svg { display: block; overflow: visible; }
+.gamers-root .reticle .rt-stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+}
+.gamers-root .reticle .rt-fill { fill: currentColor; }
+/* the reticle is a constant precise instrument — it never changes shape.
+   Targets respond to being targeted (see .reroll:hover), not the cursor. */
+
+/* hide the native cursor site-wide only while the reticle is active */
+.gamers-root.reticle-on,
+.gamers-root.reticle-on * { cursor: none !important; }
+
+/* --- top status bar / ticker ------------------------------- */
+.gamers-root .topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 50px;            /* locked height so it can never reflow/resize */
+  box-sizing: border-box;
+  flex: none;
+  overflow: hidden;
+  padding: 0 var(--pad);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  border-bottom: var(--rule) solid var(--hair);
+  /* SYNCED system pulse: same 2s / steps(1) / 0s-delay timeline as the GAMERS
+     title (.title's title-toggle). Both render at first paint so they share the
+     timeline origin and peak together — keep these three timing values matched
+     to .title or they'll drift out of phase. */
+  animation: hairline-blink 2s steps(1, end) infinite;
+}
+@keyframes hairline-blink {
+  0%   { border-bottom-color: var(--hair); }
+  50%  { border-bottom-color: var(--ink); }
+  100% { border-bottom-color: var(--hair); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gamers-root .topbar { animation: none; }
+}
+.gamers-root .topbar .tb-mid {
+  color: var(--ink-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  flex: 1;
+  /* part of the SYNCED system pulse — same 2s / steps(1) / 0s timeline as the
+     GAMERS title + header hairline, so the whole header chrome blinks as one */
+  animation: midline-blink 2s steps(1, end) infinite;
+}
+@keyframes midline-blink {
+  0%   { color: var(--ink-dim); }
+  50%  { color: var(--ink); }
+  100% { color: var(--ink-dim); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gamers-root .topbar .tb-mid { animation: none; }
+}
+.gamers-root .topbar .tb-left,
+.gamers-root .topbar .tb-right { flex: 0 0 auto; }
+
+/* --- first view: artwork + title fill the viewport ---------- */
+/* header is ~50px now; fill the rest so the statement sits below the fold */
+.gamers-root .firstview {
+  min-height: calc(100svh - 50px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+  padding-bottom: clamp(12px, 3svh, 40px);
+}
+
+/* --- hero --------------------------------------------------- */
+.gamers-root .hero {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gamers-root .hero-stage {
+  position: relative;
+  /* width drives size (aspect-ratio fixes height). Sized to leave the hero room
+     to breathe within the first view — not so large it crowds the header/title.
+     The svh cap reins it in on short viewports. */
+  width: min(100% - 2 * var(--pad), 1560px, calc(42svh * (1280 / 633)));
+  margin: clamp(28px, 5svh, 64px) auto 0; /* air below the header bar; eases on short screens */
+  aspect-ratio: 1280 / 633;
+  /* full-bleed: artwork fills the stage edge-to-edge, no inset mat */
+  padding: 0;
+  /* refined lift off the page — a soft, layered, low-opacity shadow (felt, not
+     a hard drop). Tight contact shadow + a broad diffuse one for depth. */
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.10),
+    0 18px 48px -12px rgba(0, 0, 0, 0.28);
+  /* barely-there idle drift — very low intensity. Applied to the stage (not the
+     inner scaled canvas) so it can't reintroduce the pixel-resample flicker. */
+  animation: hero-drift 11s ease-in-out infinite;
+}
+@keyframes hero-drift {
+  0%   { transform: translateY(-1.5px); }
+  50%  { transform: translateY(1.5px); }
+  100% { transform: translateY(-1.5px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gamers-root .hero-stage { animation: none; }
+}
+
+/* chunky white dashed frame sitting OUTSIDE the artwork (see DashedFrame.tsx).
+   Rendered as an SVG with a pathLength-normalised dash pattern so all four
+   corners are identical and clean at any size. Sits 18px out from the artwork. */
+.gamers-root .dashed-frame {
+  position: absolute;
+  inset: -18px; /* the gap: how far the dashes sit out from the artwork */
+  width: calc(100% + 36px);
+  height: calc(100% + 36px);
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* the iframe renders the piece at high resolution (sized in JS) and is scaled
+   down via an inline transform */
+.gamers-root .frame-wrap {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  opacity: 0;
+  /* refined easing, matched to the world-plate crossfade for a cohesive re-roll */
+  transition: opacity 900ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.gamers-root .frame-wrap[data-ready="true"] { opacity: 1; }
+
+.gamers-root .piece {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 0;
+  display: block;
+  /* width/height set inline; translate centers the oversized box, scale shrinks
+     the high-res render back to display size */
+  transform-origin: center;
+  background: transparent;
+  image-rendering: pixelated;
+}
+
+/* readout under the hero: re-roll + hash */
+.gamers-root .hero-readout {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  padding: var(--space-3) var(--pad) 0; /* stage → reroll (rhythm unit) */
+}
+.gamers-root .reroll {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: transparent;
+  border: var(--rule) solid var(--hair);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+/* the target acknowledges the reticle: border + a faint ink fill, crisp + quiet */
+.gamers-root .reroll:hover {
+  border-color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+.gamers-root .reroll span { display: inline-block; margin-right: 4px; }
+.gamers-root .hero-readout .hash { color: var(--ink-dim); }
+/* quiet fade-in when the seed resolves (compositor thread → smooth even while
+   the artwork boots blocks the main thread). The element is remounted via a
+   React key on value change, so this replays each new hash. */
+.gamers-root .hero-readout .hash {
+  animation: hash-fade 420ms ease both;
+}
+.gamers-root .hero-readout .hash[data-resolving="true"] {
+  animation: none;
+  opacity: 0.5;
+  letter-spacing: 0.16em;
+}
+@keyframes hash-fade {
+  from { opacity: 0.25; }
+  to   { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gamers-root .hero-readout .hash { animation: none; }
+}
+
+/* --- title -------------------------------------------------- */
+.gamers-root .titleblock {
+  text-align: center;
+  padding: 0 var(--pad);
+  margin-top: var(--space-3); /* reroll → title (rhythm unit) */
+}
+.gamers-root .title {
+  margin: 0;
+  font-size: clamp(40px, 11vw, 128px);
+  line-height: 0.9;
+  /* hierarchy by SIZE, never weight — CP437 is single-weight; force true 400
+     and never let the browser synthesise fake bold (it smears the bitmap) */
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  /* two stacked animations, both stepped (hard snaps, no easing):
+     (1) colour toggle, (2) a CRT/terminal "stutter" — an irregular sub-pixel
+     position tremor that holds then jumps, recreating the dev-mode frame-drop
+     jitter as a deterministic, identical-everywhere effect. */
+  animation:
+    title-toggle 2s steps(1, end) infinite,
+    title-stutter 3.7s steps(1, end) infinite;
+  will-change: transform;
+}
+@keyframes title-toggle {
+  0%   { color: var(--ink); }
+  50%  { color: var(--title-alt); }
+  100% { color: var(--ink); }
+}
+/* irregular stepped tremor — mostly still, with occasional 1px snaps. The
+   uneven keyframe spacing + steps() = a glitchy "dropped frame" stutter, not a
+   smooth wobble. Amplitude kept tiny so it reads as CRT instability, refined. */
+@keyframes title-stutter {
+  0%,
+  22%   { transform: translate(0, 0); }
+  23%   { transform: translate(1px, 0); }
+  25%   { transform: translate(0, -1px); }
+  26%,
+  54%   { transform: translate(0, 0); }
+  55%   { transform: translate(-1px, 1px); }
+  57%   { transform: translate(1px, 0); }
+  58%,
+  78%   { transform: translate(0, 0); }
+  79%   { transform: translate(0, 1px); }
+  80%   { transform: translate(-1px, 0); }
+  82%,
+  100%  { transform: translate(0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gamers-root .title { animation: none; }
+}
+.gamers-root .subtitle {
+  margin: 26px 0 0; /* title → name: a touch more drop so it isn't crowding GAMERS */
+  font-size: clamp(11px, 1.6vw, 14px);
+  letter-spacing: 0.18em;
+  color: var(--ink-dim);
+}
+
+/* --- rules / sections -------------------------------------- */
+.gamers-root .section-rule {
+  width: min(100% - 2 * var(--pad), var(--maxw));
+  margin: var(--space-4) auto; /* uniform section break (rhythm unit) */
+}
+
+/* ── SECOND HALF: the colophon ────────────────────────────────────────────
+   The dark world-room continues here — text stays the confident white-on-black
+   (the refined choice). The iteration's colour is NOT a loud field; it appears
+   only as a precise ACCENT: the spec VALUES print in the on-palette accent
+   colour, and a small colour-chip marks the iteration like a gallery label.
+   That keeps the page's "intelligence" (it knows the artwork's colour) without
+   a vibrant block competing with the work. The accent uses --title-alt, which
+   is hue-true but lifted to read against the dark ground (see color.ts). */
+.gamers-root .colophon {
+  position: relative;
+  /* no extra top margin — the first .section-rule inside owns the section break
+     rhythm (--space-4), same as every other break. Stacking both doubled it. */
+}
+
+.gamers-root .statement {
+  width: min(100% - 2 * var(--pad), 720px);
+  margin: 0 auto;
+  text-align: center;
+}
+/* base type for the sign-off line (size/leading); .signoff adds italic+colour */
+.gamers-root .lede {
+  font-family: "MBytePC230", "Courier New", monospace;
+  font-size: clamp(14px, 2.1vw, 19px);
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+/* statement: a small dimmed readout line resolving into a large pull-quote
+   (hierarchy by size, all 400 weight) */
+.gamers-root .readout {
+  font-family: "MBytePC230", "Courier New", monospace;
+  font-size: clamp(11px, 1.5vw, 14px);
+  line-height: 1.8;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  max-width: 46ch;
+  margin: 0 auto;
+}
+.gamers-root .pullquote {
+  font-family: "MBytePC230", "Courier New", monospace;
+  font-size: clamp(22px, 4.2vw, 44px);
+  line-height: 1.18;
+  letter-spacing: 0.01em;
+  margin: var(--space-2) auto 0; /* readout → pullquote (rhythm unit) */
+  max-width: 24ch;
+  text-wrap: balance;
+}
+/* closing sign-off — set apart by colour + italic, never bold (Rams) */
+.gamers-root .signoff {
+  margin-top: 2.2em;
+  font-style: italic;
+  color: var(--ink-dim);
+  letter-spacing: 0.06em;
+}
+
+/* game-grade hover: per-letter springs + CP437 dust particles (rAF-driven) */
+.gamers-root .signoff-row {
+  margin-top: var(--space-2); /* pullquote → signoff (rhythm unit) */
+  text-align: center; /* centers the inline-block wrap */
+}
+.gamers-root .signoff-wrap {
+  position: relative;
+  display: inline-block; /* shrink-wraps the text so the canvas aligns 1:1 */
+  cursor: default;
+}
+.gamers-root .signoff {
+  margin-top: 0;
+  display: inline-block;
+  position: relative;
+}
+.gamers-root .signoff-letter {
+  display: inline-block;
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+.gamers-root .signoff-space { display: inline-block; }
+/* dust canvas overlays the line, extending a little below for the kick-up */
+.gamers-root .signoff-dust {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* --- spec readout grid (NET STATUS / MEM DUMP motif) -------- */
+.gamers-root .readout-grid {
+  width: min(100% - 2 * var(--pad), var(--maxw));
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px clamp(24px, 6vw, 80px);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+.gamers-root .spec {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 9px 0;
+  border-bottom: var(--rule) solid var(--hair);
+}
+.gamers-root .spec-k { flex: 0 0 auto; }
+.gamers-root .spec-dots {
+  flex: 1 1 auto;
+  align-self: center;
+  height: 0;
+  border-bottom: var(--rule) dotted var(--hair);
+  transform: translateY(-2px);
+}
+.gamers-root .spec-v {
+  flex: 0 0 auto;
+  /* the iteration's colour as a precise accent — hue-true, lifted to read on the
+     dark ground (--title-alt). The page knows the artwork's colour; it states it
+     here in the record, quietly, rather than flooding a panel with it. */
+  color: var(--title-alt);
+  transition: color 600ms ease;
+}
+/* COLOUR row spans the full grid width as the iteration's signature finale,
+   rather than sitting orphaned in one column (odd item count). */
+.gamers-root .spec-full { grid-column: 1 / -1; }
+/* COLOUR row value: chip + label sit on one baseline */
+.gamers-root .spec-colour {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+/* the paint chip — the artwork's EXACT baked colour (--art), a crisp little
+   square with a hairline so it's visible even on near-black iterations */
+.gamers-root .colour-chip {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+  background: var(--art);
+  box-shadow: inset 0 0 0 1px var(--hair);
+  image-rendering: pixelated;
+  transition: background-color 600ms ease;
+}
+
+/* --- footer ------------------------------------------------- */
+.gamers-root .footer {
+  margin: 0 auto;
+  /* align the footer's content edges with the rules + spec grid above
+     (same --maxw container), not the full viewport width */
+  width: min(100% - 2 * var(--pad), var(--maxw));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 18px 0 28px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--ink-dim);
+}
+
+/* --- responsive (iPhone 13 Mini: 375px) -------------------- */
+@media (max-width: 640px) {
+  .gamers-root .topbar .tb-mid { display: none; }
+  .gamers-root .readout-grid { grid-template-columns: 1fr; }
+  /* on phones the artwork reads larger with a less-letterbox aspect; cap its
+     height by svh so it never crowds the title off a short phone screen, and
+     keep it full-bleed (no inset mat) like desktop */
+  .gamers-root .hero-stage {
+    aspect-ratio: 4 / 3;
+    max-height: 40svh;
+  }
+  /* prevent any horizontal overflow from the oversized title */
+  .gamers-root .title { letter-spacing: 0.02em; overflow-wrap: anywhere; }
+  .gamers-root .footer { flex-direction: column; align-items: flex-start; gap: 8px; }
+}
+
+/* never allow horizontal scroll from the big type */
+.gamers-root,
+.gamers-root { overflow-x: hidden; }

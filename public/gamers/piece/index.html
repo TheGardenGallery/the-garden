@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>GAMERS by itsgalo</title>
+  <script src="./fxhash.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      height: 100%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #000000;
+    }
+    canvas {
+      display: block;
+      transform: scale(1);
+      transform-origin: center;
+      image-rendering: pixelated;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvasGL" style="display: none;"></canvas>
+  <canvas id="canvas2D"></canvas>
+</body>
+
+<script src="./bundle.js" type="module"></script>
+
+<!--
+  Bridge: the generative piece sets document.body.style.backgroundColor from its
+  seeded palette (G[0..2]). We watch for that value and post it to the parent
+  exhibition page so the surrounding surface can theme itself from the artwork.
+-->
+<script>
+  (function () {
+    if (window.parent === window) return; // only when embedded
+    function readBg() {
+      return document.body.style.backgroundColor || "";
+    }
+    function emit() {
+      var bg = readBg();
+      if (!bg) return false;
+      try {
+        window.parent.postMessage(
+          { type: "gamers:bg", color: bg, hash: (window.$fx && $fx.hash) || null },
+          "*"
+        );
+      } catch (e) {}
+      return true;
+    }
+    // Emit on a steady cadence so the parent can't miss it due to a listener-
+    // attach race, then STOP once resolved (a handful of confirming beats) so we
+    // don't post — and re-trigger the parent's applyTheme — forever.
+    var resolvedBeats = 0;
+    var iv = setInterval(function () {
+      if (emit()) {
+        resolvedBeats++;
+        if (resolvedBeats >= 8) clearInterval(iv); // ~2s of confirming beats
+      }
+    }, 250);
+    // Reply immediately whenever the parent announces it's listening (handshake).
+    window.addEventListener("message", function (e) {
+      if (e.data && e.data.type === "gamers:hello") emit();
+    });
+    window.addEventListener("load", emit);
+  })();
+</script>
+
+</html>

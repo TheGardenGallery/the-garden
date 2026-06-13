@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>GAMERS — world plate (background)</title>
+  <!--
+    BACKGROUND "WORLD PLATE" — this is OUR design asset, NOT itsgalo's artwork.
+    It loads a FORKED copy of the renderer (piece-bg/bundle.js) with the HUD draw
+    calls gated off via window.__GAMERS_NO_HUD, so only the procedural terrain +
+    sky render. His original piece in /piece/ is untouched and is what the hero
+    shows, pure. After a brief warm-up we freeze the rAF loop to a single still
+    frame — a painted backdrop with zero ongoing GPU cost (mobile-safe).
+  -->
+  <script>
+    // must be set BEFORE the bundle module runs
+    window.__GAMERS_NO_HUD = true;
+  </script>
+  <script src="./fxhash.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      height: 100%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #000000;
+    }
+    canvas {
+      display: block;
+      transform: scale(1);
+      transform-origin: center;
+      image-rendering: pixelated;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="canvasGL" style="display: none;"></canvas>
+  <canvas id="canvas2D"></canvas>
+</body>
+
+<script src="./bundle.js" type="module"></script>
+
+<!--
+  Bridge: the background plate runs LIVE and never freezes — it is a moving
+  video of the world. It does NOT emit palette/seed (only the hero /piece/ drives
+  theming + the seed; emitting here would loop). It DOES post one ready ping once
+  its canvas has painted a composed frame, so the parent can crossfade the new
+  world in the instant it is drawable (no guess-timer late-pop on re-roll).
+-->
+<script>
+  (function () {
+    // tell the parent the moment we've actually painted terrain, so the
+    // crossfade reveal is driven by real paint, not a fixed timeout.
+    var pinged = false;
+    function ready() {
+      if (pinged) return;
+      var cv = document.getElementById("canvas2D");
+      if (!cv || !cv.width) return;
+      pinged = true;
+      try {
+        window.parent.postMessage({ type: "gamers:plate-ready" }, "*");
+      } catch (e) {}
+    }
+    // poll briefly for the first composed frame; once the canvas has size and a
+    // couple of rAF ticks have run, the terrain is on it.
+    window.addEventListener("load", function () {
+      var ticks = 0;
+      (function spin() {
+        ticks++;
+        var cv = document.getElementById("canvas2D");
+        if (cv && cv.width && ticks > 6) {
+          ready();
+          return;
+        }
+        if (ticks < 240) requestAnimationFrame(spin);
+        else ready(); // safety: ping anyway so the parent never waits forever
+      })();
+    });
+  })();
+</script>
+
+</html>

@@ -1,9 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
-import { VisitMarker } from "@/components/VisitMarker";
 import "./globals.css";
 
 // Resolve the canonical origin for absolute URLs in meta tags (og:image,
@@ -121,10 +118,9 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <VisitMarker />
-        <Nav />
-        <main>{children}</main>
-        <Footer />
+        {/* Nav/Footer/VisitMarker live in the (shell) route-group layout so the
+            standalone /gamers route can opt out of the Garden chrome. */}
+        {children}
         <Analytics />
         <SpeedInsights />
       </body>
