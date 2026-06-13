@@ -761,7 +761,27 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   font-variant-numeric: tabular-nums;
 }
 
-/* ---- the list: borderless rows, tight rhythm ---- */
+
+/* ---- the scroll window: ~7 rows tall, scrolls WITHIN. overscroll-behavior
+   contains the scroll so the page stays put until you hit an edge. ---- */
+.lb-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* a quiet, refined scrollbar — hairline, tier-neutral, no chrome */
+  scrollbar-width: thin;
+  scrollbar-color: var(--hair) transparent;
+}
+.lb-scroll::-webkit-scrollbar { width: 6px; }
+.lb-scroll::-webkit-scrollbar-track { background: transparent; }
+.lb-scroll::-webkit-scrollbar-thumb {
+  background: rgba(232, 232, 232, 0.16);
+  border-radius: 0;
+}
+.lb-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(232, 232, 232, 0.3);
+}
+
+/* ---- the list: borderless rows ---- */
 .lb-list {
   list-style: none;
   margin: 0;
@@ -773,16 +793,13 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
 }
 .lb-row-btn {
   display: grid;
-  /* rank · thumb · handle · rate-bar(flex connector) · % · record.
-     The BAR takes the slack (1fr) and acts as a catalogue leader line bridging
-     the handle to its win-rate number — so the middle space is structure, not a
-     void, and short bars still read against a full-width track. */
-  grid-template-columns: 30px 52px max-content 1fr 30px 40px;
+  /* artwork rectangle · score(win-rate %) · username */
+  grid-template-columns: 116px 64px 1fr;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   width: 100%;
   height: 100%;
-  padding: 0 2px;
+  padding: 8px 2px;
   background: none;
   border: 0;
   color: var(--ink);
@@ -790,38 +807,27 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   text-align: left;
   cursor: none;
   transition: opacity 180ms ease;
-  opacity: 0.92;
+  opacity: 0.94;
 }
 .lb-row-btn:hover { opacity: 1; }
 
-/* rank numeral — tabular, tier-coloured, the strongest mark on the row */
-.lb-c-rank {
-  display: flex;
-  align-items: baseline;
-  gap: 5px;
-}
-.lb-rank-num {
-  font-size: 16px;
-  letter-spacing: 0.04em;
-  font-variant-numeric: tabular-nums;
-  color: var(--tier, var(--ink));
-}
-.lb-delta {
-  font-size: 8px;
-  line-height: 1;
-}
-.lb-delta.up { color: var(--pal-moss); }
-.lb-delta.down { color: var(--ink-dim); }
-
-/* ---- thumbnail: no frame, cheap at rest, live world zooms in on hover ---- */
-.lb-c-thumb { display: flex; }
-.lb-thumb {
+/* ---- the artwork rectangle: live world cheap-at-rest / live-on-hover, with a
+   transparent overlay scrim and the rank number tucked in the corner. ---- */
+.lb-c-art {
   position: relative;
-  width: 52px;
-  height: 30px;
+  width: 116px;
+  height: 60px;
   overflow: hidden;
   background: #000;
   /* NO border / frame — just the image */
+}
+.lb-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
 }
 .lb-thumb-still {
   position: absolute;
@@ -838,38 +844,93 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 200px;
-  height: 125px;
+  width: 232px;
+  height: 145px;
   border: 0;
-  transform: translate(-50%, -50%) scale(0.52);
+  transform: translate(-50%, -50%) scale(0.5);
   transform-origin: center;
   transition: transform 640ms cubic-bezier(0.22, 1, 0.36, 1),
     filter 640ms ease;
-  filter: saturate(0.95) brightness(0.95);
+  filter: saturate(0.95) brightness(0.92);
   pointer-events: none;
 }
 .lb-row-btn:hover .lb-thumb-frame,
 .lb-thumb[data-live="true"] .lb-thumb-frame {
-  transform: translate(-50%, -55%) scale(0.74);
-  filter: saturate(1.05) brightness(1.05);
+  transform: translate(-50%, -55%) scale(0.62);
+  filter: saturate(1.05) brightness(1.04);
 }
 
-/* ---- handle ---- */
+/* transparent overlay scrim so the tucked number always reads over the art —
+   a soft corner gradient, not a flat wash (keeps the artwork visible) */
+.lb-art-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(9, 9, 11, 0.62) 0%,
+    rgba(9, 9, 11, 0.2) 38%,
+    rgba(9, 9, 11, 0) 62%
+  );
+  pointer-events: none;
+}
+/* tucked rank number — gallery-plate style, tier-coloured, bottom... top-left */
+.lb-art-rank {
+  position: absolute;
+  top: 5px;
+  left: 7px;
+  font-size: 17px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--tier, var(--ink));
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+/* movement delta, tucked in the opposite (bottom-right) corner, very quiet */
+.lb-delta {
+  position: absolute;
+  right: 6px;
+  bottom: 5px;
+  font-size: 8px;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+}
+.lb-delta.up { color: var(--pal-saffron); }
+.lb-delta.down { color: rgba(232, 232, 232, 0.6); }
+
+/* ---- the score: win-rate %, the one strong number on the row ---- */
+.lb-c-score {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+.lb-score-num {
+  font-size: 20px;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--tier, var(--ink));
+}
+.lb-score-unit {
+  font-size: 11px;
+}
+
+/* ---- the username ---- */
 .lb-c-handle {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
 }
 .lb-handle {
-  font-size: 14px;
+  font-size: 15px;
   letter-spacing: 0.05em;
-  color: var(--tier, var(--ink));
+  color: var(--ink);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-/* EVOLVED — prestige by a single tiny tier-coloured word that surfaces only on
-   hover, so the resting board stays clean (every top-100 row is evolved; saying
-   it on all of them at rest would be noise). */
+/* EVOLVED — a single tiny tier-coloured word, surfaces on hover only */
 .lb-evolved {
   flex: 0 0 auto;
   font-size: 8px;
@@ -880,68 +941,23 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   transition: opacity 180ms ease, transform 180ms ease;
 }
 .lb-row-btn:hover .lb-evolved {
-  opacity: 0.75;
+  opacity: 0.8;
   transform: translateX(0);
 }
-
-/* ---- win rate: a full-width hairline TRACK (the 1fr connector column) with a
-   tier-tinted fill, bridging the handle to its number — reads like a catalogue
-   leader line, so short bars still register against the full track. ---- */
-.lb-bar {
-  position: relative;
-  width: 100%;
-  height: 2px;
-  background: rgba(232, 232, 232, 0.10);
-}
-.lb-bar-fill {
-  position: absolute;
-  inset: 0 auto 0 0;
-  height: 100%;
-  background: var(--tier, var(--ink));
-  transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-.lb-rate-num {
-  text-align: right;
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-dim);
-}
-
-/* ---- record (w·l), quiet, far right ---- */
-.lb-c-record {
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-}
-.lb-c-record span { margin: 0 2px; }
-
-/* ---- footer affordance to the full board ---- */
-.lb-foot {
-  margin-top: var(--space-3);
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  cursor: none;
-  transition: color 180ms ease;
-}
-.lb-foot:hover { color: var(--ink); }
 
 @media (prefers-reduced-motion: reduce) {
   .lb-thumb-still,
   .lb-thumb-frame,
-  .lb-bar-fill,
   .lb-row-btn { transition: none; }
 }
 
 /* ---- mobile (iPhone 13 Mini = 375px) ---- */
 @media (max-width: 560px) {
   .lb-row-btn {
-    grid-template-columns: 26px 44px max-content 1fr 28px;
-    gap: 12px;
+    grid-template-columns: 96px 52px 1fr;
+    gap: 14px;
   }
-  /* drop the W·L record on the narrowest screens; keep rank·thumb·handle·bar·% */
-  .lb-c-record { display: none; }
-  .lb-handle { font-size: 13px; }
-  .lb-thumb { width: 44px; height: 26px; }
+  .lb-c-art { width: 96px; height: 52px; }
+  .lb-score-num { font-size: 18px; }
+  .lb-handle { font-size: 14px; }
 }

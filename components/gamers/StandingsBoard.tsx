@@ -27,30 +27,21 @@ import { Spring } from "@/lib/gamers/spring";
  *                             underglow in the artwork accent, not a trophy.
  */
 
-const ROW_H = 44; // px, must match .lb-row height in CSS (tight catalogue line)
+const ROW_H = 76; // px, must match .lb-row height in CSS (artwork-rectangle row)
+const VISIBLE_ROWS = 7; // scroll-area height = this many rows
 
 /**
- * Rank → colour from the curated Svenskt Tenn / Josef Frank register.
- * The ramp is spread so the VISIBLE top set steps through the whole harmonic
- * palette (a true gradient of standing), rather than bucketing most rows into
- * one hue. Beyond the leaders it settles to the calm field colours, then dim.
+ * Rank → colour from the cool electric register, stepped in pairs across the
+ * top 10 so scrolling the window reveals a continuous cool "gradient of
+ * standing": aqua crown → teal → azure → indigo → cool violet, slate beyond.
  */
-const TIER_RAMP = [
-  "var(--pal-saffron)", // 1
-  "var(--pal-saffron)", // 2
-  "var(--pal-sienna)", // 3
-  "var(--pal-sienna)", // 4
-  "var(--pal-madder)", // 5
-  "var(--pal-madder)", // 6
-  "var(--pal-violet)", // 7
-  "var(--pal-violet)", // 8
-  "var(--pal-peacock)", // 9
-  "var(--pal-peacock)", // 10
-];
 function tierColor(rank: number): string {
-  if (rank >= 1 && rank <= TIER_RAMP.length) return TIER_RAMP[rank - 1];
-  if (rank <= 100) return "var(--pal-moss)"; // the rest of the evolving field
-  return "var(--ink-dim)";
+  if (rank <= 2) return "var(--pal-saffron)"; // electric aqua — crown
+  if (rank <= 4) return "var(--pal-sienna)"; // bright teal
+  if (rank <= 6) return "var(--pal-madder)"; // azure
+  if (rank <= 8) return "var(--pal-violet)"; // electric indigo
+  if (rank <= 10) return "var(--pal-peacock)"; // cool violet
+  return "var(--pal-moss)"; // deep slate field (beyond the visible 10)
 }
 
 function fmtCountdown(total: number): string {
@@ -62,9 +53,8 @@ function fmtCountdown(total: number): string {
 }
 
 export default function StandingsBoard() {
-  // Inline on the exhibition page between the statement and the spec readout:
-  // a tight TOP set reads like a high-score table, not an endless list. The
-  // full board lives behind "VIEW FULL STANDINGS" once we wire pagination.
+  // Top 10 only, shown in a ~7-row-tall scroll window you scroll WITHIN — see
+  // ~7 at once, scroll through the 10. The page doesn't move while you're in it.
   const LIMIT = 10;
   const [entries, setEntries] = useState<Entry[]>(() => fetchStandings(LIMIT));
   const [countdown, setCountdown] = useState<number>(() =>
@@ -178,80 +168,76 @@ export default function StandingsBoard() {
         </span>
       </div>
 
-      <ol className="lb-list" role="list">
-        {entries.map((e) => {
-          const total = e.wins + e.losses;
-          const rate = total ? e.wins / total : 0;
-          const moved = e.rank - e.prevRank;
-          return (
-            <li
-              key={e.id}
-              className="lb-row"
-              data-evolved={e.evolved ? "true" : "false"}
-              ref={(el) => {
-                if (el) rowRefs.current.set(e.id, el);
-                else rowRefs.current.delete(e.id);
-              }}
-              style={
-                {
-                  height: ROW_H,
-                  "--tier": tierColor(e.rank),
-                } as React.CSSProperties
-              }
-            >
-              <button
-                className="lb-row-btn"
-                onClick={() => pitchHero(e)}
-                aria-label={`Pitch ${e.handle}'s artwork as the hero`}
+      {/* self-contained scroll window: ~7 rows tall, scrolls WITHIN; CSS
+          overscroll-behavior:contain keeps the page still until you reach an
+          edge, so you scroll through the 10 without the page moving. */}
+      <div className="lb-scroll" style={{ height: ROW_H * VISIBLE_ROWS }}>
+        <ol className="lb-list" role="list">
+          {entries.map((e) => {
+            const total = e.wins + e.losses;
+            const rate = total ? Math.round(e.wins / total * 100) : 0;
+            const moved = e.rank - e.prevRank;
+            return (
+              <li
+                key={e.id}
+                className="lb-row"
+                data-evolved={e.evolved ? "true" : "false"}
+                ref={(el) => {
+                  if (el) rowRefs.current.set(e.id, el);
+                  else rowRefs.current.delete(e.id);
+                }}
+                style={
+                  {
+                    height: ROW_H,
+                    "--tier": tierColor(e.rank),
+                  } as React.CSSProperties
+                }
               >
-                <span className="lb-c-rank">
-                  <span className="lb-rank-num">
-                    {e.rank.toString().padStart(2, "0")}
+                <button
+                  className="lb-row-btn"
+                  onClick={() => pitchHero(e)}
+                  aria-label={`Pitch ${e.handle}'s artwork as the hero, rank ${e.rank}`}
+                >
+                  {/* rectangle artwork + transparent overlay + tucked rank number */}
+                  <span className="lb-c-art">
+                    <Thumb fxhash={e.fxhash} id={e.id} />
+                    <span className="lb-art-scrim" aria-hidden />
+                    <span className="lb-art-rank" aria-hidden>
+                      {e.rank.toString().padStart(2, "0")}
+                    </span>
+                    {moved !== 0 && (
+                      <span
+                        className={`lb-delta ${moved < 0 ? "up" : "down"}`}
+                        aria-hidden
+                      >
+                        {moved < 0 ? "▲" : "▼"}
+                      </span>
+                    )}
                   </span>
-                  {moved !== 0 && (
-                    <span
-                      className={`lb-delta ${moved < 0 ? "up" : "down"}`}
-                      aria-hidden
-                    >
-                      {moved < 0 ? "▲" : "▼"}
+
+                  {/* the score — win rate */}
+                  <span className="lb-c-score">
+                    <span className="lb-score-num">{rate}</span>
+                    <span className="lb-score-unit dim" aria-hidden>
+                      %
                     </span>
-                  )}
-                </span>
+                  </span>
 
-                <span className="lb-c-thumb">
-                  <Thumb fxhash={e.fxhash} id={e.id} />
-                </span>
-
-                <span className="lb-c-handle">
-                  <span className="lb-handle">{e.handle}</span>
-                  {e.evolved && (
-                    <span className="lb-evolved" aria-hidden>
-                      EVOLVED
-                    </span>
-                  )}
-                </span>
-
-                <span className="lb-bar" aria-hidden>
-                  <span
-                    className="lb-bar-fill"
-                    style={{ width: `${(rate * 100).toFixed(1)}%` }}
-                  />
-                </span>
-
-                <span className="lb-rate-num">
-                  {(rate * 100).toFixed(0)}
-                </span>
-
-                <span className="lb-c-record dim">
-                  {e.wins}<span aria-hidden>·</span>{e.losses}
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ol>
-
-      <div className="lb-foot dim">VIEW FULL STANDINGS →</div>
+                  {/* the username */}
+                  <span className="lb-c-handle">
+                    <span className="lb-handle">{e.handle}</span>
+                    {e.evolved && (
+                      <span className="lb-evolved" aria-hidden>
+                        EVOLVED
+                      </span>
+                    )}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
     </section>
   );
 }
