@@ -30,18 +30,26 @@ import { Spring } from "@/lib/gamers/spring";
 const ROW_H = 44; // px, must match .lb-row height in CSS (tight catalogue line)
 
 /**
- * Rank → CGA tier colour. Evokes the Pac-Man high-score screen's per-row
- * rainbow, but as a CALM warm→cool descent (not 100 random colours): the
- * leaders glow warm (cyan/white/yellow), the field cools to blue/dim. Reads
- * as a gradient of standing, gallery-grade, not a circus.
+ * Rank → colour from the curated Svenskt Tenn / Josef Frank register.
+ * The ramp is spread so the VISIBLE top set steps through the whole harmonic
+ * palette (a true gradient of standing), rather than bucketing most rows into
+ * one hue. Beyond the leaders it settles to the calm field colours, then dim.
  */
+const TIER_RAMP = [
+  "var(--pal-saffron)", // 1
+  "var(--pal-saffron)", // 2
+  "var(--pal-sienna)", // 3
+  "var(--pal-sienna)", // 4
+  "var(--pal-madder)", // 5
+  "var(--pal-madder)", // 6
+  "var(--pal-violet)", // 7
+  "var(--pal-violet)", // 8
+  "var(--pal-peacock)", // 9
+  "var(--pal-peacock)", // 10
+];
 function tierColor(rank: number): string {
-  if (rank === 1) return "var(--cga-cyan)";
-  if (rank <= 3) return "var(--cga-white)";
-  if (rank <= 10) return "var(--cga-yellow)";
-  if (rank <= 25) return "var(--cga-brown)";
-  if (rank <= 50) return "var(--cga-l-green)";
-  if (rank <= 100) return "var(--cga-l-blue)";
+  if (rank >= 1 && rank <= TIER_RAMP.length) return TIER_RAMP[rank - 1];
+  if (rank <= 100) return "var(--pal-moss)"; // the rest of the evolving field
   return "var(--ink-dim)";
 }
 

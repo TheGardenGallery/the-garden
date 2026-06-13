@@ -709,15 +709,18 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
    hierarchy by size + colour only. Tight catalogue rhythm.
    ============================================================ */
 
-/* authentic CGA hues — cyan is the high-score-screen signature; rank tiers
-   walk warm→cool down the table, the arcade rainbow muted to read refined. */
+/* Palette: the Svenskt Tenn / Josef Frank register — saturated, named, harmonious
+   colour used with discipline (NOT a bright generated-HSL arcade rainbow). The
+   rank tiers walk this curated set as a confident "gradient of standing" that
+   reads gallery-grade against the dark ground: saffron at the crown, descending
+   through sienna, madder, violet, peacock, to moss in the field. */
 .gamers-root {
-  --cga-cyan: #6ff;
-  --cga-white: #f4f4f4;
-  --cga-yellow: #ffe45e;
-  --cga-amber: #ffb054;
-  --cga-green: #79e08a;
-  --cga-blue: #8a93ff;
+  --pal-saffron: #e8b13a;   /* saffron ochre — the crown */
+  --pal-sienna:  #d07440;   /* burnt sienna */
+  --pal-madder:  #c0405e;   /* crimson madder */
+  --pal-violet:  #7d5cb0;   /* royal violet */
+  --pal-peacock: #3f9b96;   /* peacock teal */
+  --pal-moss:    #8aa64a;   /* moss green — the field */
 }
 
 /* the board shares the colophon's content column EXACTLY (same width + centering
@@ -735,12 +738,14 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   display: flex;
   align-items: baseline;
   gap: 16px;
-  margin-bottom: var(--space-2);
+  /* the section label wants clear separation from the data block below it —
+     more air than the within-block rhythm, per Hufkens label→content contrast */
+  margin-bottom: var(--space-3);
 }
 .lb-title {
   font-size: 13px;
   letter-spacing: 0.34em;
-  color: var(--cga-cyan);
+  color: var(--ink);
   text-transform: uppercase;
 }
 .lb-head-meta {
@@ -805,7 +810,7 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   font-size: 8px;
   line-height: 1;
 }
-.lb-delta.up { color: var(--cga-green); }
+.lb-delta.up { color: var(--pal-moss); }
 .lb-delta.down { color: var(--ink-dim); }
 
 /* ---- thumbnail: no frame, cheap at rest, live world zooms in on hover ---- */
@@ -869,7 +874,7 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   flex: 0 0 auto;
   font-size: 8px;
   letter-spacing: 0.22em;
-  color: var(--tier, var(--cga-cyan));
+  color: var(--tier, var(--pal-saffron));
   opacity: 0;
   transform: translateX(-3px);
   transition: opacity 180ms ease, transform 180ms ease;
@@ -913,7 +918,7 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
 
 /* ---- footer affordance to the full board ---- */
 .lb-foot {
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
   font-size: 10px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
