@@ -41,22 +41,14 @@ export default function Hero() {
   // with a CSS transform (like object-fit: contain). Resizing only changes the
   // scale factor — no remount, no reboot, no reflow jank, never crops.
   //
-  // The piece reads window.innerWidth to size its canvas; below ~1700px wide
-  // the HUD elements (DAMAGE, hash readout, corner brackets) get cropped at
-  // the canvas edges, so the iframe boots at a safe high base. The visual
-  // "artifacting" complaint at 2100 wasn't from too many pixels — it was the
-  // nearest-neighbor downscale aliasing. Switching the canvas's
-  // image-rendering from `pixelated` to `auto` (see piece/index.html) makes
-  // the scale smooth instead of jaggy.
-  // Lowered from 2100×1037: at 2100 the canvas was downscaled ~0.29× to fit the
-  // stage, and that heavy downscale of the busy CGA-dithered render is what read
-  // as hard artifacting (and "zoomed out", since the wide HUD margin baked at
-  // 2100 shrank into the frame). Tested down: HUD (corner brackets, hex
-  // readout, DAMAGE) stays uncropped to ~1350; below that the corner brackets
-  // start clipping on tight iterations. 1350 = least downscale / most filled-in
-  // frame while keeping the full HUD. Lower = sharper + less zoomed out.
-  const BASE_W = 1350;
-  const BASE_H = 666;
+  // Match the artist's native staging dimensions exactly: 1280×633. The piece
+  // sizes its canvas to the iframe's innerWidth×innerHeight and the camera is
+  // baked at this aspect, so booting at 1280×633 = the exact composition itsgalo
+  // ships (no aspect mismatch, no geometric stretch). image-rendering stays
+  // `pixelated` (here and in piece/index.html) so the CGA dither stays crisp —
+  // smoothing it with `auto` mushes the pixel-art and reads as wrong/squished.
+  const BASE_W = 1280;
+  const BASE_H = 633;
 
   // Measure the stage and compute a uniform scale so the fixed iframe fits.
   useEffect(() => {

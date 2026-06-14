@@ -358,7 +358,7 @@ main.surface {
      the high-res render back to display size */
   transform-origin: center;
   background: transparent;
-  image-rendering: auto;
+  image-rendering: pixelated;
 }
 
 /* readout under the hero: re-roll + hash */
