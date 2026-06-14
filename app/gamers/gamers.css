@@ -136,7 +136,12 @@ main.surface {
   inset: 0;
   /* cover the full page height — the world (top) fades through the scrim into
      a solid dark ground that extends all the way to the footer, so there is no
-     visible seam where the gradient stops and the body bg begins. */
+     visible seam where the gradient stops and the body bg begins. The world
+     SCROLLS AWAY with the page (Ivan's preferred feel — content rises into dark,
+     the backdrop is not pinned). The blur shimmer-on-scroll is handled NOT by
+     pinning this, but by promoting the blurred frame to its own GPU layer so the
+     blur is cached as a texture and only translated on scroll, never re-
+     rasterized — see .worldplate-frame. */
   height: 100%;
   z-index: 0;             /* backdrop layer; content sits at z-index 2 */
   overflow: hidden;
@@ -154,8 +159,15 @@ main.surface {
   width: 130vw;
   height: 165vh;
   /* soften the world into an out-of-focus backdrop — the framed artwork stays
-     the sharp subject, the world behind it reads as atmosphere. */
-  transform: translate(-50%, -8vh) scale(1.06);
+     the sharp subject, the world behind it reads as atmosphere.
+     The trailing translateZ(0) PROMOTES this blurred frame to its own GPU
+     compositor layer: the blur(14px) is rasterized ONCE into a cached texture,
+     and on scroll the compositor only TRANSLATES that texture instead of
+     re-running the blur at each scroll offset. That kills the scroll shimmer
+     (re-rasterizing a blur on a fractional offset over a pixel-art source
+     crawls) WITHOUT pinning the plate — so the world still scrolls away into the
+     dark scrim (Ivan's preferred feel), it just scrolls as a clean cached layer. */
+  transform: translate(-50%, -8vh) scale(1.06) translateZ(0);
   filter: blur(14px);
   border: 0;
   /* crossfade between worlds on re-roll: each layer boots hidden, then fades up
@@ -163,7 +175,9 @@ main.surface {
      never a hard cut. */
   opacity: 0;
   transition: opacity 900ms cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: opacity;
+  /* hint both: opacity for the crossfade, transform to keep the composited
+     layer (the blur texture) resident so scrolling stays cheap + shimmer-free */
+  will-change: opacity, transform;
 }
 /* on the dark ground the colourful terrain glows — reveal opacity once painted */
 .worldplate-frame[data-shown="true"] { opacity: 0.92; }
@@ -318,15 +332,17 @@ main.surface {
 
 .hero-stage {
   position: relative;
-  /* Full-bleed contain with a 0.5dvw / 0.5dvh inset on every edge — the
-     largest box that fits the 1280:820 aspect inside (100dvw - 1dvw) wide and
-     (100dvh - 1dvh) tall. min() picks whichever dimension is the constraint.
+  /* Full-bleed contain at the 1280:820 aspect — ONE confident height rule.
+     The art is sized by whichever budget is smaller: the width (100dvw - 28dvw)
+     or a flat 56dvh height cap. No leftover-pixel reserve, no per-element sync:
+     the first-view stack fits the fold because the type below is QUIET (the
+     GAMERS wordmark scales down on short/wide windows — see .title) and the
+     rhythm is proportional (see the dvh-based gaps below), not because the art
+     is reverse-engineered to the spare pixels.
      1280:820 (≈1.56:1) is landscape but tall enough to give the piece's
      fixed-grid HUD the rows it needs — a short letterbox crams it (see Hero.tsx). */
-  width: min(calc(100dvw - 28dvw), calc(62dvh * (1280 / 820)));
-  /* topbar → canvas: same section-break rhythm as the colophon — every major
-     break in the page is exactly var(--space-4). */
-  margin: var(--space-4) auto 0;
+  width: min(calc(100dvw - 28dvw), calc(56dvh * (1280 / 820)));
+  margin: var(--space-4) auto 0; /* shorthand keeps left/right auto centering */
   aspect-ratio: 1280 / 820;
   padding: 0;
 }
@@ -464,12 +480,16 @@ main.surface {
 
 .title {
   margin: 0 auto;
-  /* Cap the fit-to-width container at 60% of the viewport so GAMERS never
-     overshoots — the text scales to fill this box, not the full title block. */
-  max-width: 45dvw;
+  /* Fit-to-width box: the wordmark scales to fill THIS width. Cap it by the
+     smaller of 45dvw (wide-screen ceiling so GAMERS never overshoots) and
+     52dvh — so on a SHORT/WIDE window the wordmark goes QUIET in proportion to
+     the vertical room, instead of staying loud and crowding the art into the
+     header. Hufkens hierarchy is size + restraint; the mark doesn't need to be
+     huge. One expression, used for both the box width and the font ceiling. */
+  max-width: min(45dvw, 52dvh);
   /* base = floor; --max-font-size = ceiling for the fit-to-width scaler. */
   font-size: 40px;
-  --max-font-size: 45dvw;
+  --max-font-size: min(45dvw, 52dvh);
   line-height: 0.9;
   /* hierarchy by SIZE, never weight — CP437 is single-weight; force true 400
      and never let the browser synthesise fake bold (it smears the bitmap) */
@@ -516,6 +536,31 @@ main.surface {
   font-size: clamp(11px, 1.6vw, 14px);
   letter-spacing: 0.18em;
   color: var(--ink-dim);
+}
+
+/* --- first-view vertical rhythm: ONE proportional gap, not fixed pixels -----
+   The first-view stack is stage → RE-ROLL → GAMERS title → name, centered in
+   (100svh - 50px). The gaps were a flat --space-4 (72) + two --space-3 (58) of
+   fixed whitespace that, with a too-loud title, pushed the wordmark past the
+   fold. Refined fix (no breakpoint, no reserve math): each block gap is the
+   GENEROUS token capped by a fraction of viewport height — `min(token, N dvh)`.
+   On a tall screen the token wins (full Hufkens breathing room); as the window
+   shortens the dvh term eases the gaps down in proportion, so the stack stays in
+   rhythm and fits the fold on its own. The art keeps its single 56dvh rule and
+   the title scales quiet (see .title) — nothing is reverse-engineered to spare
+   pixels. Scoped to the first-view blocks ONLY: the shared --space-3/4 tokens
+   and the colophon's section rhythm are untouched. */
+.gamers-root .hero-stage {
+  margin-top: min(var(--space-4), 6dvh);   /* topbar → canvas */
+}
+.gamers-root .hero-readout {
+  padding-top: min(var(--space-3), 5dvh);  /* stage → reroll */
+}
+.gamers-root .titleblock {
+  margin-top: min(var(--space-3), 5dvh);   /* reroll → title */
+}
+.gamers-root .subtitle {
+  margin-top: min(26px, 2.4dvh);           /* title → name */
 }
 
 /* --- rules / sections -------------------------------------- */

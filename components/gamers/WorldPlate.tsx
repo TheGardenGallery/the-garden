@@ -8,13 +8,16 @@ import { useEffect, useRef, useState } from "react";
  * only the procedural terrain + sky. It mirrors the HERO's seed so the framed
  * artwork reads as a targeted window into the world bleeding behind the page.
  *
- * LIVE, RE-ROLLS IN LOCKSTEP: each re-roll appends a fresh live iframe layer for
+ * LIVE CROSSFADE, THEN FREEZE: each re-roll appends a fresh live iframe layer for
  * the new seed; it boots, and the instant it has painted a composed frame (the
  * iframe posts `gamers:plate-ready`) we crossfade it up while the outgoing world
  * fades out — a smooth dissolve driven by real paint, not a guess timer, so the
- * new world never pops in late. The background is moving video, not a frozen
- * snapshot (we accept the GPU cost for the smoother feel). The hero in /piece/
- * is untouched.
+ * new world never pops in late. Once a layer has settled (~2.6s) the plate iframe
+ * FREEZES its own rAF to a single still frame (see /piece-bg/index.html): the
+ * backdrop is blurred atmosphere, so a held frame is visually identical but costs
+ * ~zero GPU — leaving the hero in /piece/ as the only perpetual live renderer, so
+ * the page stays cool over a long viewing session instead of throttling. The hero
+ * in /piece/ is untouched.
  */
 
 type Layer = { id: number; seed: string; shown: boolean };

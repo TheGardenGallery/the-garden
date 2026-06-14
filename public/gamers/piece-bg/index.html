@@ -50,11 +50,16 @@
 <script src="./bundle.js" type="module"></script>
 
 <!--
-  Bridge: the background plate runs LIVE and never freezes — it is a moving
-  video of the world. It does NOT emit palette/seed (only the hero /piece/ drives
-  theming + the seed; emitting here would loop). It DOES post one ready ping once
-  its canvas has painted a composed frame, so the parent can crossfade the new
-  world in the instant it is drawable (no guess-timer late-pop on re-roll).
+  Bridge + FREEZE. The plate is a blurred atmospheric BACKDROP, not the artwork —
+  it has no reason to keep animating once it has composed a frame. Running it as a
+  perpetual second live WebGL loop (on top of the hero's) is what builds GPU/
+  thermal load and throttles the page after a couple of minutes. So: post one
+  ready ping the instant the canvas has painted (drives the parent's crossfade on
+  re-roll, no guess-timer), let the camera settle briefly, THEN freeze the rAF
+  loop to a single still frame — zero ongoing GPU cost, visually identical behind
+  the blur. This restores the documented intent (the loop had silently drifted to
+  "always live"). It does NOT emit palette/seed (only the hero /piece/ drives
+  theming; emitting here would loop).
 -->
 <script>
   (function () {
@@ -69,7 +74,28 @@
       try {
         window.parent.postMessage({ type: "gamers:plate-ready" }, "*");
       } catch (e) {}
+      scheduleFreeze();
     }
+
+    // Freeze the rAF loop after a short settle so the backdrop holds a composed,
+    // camera-settled frame. We let the real loop keep ticking for SETTLE_MS, then
+    // replace requestAnimationFrame with a no-op so the renderer's next loop
+    // request is dropped — the canvas keeps its last painted frame, the GPU goes
+    // quiet. cancelAnimationFrame is also neutralised so nothing errors.
+    var SETTLE_MS = 2600; // ~camera settle; tuned so the frozen frame looks composed
+    var frozen = false;
+    function scheduleFreeze() {
+      if (frozen) return;
+      setTimeout(function () {
+        if (frozen) return;
+        frozen = true;
+        try {
+          window.requestAnimationFrame = function () { return 0; };
+          window.cancelAnimationFrame = function () {};
+        } catch (e) {}
+      }, SETTLE_MS);
+    }
+
     // poll briefly for the first composed frame; once the canvas has size and a
     // couple of rAF ticks have run, the terrain is on it.
     window.addEventListener("load", function () {

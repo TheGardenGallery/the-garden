@@ -72,7 +72,16 @@ export default function Hero() {
 
   // Uniform contain-scale: the same factor on both axes, so the artwork is only
   // ever zoomed proportionally to fit — never stretched, never cropped.
-  const fit = stage.w > 0 ? Math.min(stage.w / BASE_W, stage.h / BASE_H) : 0;
+  // EDGE-BLEED: the stage dimensions are rounded (above) and contain-fit lands
+  // the scaled iframe a sub-pixel UNDER the stage on the binding axis, so the
+  // piece's black html background showed through as a thin black line on the
+  // left/right edges. Multiply the fit by a tiny 1.006 epsilon so the render
+  // always slightly OVERFLOWS the frame-wrap (which is overflow:hidden, so the
+  // bleed is clipped, not visible) — guarantees true edge-to-edge coverage at
+  // any size with no perceptible zoom on the art.
+  const EDGE_BLEED = 1.006;
+  const fit =
+    stage.w > 0 ? Math.min(stage.w / BASE_W, stage.h / BASE_H) * EDGE_BLEED : 0;
   const frameStyle =
     fit > 0
       ? {
