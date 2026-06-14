@@ -216,6 +216,13 @@ main.surface {
   stroke-width: 1;
 }
 .reticle .rt-fill { fill: currentColor; }
+/* Belt-and-suspenders: never show the custom reticle on touch / coarse-pointer
+   devices, even if the JS hover gate is bypassed (e.g. a hybrid device or a
+   responsive emulator that reports hover-capable). The reticle is a desktop
+   pointer affordance only. */
+@media (hover: none), (pointer: coarse) {
+  .reticle { display: none !important; }
+}
 /* the reticle is a constant precise instrument — it never changes shape.
    Targets respond to being targeted (see .reroll:hover), not the cursor. */
 
@@ -312,13 +319,15 @@ main.surface {
 .hero-stage {
   position: relative;
   /* Full-bleed contain with a 0.5dvw / 0.5dvh inset on every edge — the
-     largest box that fits the 1280:633 aspect inside (100dvw - 1dvw) wide and
-     (100dvh - 1dvh) tall. min() picks whichever dimension is the constraint. */
-  width: min(calc(100dvw - 12dvw), calc(62dvh * (1280 / 633)));
+     largest box that fits the 1280:820 aspect inside (100dvw - 1dvw) wide and
+     (100dvh - 1dvh) tall. min() picks whichever dimension is the constraint.
+     1280:820 (≈1.56:1) is landscape but tall enough to give the piece's
+     fixed-grid HUD the rows it needs — a short letterbox crams it (see Hero.tsx). */
+  width: min(calc(100dvw - 28dvw), calc(62dvh * (1280 / 820)));
   /* topbar → canvas: same section-break rhythm as the colophon — every major
      break in the page is exactly var(--space-4). */
   margin: var(--space-4) auto 0;
-  aspect-ratio: 1280 / 633;
+  aspect-ratio: 1280 / 820;
   padding: 0;
 }
 
@@ -693,8 +702,16 @@ main.surface {
     aspect-ratio: 4 / 3;
     max-height: 40svh;
   }
-  /* prevent any horizontal overflow from the oversized title */
-  .title { letter-spacing: 0.02em; overflow-wrap: anywhere; }
+  /* Title: the fit-to-width scaler keeps GAMERS on ONE line — give it a wider
+     box on phones (45dvw is too narrow for the 6-char CP437 word) and lower the
+     font floor so it can scale down to fit instead of overflowing. NEVER allow a
+     mid-word break (no overflow-wrap) — that splits GAMER/S and looks broken. */
+  .title {
+    max-width: calc(100dvw - 2 * var(--pad));
+    --max-font-size: calc(100dvw - 2 * var(--pad));
+    font-size: 28px;
+    letter-spacing: 0.02em;
+  }
   .footer { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
 
@@ -742,7 +759,7 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   --lb-grid: 170px 1fr 184px;
   /* reserved scrollbar-gutter width of the row scroll window; the header
      mirrors it as padding-right so both grids share an identical content box. */
-  --lb-sbw: 11px;
+  --lb-sbw: 25px;
   /* ---- hard 3D EXTRUSION (Space Invaders logo look), shared by rank/name/score.
      Replaces the soft phosphor glow. Built as a text-shadow chain:
      (1) a dark CONTOUR ring hugging the glyph (the black outline in the ref),
@@ -830,19 +847,63 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   overscroll-behavior: contain;
   scrollbar-gutter: stable; /* always reserve the gutter so the row content box
                                width is stable and matches the header */
-  /* a quiet, refined scrollbar — hairline, tier-neutral, no chrome */
-  scrollbar-width: thin;
-  scrollbar-color: var(--hair) transparent;
+  /* hide the NATIVE scrollbar entirely — we render our own always-visible retro
+     bar (.lb-sb) so it shows for every visitor (macOS overlay bars are transient
+     and can't be forced persistent + styled). */
+  scrollbar-width: none; /* Firefox */
 }
-.lb-scroll::-webkit-scrollbar { width: 6px; }
-.lb-scroll::-webkit-scrollbar-track { background: transparent; }
-.lb-scroll::-webkit-scrollbar-thumb {
-  background: rgba(232, 232, 232, 0.16);
-  border-radius: 0;
+.lb-scroll::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+/* ---- custom RETRO scrollbar: a recessed channel + a chunky SQUARE beveled
+   thumb, in the same hard-edged 3D language as the leaderboard type (.lb-3d).
+   Lives in the reserved --lb-sbw gutter on the right of the scroll window.
+   Always visible, draggable; click the track to page. ---- */
+.lb-sb {
+  position: absolute;
+  top: 10px;    /* a smidge in from the list top */
+  bottom: 10px; /* …and bottom, so the bar isn't edge-to-edge (matches TRACK_PAD) */
+  right: 0;
+  width: 16px; /* chunkier bar; narrower than the --lb-sbw gutter so it sits OFF
+                  the score numbers with breathing room to its left */
+  /* HONEST recessed channel: a flat dark well framed by a single hard hairline —
+     no faux-bevel highlight. The depth reads from the EXTRUDED thumb sitting in
+     it, the same way the board's type extrudes off the black ground. */
+  background: rgba(0, 0, 0, 0.55);
+  outline: 1px solid rgba(255, 255, 255, 0.10);
+  outline-offset: -1px;
+  cursor: none;
+  z-index: 3;
 }
-.lb-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(232, 232, 232, 0.3);
+.lb-sb-thumb {
+  position: absolute;
+  top: 0;
+  /* the extrusion recedes DOWN-LEFT, so anchor the lit front face to the RIGHT
+     of the channel and let the dark stack fall left into the track width. */
+  right: 1px;
+  width: 9px;
+  /* flat phosphor front face — tier-NEUTRAL glowing ink (the board rule: colour
+     comes from the rank tiers; chrome stays colourless). No bevel, no gradient. */
+  background: #c9d4e0;
+  /* hard 3D EXTRUSION in the board's own language: a dark contour ring hugging
+     the face, then a depth stack stepping DOWN-LEFT in darkening greys, ending
+     in a far dark contour — the scrollbar speaks the same --lb-3d vocabulary as
+     the rank/score type, just neutral-grey instead of per-row hue. */
+  box-shadow:
+    /* contour ring */
+    1px 0 0 rgba(0,0,0,0.9), -1px 0 0 rgba(0,0,0,0.9),
+    0 1px 0 rgba(0,0,0,0.9), 0 -1px 0 rgba(0,0,0,0.9),
+    /* depth stack — receding down-left, darkening */
+    -1px 1px 0 #8a98ab,
+    -2px 2px 0 #74839a,
+    -3px 3px 0 #5e6d85,
+    -4px 4px 0 #495873,
+    /* far-edge contour keeps the extrusion bottom crisp on black */
+    -5px 5px 0 rgba(0,0,0,0.85);
+  cursor: none;
+  will-change: transform;
 }
+.lb-sb-thumb:hover { background: #e2eaf3; } /* face brightens; extrusion intact */
+.lb-sb-thumb:active { background: #b3bfce; } /* pressed: face dims, no bevel flip */
 
 /* No scanline-filter overlay — laying a stripe gradient over everything is the
    cliché "retro filter" tell that reads as generic. Authentic CRT feel comes
@@ -854,7 +915,9 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
 .lb-list {
   list-style: none;
   margin: 0;
-  padding: 0;
+  /* clear the custom retro scrollbar on the right so SCORE never sits under the
+     thumb, and so the row content box matches the header's --lb-sbw gutter. */
+  padding: 0 var(--lb-sbw) 0 0;
 }
 .lb-row {
   position: relative;
@@ -867,10 +930,11 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   gap: var(--lb-col-gap);
   width: 100%;
   height: 100%;
-  padding: 8px 0 8px 12px; /* left pad (mirrored on the header) gives the
-                              down-left 3D extrusion room off the board edge;
-                              no right pad so SCORE's right edge meets the scroll
-                              client edge, aligning with the header's gutter */
+  padding: 4px 0 4px 12px; /* tighter vertical pad for the thinner 64px row; left
+                              pad (mirrored on the header) gives the down-left 3D
+                              extrusion room off the board edge; no right pad so
+                              SCORE's right edge meets the scroll client edge,
+                              aligning with the header's gutter */
   background: none;
   border: 0;
   color: var(--tier, var(--ink));

@@ -32,7 +32,7 @@ import {
  *                  `gamers:pitch-hero` event).
  */
 
-const ROW_H_DESKTOP = 96; // px, must match .lb-row height on desktop (single-line row)
+const ROW_H_DESKTOP = 64; // px, must match .lb-row height on desktop (single-line row)
 const ROW_H_MOBILE = 132; // px, taller slot for the 2-line stacked mobile row
 const MOBILE_BP = 560; // px, matches the @media(max-width:560px) leaderboard query
 const VISIBLE_ROWS = 7; // scroll-area height = this many rows
@@ -157,6 +157,64 @@ export default function StandingsBoard() {
   // range stays correct even when only a slice is mounted.
   const padBottom = totalHeight - padTop - visible.length * ROW_H;
 
+  // ---- custom RETRO scrollbar geometry ------------------------------------
+  // macOS uses transient overlay scrollbars, so a native ::-webkit-scrollbar
+  // only flashes while scrolling. We render our OWN always-visible chunky
+  // beveled thumb (synced to scrollTop, draggable) so the gadget reads as an
+  // intentional CRT-era control and looks identical for every visitor.
+  const viewH = ROW_H * VISIBLE_ROWS; // visible window height (px)
+  const TRACK_PAD = 10; // inset of the track top & bottom inside its gutter — a
+                        // smidge shorter than the full list height so the bar
+                        // doesn't run edge to edge (matches .lb-sb top/bottom)
+  const trackH = viewH - TRACK_PAD * 2;
+  const MIN_THUMB = 28;
+  const thumbH = Math.max(MIN_THUMB, (viewH / totalHeight) * trackH);
+  const maxScroll = Math.max(1, totalHeight - viewH);
+  // thumbTop is relative to the .lb-sb track element, which is ALREADY inset by
+  // TRACK_PAD (top:10/bottom:10 in CSS) — so the thumb travels within [0, trackH]
+  // and we don't re-add the pad here.
+  const thumbTop = (scrollTop / maxScroll) * (trackH - thumbH);
+
+  // drag: map pointer delta on the track → scrollTop
+  const dragRef = useRef<{ startY: number; startScroll: number } | null>(null);
+  const onThumbDown = useCallback(
+    (e: React.PointerEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      (e.target as Element).setPointerCapture?.(e.pointerId);
+      dragRef.current = { startY: e.clientY, startScroll: scrollTop };
+    },
+    [scrollTop]
+  );
+  const onThumbMove = useCallback(
+    (e: React.PointerEvent) => {
+      const d = dragRef.current;
+      const sc = scrollRef.current;
+      if (!d || !sc) return;
+      const dy = e.clientY - d.startY;
+      const travel = trackH - thumbH || 1;
+      sc.scrollTop = d.startScroll + (dy / travel) * maxScroll;
+    },
+    [trackH, thumbH, maxScroll]
+  );
+  const onThumbUp = useCallback((e: React.PointerEvent) => {
+    dragRef.current = null;
+    (e.target as Element).releasePointerCapture?.(e.pointerId);
+  }, []);
+  // click on the track (not the thumb) → page toward that position
+  const onTrackDown = useCallback(
+    (e: React.PointerEvent) => {
+      const sc = scrollRef.current;
+      const track = e.currentTarget as HTMLElement;
+      if (!sc) return;
+      const r = track.getBoundingClientRect();
+      const clickY = e.clientY - r.top;
+      const dir = clickY < thumbTop ? -1 : 1;
+      sc.scrollTop = sc.scrollTop + dir * viewH * 0.9; // page jump
+    },
+    [thumbTop, viewH]
+  );
+
   return (
     <section className="lb mono" aria-label="Leaderboard">
       {/* single centered title */}
@@ -171,7 +229,10 @@ export default function StandingsBoard() {
 
       {/* self-contained scroll window: ~7 rows tall, scrolls WITHIN; CSS
           overscroll-behavior:contain keeps the page still until you reach an
-          edge, so you scroll through the field without the page moving. */}
+          edge, so you scroll through the field without the page moving. The
+          .lb-stage wraps the window + the custom retro scrollbar so the bar can
+          be absolutely positioned in the reserved gutter. */}
+      <div className="lb-stage">
       <div
         className="lb-scroll"
         ref={scrollRef}
@@ -231,6 +292,26 @@ export default function StandingsBoard() {
             );
           })}
         </ol>
+      </div>
+
+        {/* custom retro scrollbar — always visible, chunky beveled thumb.
+            Only shown when the field actually overflows the window. */}
+        {totalHeight > viewH && (
+          <div
+            className="lb-sb"
+            onPointerDown={onTrackDown}
+            aria-hidden
+          >
+            <div
+              className="lb-sb-thumb"
+              style={{ height: thumbH, transform: `translateY(${thumbTop}px)` }}
+              onPointerDown={onThumbDown}
+              onPointerMove={onThumbMove}
+              onPointerUp={onThumbUp}
+              onPointerCancel={onThumbUp}
+            />
+          </div>
+        )}
       </div>
     </section>
   );

@@ -3,24 +3,20 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Reticle — a custom targeting-cursor that follows the pointer, mirroring the
- * piece's HUD crosshair. Crisp pixel strokes, themed from --ink.
+ * Reticle — a custom targeting-cursor that follows the pointer below the hero.
  *
- * KEEP-OUT BOUNDARY (deliberate): the reticle must NEVER enter the artwork's
- * frame. The artwork is a fixed render — you cannot steer the game with the
- * cursor — so letting the reticle roam over it would falsely imply control.
- * When the pointer is over (or inside the clearance around) the art, the
- * reticle rides the frame's PERIMETER at the point nearest the pointer: it
- * reads as a targeting system tracking you along the edge, locked out.
+ * VISIBILITY GATE (deliberate): the hero artwork is now large and carries its
+ * OWN in-piece targeting HUD (crosshair, brackets, readout). A second cursor
+ * reticle on top of it would double up and read as clutter — and since the art
+ * is a fixed render you can't steer, a cursor over it falsely implies control.
+ * So the reticle is HIDDEN whenever the pointer is over (or above) the hero
+ * stage, and only appears once the pointer is BELOW the artwork — i.e. when you
+ * scroll/move down to the GAMERS title + colophon, where it reads as the page's
+ * own targeting cursor. Below the art it's a free, tight ~50ms exponential
+ * follow. Hidden on touch; reduced-motion = no lag.
  *
- * REFINED MOTION (the previous version got STUCK — it re-snapped to the nearest
- * edge every frame and so could never cross the box to follow the pointer out
- * the far side). Here, when the pointer is inside the zone we track the reticle
- * by ARC-LENGTH along the rectangle perimeter and ease it the SHORT way toward
- * the pointer's projection. That keeps it exactly on the border, sliding around
- * corners, never cutting through the interior and never trapped. Outside the
- * zone it's a free, tight ~50ms exponential follow. Hidden on touch;
- * reduced-motion = no lag.
+ * The native cursor is suppressed (.reticle-on on .gamers-root) ONLY while the
+ * reticle is actually shown, so the normal cursor returns over the artwork.
  */
 export default function Reticle() {
   const ref = useRef<HTMLDivElement>(null);
@@ -36,7 +32,6 @@ export default function Reticle() {
     const el: HTMLDivElement = elRef;
 
     const gamersRoot = document.querySelector(".gamers-root");
-    gamersRoot?.classList.add("reticle-on");
 
     // pointer target
     let tx = window.innerWidth / 2;
@@ -44,191 +39,98 @@ export default function Reticle() {
     // rendered position
     let px = tx;
     let py = ty;
-    // when riding the border we track arc-length along the perimeter (px,py are
-    // derived from it); onBorder tells us which regime we're in.
-    let onBorder = false;
-    let s = 0;
     let shown = false;
     let last = performance.now();
     let lastMeasure = last;
 
     // Response time (s). Smaller = snappier. A targeting cursor wants to feel
-    // locked 1:1 to the pointer in free space (only enough smoothing to kill
-    // sub-pixel jitter), and a gentler glide ONLY while riding the frame border
-    // (where the easing IS the intended motion, sliding around corners).
+    // locked ~1:1 to the pointer (only enough smoothing to kill sub-pixel jitter).
     const FREE_SMOOTH = reduce ? 0 : 0.012;
-    const BORDER_SMOOTH = reduce ? 0 : 0.05;
 
-    // forbidden zone = .hero-stage box expanded by a clearance
-    const FRAME_PAD = 44;
-    type Box = { l: number; t: number; r: number; b: number; w: number; h: number; peri: number };
-    let forbid: Box | null = null;
-    function measureForbidden() {
+    // The hero artwork's bottom edge is the visibility divider: above it the
+    // reticle stays hidden (the art owns the targeting HUD there), below it the
+    // reticle is the page cursor. Measured off .hero-stage; a small clearance
+    // keeps the hand-off from flickering right at the seam.
+    const HANDOFF_PAD = 12;
+    let heroBottom = 0;
+    function measureHero() {
       const stage = document.querySelector(".hero-stage");
-      if (!stage) {
-        forbid = null;
-        return;
-      }
-      const r = stage.getBoundingClientRect();
-      const l = r.left - FRAME_PAD;
-      const t = r.top - FRAME_PAD;
-      const rr = r.right + FRAME_PAD;
-      const b = r.bottom + FRAME_PAD;
-      const w = rr - l;
-      const h = b - t;
-      forbid = { l, t, r: rr, b, w, h, peri: 2 * (w + h) };
+      heroBottom = stage ? stage.getBoundingClientRect().bottom + HANDOFF_PAD : 0;
     }
-    measureForbidden();
-    window.addEventListener("scroll", measureForbidden, { passive: true });
-    window.addEventListener("resize", measureForbidden);
+    measureHero();
+    window.addEventListener("scroll", measureHero, { passive: true });
+    window.addEventListener("resize", measureHero);
 
-    function inside(x: number, y: number) {
-      const f = forbid;
-      return !!f && x > f.l && x < f.r && y > f.t && y < f.b;
-    }
-
-    // nearest point on the perimeter to (x,y) — for the target projection
-    function nearestPerimeter(x: number, y: number): [number, number] {
-      const f = forbid;
-      if (!f) return [x, y];
-      const dl = x - f.l;
-      const dr = f.r - x;
-      const dt = y - f.t;
-      const db = f.b - y;
-      const m = Math.min(dl, dr, dt, db);
-      if (m === dl) return [f.l, y];
-      if (m === dr) return [f.r, y];
-      if (m === dt) return [x, f.t];
-      return [x, f.b];
-    }
-
-    // map a point ON (or near) the border to its arc-length s in [0, peri),
-    // walking clockwise from the top-left corner: top → right → bottom → left.
-    function pointToArc(x: number, y: number): number {
-      const f = forbid;
-      if (!f) return 0;
-      const cx = Math.max(f.l, Math.min(f.r, x));
-      const cy = Math.max(f.t, Math.min(f.b, y));
-      const dTop = cy - f.t;
-      const dRight = f.r - cx;
-      const dBottom = f.b - cy;
-      const dLeft = cx - f.l;
-      const m = Math.min(dTop, dRight, dBottom, dLeft);
-      if (m === dTop) return cx - f.l; // top edge: 0..w
-      if (m === dRight) return f.w + (cy - f.t); // right edge: w..w+h
-      if (m === dBottom) return f.w + f.h + (f.r - cx); // bottom: w+h..2w+h
-      return f.w + f.h + f.w + (f.b - cy); // left edge: 2w+h..2w+2h
-    }
-
-    // map an arc-length s back to an (x,y) on the perimeter
-    function arcToPoint(sv: number): [number, number] {
-      const f = forbid;
-      if (!f) return [px, py];
-      let d = ((sv % f.peri) + f.peri) % f.peri;
-      if (d < f.w) return [f.l + d, f.t]; // top
-      d -= f.w;
-      if (d < f.h) return [f.r, f.t + d]; // right
-      d -= f.h;
-      if (d < f.w) return [f.r - d, f.b]; // bottom
-      d -= f.w;
-      return [f.l, f.b - d]; // left
+    // shown only when the pointer is BELOW the hero artwork
+    function shouldShow(y: number) {
+      return y > heroBottom;
     }
 
     function show() {
       if (!shown) {
         shown = true;
         el.style.opacity = "1";
+        gamersRoot?.classList.add("reticle-on");
+      }
+    }
+    function hide() {
+      if (shown) {
+        shown = false;
+        el.style.opacity = "0";
+        gamersRoot?.classList.remove("reticle-on");
       }
     }
     function onMove(e: MouseEvent) {
       tx = e.clientX;
       ty = e.clientY;
-      if (!shown) {
-        if (inside(tx, ty)) {
-          const [bx, by] = nearestPerimeter(tx, ty);
-          px = bx;
-          py = by;
-          s = pointToArc(bx, by);
-          onBorder = true;
-        } else {
-          px = tx;
-          py = ty;
-          onBorder = false;
-        }
+      if (!shown && shouldShow(ty)) {
+        // appearing fresh below the art — seed at the pointer so there's no
+        // slide-in from a stale position.
+        px = tx;
+        py = ty;
       }
-      show();
+      if (shouldShow(ty)) show();
+      else hide();
     }
     function onWindowOut(e: MouseEvent) {
       const evt = e as MouseEvent & { toElement?: Element };
-      if (!e.relatedTarget && !evt.toElement) {
-        shown = false;
-        el.style.opacity = "0";
-      }
-    }
-    function onWindowOver() {
-      show();
+      if (!e.relatedTarget && !evt.toElement) hide();
     }
 
     window.addEventListener("mousemove", onMove);
+    // ALSO track pointermove: when the custom scrollbar thumb captures the
+    // pointer (setPointerCapture on drag), mousemove gets retargeted to the
+    // thumb and stops updating the reticle — it'd freeze mid-drag. pointermove
+    // keeps firing on document during capture, so the reticle keeps tracking.
+    // PointerEvent extends MouseEvent (same clientX/clientY), so onMove handles it.
+    window.addEventListener("pointermove", onMove as (e: Event) => void);
     document.addEventListener("mouseout", onWindowOut);
-    document.addEventListener("mouseover", onWindowOver);
 
     let raf = 0;
     function frame(now: number) {
       const dt = Math.min((now - last) / 1000, 0.05);
       last = now;
-      // Do NOT re-measure the forbidden box EVERY frame — getBoundingClientRect
-      // forces a synchronous layout, and at 120fps alongside the two live WebGL
-      // renderers that reflow starves this rAF, making the reticle visibly trail
-      // the pointer (that was the felt "tracking slightly off"). Scroll/resize
-      // re-measure is wired below; we additionally re-measure at a low cadence
-      // (~6x/s) so a late layout shift (e.g. the world-plate fading in) can't
-      // leave the keep-out box stale — at 1/20th the reflow cost of per-frame.
+      // low-cadence re-measure (~6x/s) so a late layout shift can't leave the
+      // hero divider stale, at 1/20th the per-frame reflow cost.
       if (now - lastMeasure > 160) {
-        measureForbidden();
+        measureHero();
         lastMeasure = now;
       }
-      const f = forbid;
-      const overArt = !!f && inside(tx, ty);
-      const SMOOTH = overArt ? BORDER_SMOOTH : FREE_SMOOTH;
-      const a = SMOOTH <= 0 ? 1 : 1 - Math.exp(-dt / SMOOTH);
-
-      if (f && inside(tx, ty)) {
-        // pointer is over the art → ride the perimeter, easing the SHORT way
-        // around to the projection of the pointer. Track in arc-length so we
-        // glide along the border (around corners) and never cross the interior.
-        const [bx, by] = nearestPerimeter(tx, ty);
-        const sTarget = pointToArc(bx, by);
-        if (!onBorder) {
-          // just entered: seed arc-length from where we currently are so there
-          // is no jump, then start easing along the border.
-          s = pointToArc(px, py);
-          onBorder = true;
-        }
-        // shortest signed distance around the loop
-        let diff = sTarget - s;
-        if (diff > f.peri / 2) diff -= f.peri;
-        else if (diff < -f.peri / 2) diff += f.peri;
-        s += diff * a;
-        const [nx, ny] = arcToPoint(s);
-        px = nx;
-        py = ny;
-      } else {
-        // pointer is in free space → free 2D follow toward the pointer.
-        if (onBorder) onBorder = false; // peel off the border smoothly
-        px += (tx - px) * a;
-        py += (ty - py) * a;
-        // safety: if a fast move clipped the box, ride it back onto the nearest
-        // edge (rare; keeps the keep-out absolute without trapping — next frames
-        // continue easing toward the now-outside pointer).
-        if (inside(px, py)) {
-          const [bx, by] = nearestPerimeter(px, py);
-          px = bx;
-          py = by;
-        }
+      // keep visibility in sync even when the pointer is still but the page
+      // scrolled (heroBottom moved past/under the stationary pointer).
+      if (shown && !shouldShow(ty)) hide();
+      else if (!shown && shouldShow(ty)) {
+        px = tx;
+        py = ty;
+        show();
       }
 
-      el.style.transform = `translate3d(${px}px, ${py}px, 0) translate(-50%, -50%)`;
+      if (shown) {
+        const a = FREE_SMOOTH <= 0 ? 1 : 1 - Math.exp(-dt / FREE_SMOOTH);
+        px += (tx - px) * a;
+        py += (ty - py) * a;
+        el.style.transform = `translate3d(${px}px, ${py}px, 0) translate(-50%, -50%)`;
+      }
       raf = requestAnimationFrame(frame);
     }
     raf = requestAnimationFrame(frame);
@@ -236,11 +138,11 @@ export default function Reticle() {
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("pointermove", onMove as (e: Event) => void);
       document.removeEventListener("mouseout", onWindowOut);
-      document.removeEventListener("mouseover", onWindowOver);
-      window.removeEventListener("scroll", measureForbidden);
-      window.removeEventListener("resize", measureForbidden);
-      document.querySelector(".gamers-root")?.classList.remove("reticle-on");
+      window.removeEventListener("scroll", measureHero);
+      window.removeEventListener("resize", measureHero);
+      gamersRoot?.classList.remove("reticle-on");
     };
   }, []);
 

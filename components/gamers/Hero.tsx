@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { parseColor, deriveTheme } from "@/lib/gamers/color";
-import DashedFrame from "@/components/gamers/DashedFrame";
 import HashReadout from "@/components/gamers/HashReadout";
+import DashedFrame from "@/components/gamers/DashedFrame";
 
 /** Generate a valid fxhash seed: "oo" + 49 base58-ish chars. */
 function makeFxHash(): string {
@@ -41,14 +41,20 @@ export default function Hero() {
   // with a CSS transform (like object-fit: contain). Resizing only changes the
   // scale factor — no remount, no reboot, no reflow jank, never crops.
   //
-  // Match the artist's native staging dimensions exactly: 1280×633. The piece
-  // sizes its canvas to the iframe's innerWidth×innerHeight and the camera is
-  // baked at this aspect, so booting at 1280×633 = the exact composition itsgalo
-  // ships (no aspect mismatch, no geometric stretch). image-rendering stays
-  // `pixelated` (here and in piece/index.html) so the CGA dither stays crisp —
-  // smoothing it with `auto` mushes the pixel-art and reads as wrong/squished.
+  // HUD layout is laid out on a FIXED 8px grid built from the canvas size
+  // (cols = floor(innerWidth/2/8), rows = floor(innerHeight/2/8)). The targeting
+  // readout anchors its rows to grid center (cy) and the bottom (fromBottom), so
+  // a SHORT canvas collapses those anchors onto each other → reticle box, hex
+  // column and DAMAGE line pile into a cramped jumble. At the old 633 letterbox
+  // (2.02:1, 39 grid rows) the DAMAGE line and the hex column landed on the SAME
+  // row (0-cell gap) — the jumble. We don't need a square frame to fix it; just
+  // enough rows for the HUD to breathe. 1280×820 (≈1.56:1, 51 rows) gives a
+  // clean ~6-cell gap between the hex column and DAMAGE while staying landscape.
+  // The camera is baked at a fixed square aspect (FOV 85, aspect 1) so the 3D
+  // scene doesn't reflow with this — taller only gives the HUD grid its rows.
+  // image-rendering stays `pixelated` (here + piece/index.html) for crisp CGA.
   const BASE_W = 1280;
-  const BASE_H = 633;
+  const BASE_H = 820;
 
   // Measure the stage and compute a uniform scale so the fixed iframe fits.
   useEffect(() => {
