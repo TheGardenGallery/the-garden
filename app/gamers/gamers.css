@@ -735,11 +735,11 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   padding: 0;
   /* one shared grid for header + rows so labels sit EXACTLY over their values.
      Arcade order: RANK (ordinal) · PILOT (name) · SCORE (the loud hero, right).
-     RANK is 188px: wide enough to hold a 3-digit ordinal ("999TH" renders ~173px
-     at the big 34px arcade size), so deep ranks like 162ND don't overflow their
-     column and jam against the name (the 120px col left only a 5px gap). */
-  --lb-col-gap: var(--space-3);
-  --lb-grid: 188px 1fr 168px;
+     Sized so the WORST-CASE row fits the 880px board without collision: widest
+     ordinal "999TH" (~158px at 32px) + longest handle "static_maverick" (~420px
+     at 28px) + 4-digit score (~172px at 34px) + 2×40px gaps = ~860px < board. */
+  --lb-col-gap: var(--space-3-5, 40px);
+  --lb-grid: 170px 1fr 184px;
   /* reserved scrollbar-gutter width of the row scroll window; the header
      mirrors it as padding-right so both grids share an identical content box. */
   --lb-sbw: 11px;
@@ -890,7 +890,7 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   gap: 6px;
 }
 .lb-rank-ord {
-  font-size: 34px;
+  font-size: 32px;
   line-height: 1;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
@@ -914,7 +914,7 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   min-width: 0;
 }
 .lb-handle {
-  font-size: 30px;
+  font-size: 28px;
   /* zero tracking: the CP437 mono glyphs already sit on even cells, and ANY
      letter-spacing detaches the underscore (it renders low + narrow, so tracking
      after it reads as "atom_ cowboy" with a gap). 0 keeps "atom_cowboy" tight. */
@@ -931,7 +931,7 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   justify-content: flex-end; /* hero sits at the right edge, arcade-style */
 }
 .lb-score-num {
-  font-size: 36px;
+  font-size: 34px;
   letter-spacing: 0.01em;
   font-variant-numeric: tabular-nums;
   color: var(--tier, var(--ink));
