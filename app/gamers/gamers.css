@@ -734,9 +734,12 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   margin: 0 auto;
   padding: 0;
   /* one shared grid for header + rows so labels sit EXACTLY over their values.
-     Arcade order: RANK (ordinal) · PILOT (name) · SCORE (the loud hero, right). */
+     Arcade order: RANK (ordinal) · PILOT (name) · SCORE (the loud hero, right).
+     RANK is 188px: wide enough to hold a 3-digit ordinal ("999TH" renders ~173px
+     at the big 34px arcade size), so deep ranks like 162ND don't overflow their
+     column and jam against the name (the 120px col left only a 5px gap). */
   --lb-col-gap: var(--space-3);
-  --lb-grid: 120px 1fr 168px;
+  --lb-grid: 188px 1fr 168px;
   /* reserved scrollbar-gutter width of the row scroll window; the header
      mirrors it as padding-right so both grids share an identical content box. */
   --lb-sbw: 11px;
