@@ -695,12 +695,17 @@ main.surface {
 @media (max-width: 640px) {
   .topbar .tb-mid { display: none; }
   .readout-grid { grid-template-columns: 1fr; }
-  /* on phones the artwork reads larger with a less-letterbox aspect; cap its
-     height by svh so it never crowds the title off a short phone screen, and
-     keep it full-bleed (no inset mat) like desktop */
+  /* On phones the artwork should read LARGE — it's the hero. The desktop width
+     cap (72dvw, set to shrink the framed art on big screens) leaks down here and
+     leaves the art at ~72% width with big side gutters and lots of empty space,
+     even though there's plenty of room. Override: let the stage use the full
+     content width (minus the page pad, leaving room for the dashed frame's 18px
+     outset) and raise the height cap so it can grow on tall portrait screens.
+     A 4/3 aspect keeps the HUD readable; full-bleed (no inset mat) like desktop. */
   .hero-stage {
+    width: calc(100dvw - 2 * var(--pad) - 36px);
     aspect-ratio: 4 / 3;
-    max-height: 40svh;
+    max-height: 56svh;
   }
   /* Title: the fit-to-width scaler keeps GAMERS on ONE line — give it a wider
      box on phones (45dvw is too narrow for the 6-char CP437 word) and lower the
