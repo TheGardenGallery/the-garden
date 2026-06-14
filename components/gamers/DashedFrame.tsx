@@ -19,11 +19,13 @@ export default function DashedFrame() {
     if (!el) return;
     const measure = () => {
       const r = el.getBoundingClientRect();
-      // Round to integer pixels. Subpixel dimensions (from dvw/dvh sizing)
-      // cause anti-aliased strokes on the right/bottom edges that don't match
-      // the crisp left/top, so each corner reads differently. Snap to integers.
-      const w = Math.round(r.width);
-      const h = Math.round(r.height);
+      // Use the EXACT measured (fractional) dimensions for the viewBox so the
+      // viewBox aspect equals the element's rendered aspect — then
+      // preserveAspectRatio="none" has nothing to stretch (element==viewBox), so
+      // strokes and dashes stay uniform on all four sides. (Rounding to integers
+      // here was the cause of a ~0.07% aspect mismatch → uneven strokes.)
+      const w = r.width;
+      const h = r.height;
       if (w > 0 && h > 0) setBox({ w, h });
     };
     measure();
@@ -39,22 +41,35 @@ export default function DashedFrame() {
   const THICK = 5;
   const inset = THICK / 2;
 
-  // Target dash period in pixels; per-side we round so the pattern fits cleanly.
-  const TARGET_PERIOD = 22;
-  const DASH_RATIO = 0.55;
+  // ONE dash language for the whole frame — the canonical GAMERS viewfinder
+  // rhythm: 12px dash · 10px gap (period 22, ratio 0.55). Using a SINGLE fixed
+  // dash + gap on all four sides is what makes the spacing read uniform; the
+  // earlier per-side normalisation derived a slightly different period for the
+  // (longer) horizontal sides vs the (shorter) vertical sides, so a top dash
+  // was a hair longer than a side dash — visibly non-uniform.
+  const DASH = 12;
+  const GAP = 10;
+  const PERIOD = DASH + GAP;
 
   /**
-   * For a dashed segment of pixel length L, pick a period that divides L into a
-   * whole number of cycles AND starts/ends with a half-dash flush to the corner.
-   * Path length L = N * period → dashOffset = -dash/2 puts a half-dash at both
-   * ends (since the visible pattern is symmetric about the path's centre).
+   * For a dashed segment of pixel length L, keep the dash + gap FIXED (uniform
+   * across the whole frame) and only choose the dashoffset so the pattern is
+   * CENTERED on the segment — both ends land symmetrically against the bracket
+   * arms, so all four corners read identically regardless of L. Centering: the
+   * midpoint of the segment should sit at a dash-centre, so offset accounts for
+   * how the whole-period count leaves a remainder at the ends.
    */
-  function fit(L: number) {
-    const N = Math.max(1, Math.round(L / TARGET_PERIOD));
-    const period = L / N;
-    const dash = period * DASH_RATIO;
-    const gap = period - dash;
-    return { dash, gap, offset: -dash / 2 };
+  function centeredDash(L: number) {
+    // distance from the segment start to the first dash CENTRE that keeps the
+    // pattern symmetric about the segment midpoint. Half-period phase, minus
+    // however the period tiles into L, resolved into the [0,PERIOD) offset.
+    const half = L / 2;
+    // we want a dash centred at the midpoint; the standard dash starts at a
+    // dash-leading-edge, so shift back by (half mod PERIOD) then to the dash
+    // centre (DASH/2 before the leading edge).
+    const phase = ((half % PERIOD) + PERIOD) % PERIOD;
+    const offset = phase - DASH / 2;
+    return { dash: DASH, gap: GAP, offset };
   }
 
   if (!box) {
@@ -69,13 +84,15 @@ export default function DashedFrame() {
   const x1 = w - inset;
   const y1 = h - inset;
   // Corner arm length scales with the shorter side so brackets stay balanced;
-  // floor at 28px so brackets read on small viewports.
-  const a = Math.max(28, Math.min(w, h) * 0.08);
+  // floor at 28px so brackets read on small viewports. Round so the dashed
+  // segment endpoints land on whole pixels (clean against the bracket arms).
+  const a = Math.round(Math.max(28, Math.min(w, h) * 0.08));
 
   const hLen = x1 - x0 - 2 * a; // top/bottom dashed length
   const vLen = y1 - y0 - 2 * a; // left/right dashed length
-  const hFit = fit(hLen);
-  const vFit = fit(vLen);
+  // SAME dash + gap on both axes (uniform); only the centering offset differs.
+  const hFit = centeredDash(hLen);
+  const vFit = centeredDash(vLen);
 
   return (
     <svg
