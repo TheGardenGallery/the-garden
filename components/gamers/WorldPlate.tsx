@@ -32,21 +32,15 @@ export default function WorldPlate() {
   const seedRef = useRef<string | null>(null);
   const idRef = useRef(0);
 
-  // MOBILE: do not run the live background WebGL iframe at all. The Hero already
-  // runs one live WebGL context; a SECOND full-bleed live context on a phone
-  // (iOS Safari, DPR 3) blows the GPU/memory budget and the tab gets killed
-  // ("the page keeps crashing on mobile"). On phones we skip mounting the plate
-  // entirely and fall back to the solid `--bg` ground the .worldplate already
-  // paints. Desktop keeps the live moving background. Resize-aware so rotating
-  // / DevTools device-mode flips correctly.
-  const [allowLive, setAllowLive] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 561px) and (pointer: fine)");
-    const update = () => setAllowLive(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
+  // LIVE BLURRED PLATE DISABLED (Ivan): the colored blurred world bleeding around
+  // the framed hero read as "horrible" — the loud palette field competed with the
+  // artwork. We now show NO live background; the `.worldplate` div below just
+  // paints the solid dark `--bg` ground (deriveTheme returns a fixed dark GROUND,
+  // not the artwork colour), so the hero is the only colour on the page (the
+  // refined choice). This also removes the second perpetual live WebGL renderer,
+  // killing its GPU/thermal cost. To bring the live plate back, restore the
+  // matchMedia gate: `("(min-width: 561px) and (pointer: fine)")`.
+  const [allowLive] = useState(false);
 
   // listen for the hero's current seed (append a new layer when it changes) and
   // for each new layer's paint-ready ping (reveal it). Ready pings have no seed,
