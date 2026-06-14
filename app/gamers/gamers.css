@@ -936,15 +936,49 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   .lb-row-btn { transition: none; }
 }
 
-/* ---- mobile (iPhone 13 Mini = 375px) ---- */
+/* ---- mobile (≤560px; tuned for iPhone 17 = 402px and down) ----
+   The desktop 3-column row (RANK · PILOT · SCORE) cannot hold the big arcade
+   type on a phone: at 402px the PILOT names (up to ~337px) overflow a ~119px
+   column and the score overruns its track. The professional fix is to
+   RESTRUCTURE per device, not shrink to illegible — each row becomes two lines:
+     line 1:  RANK ........... SCORE   (the short numeric identity, justified)
+     line 2:  PILOT name, full width   (room to breathe, never clips)
+   The 3-col header labels can't sit over a stacked row, so they're hidden;
+   the stacked rows are self-evident. */
 @media (max-width: 560px) {
   .lb {
-    width: auto; /* relax the desktop max-content hug — fill the column */
+    width: auto;
     max-width: calc(100% - 2 * var(--pad));
-    --lb-grid: 76px 1fr 96px; /* RANK · PILOT · SCORE */
-    --lb-col-gap: var(--space-2);
   }
-  .lb-rank-ord { font-size: 24px; }
-  .lb-handle { font-size: 22px; }
-  .lb-score-num { font-size: 26px; }
+
+  /* hide the desktop column-header row — doesn't map onto stacked rows */
+  .lb-cols { display: none; }
+
+  /* taller rows to hold two lines of big type + the 3D extrusion depth */
+  .lb-row-btn {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "rank  score"
+      "pilot pilot";
+    column-gap: var(--space-2);
+    row-gap: 4px;
+    align-items: baseline;
+    padding: 10px 2px 14px;
+  }
+  .lb-c-rank   { grid-area: rank; }
+  .lb-c-score  { grid-area: score; justify-content: flex-end; }
+  .lb-c-handle { grid-area: pilot; }
+
+  /* calmer-but-still-bold sizes for a small screen */
+  .lb-rank-ord  { font-size: 22px; }
+  .lb-score-num { font-size: 22px; }
+  .lb-handle    { font-size: 20px; }
+}
+
+/* very small phones (≤360px): nudge sizes down one more step so nothing
+   crowds the edges on a mini / SE-class device. */
+@media (max-width: 360px) {
+  .lb-rank-ord  { font-size: 20px; }
+  .lb-score-num { font-size: 20px; }
+  .lb-handle    { font-size: 18px; }
 }
