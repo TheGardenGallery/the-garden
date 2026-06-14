@@ -51,11 +51,12 @@ export default function Hero() {
   // Lowered from 2100×1037: at 2100 the canvas was downscaled ~0.29× to fit the
   // stage, and that heavy downscale of the busy CGA-dithered render is what read
   // as hard artifacting (and "zoomed out", since the wide HUD margin baked at
-  // 2100 shrank into the frame). 1700 is the safe floor — below it the piece
-  // crops its HUD elements at the canvas edges. Rendering closer to display size
-  // = far less downscale aliasing, sharper, and the composition fills the frame.
-  const BASE_W = 1700;
-  const BASE_H = 839;
+  // 2100 shrank into the frame). Tested down: HUD (corner brackets, hex
+  // readout, DAMAGE) stays uncropped to ~1350; below that the corner brackets
+  // start clipping on tight iterations. 1350 = least downscale / most filled-in
+  // frame while keeping the full HUD. Lower = sharper + less zoomed out.
+  const BASE_W = 1350;
+  const BASE_H = 666;
 
   // Measure the stage and compute a uniform scale so the fixed iframe fits.
   useEffect(() => {
