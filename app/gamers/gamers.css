@@ -156,8 +156,17 @@ main.surface {
      the world meets the topbar with no gap. */
   top: 0;
   left: 50%;
-  width: 130vw;
-  height: 165vh;
+  /* LOWERED RENDER RESOLUTION (thermal mitigation for the live plate). The plate
+     is a blurred backdrop, so it never needs full-viewport pixels — rendering it
+     at a fixed, modest base size and SCALING it up to cover the plate cuts the
+     per-frame GPU cost dramatically (the canvas sizes to these px, so the WebGL
+     buffer is ~960×640 instead of ~1900×1300 = roughly a third of the pixels),
+     and the 14px blur completely hides the upscale. This is what keeps the
+     ALWAYS-LIVE background (Ivan's choice) from re-triggering the 2-min thermal
+     throttle. base × scale(1.95) ≈ 1872 wide, covering the 130vw plate width;
+     scale also subsumes the old 1.06 atmosphere zoom. */
+  width: 960px;
+  height: 640px;
   /* soften the world into an out-of-focus backdrop — the framed artwork stays
      the sharp subject, the world behind it reads as atmosphere.
      The trailing translateZ(0) PROMOTES this blurred frame to its own GPU
@@ -167,7 +176,8 @@ main.surface {
      (re-rasterizing a blur on a fractional offset over a pixel-art source
      crawls) WITHOUT pinning the plate — so the world still scrolls away into the
      dark scrim (Ivan's preferred feel), it just scrolls as a clean cached layer. */
-  transform: translate(-50%, -8vh) scale(1.06) translateZ(0);
+  transform: translate(-50%, -8vh) scale(2.05) translateZ(0);
+  transform-origin: top center;
   filter: blur(14px);
   border: 0;
   /* crossfade between worlds on re-roll: each layer boots hidden, then fades up
