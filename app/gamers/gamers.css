@@ -314,7 +314,7 @@ main.surface {
   /* Full-bleed contain with a 0.5dvw / 0.5dvh inset on every edge — the
      largest box that fits the 1280:633 aspect inside (100dvw - 1dvw) wide and
      (100dvh - 1dvh) tall. min() picks whichever dimension is the constraint. */
-  width: min(calc(100dvw - 12dvw), calc(48dvh * (1280 / 633)));
+  width: min(calc(100dvw - 12dvw), calc(62dvh * (1280 / 633)));
   /* topbar → canvas: same section-break rhythm as the colophon — every major
      break in the page is exactly var(--space-4). */
   margin: var(--space-4) auto 0;
@@ -358,7 +358,7 @@ main.surface {
      the high-res render back to display size */
   transform-origin: center;
   background: transparent;
-  image-rendering: pixelated;
+  image-rendering: auto;
 }
 
 /* readout under the hero: re-roll + hash */
