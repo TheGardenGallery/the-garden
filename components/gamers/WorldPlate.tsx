@@ -29,10 +29,27 @@ export default function WorldPlate() {
   const seedRef = useRef<string | null>(null);
   const idRef = useRef(0);
 
+  // MOBILE: do not run the live background WebGL iframe at all. The Hero already
+  // runs one live WebGL context; a SECOND full-bleed live context on a phone
+  // (iOS Safari, DPR 3) blows the GPU/memory budget and the tab gets killed
+  // ("the page keeps crashing on mobile"). On phones we skip mounting the plate
+  // entirely and fall back to the solid `--bg` ground the .worldplate already
+  // paints. Desktop keeps the live moving background. Resize-aware so rotating
+  // / DevTools device-mode flips correctly.
+  const [allowLive, setAllowLive] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 561px) and (pointer: fine)");
+    const update = () => setAllowLive(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
   // listen for the hero's current seed (append a new layer when it changes) and
   // for each new layer's paint-ready ping (reveal it). Ready pings have no seed,
   // so we reveal the newest not-yet-shown layer.
   useEffect(() => {
+    if (!allowLive) return; // mobile: no live plate, no listeners
     function revealNewestPending() {
       setLayers((prev) => {
         const pending = prev.filter((l) => !l.shown);
@@ -56,7 +73,7 @@ export default function WorldPlate() {
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, []);
+  }, [allowLive]);
 
   // safety reveal: if a layer is mounted but never pinged ready, fade it in
   // anyway after a generous window so the background can't get stuck hidden.
@@ -86,18 +103,19 @@ export default function WorldPlate() {
 
   return (
     <div className="worldplate" aria-hidden>
-      {layers.map((l) => (
-        <iframe
-          key={l.id}
-          className="worldplate-frame"
-          data-shown={l.shown ? "true" : "false"}
-          title=""
-          aria-hidden
-          tabIndex={-1}
-          scrolling="no"
-          src={`/gamers/piece-bg/index.html?fxhash=${encodeURIComponent(l.seed)}`}
-        />
-      ))}
+      {allowLive &&
+        layers.map((l) => (
+          <iframe
+            key={l.id}
+            className="worldplate-frame"
+            data-shown={l.shown ? "true" : "false"}
+            title=""
+            aria-hidden
+            tabIndex={-1}
+            scrolling="no"
+            src={`/gamers/piece-bg/index.html?fxhash=${encodeURIComponent(l.seed)}`}
+          />
+        ))}
     </div>
   );
 }
