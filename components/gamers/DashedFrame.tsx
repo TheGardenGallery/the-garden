@@ -41,35 +41,41 @@ export default function DashedFrame() {
   const THICK = 5;
   const inset = THICK / 2;
 
-  // ONE dash language for the whole frame — the canonical GAMERS viewfinder
-  // rhythm: 12px dash · 10px gap (period 22, ratio 0.55). Using a SINGLE fixed
-  // dash + gap on all four sides is what makes the spacing read uniform; the
-  // earlier per-side normalisation derived a slightly different period for the
-  // (longer) horizontal sides vs the (shorter) vertical sides, so a top dash
-  // was a hair longer than a side dash — visibly non-uniform.
-  const DASH = 12;
-  const GAP = 10;
-  const PERIOD = DASH + GAP;
+  // GAMERS viewfinder dash rhythm: a ~12px dash · ~10px gap (period ~22). We
+  // keep the dash:gap RATIO fixed across the whole frame (so every dash reads the
+  // same proportion) but let each side solve for the exact dash/gap that tiles
+  // its length in a WHOLE number of cycles, starting AND ending with a FULL dash
+  // flush against the corner brackets. That flush-full-dash-at-both-ends is what
+  // actually reads as uniform — a fixed period left a ragged partial dash/gap
+  // where each side met its bracket, and that fragment differed per corner.
+  const TARGET_DASH = 12;
+  const TARGET_GAP = 10;
+  const RATIO = TARGET_DASH / (TARGET_DASH + TARGET_GAP); // dash share of a period
 
   /**
-   * For a dashed segment of pixel length L, keep the dash + gap FIXED (uniform
-   * across the whole frame) and only choose the dashoffset so the pattern is
-   * CENTERED on the segment — both ends land symmetrically against the bracket
-   * arms, so all four corners read identically regardless of L. Centering: the
-   * midpoint of the segment should sit at a dash-centre, so offset accounts for
-   * how the whole-period count leaves a remainder at the ends.
+   * Tile a segment of length L so it begins and ends with a GAP flush against the
+   * corner brackets (bracket = solid arm, then a clean gap, then dashes, …, gap,
+   * bracket). N dashes with N+1 gaps tiles as: gap,dash,gap,…,dash,gap. N is
+   * chosen to keep the period near the ~22px target; dash/gap solved exactly so
+   * the pattern fills L with whole cycles — no ragged partial dash at any corner,
+   * and the bracket↔first-dash spacing is the same on all four sides.
+   *   L = N*dash + (N+1)*gap, dash = RATIO*period, gap = (1-RATIO)*period
+   *   => L = period*(N + (1-RATIO))  ... wait: N*RATIO + (N+1)*(1-RATIO) = N + (1-RATIO)
+   * SVG dasharray starts with a dash, so we shift the phase by one gap via
+   * dashoffset = +gap to lead with a gap instead.
    */
-  function centeredDash(L: number) {
-    // distance from the segment start to the first dash CENTRE that keeps the
-    // pattern symmetric about the segment midpoint. Half-period phase, minus
-    // however the period tiles into L, resolved into the [0,PERIOD) offset.
-    const half = L / 2;
-    // we want a dash centred at the midpoint; the standard dash starts at a
-    // dash-leading-edge, so shift back by (half mod PERIOD) then to the dash
-    // centre (DASH/2 before the leading edge).
-    const phase = ((half % PERIOD) + PERIOD) % PERIOD;
-    const offset = phase - DASH / 2;
-    return { dash: DASH, gap: GAP, offset };
+  function flushDash(L: number) {
+    if (L <= TARGET_DASH) return { dash: 0, gap: 9999, offset: 0 };
+    const targetPeriod = TARGET_DASH + TARGET_GAP;
+    // leading + trailing gap with N dashes: L = period*(N + 1 - RATIO)
+    const N = Math.max(1, Math.round(L / targetPeriod));
+    const period = L / (N + 1 - RATIO);
+    const dash = period * RATIO;
+    const gap = period - dash;
+    // dasharray draws dash-first; shift the phase by one DASH so the run LEADS
+    // with a gap (clean separation from the solid bracket arm) and, by the
+    // whole-cycle tiling, also ENDS with a gap before the far bracket.
+    return { dash, gap, offset: dash };
   }
 
   if (!box) {
@@ -90,9 +96,10 @@ export default function DashedFrame() {
 
   const hLen = x1 - x0 - 2 * a; // top/bottom dashed length
   const vLen = y1 - y0 - 2 * a; // left/right dashed length
-  // SAME dash + gap on both axes (uniform); only the centering offset differs.
-  const hFit = centeredDash(hLen);
-  const vFit = centeredDash(vLen);
+  // SAME dash:gap ratio + flush-gap-at-corners on both axes (uniform); each side
+  // solves its own near-22px period so it tiles in whole cycles.
+  const hFit = flushDash(hLen);
+  const vFit = flushDash(vLen);
 
   return (
     <svg

@@ -133,16 +133,16 @@ main.surface {
    re-roll produced. */
 .worldplate {
   position: absolute;
-  inset: 0;
-  /* cover the full page height — the world (top) fades through the scrim into
-     a solid dark ground that extends all the way to the footer, so there is no
-     visible seam where the gradient stops and the body bg begins. The world
-     SCROLLS AWAY with the page (Ivan's preferred feel — content rises into dark,
-     the backdrop is not pinned). The blur shimmer-on-scroll is handled NOT by
-     pinning this, but by promoting the blurred frame to its own GPU layer so the
-     blur is cached as a texture and only translated on scroll, never re-
-     rasterized — see .worldplate-frame. */
-  height: 100%;
+  /* The plate covers the full page height AND extends UPWARD by --plate-overscroll
+     above the document top, so a top rubber-band bounce reveals the blurred world
+     (not the dark html bg) — matching the bottom bounce. The world SCROLLS AWAY
+     with the page (Ivan's preferred feel); shimmer handled via the frame's GPU
+     layer, not pinning. */
+  --plate-overscroll: 100vh;
+  left: 0;
+  right: 0;
+  top: calc(-1 * var(--plate-overscroll));
+  height: calc(100% + var(--plate-overscroll));
   z-index: 0;             /* backdrop layer; content sits at z-index 2 */
   overflow: hidden;
   pointer-events: none;
@@ -150,11 +150,12 @@ main.surface {
 }
 .worldplate-frame {
   position: absolute;
-  /* Anchor the iframe to the TOP of the plate (not centred) — the plate now
-     extends the full page height, so centring would leave a dark band above
-     the canvas. Translating slightly above 0 covers the blur's soft edge so
-     the world meets the topbar with no gap. */
-  top: 0;
+  /* Anchor the iframe to the real document TOP. The plate now starts
+     --plate-overscroll ABOVE the document (to fill the top rubber-band), so the
+     frame is pushed down by that amount to sit at the true top. Translating
+     slightly above covers the blur's soft edge so the world meets the topbar
+     with no gap. */
+  top: var(--plate-overscroll);
   left: 50%;
   /* LOWERED RENDER RESOLUTION (thermal mitigation for the live plate). The plate
      is a blurred backdrop, so it never needs full-viewport pixels — rendering it
@@ -201,7 +202,13 @@ main.surface {
 .worldplate::after {
   content: "";
   position: absolute;
-  inset: 0;
+  /* Start the scrim at the REAL document top (the plate extends
+     --plate-overscroll above it for the rubber-band; that extension must stay
+     un-scrimmed so the bounce reveals the clear blurred world). */
+  top: var(--plate-overscroll);
+  left: 0;
+  right: 0;
+  bottom: 0;
   /* Scrim stops are in dvh (viewport-relative) so the world fades at the same
      screen position regardless of how tall the page is — keeps the
      atmosphere anchored to where the hero sits, while the plate itself can
