@@ -912,7 +912,10 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
 }
 .lb-handle {
   font-size: 30px;
-  letter-spacing: 0.02em;
+  /* zero tracking: the CP437 mono glyphs already sit on even cells, and ANY
+     letter-spacing detaches the underscore (it renders low + narrow, so tracking
+     after it reads as "atom_ cowboy" with a gap). 0 keeps "atom_cowboy" tight. */
+  letter-spacing: 0;
   color: var(--tier, var(--ink));
   white-space: nowrap;
   text-shadow: var(--lb-3d); /* hard 3D extrusion */
