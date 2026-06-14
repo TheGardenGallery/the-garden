@@ -32,7 +32,9 @@ import {
  *                  `gamers:pitch-hero` event).
  */
 
-const ROW_H = 96; // px, must match .lb-row height in CSS (taller to clear the big 3D-extruded type + its down-left depth)
+const ROW_H_DESKTOP = 96; // px, must match .lb-row height on desktop (single-line row)
+const ROW_H_MOBILE = 132; // px, taller slot for the 2-line stacked mobile row
+const MOBILE_BP = 560; // px, matches the @media(max-width:560px) leaderboard query
 const VISIBLE_ROWS = 7; // scroll-area height = this many rows
 const OVERSCAN = 5; // extra rows rendered above/below the visible band
 
@@ -85,6 +87,20 @@ export default function StandingsBoard() {
   // see ~7 at once, scroll all the way down to rank 1000. The page stays put.
   const LIMIT = 1000;
   const [entries, setEntries] = useState<Entry[]>(() => fetchStandings(LIMIT));
+
+  // Row height is responsive: the mobile layout stacks each row into two lines
+  // (rank+score / name) and needs a taller slot than the single-line desktop row.
+  // The virtualization math below is all keyed off ROW_H, so it must reflect the
+  // breakpoint. Default to desktop for SSR; correct on mount + on resize.
+  const [rowH, setRowH] = useState(ROW_H_DESKTOP);
+  useEffect(() => {
+    const update = () =>
+      setRowH(window.innerWidth <= MOBILE_BP ? ROW_H_MOBILE : ROW_H_DESKTOP);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  const ROW_H = rowH;
 
   const scrollRef = useRef<HTMLDivElement>(null);
   // current scroll offset (px) of the window, drives which slice we render

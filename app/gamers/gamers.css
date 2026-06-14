@@ -957,25 +957,30 @@ html:has(main.surface), html:has(main.surface) body { overflow-x: hidden; }
   /* hide the desktop column-header row — doesn't map onto stacked rows */
   .lb-cols { display: none; }
 
-  /* taller rows to hold two lines of big type + the 3D extrusion depth */
+  /* two-line stacked row inside the taller mobile slot (ROW_H_MOBILE = 132px,
+     set in the component). The 3D extrusion drops ~9px below each glyph, so the
+     two lines need a real gap or the rank's depth bleeds into the name. Center
+     the pair in the slot and give a generous row-gap so each line clearly
+     breathes; the fixed 132px slot then spaces rows apart cleanly too. */
   .lb-row-btn {
     grid-template-columns: 1fr auto;
     grid-template-areas:
       "rank  score"
       "pilot pilot";
     column-gap: var(--space-2);
-    row-gap: 4px;
+    row-gap: 18px;
+    align-content: center;
     align-items: baseline;
-    padding: 10px 2px 14px;
+    padding: 0 2px;
   }
   .lb-c-rank   { grid-area: rank; }
   .lb-c-score  { grid-area: score; justify-content: flex-end; }
   .lb-c-handle { grid-area: pilot; }
 
   /* calmer-but-still-bold sizes for a small screen */
-  .lb-rank-ord  { font-size: 22px; }
-  .lb-score-num { font-size: 22px; }
-  .lb-handle    { font-size: 20px; }
+  .lb-rank-ord  { font-size: 21px; }
+  .lb-score-num { font-size: 21px; }
+  .lb-handle    { font-size: 19px; }
 }
 
 /* very small phones (≤360px): nudge sizes down one more step so nothing
