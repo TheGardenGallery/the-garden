@@ -48,8 +48,14 @@ export default function Hero() {
   // nearest-neighbor downscale aliasing. Switching the canvas's
   // image-rendering from `pixelated` to `auto` (see piece/index.html) makes
   // the scale smooth instead of jaggy.
-  const BASE_W = 2100;
-  const BASE_H = 1037;
+  // Lowered from 2100×1037: at 2100 the canvas was downscaled ~0.29× to fit the
+  // stage, and that heavy downscale of the busy CGA-dithered render is what read
+  // as hard artifacting (and "zoomed out", since the wide HUD margin baked at
+  // 2100 shrank into the frame). 1700 is the safe floor — below it the piece
+  // crops its HUD elements at the canvas edges. Rendering closer to display size
+  // = far less downscale aliasing, sharper, and the composition fills the frame.
+  const BASE_W = 1700;
+  const BASE_H = 839;
 
   // Measure the stage and compute a uniform scale so the fixed iframe fits.
   useEffect(() => {
