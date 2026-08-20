@@ -147,6 +147,7 @@ export const artists: Artist[] = [
     slug: "nikita-diakur",
     name: "Nikita Diakur",
     coord: { row: "N", col: 1 },
+    bio: `Nikita Diakur, an artist based in Germany, is known for portraying everyday activities using unconventional computer simulation methods that inherently bring randomness and chaos into his work. This approach allows for unexpected and spontaneous results, which are integral to his animation style.\n\nIn addition, Diakur shares his expertise through lectures and workshops. He has been part of the Artists-in-Residence program at Q21 in Vienna and is a member of the European Film Academy.\n\nDiakur holds an MA in Animation from the Royal College of Art, London. The self-proclaimed Ugly filmmaker has participated in numerous international exhibitions and festivals, winning awards for his films Ugly, Fest, and backflip. In 2021, his artwork Sharing BBQ, part of the Ugly series, signaled his foray into the crypto-art scene.`,
     socials: [
       { label: "Instagram", href: "https://www.instagram.com/nikitadiakur/" },
       { label: "X", href: "https://x.com/nikitadiakur" },
