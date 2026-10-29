@@ -1,0 +1,782 @@
+/* =======================================================================
+   D · THE SPINE, black, the page's centre of gravity.
+   ======================================================================= */
+
+
+  /* overflow VISIBLE, not hidden: spine C pins with position:sticky, and an
+     ancestor with overflow:hidden silently disables sticky entirely. The
+     dither layers are inset:0 absolutes so they are bounded by the element
+     itself and never needed the clip; spine A and B's negative margins are
+     exactly one gutter, so they land flush with the viewport rather than
+     past it. Nothing here relies on being clipped. */
+.band-void{background:var(--g-black);color:#f5f3ef;overflow:visible}
+
+
+  /* ── FROSTED BLACK ────────────────────────────────────────────────────
+     The black rooms are not a flat printed black. They carry a very slow,
+     very large-scale bloom of the artwork's own orange, so the void reads
+     as a deep frosted surface with warmth somewhere inside it rather than
+     as an empty rectangle.
+
+     NO PARTICLES. The earlier build laced a 1px orange dither into these
+     rooms, which was legible but wrong: specks read as grain, dust or a
+     rendering fault, and they sat ON the black rather than IN it. Frost is
+     the opposite quality, continuous and soft, with no discrete element
+     anywhere for the eye to catch on. Every rect is gone.
+
+     Built from three very wide radial gradients at low alpha rather than
+     one, and deliberately at ODD sizes and positions (117%/83%, 96%/71%,
+     138%/64%) so their overlaps never form a symmetrical figure. A single
+     centred gradient reads instantly as a spotlight; three asymmetric ones
+     at different scales read as an uneven glow in a large dark room.
+
+     Alpha is very low (.055 down to .028) because the effect must survive
+     being looked at directly. Anything stronger becomes a visible coloured
+     shape on the page, and this is meant to be a property of the black.
+
+     The layer is pointer-events:none, sits under all content, and is fixed
+     in the element rather than the viewport so it belongs to the room. */
+.band-void{position:relative}
+
+
+.band-void > *{position:relative;z-index:1}
+
+
+.band-void::before{
+    content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(117% 83% at 18% 12%, rgba(255,83,0,.055), transparent 62%),
+      radial-gradient(96% 71% at 82% 44%, rgba(255,83,0,.038), transparent 58%),
+      radial-gradient(138% 64% at 46% 96%, rgba(255,83,0,.028), transparent 66%);
+  }
+
+
+  /* ── THE CURSOR BLOOM ─────────────────────────────────────────────────
+     The frost warms where the cursor passes: a soft disc of the same orange
+     that follows the pointer, so the surface responds to being looked at.
+
+     Now a GRADIENT, not a masked particle field. With the specks gone there
+     is nothing to light up, so the light itself is the whole effect, which
+     is closer to what frosted glass actually does under a moving source.
+
+     Still the shader-shaped approach: the disc is a radial-gradient centred
+     on two custom properties, so alpha is a pure function of distance from
+     a moving point and the compositor evaluates it per pixel on the GPU. JS
+     writes two numbers per frame and nothing else.
+
+     FIVE STOPS, not two. A short falloff draws a visible rim and reads as a
+     torch beam; easing it out through 35/60/80% makes the warmth dissolve
+     into the frost with no edge at all.
+
+     --mx/--my start far off-element so nothing is lit before the pointer
+     has actually been in the room. */
+.band-void::after{
+    content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+    --mx:-1000px; --my:-1000px; --r:340px;
+    background:radial-gradient(circle var(--r) at var(--mx) var(--my),
+      rgba(255,83,0,.085) 0%,
+      rgba(255,83,0,.055) 35%,
+      rgba(255,83,0,.022) 60%,
+      rgba(255,83,0,.007) 80%,
+      transparent 100%);
+    /* the bloom breathes very slowly, so the warm patch is never a static
+       stamp sitting under the cursor */
+    animation:frost-breathe 5.5s ease-in-out infinite}
+
+
+@media (prefers-reduced-motion:reduce){
+    .band-void::after{animation:none;opacity:.85}
+}
+
+
+  /* touch devices have no hovering cursor, so the bloom would never move */
+@media (any-hover:none) and (any-pointer:coarse){
+    .band-void::after{display:none}
+}
+
+
+  /* ── D · THE SPINE ────────────────────────────────────────────────────
+     Black, 30270 units tall: twice any other region, the centre of gravity.
+     Three works staggered down it at 44%, 43%, 18% of the column, each on
+     pure #000000 so they fuse into the void with no frame. The dense text
+     staircase runs alongside. */
+  /* SPINE A, text spans the artwork, top edge to bottom edge, and the work
+     sits on the same axes as the white room above it.
+
+     The band has a fixed 80px gutter but the page's axes are percentages, so
+     a work placed inside that gutter drifts off axis as the window changes
+     (measured: the same work needed 44.2% of the column at 1280px and 41.2%
+     at 2560px to hold one axis). The row therefore cancels the gutter with a
+     negative margin and spans axis L to axis R itself, 10% to 90% of the
+     band, the two lines band C's white work and band B's artwork 2 already
+     sit on. Everything inside is then in ROW units, which are stable.
+
+     d-process35 carries dead black around its ink: 6.05% left, 5.99% right,
+     2.40% bottom, top flush. So the box is 40.93% of the row (ink 36% /
+     0.8796) starting at 7.52%, which puts the INK's left edge exactly on
+     axis L at 10% and its right edge at 46%. The notes run 54% to 90%, so
+     the text's right edge lands on the mirrored axis and there is a clean 8%
+     of void between work and type. Verified 0.1px off axis at 1280 through
+     2560.
+
+     The text's last line is inset from the bottom by the work's own bottom
+     padding (2.40% of the box height = 0.98% of the row width, since padding
+     resolves against width) so the text ends on the VISIBLE bottom of the
+     phone rather than on the file's edge.
+
+     Same span mechanism as the red band's row 2: `align-items:stretch` gives
+     the text the row's height, and `space-between` puts all the slack into
+     the paragraph gap so both edges stay flush. */
+  /* RE-INSET TO THE PAGE AXIS. The row is bled out by the gutter so it can
+     span, then padded back to it so its two outer edges land on 80 and
+     1648, the same line the nav, the hero and the red band's spread sit on.
+     Measured before: the plate began at 129.9 (+50 off axis) and the notes
+     ended at 1597.5 (-50 off). Two blocks, two private margins, no axis.
+
+     THE GAP IS PRESERVED, THE BLOCKS GROW. The alternative was to keep the
+     widths and let the gap open from 138px to 266px, which would have put
+     both edges right and thrown away the row's rhythm. Instead the measured
+     gap is held and the pair expands into the axes, so the artwork gets
+     larger: the Hufkens direction, and the relationship you composed is
+     untouched. Shares are the blocks' own measured proportions, 0.532/0.468. */
+.spine-a{margin:0 calc(-1 * var(--gutter));padding:0 var(--gutter);
+    --row-gap:8vw;
+    display:flex;align-items:stretch;gap:var(--row-gap)}
+
+
+  /* ── THE PLATE LANDS ON THE AXIS BY ITS INK ──────────────────────────
+     The row is bled out and padded back so its two outer edges sit on 80 and
+     1648, but that put the plate's BOX on the line, not its drawing:
+     d-process35 carries 10.9% of dead black on its left and 9.4% on its
+     right, so the handset began at 163.1 while the notes opposite ended
+     exactly on 1648. One side of the row measured by ink, the other by file.
+
+     The box is therefore pulled left by its own left padding and given that
+     width back, so the ink starts on 80 and the gap to the notes is
+     unchanged. Same correction the spine-b plate already carries on its
+     right edge; this row simply never got it.
+
+     The padding is enormous on this file, a fifth of its width, which is why
+     ignoring it was so visible: at 1728 it is 83px of nothing between the
+     page edge and the work. */
+  /* 82% of the row share it held (Ivan: slightly too big, ~940px tall on a
+     16-inch screen, nearly the window); the ink still starts on the axis */
+.spine-a .plate{--p-w:calc((100% - var(--row-gap)) * .53204 * .82);
+    --p-ink-l:.109;
+    flex:0 0 var(--p-w);width:var(--p-w);
+    margin-left:calc(-1 * var(--p-ink-l) * var(--p-w));
+    margin-right:calc(var(--p-ink-l) * var(--p-w));
+    aspect-ratio:1620/2000}
+
+
+  /* ONE BLOCK, CENTRED ON THE PHONES (Ivan's call). The two paragraphs used
+     to be pushed to the top and bottom of the artwork's height, which left
+     a screen-high gap between them; they now read together, a paragraph
+     apart, on the phones' centre line. */
+.spine-notes{flex:0 0 calc((100% - var(--row-gap)) * .46796);width:auto;
+    box-sizing:border-box;align-self:center;margin-left:auto;   /* stays on the right axis as the plate shrinks */
+    display:flex;flex-direction:column;justify-content:center;
+    gap:1.6em}
+
+
+.spine-notes p{max-width:none;margin:0}
+
+
+  /* SPINE B, the staircase, and the phone grid aligned to the text ABOVE it.
+
+     THE ALIGNMENT: the grid's ink now spans 54% to 90%, which is exactly the
+     column the spine A notes occupy directly above it. So scrolling down, the
+     block of prose and the block of phones share both edges and read as one
+     column of the page rather than two loosely placed objects. The staircase
+     runs 10% to 46.86%, starting on axis L like everything else.
+
+     d-process2's ink: 2.96% left, 3.52% right, 1.60% top, 3.10% bottom. The
+     box is therefore 38.49% wide (ink 36% / 0.9352) placed at 52.86%, which
+     puts the visible left edge on 54.00% and the right on 89.99%.
+
+     THE ROW HEIGHT COMES FROM THE ARTWORK, NOT THE TEXT. Previously the plate
+     was `aspect-ratio:auto;height:100%`, so its height came from the
+     staircase, which came from its own text, which came from the column
+     width, a loop that resolved differently at every viewport and left the
+     bars starved (measured 154px columns at 1440px, 22 characters a line
+     against the 28.5 the copy needs). Now the plate's own ratio sets a
+     definite height, the staircase stretches into it, and each bar's
+     declared 25/50/75/100% resolves against a real number. The type then
+     only has to FIT, which is a far weaker constraint than having to produce
+     the height, so it can sit at a comfortable reading size again. */
+  /* RE-INSET TO THE PAGE AXIS, same as .spine-a. The stair began at 172.8
+     (+93 off the 80 axis) and the plate's INK ended 70px short of 1648.
+     The plate is measured by its ink, not its box: it carries 2.96% left
+     and 3.53% right padding inside the file, so the box overhangs the right
+     axis by its own right pad (27px at 1728) and the INK lands on the line.
+     The visual gap, stair's right edge to the plate's visible left edge, is
+     held at its measured 123px and the pair grows into the axes. */
+.spine-b{margin:var(--rhythm) calc(-1 * var(--gutter)) 0;padding:0 var(--gutter);
+    display:flex;align-items:stretch;gap:6.4282%}
+
+
+.stair{flex:0 0 46.6066%;width:auto;min-width:0;
+    padding-top:9%}
+
+
+  /* align-self:flex-start so the ratio governs the height instead of stretch
+     overriding it; the plate is the tallest item, so it sets the row.
+
+     THE OVERHANG IS THE FILE'S OWN RIGHT PADDING, RESTATED. It was -1.7200%,
+     derived when d-process2's right skirt was read as 3.6%; the calibrated
+     detector measures 4.0%, and the 0.4% difference left the ink landing on
+     1644.3 instead of 1648. Written as the skirt times the box's own share of
+     the row (.040 x .486779) so the two can no longer drift apart. */
+.spine-b .plate{flex:0 0 48.6779%;width:auto;margin-right:-1.9471%;
+    align-self:flex-start;aspect-ratio:1831/2400;height:auto}   /* t-png5 */
+
+
+  /* one work alone, centred in the black. Slightly larger than the 18.4% the
+     node measured, because at that size it read as a stray thumbnail rather
+     than the closing beat of the spine.
+     BRICK 7 is a very tall, narrow work (ratio 0.401), so width alone is the
+     wrong control: at 24% wide it stood 860px tall, past the fold. The height
+     cap governs instead and the width follows from the ratio, which keeps it
+     one glance rather than a scroll. */
+  /* extra air above the closing work: the void's own rhythm, plus half again.
+     This is the last beat of the longest region on the page and it wants a
+     real pause before it rather than the same gap that separates the two
+     working spreads above. */
+  /* ── SPINE C · THE PINNED REVEAL ──────────────────────────────────────
+     The spine's closing work arrives alone and centred. Scrolling on does
+     not carry it away: the section PINS, the work slides to the right of
+     centre and a passage slides in from the left to meet it, until the two
+     together fill the viewport as one spread.
+
+     SCRUBBED, NOT TRIGGERED. Progress is a continuous 0-1 value written to
+     --p from the scroll position, and every moving thing is a calc() of it.
+     A class-toggled transition would play at its own speed regardless of
+     the reader, so scrolling half a turn and stopping would leave the
+     spread mid-flight with no way back. Scrubbing means the composition is
+     always exactly where the reader put it, and it reverses on the way up.
+
+     BOTH HALVES MOVE, WHICH IS THE WHOLE EFFECT. The work does not simply
+     get pushed aside to make room; it travels right by a little while the
+     text travels left by more, so the two converge on the centre line from
+     opposite sides. That reads as a spread assembling, where sliding one
+     element alone reads as a panel opening.
+
+     The work's travel is deliberately SHORT (about a fifth of the text's).
+     It is the subject and it is already placed; a large move would make it
+     look displaced by the type rather than making room for it. */
+  /* THE VISIBLE GAP IS ONE --rhythm, the spine's own A-to-B spacing. The
+     pinned frame (100dvh - 60px) centres Brick 7 (min(88vh,880px)) inside
+     itself, and at the pin's start the drift (js/14-spine-c-scrub.js) lowers
+     it further by min(clearance, 5% of the pinned travel). Both are taken
+     off the margin, so the gap is the rhythm at any window height. It was
+     rhythm * 1.6, which read as 446px of empty black on a 16" screen. */
+.spine-c{--sc-half:calc((100dvh - 60px - min(88vh, 880px)) / 2);
+    --sc-drift:min(calc(var(--sc-half) - 4px), calc((190vh - 100dvh + 60px) * .05));
+    margin-top:max(0px, calc(var(--rhythm) - var(--sc-half) - var(--sc-drift)))}
+
+
+  /* 230vh gave a 1512px scrub whose easing is nearly flat over its last
+     third, so the page measured 800px in this room where nothing moved.
+     190vh holds the convergence at 1065px, which is under one screen. */
+.spine-c-scroll{position:relative;height:190vh}
+
+
+.spine-c-stage{position:sticky;top:60px;height:calc(100dvh - 60px);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;--p:0;--dy:0px}
+
+
+  /* the pair is centred as a unit. At p=0 the text has no width in the
+     layout (it is absolutely positioned), so the work sits dead centre on
+     its own exactly as before. */
+.spine-c-pair{position:relative;display:flex;align-items:center;
+    justify-content:center;width:100%;height:100%}
+
+
+  /* THE WORK IS PINNED BUT NOT FROZEN. It travels right as the spread opens
+     (driven by --p), and at the same time it keeps scrolling UP at a tenth
+     of the page's own rate (driven by --dy). Fully locked, the plate reads
+     as stuck to the glass while the page moves behind it; a small amount of
+     continued travel keeps it part of the scroll and gives the section
+     depth, since the text beside it is not drifting.
+
+     --dy IS LINEAR, --p IS EASED, and they must stay separate. --p runs
+     through a smoothstep so the convergence has a soft start and landing.
+     Parallax driven off that same eased value would speed up and slow down
+     against a scroll that is doing neither, which reads as drag rather than
+     as depth. So the JS writes both: an eased progress for the composition
+     and a raw linear offset for the drift. */
+.spine-c .plate{height:min(88vh,880px);width:auto;aspect-ratio:802/2000;   /* Brick 7 */
+    transform:translate(calc(var(--p) * var(--sc-T, 30vw)), var(--dy));
+    will-change:transform}
+
+
+  /* the passage. Absolutely placed so it never affects the centring of the
+     work, and pinned to the right of the stage's midline so its own right
+     edge finishes just short of the work. */
+.spine-c-text{position:absolute;top:50%;right:52%;
+    width:min(38vw,460px);
+  /* ── IT ARRIVES FROM OUTSIDE, NOT FROM UNDER THE WORK ───────────────
+     This was +26vw, which placed the passage at x 822..1282 at the start of
+     the scrub while the work was still centred at 688..1040. The text then
+     slid LEFT out from beneath it. Measured across the scrub, it was fading
+     up while still on the artwork: 0.35 opacity over a 353px overlap, 0.82
+     over 149px, and only clear by p=0.69. Words materialising on top of a
+     work and sliding off it is the whole of the jank.
+
+     The travel is now the other way: the passage starts OUTSIDE, to the left
+     of where it lands, and settles rightward into the space the work vacates
+     as the work travels right. -14vw is not a taste value - it is the
+     smallest offset that keeps the two apart at p=0, where the text's right
+     edge must clear the centred work's left edge at 688. At -14vw the gap
+     opens at 101px and only widens (101 + 276p), so there is no value of p
+     at which type and work can touch. */
+    transform:translate(calc((1 - var(--p)) * -14vw), -50%);
+    opacity:clamp(0,calc(var(--p) * 2.1 - .15),1);
+    will-change:transform,opacity}
+
+
+.spine-c-text p{font-family:'Azeret Mono',ui-monospace,monospace;font-weight:400;
+    font-size:15px;line-height:1.52;   /* the page's body size, as spine A and the grey room */color:#f5f3ef;
+    margin:0}
+
+
+.spine-c-text p + p{margin-top:1.1em}   /* intended: 1.15em; `.band p + p`
+    won on source order in the single-file build (16.5px vs 17.25px). Parity. */
+
+
+@media (prefers-reduced-motion:reduce){
+    /* no pin and no travel: the spread simply exists, side by side */
+    .spine-c-scroll{height:auto}
+    .spine-c-stage{position:static;height:auto;padding:var(--rhythm) 0;--p:1}
+}
+
+
+@media(max-width:900px){
+    /* a two-column convergence needs width. Stacked, the work leads and the
+       passage reads beneath it as ordinary prose. */
+    .spine-c-scroll{height:auto}
+    .spine-c-stage{position:static;height:auto;overflow:visible}
+    .spine-c-pair{flex-direction:column;gap:40px}
+    .spine-c .plate{transform:none;height:auto;width:64%}
+    .spine-c-text{position:static;width:100%;transform:none;opacity:1}
+}
+
+
+  /* .spine-notes is defined up in SPINE A, where its height has to match the
+     artwork's. The old rules that sat here (a clamp() gap and a 44ch measure)
+     came LATER in the file and so silently won the cascade, reintroducing the
+     fixed gap that fights `space-between` and re-capping the column. */
+
+  /* the staircase: a WIFI SIGNAL STRENGTH BAR made of text.
+
+     THE THING THAT KEPT FAILING: I kept stepping an invisible container and
+     letting the prose sit inside it. But the container has no background, so
+     the only thing anyone SEES is the type, and the type's height is its
+     line count. Bar 4 held 8 lines while bar 3 held 10, so the visible ink
+     went DOWN at the last step even though the boxes stepped up evenly.
+
+     THE RULE: the text IS the bar. So the line counts themselves must be the
+     signal: 2 / 4 / 6 / 8 lines, bottom-aligned on a shared baseline. Each
+     block is then exactly two line-heights taller than the one before it and
+     the ink rises in equal steps by construction. The copy below is
+     COPYFITTED to those counts, that is the craft here, not CSS.
+
+     SPANNING THE ARTWORK: column 1's baseline sits at the plate's bottom and
+     column 4's first line sits at the plate's top, so bar and work meet at
+     both edges. The mechanism has to be deterministic, because chasing font
+     size against copy length does not converge: scaling the type reflows the
+     prose, which changes the line counts, which changes the height (measured
+     3/7/10/12 lines and steps of 137/103/68px on one such attempt).
+
+     So the ROW HEIGHTS are declared, not derived. The staircase is a 4-column
+     grid whose track height is the plate height; each column is a flex box of
+     height (n/4 * 100%) with its text pinned to the bottom. Column 4 is the
+     full height, column 1 a quarter of it, and the steps are equal by
+     arithmetic. The type then just has to FIT inside its box, which is a much
+     weaker constraint than having to exactly produce the height.
+
+     Consequence: if you edit a passage, keep it inside its line budget or it
+     will overflow its box. Budgets at ~28 characters per line:
+        col 1 -> 2 lines  (~52 chars)
+        col 2 -> 4 lines  (~108 chars)
+        col 3 -> 6 lines  (~164 chars)
+        col 4 -> 8 lines  (~218 chars) */
+  /* the bar gap is deliberately TIGHT. Four bars of one figure read as one
+     figure only if the gutters between them are smaller than the columns
+     they separate; the old clamp(20px,2.6vw,44px) took a third of the
+     staircase at 1440 and broke the copyfit. */
+.stair{display:flex;align-items:flex-end;gap:clamp(14px,1.15vw,22px);
+    height:100%}
+
+
+  /* no rule and no numeral under each bar: the TYPE is the signal, and the
+     hairline plus the 01-04 label were chrome drawing a bar that the text
+     already draws. Removing them is what leaves four blocks of prose rising
+     in equal steps against the void, which is the whole idea. The padding
+     went with them, it only existed to clear the rule. */
+.stair-col{flex:1;display:flex;flex-direction:column;
+    justify-content:flex-start}
+
+
+  /* declared bar heights: equal steps by arithmetic, not by reflow */
+.stair-col:nth-child(1){height:25%}
+
+
+.stair-col:nth-child(2){height:50%}
+
+
+.stair-col:nth-child(3){height:75%}
+
+
+.stair-col:nth-child(4){height:100%}
+
+
+  /* text pinned to the TOP of its bar, so the bar's own top edge is the step.
+     Size lives in the "staircase type" block near the end of the stylesheet,
+     because `.band p` sits between here and there and would otherwise win. */
+.stair-col p{margin:0}
+
+
+  /* ── THE STAIRCASE ARRIVAL ────────────────────────────────────────────
+     The four bars enter one after another, LEFT TO RIGHT, as the spine
+     comes into view. The sequence matters: this is a signal-strength meter
+     built out of prose, and a signal fills left to right. Reading order and
+     the rising step are the same direction, so the animation is just the
+     figure being drawn the way it is meant to be read.
+
+     Each bar RISES INTO PLACE from below its own baseline and fades up. It
+     is a translateY, not a height animation: the bar heights are declared
+     percentages (25/50/75/100) that produce the exact arithmetic steps, and
+     animating height would both reflow the flex row every frame and let the
+     browser round each step differently mid-transit. The declared geometry
+     is never touched; only a transform moves.
+
+     The stagger is 150ms, applied to the TRANSITION DELAY rather than to
+     four separate keyframe animations, so all four bars share one curve and
+     one duration and cannot drift out of step with each other.
+
+     THE TRIGGER IS ON THE STAIRCASE, NOT ON THE BAND. The spine is several
+     viewports tall and the staircase sits well down inside it, so watching
+     the section would fire the sequence while the first plate was still on
+     screen and the bars would have finished long before they were in view.
+     Watching the figure itself is the only way the entrance happens when
+     you actually arrive at it. */
+.stair-col{--rise:0;
+    transform:translateY(var(--rise));
+    opacity:1}
+
+
+.stair[data-arrive] .stair-col{--rise:18px;opacity:0;
+    transition:transform var(--t-reveal) var(--ease-arrive),
+               opacity var(--t-reveal) var(--ease-arrive)}
+
+
+.stair[data-arrive] .stair-col:nth-child(1){transition-delay:0s,0s}
+
+
+.stair[data-arrive] .stair-col:nth-child(2){transition-delay:.15s,.15s}
+
+
+.stair[data-arrive] .stair-col:nth-child(3){transition-delay:.30s,.30s}
+
+
+.stair[data-arrive] .stair-col:nth-child(4){transition-delay:.45s,.45s}
+
+
+.stair[data-arrive].arrived .stair-col{--rise:0;opacity:1}
+
+
+@media (prefers-reduced-motion:reduce){
+    .stair[data-arrive] .stair-col{--rise:0;opacity:1;transition:none}
+}
+
+
+@media(max-width:900px){
+    :root{--gutter:40px;--rhythm:clamp(80px,14vw,120px)}
+    /* absolute placement is a desktop composition; stack it on narrow screens */
+    .band-red{min-height:0;padding:var(--rhythm) var(--gutter)}
+    .spread{position:static;inset:auto;display:flex;flex-direction:column;
+      gap:clamp(40px,8vw,72px)}
+    /* the desktop composition is absolute, so this reset has to clear EVERY
+       property that placement uses. It previously cleared only left/top/width/
+       height, which was enough at the time; the spread now also uses `bottom`,
+       an ink-correcting `transform` and an `aspect-ratio`, and all three would
+       otherwise leak into the stacked layout and shove both works off by their
+       own baked in padding. Anything added to the spread above belongs here.
+       `.spread-row2` is a child of .spread and its own children need the same
+       reset, hence the descendant selector rather than the child one. */
+    .spread > *{position:static;left:auto;top:auto;right:auto;
+      bottom:auto;width:auto;height:auto;transform:none;aspect-ratio:auto;
+      flex:0 1 auto;padding-top:0}
+    
+
+    .spread-t2{display:block}
+    .band .spread-t2 p + p{margin-top:1.1em}
+
+    .spread-a1,.spread-a2{max-width:78%}
+    /* spine A is a flex row spanning the axes on desktop, with its gutter
+       cancelled and its widths in row units. Stacked, all of that has to go:
+       the negative margin would push it off screen and the row-unit widths
+       would leave both children at a third of the page. */
+    .spine-a{margin:0;display:flex;flex-direction:column;gap:56px}
+    .spine-a .plate{flex:0 1 auto;width:auto;margin-left:0;aspect-ratio:auto;
+      max-width:78%}
+    .spine-notes{flex:0 1 auto;width:auto;margin-left:0;padding-bottom:0;
+      display:block}
+    .band .spine-notes p + p{margin-top:1.1em}
+    /* spine B, like spine A, spans the axes with its gutter cancelled and its
+       widths in row units. Undo all of it: the negative margin, the 10%
+       padding and the percentage flex bases. */
+    .spine-b{margin:var(--rhythm) 0 0;padding:0;flex-direction:column;gap:56px}
+    .spine-b .plate{flex:0 1 auto;width:44%;margin-right:0;height:auto}
+    .stair{flex:0 1 auto}
+    .room{grid-template-columns:1fr;gap:56px}
+    .spine-c .plate{width:44%}
+    /* the signal bar survives narrow: keep all four columns and the shared
+       baseline, just let the ratios compress. Wrapping them would destroy
+       the rise, which IS the idea. */
+    .stair{gap:10px}
+    .stair-col p{font-size:12px;line-height:1.6}
+    /* the flanking layout is a desktop move: three tracks, text either side of
+       the object. Stacked, the work leads and the two passages run beneath it
+       as normal full-width prose. */
+    .room{grid-template-columns:1fr;gap:40px}
+    .room-stack{grid-column:1;order:-1}
+    .room-back{width:auto;max-width:78%}
+    .room-col--l,.room-col--r{grid-column:1;justify-self:start;
+      text-align:left;margin-left:0;margin-right:0}
+    .room-col--l > *,.room-col--r > *{max-width:46ch;margin-left:0}
+    .band .room-col--l p,.band .room-col--r p{font-size:11px}
+    /* the 2x2 stays a 2x2 on narrow screens, it is a single figure closing on
+       one centre cross, and stacking it to 1x4 would destroy that. Nothing to
+       undo: .e-grid carries no negative margin. */
+    /* .g-row removed with the rail rebuild; the rail needs no narrow-screen
+       override since its plates are sized in vh/vw. The solo work does. */
+    .g-solo .plate{width:72%}
+    
+
+
+    
+
+    .close-solo .plate{width:92%}
+}
+
+
+  /* .band .spread-t1 .band-num rule removed with the numerals themselves. */
+
+  /* ── D · spine A notes ────────────────────────────────────────────────
+     MUST come after `.band p` above, whose 46ch cap would otherwise narrow
+     this column and break the flush right edge on axis R. The cell governs
+     the measure here, same principle as the red band's text. Margins are
+     zeroed because the flex `space-between` above owns the distribution. */
+.band .spine-notes p{max-width:none;margin:0}
+
+
+  /* ── D · staircase type ───────────────────────────────────────────────
+     MUST come after `.band p` above. That rule sets 21px/1.52 at max-width
+     46ch and was silently winning over the size in the region block, which
+     is why the bars read as huge shredded ribbons: 21px across a quarter
+     column is ~10 characters per line. This restores the small press
+     register the staircase needs.
+
+     THE SIZE IS A COPYFIT, NOT A TASTE CALL. The copy is written to 2/4/6/8
+     lines and column 2 is the binding one: 114 characters over 4 lines needs
+     28.5 per line. At the widths this page runs, ~14px on a ~62%-of-row
+     staircase clears that with margin; the previous 15-16px did not, and the
+     rise came out 2/6/8/10. If you change this size, recheck the line
+     counts, because they ARE the artwork here. */
+.band .stair-col p{font-size:clamp(10px,0.83vw,13px);line-height:1.58;
+    letter-spacing:0;max-width:none;margin:0;opacity:1}
+
+
+  /* ── D · THE SIGNAL BARS, MADE EXACT ──────────────────────────────────
+     Rebuilt twice on 2026-10-15. What the figure needs, measured:
+       - EXACT STEPS: 12-character columns of a monospace face, so the line
+         breaks are identical at every window, copyfitted to 7/14/21/28
+         lines (1:2:3:4).
+       - SOLID BARS: every line justified edge to edge, last line included,
+         so a bar is a crisp block, not a ragged paragraph; the copy is
+         written so no line is a lone short word (each is 12 characters, or
+         two or more words reaching 10).
+       - ONE SCREEN: the whole row (bars + phone grid) is sized from a
+         single height --H, the smaller of what the screen's height and the
+         row's width allow, so the figure is always seen whole. Sized from
+         the width alone it ran taller than a 16-inch window.
+
+     From --H everything follows: the grid is --H tall (its ink 1.6% to
+     96.9%); the type is --H/44.55, which makes the 28-line bar exactly the
+     ink height at leading 1.516; the bars stand on the ink floor (3.1% of
+     --H up) so the tallest meets the ink top. The stair then takes
+     0.7758 --H of width, the grid 0.81 --H, so the row needs ~1.66 --H. */
+@media (min-width:901px){
+  /* A LITTLE MORE AIR IN THE BLACK SECTION (Ivan): the page's --pair-gap
+     raised by a quarter here only, for all three spine rows, so the two
+     rows still share their edges (they read the same gap). */
+  .band-void{--pair-gap:clamp(110px, 8.1vw, 145px)}
+  /* one centred group with a fixed gap (Ivan's call): the bars and the grid
+     no longer hold the two page margins, which on a wide, short window left
+     ~440px of black between them. The gap is a tenth of --H, so it scales
+     with the figure; the grid's right overhang is cancelled so the INK, not
+     the box, is what centres. */
+  /* ONE GAP BETWEEN TEXT AND PHONES (Movsum: the first pair sat 270-450px
+     apart, the bars and grid below ~90-116px; keep it consistent). --pair-gap
+     is the VISIBLE gap, phone ink to text, shared by both rows; each row
+     subtracts its own artwork's dead edge so the ink, not the file, lands on it. */
+  /* ── BOTH ROWS SIZED FROM THE SCREEN'S HEIGHT (Ivan: the black section's
+     works larger, near the size of a work that fills the window) ─────────
+     The flip phones' ink is 80% of the screen below the bar, unless the row
+     would then not fit across: the phones' ink + one gap + the notes' column
+     must fit the row. Everything else follows from --pw as before, in BOTH
+     rows (each row is its own inline-size container with the same content
+     width), so the shared edges, the equal gaps, the matched ink heights and
+     the bars' 7/14/21/28 all hold at the new size.
+       ink height = .9185 * 1.2346 --pw = 1.134 --pw
+       ink width  = .797 --pw */
+  .spine-a,.spine-b{container-type:inline-size}
+  /* HELD BETWEEN TWO TYPE SIZES (2026-10-23). The bars' type is .0227 --pw
+     and the notes' column .865 --pw, so the figure's size IS its type:
+     - it stops growing where the notes reach a 65-character line at the
+       body's 15px (65 x .6 x 15px / .865 = 676.3px: the size it already had
+       on a 16-inch screen at fullscreen), so on a large display the measure
+       stays a reading length instead of running to 94 characters;
+     - it never shrinks below the size that sets the bars at 11px
+       (11 x 35.1 / .797 = 484.4px) while the screen's HEIGHT is what binds;
+       where the WIDTH binds, it yields, so nothing runs off the page.
+     Clamping --pw, not the type, keeps every shared edge, ink match and the
+     bars' 7/14/21/28 exact at every size. */
+  .spine-a > *,.spine-b > *{
+      --pw:min(clamp(484.4px, calc((100svh - var(--nav-h)) * .80 / 1.134), 676.3px),
+               calc((100cqw - var(--pair-gap)) / 2.1083));
+      --nA:calc(var(--pw) * .865)}
+    /* BOTH EDGES SHARED (Ivan: the lower row sat too far left). The notes
+       column is exactly as wide as t-png5's drawing below it (.865 --pw),
+       so the two rows are one width and, centred, share their left edge
+       (trio over bars) AND their right edge (notes over grid). A row is
+       1.2433 + .865 = 2.1083 --pw plus one gap, which caps --pw. */
+    /* THREE FLIPS (final delivery): png46 is the pair's flip in a third
+       state. Measured in --pw: the pair's ink is .7975 wide (flips .3506 and
+       .3519, .0951 apart); png46 at the same ink height is .3507 wide, so
+       the trio's ink is .7975 + .0951 + .3507 = 1.2433 --pw. The bars below
+       span exactly that, keeping their type and opening the gaps between the
+       four bars instead (Ivan), like the bars of a signal icon. */
+    /* the third term: t-png5 (.865 --pw wide at the matched height) never
+       grows past the notes' column it stands under, so the lower row is as
+       wide as the upper one and both stay centred (at 1200 x 925 it ran 5px
+       off the page without it) */
+  .spine-a{justify-content:center;gap:0}
+    /* png46: 889 x 2400, ink 11.47% / 7.65% in, 2.29% down, 96.88% tall,
+       so at the pair's ink height (1.134 --pw) its box is .4336 --pw wide,
+       its dead edges .0498 / .0332, its ink top .0268 below its box top;
+       the pair's ink top is .0617 below theirs. It stands the pair's gap
+       after the pair, and the notes one --pair-gap after it. */
+  .spine-a .plate.spine-third{--p-w:var(--pw);flex:none;align-self:flex-start;aspect-ratio:auto;
+      width:calc(var(--pw) * .4336);
+      margin:calc(var(--pw) * .0349) calc(var(--pair-gap) - var(--pw) * .0332) 0 calc(var(--pw) * (.0951 - .0498))}
+  .spine-a .plate.spine-third img{display:block;width:100%;height:auto}
+  .spine-a .plate{--p-w:var(--pw);margin-right:calc(-.094 * var(--p-w))}
+  .spine-notes{margin-left:0;
+      /* TOP OF THE TEXT ON THE TOP OF THE PHONES (Ivan's call), as the bars
+         below meet their grid's ink top. The phones' body ink starts 5.00%
+         down d-process35 (stray hairlines ignored); the plate is --p-w wide
+         at 1620:2000. Spelled out because --p-w lives on the plate. */
+      /* CENTRED ON THE PHONES (Ivan, 2026-10-23: lower it), not hung from
+         their top: a short passage beside a tall work sits at its middle.
+         The pair's ink runs 5.0% to 96.85% of its plate, so its middle is
+         .9% below the plate's: */
+      align-self:center;flex:0 0 var(--nA);
+      margin-top:calc(var(--pw) * 1.2346 * .018)}
+  /* THE TWO ROWS SHARE THEIR EDGES (Ivan): the bars start where the flip
+     phones' ink starts, and the grid's ink starts where the notes start. With
+     one --pair-gap in both rows that holds only if the bars are exactly as
+     wide as the phones' ink, so the lower figure is SIZED FROM THE ROW ABOVE
+     rather than from the screen:
+       phones' ink   = .797 of their plate (10.9% + 9.4% dead edges), the plate
+                       being (row - 8vw) * .53204 * .82, as in spine A;
+       the bars      = 54ch of Azeret Mono (.65em measured) at --H / 44.55,
+                       i.e. .78788 --H; so --H = phones' ink / .78788.
+     The grid's plate then takes up the difference to the notes' width on its
+     right, so both rows are the same total width and, both centred, share
+     both edges. Always smaller than the phones above (1.01 vs 1.23 plate
+     widths), so it fits any screen the row above fits. cqw is spine B's own
+     content box, the same width as spine A's. */
+  .spine-b{justify-content:center;align-items:flex-end;
+      gap:0;padding-left:var(--gutter)}
+  /* AND THE GRID IS AS TALL AS THE FLIP PHONES (Ivan: does it need to be that
+     small?). The bars' WIDTH is fixed by the phones (54ch = their ink), which
+     fixes the type size; their HEIGHT is free through the leading. So the
+     grid is sized for its ink to equal the phones' ink height (91.85% of
+     their 1.2346 --pw plate). The grid is t-png5 since 2026-10-15 (Ivan, from
+     the Track study): 1831:2400 and drawn edge to edge (insets under 0.1%),
+     so its ink IS its plate and --H is the phones' ink height. The bars'
+     leading opens so the 28-line bar spans exactly that ink, CAP TOP to LAST
+     BASELINE (Azeret Mono: cap .698em, ascent .937, descent .230, measured):
+       --H   = .9185 * 1.2346 * --pw = 1.134 --pw
+       type  = .797 --pw / 35.1em          (ink height = 49.94em)
+       27 lines * leading + cap = 49.94em  -> leading 1.8238
+     and the floor padding takes off what lies under the last baseline (half
+     the extra leading + the descent = .5584em) so that baseline sits on the
+     grid's ink floor, which is its bottom edge: a NEGATIVE margin, since
+     padding cannot go below zero. */
+  .spine-b > *{
+      --H:calc(var(--pw) * 1.134);
+      --fs:calc(var(--pw) * .797 / 35.1)}
+  .spine-b .plate{flex:none;align-self:flex-end;height:var(--H);width:calc(var(--H) * .7629);
+      margin-left:var(--pair-gap);
+      margin-right:calc(var(--nA) - var(--H) * .7629)}
+  .stair{flex:none;padding:0;margin-bottom:calc(-.5584 * var(--fs));height:var(--H);align-self:flex-end;
+      display:flex;align-items:flex-end;gap:0}
+  .stair-col{flex:none;height:auto !important;width:12ch;
+      margin:0 0 0 calc((1.2433 - .70844) / 3 * var(--pw));   /* (trio - 48ch) / 3 */
+      font-family:'Azeret Mono',ui-monospace,monospace;font-size:var(--fs)}
+  .stair-col:first-child{margin-left:0}
+  /* SPINE C, CENTRED ON THE WORK, NOT HUNG FROM IT. The page-wide hang put
+     the passage beside t-png30's antenna, stranded in the top corner of a
+     work nearly a screen tall (Ivan: not acceptable). A short passage
+     beside a very tall object reads as a label on the object only when it
+     sits at its middle, so here it is centred on the ink (which spans
+     0.21%..99.75%, i.e. centred on the plate), and stands one --pair-gap
+     off the body's edge AT THAT HEIGHT (2.41% in, measured across the
+     middle 40%), not off the widest point near the base. It drifts with the
+     work (--dy) and travels the work's own 30vw, so the two arrive as one
+     pair at a constant gap. Flush right, so the clean edge faces the work.
+     (The line box's space above the capitals and below the last baseline
+     differ by .02em in Azeret at this leading, so box-centred is
+     optically centred.) */
+  /* THE PAIR LANDS CENTRED (Ivan, 2026-10-22: Brick 7 back, and the text
+     felt out of place far from it). The work no longer travels to the
+     right edge: it travels exactly half the passage plus the gap, so at
+     rest the passage, the gap and Brick 7's drawing sit as one group on the
+     page's centre line. Brick 7: 802 x 2000, ink 2.49% in from the left,
+     1.05% down, centred vertically in its file. */
+  .spine-c-stage{--sc-T:calc((min(38vw, 460px) + var(--pair-gap)) / 2)}
+  .spine-c-text{--hp:min(88vh, 880px);
+      top:50%;
+      right:calc(50% - var(--sc-T) + var(--hp) * .401 * (.5 - .0249) + var(--pair-gap));
+      transform:translate(calc((1 - var(--p)) * -1 * var(--sc-T)), calc(-50% + var(--dy)));
+      text-align:right}
+  .band .spine-c-text p{max-width:none}
+  .band .stair-col p{font:inherit;font-weight:400;line-height:1.8238;letter-spacing:0;
+      max-width:none;hyphens:none;overflow-wrap:normal;word-break:normal;margin:0;
+      text-align:left}   /* the essay's own words now (Ivan): set ragged, not forced into blocks */
+}
+
+@media(max-width:900px){
+    .spine-third{display:none}   /* the stacked narrow layout keeps the pair */
+}
+
+/* THE PAIR, WHERE THE TRIO CANNOT HOLD ITS TYPE (Ivan, 2026-10-23). The
+   trio's row is 2.1083 --pw plus a gap; under ~1291px wide that width
+   would set the bars below 11px (8px at 1024). There the spine is the
+   pair again, its original composition: the row is .7975 + .865 = 1.6625
+   --pw plus a gap, so the figure grows ~27% at the same width, and the
+   bars span the pair's ink with their 2ch gaps ((.7975 - .70844) / 3). */
+@media (min-width:901px) and (max-width:1291px){
+  .spine-third{display:none}
+  .spine-a > *,.spine-b > *{
+      --pw:min(clamp(484.4px, calc((100svh - var(--nav-h)) * .80 / 1.134), 676.3px),
+               calc((100cqw - var(--pair-gap)) / 1.6625))}
+  .spine-a{gap:var(--pair-gap)}
+  .stair-col{margin-left:calc((.7975 - .70844) / 3 * var(--pw))}
+  .stair-col:first-child{margin-left:0}
+}

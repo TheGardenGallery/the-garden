@@ -1,0 +1,68 @@
+/* =======================================================================
+   I2 · THE QUEUE, AS A SHOP WINDOW
+   ======================================================================= */
+
+
+  /* ── THREE RULES, NOTHING ELSE ───────────────────────────────────────
+     Movsum: too much mixed together; each phone should be an individual
+     object on display, and the spacing, scale and position should follow a
+     clear relationship. So:
+       SCALE   every phone's ink is exactly --H tall,
+       SPACING every gap is exactly --H / 4, ink to ink,
+       FLOOR   every phone stands on one line, with the glass shelf's faint
+               one shelf of candybars, large.
+     The figure IS the ink box (index.html carries each file's measured
+     insets), so the gap is between drawings, not between files. */
+.band-queue{background:#000;min-height:100svh;overflow:hidden;
+    --H:min(64svh, 46vw);--G:calc(var(--H) / 4);
+    display:flex;flex-direction:column;justify-content:center;
+    padding:var(--nav-h) 0 0}
+  /* the room sizes to its two shelves rather than to a full screen: as a
+     full screen it left ~340px of black before the Image Trace room (Ivan) */
+@media(min-width:901px){
+    .band-queue{min-height:0;height:100svh;padding:0;justify-content:center}
+    /* EQUAL BLACK ABOVE AND BELOW (Ivan): the room is one screen with the
+       row centred in it, and the Image Trace room adds nothing on top, so
+       the black from the panel above to the phones equals the black from
+       the phones to the screenshot below: (100svh - H) / 2 each. */
+}
+
+  /* the line scrolls sideways; the page still scrolls vertically through
+     it. No visible scrollbar: the phone cut by the window's edge is the cue. */
+.queue-scroll{position:relative;z-index:3;overflow-x:auto;overflow-y:hidden;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;cursor:grab;
+    /* the one shelf, centred in its screen */
+    padding:0;display:flex;flex-direction:column;gap:calc(var(--H) * .28)}
+.queue-scroll::-webkit-scrollbar{display:none}
+.queue-scroll.dragging{cursor:grabbing}
+
+.queue{display:flex;align-items:flex-end;gap:var(--G);width:max-content;height:var(--H);
+    padding:0 var(--gutter)}
+
+.queue-item{position:relative;flex:none;margin:0;overflow:visible;background:transparent;
+    width:calc(var(--a) * var(--H));height:var(--H);
+    /* straight and still (Ivan: the tilt read as unrefined). No 3D
+       transform and no reflection: both made the browser re-render each
+       phone as a resampled bitmap, which is what softened them. */
+    transform:none}
+.queue-item img{position:absolute;max-width:none;width:auto;
+    height:calc(var(--h) * var(--H));left:calc(var(--x) * var(--H));bottom:calc(var(--y) * var(--H));
+    /* the glass shelf, barely there (Ivan: less pronounced). 7% at the floor,
+       gone within .14 of the phone's height, on an eased falloff so it has no
+       visible lower edge. The mask is read before the flip, so 100% is the
+       floor. */}
+
+
+
+
+  /* ── THE GRADIENT, QUIETED HERE ──────────────────────────────────────
+     A layer of the room's own black over the aura (z 1) and under the works
+     (z 3) lets a fifth of the movement through. */
+.band-queue::before{content:"";position:absolute;inset:0;z-index:2;
+    background:#000;opacity:.8;pointer-events:none}
+
+@media(max-width:900px){
+    .band-queue{--H:44svh}
+    .queue{padding:0 20px}
+}
+

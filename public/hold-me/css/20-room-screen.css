@@ -1,0 +1,78 @@
+/* =======================================================================
+   THE HANDSET'S SCREEN, in the editorial room.
+   ======================================================================= */
+
+
+  /* ── THE ARTIST LEFT A CHROMA KEY ────────────────────────────────────
+     f-331 carries a perfectly flat, axis-aligned rectangle of #08ff4e across
+     the handset's display: hard edges, no texture, no gradient, nothing drawn
+     in it. That is a green screen, and a green screen is an invitation. The
+     page composites into it rather than lighting it, which is the one thing
+     the duo's handset already does.
+
+     THE APERTURE IS MEASURED, NOT PLACED BY EYE. _tools/find-screen.py reads
+     the file and reports the rectangle as shares of the image:
+
+         x  36.71% .. 65.75%        y  29.70% .. 38.40%
+         29.03% wide, 8.70% tall, 2.782 : 1
+
+     Those four numbers were then checked a second way, by cropping the region
+     and reading its edges back independently; both passes agree to a pixel.
+     Percentages, not pixels, so the overlay tracks the plate at every window
+     size, including the height cap the room now carries.
+
+     NOTHING GREEN IS PAINTED HERE. Repainting the aperture would mean
+     matching #08ff4e exactly or showing a seam, and any inset would draw a
+     second rectangle inside the first. So this layer is transparent: it
+     carries the digits and a veil thin enough that its own edge cannot be
+     seen, and the artwork keeps supplying the colour. */
+.room-screen{position:absolute;
+    left:36.71%;top:29.70%;width:29.04%;height:8.70%;
+    pointer-events:none;              /* the plate still opens the viewer */
+    container-type:size;              /* so the type can be sized in cqh */
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+    z-index:1}
+
+
+  /* ── THE BACKLIGHT ───────────────────────────────────────────────────
+     An old STN panel does not strobe, it breathes: the backlight sags a
+     little under load and recovers. So this is a long, irregular, very
+     shallow luminance ripple, never a blink. Amplitude is 4% at its deepest,
+     which is felt rather than seen, and the period is deliberately not a
+     round number so it never locks into a visible rhythm.
+
+     It modulates the green already in the file instead of replacing it, and
+     at this alpha the veil's own rectangle edge is invisible, which is why
+     it can cover the aperture exactly with no inset and no feather. */
+.room-screen::before{content:"";position:absolute;inset:0;
+    background:#001a06;opacity:.018;
+    animation:lcd-sag 7.3s var(--ease-mech) infinite}
+
+
+@keyframes lcd-sag{
+    0%{opacity:.012}   11%{opacity:.040}  18%{opacity:.016}
+    34%{opacity:.022}  47%{opacity:.008}  55%{opacity:.034}
+    63%{opacity:.014}  79%{opacity:.026}  88%{opacity:.010}
+    100%{opacity:.012}}
+
+
+  /* ── THE PIXEL GRID ──────────────────────────────────────────────────
+     The PCD8544 panel these handsets used is 84x48, so its pixels are large
+     enough to see. A one-pixel lattice at 3.5% alpha puts that grid back over
+     the aperture. It is the same dual-frequency idea the aura uses: one very
+     low frequency (the sag above) and one very high (this), with nothing in
+     between for the eye to catch on. */
+.room-screen::after{content:"";position:absolute;inset:0;
+    background:
+        repeating-linear-gradient(0deg,  rgba(0,26,6,.035) 0 1px, transparent 1px 3px),
+        repeating-linear-gradient(90deg, rgba(0,26,6,.035) 0 1px, transparent 1px 3px)}
+
+
+  /* ── THE DIGITS ARE DRAWN, NOT TYPESET ──────────────────────────────
+     js/19-handset-lcd.js draws the panel into this aperture: the 84-wide
+     pixel grid with its ghost matrix, digits dialled from the right, HOLD ME
+     as the operator between calls. The lattice above is redundant with it,
+     so this layer keeps only the backlight sag. (The Silkscreen version and
+     its script are parked in _parked/19-room-screen.js.) */
+.room-screen::after{content:none}

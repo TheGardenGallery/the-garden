@@ -1,0 +1,34 @@
+/* =======================================================================
+   G · THE RAIL, THEN THE SOLO.
+   ======================================================================= */
+
+
+  /* ── G · THE RAIL, THEN THE SOLO ──────────────────────────────────────
+     The four butted works became a draggable lightbox strip (see .body-rail),
+     so .g-row and its unequal-width grid are gone: those widths are meaningless
+     once every plate is an identical square.
+
+     THE SOLO WORK KEPT ITS OWN SECTION. g-hey is the region's single beat and
+     is NOT in the rail. It needs air on all FOUR sides: the rule below once
+     carried `margin-top` alone, which let the next region's flush row butt
+     against the work's bottom edge. g-hey also fills its file completely (ink
+     measured 100% x 100%, zero baked padding, ground #c5c5c5), so unlike most
+     works here it has no margin of its own to lend, and its section is
+     `band-bleed` (padding zeroed), so these margins are the ONLY thing holding
+     it off both neighbours. Don't remove them expecting the band to cover it.
+
+     IT IS NO LONGER SQUEEZED. The 24vh ceiling existed because this work sat
+     BETWEEN two rails and all three had to be visible at once. The second rail
+     is gone (its two works joined the strip above), so the vertical budget that
+     forced the work down to a thumbnail is released and it can be shown at
+     proper scale. Still sized by HEIGHT, because width is what varies with the
+     window, with a vw cap so a short wide viewport cannot push it off frame. */
+.g-solo{margin:8vh 0 25vh;display:flex;justify-content:center}   /* more grey below it before the next panel (Ivan) */
+
+.g-solo .plate{height:76vh;width:auto;aspect-ratio:1620/2000;min-width:0;
+    max-width:86vw}
+
+
+  
+
+

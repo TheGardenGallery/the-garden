@@ -1,0 +1,36 @@
+/* =======================================================================
+   G · THE ORBIT, the series as a turning constellation.
+   ======================================================================= */
+
+
+  /* ── A 3D STAGE, ONE SCREEN TALL ─────────────────────────────────────
+     The camera sits slightly above (perspective-origin 30%), so the far
+     side of the ring rides higher, the way a ring on a floor does. The stage
+     is lifted to z-index 2 like every room's content, so the atmosphere and
+     the aura stay behind the works. Positions are written per frame by
+     js/22-orbit.js, one transform per work; the CSS only sets the stage and
+     the works' base height. */
+  /* NO perspective here: perspective makes the room a stacking context at
+     z 0, under the aura (z 1), and the field then painted OVER the works.
+     The 3D lives on the stage, which is already lifted to z 2. */
+.band-orbit{height:100svh;min-height:600px;cursor:grab}
+.band-orbit:active{cursor:grabbing}
+
+  /* pointer-events:none on the stage: as the 3D container it is a plane at
+     z=0 with every work at or behind it, so it won every hit test and a
+     click never reached a work. The works take the
+     pointer; steering and dragging listen on the room, so they still work. */
+.orbit-stage{position:absolute;inset:0;z-index:2;pointer-events:none;
+    perspective:1500px;perspective-origin:50% 30%;transform-style:preserve-3d}
+.orbit-item{pointer-events:auto}
+
+  /* .plate carries position:relative and overflow:hidden for the rest of the
+     page; a work on the ring is placed absolutely from the room's centre */
+.orbit-item{position:absolute;left:50%;top:54%;margin:0;overflow:visible;
+    background:transparent;will-change:transform,opacity}
+.orbit-item img{height:min(50vh,520px);width:auto;
+    user-select:none;-webkit-user-drag:none;cursor:zoom-in}
+
+@media(max-width:900px){
+    .orbit-item img{height:34vh}
+}

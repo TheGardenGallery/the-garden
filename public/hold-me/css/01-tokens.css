@@ -1,0 +1,195 @@
+/* =======================================================================
+   TOKENS, colour, motion, rhythm. The single source of truth.
+   ======================================================================= */
+
+
+:root{
+    /* THE PAGE'S ONE TEXT-TO-ARTWORK GAP, measured ink to text (Movsum: keep
+       spacing consistent throughout). Every pair on the page reads it. */
+    --pair-gap:clamp(88px, 6.5vw, 116px);
+  /* ---- page palette, motion + rhythm --------------------------------
+     ONE block. The stylesheet previously carried three separate :root
+     declarations (page, regions, and a narrow-screen override), so a
+     token's real value depended on which one came last. The responsive
+     override still lives in its media query, where it belongs; these two
+     are merged because they were both unconditional. */
+
+    --void:#000000; --ink:#ffffff; --dim:#8a8a8a; /* --ui is the page's fallback stack. It no longer names Fira Sans or Jost:
+       those families are not loaded any more, so referencing them meant `body`
+       resolved to an unavailable face and fell through to Times. Every element
+       that actually carries type now names its own family (Cormorant for body,
+       Silkscreen for labels, Michroma for the lockup, Barlow/Inter for the
+       nav), so this stack only backstops anything unstyled. */
+    --ui:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    /* Old STN Nokia panel: NOT a clean neon glow. A dim, low-contrast,
+       slightly sickly grey-green backlight bleeding through a greyish
+       polarizer. Muddy core, short murky halo, underpowered.
+       --core = the lit-pixel colour (desaturated, dim, never white)
+       --halo = the close backlight bleed
+       --wash = far, faint field cast */
+
+    /* ════════ MOTION TOKENS ════════════════════════════════════════════
+       One shared scale for every moving thing on the page, following the
+       transitions.dev principle: motion feels designed when duration and
+       easing come from a small named set rather than being chosen per
+       element. An audit of this file before the scale existed found FOUR
+       easing curves and TWELVE durations, including .5/.55/.6/.66 and
+       .9/.95 pairs that no eye can tell apart. Those are assembly
+       accidents, not decisions, and they are exactly what makes a page feel
+       unresolved: two things that should move together move fractionally
+       differently.
+
+       DURATION. Six steps, each with a job. Nothing on the page may invent
+       a seventh.
+         t1  a state that should feel instant
+         t2  a small local change (a hover, a fade)
+         t3  the standard: a room changing, a plate resolving
+         t4  a considered move: something travelling a real distance
+         t5  deliberate: a figure assembling itself
+         t6  a hang: an object being set down across the viewport         */
+    --t1:.18s;
+    --t2:.32s;
+    --t3:.55s;
+    --t4:.72s;
+    --t5:.95s;
+    --t6:2.5s;
+    /* EASING. Three curves, three roles, and they do not overlap.
+         ease      the house curve. Decelerate, no overshoot: things arrive.
+         ease-far  a harder decelerate for long travel, so a move that
+                   crosses the viewport still settles rather than stopping.
+         ease-mech a symmetric mechanical curve for A-to-B moves along a
+                   track, where the motion is a mechanism and not a gesture.
+       There is deliberately NO spring or overshoot token. A gallery page
+       sets work down; it does not bounce it. */
+    --ease:cubic-bezier(.22,1,.36,1);
+    --ease-far:cubic-bezier(.16,1,.3,1);
+    --ease-mech:cubic-bezier(.4,0,.2,1);
+    /* STAGGER, DISTANCE, BLUR. The reveal vocabulary, shared so that every
+       staggered thing on the page rises by the same amount at the same
+       interval through the same softening. */
+    --stagger:120ms;
+    --rise:10px;
+    --soften:2px;
+    /* THE ENTRANCE (Ivan, 2026-10-23: smoother when works slide or fade
+       in). Every arrival on the page, text and art, leaves from REST and
+       settles over a long tail: zero speed at the start, so nothing jumps
+       into motion, then a slow landing. The out-curves above start at full
+       speed, which is what read as abrupt. Art travels further and takes
+       longer than type; neither overshoots. */
+    --ease-arrive:cubic-bezier(.33,0,.12,1);
+    --t-reveal:1.3s;
+    --t-arrive:1.8s;
+
+    --g-black:#000000;
+    --g-red:#fe0b39;      /* sampled from the artwork FILES (b-phph / b-pggg
+                             edges, 96-100% pure). NOT from a screenshot: the
+                             screenshot read #eb443a, which is 17/255 off and
+                             showed as a visible lighter rectangle.
+
+                             The grey experiment is parked, not deleted: the
+                             works re-seated on #babfbb still exist under
+                             assets/works/grey/ and prep_band_grey.py rebuilds
+                             them, so switching back is a two-line change.
+                             The measured hero-lockup grey was #bababa (p75 of
+                             the rendered letter pixels), which is 1/255 from
+                             --g-grey below. */
+    --g-green:#07fe0d;   /* the chroma green: the duo works' GROUND */
+
+    /* the green that lives INSIDE the process works. Measured off all three
+       works in that room, which agree exactly, e-sonyny alone carrying 34,757
+       sampled pixels of it.
+
+       IT IS ONLY 6.3 ΔE2000 FROM --g-green, which is a just-noticeable shift
+       rather than a second colour: a little lighter and a little yellower.
+       That is precisely why it has to be its own token and not a tweak to
+       --g-green. The chroma green is the duo works' GROUND and is welded to
+       them; this is ink lifted out of different works. Two values that close
+       will look like a mistake if they ever drift, and like one colour if
+       they are merged. */
+    --g-green-ink:#8dfb5e;   /* the page's chroma green: the duo's ground, the
+       green break, and the cage around the Series field. */
+    --g-white:#fcfcfc;
+    --g-straddle:var(--g-red);   /* the split room's single-colour stand-in (lightbox ground) */
+    --g-orange:#ff5500;  /* ONE orange for the whole room: both works' own
+       ground, both orange bands, and the orange break all read this.
+
+       THE ROOM MOVED TO THE ARTIST'S VALUE, NOT THE OTHER WAY ROUND. It was
+       #ff5300, and every orange file Movsum delivers arrives on #ff5500, so
+       each import needed its ground re-seated by flood fill to join the room.
+       That is an edit to the artwork to protect a number we chose, and it had
+       to be repeated for every new file. Moving the token two units costs
+       nothing, touches no drawing, and makes every future export match on
+       arrival.
+
+       It has to be EXACT, not close. e-sonyny's edge is 100% flat ground, so
+       it meets the band over its whole perimeter with no texture anywhere to
+       hide a step: this is the case where 2/255 reads, which is why the
+       general "a few /255 is invisible" tolerance does not apply here. */
+    --g-grey:#969b97;    /* Movsum's homogenised grey. ONE value for the whole
+       grey run now: the editorial room, the rail of six and the solo all sit on
+       it, so those beats read as one continuous room with no plate edge and no
+       step between bands. Was #babfbb, f-331's own ground, back when this work
+       alone defined the colour. */
+    --gutter:80px;
+    --nav-h:60px;        /* the fixed bar's height: layout that must clear it reads this */
+    --art-h-share:.46;   /* a composed work's height as a share of the usable screen */
+    --fit-air:2vh;       /* the air a full-bleed work is GUARANTEED to keep on
+                            screen. It is a crop guarantee, not the air you
+                            see: the visible breathing room is the band's own
+                            padding. It was 6vh, which was large enough to beat
+                            the page axis and hold the C work 86px inside it at
+                            full screen; 2vh lets the axis win where the screen
+                            allows and still shrinks the work on a short one. */
+    --rhythm:clamp(120px,11vw,190px);
+
+      /* the cushion either side of a rule note: --rhythm less 30%. ONE token
+         read by both neighbours, so the note stays centred in its gap by
+         construction. The two cushions are set by DIFFERENT elements (the
+         band above owns the top, the band below owns the bottom), which is
+         exactly the arrangement that drifts apart when it is two numbers. */
+    --note-air:clamp(84px,7.7vw,133px);
+}
+
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+
+html,body{background:var(--void)}
+  /* NO SWIPE-TO-GO-BACK (Ivan): on a MacBook a two-finger sideways swipe is
+     the browser's Back/Forward gesture, so dragging across an interlude or
+     the closing surface, or reaching the end of the Queue, left the page.
+     The page itself never scrolls sideways, so nothing is lost by turning
+     it off; the drawings and the Queue still take sideways swipes. */
+html,body{overscroll-behavior-x:none}
+.surface-pan,.queue-scroll{overscroll-behavior-x:contain}
+
+
+body{font-family:var(--ui);color:var(--ink);-webkit-font-smoothing:antialiased}
+
+
+  /* ═════════════════════════════════════════════════════════════════════
+     EXHIBITION BANDS
+     Ported from the Figma flow: pale row of four, black pair, black
+     press-sheet columns against a mosaic, black single work, orange cascade,
+     black close. Colour blocks act as chapters, so the ground changes when the
+     argument does and never for decoration.
+     Two registers of type, deliberately:
+       - STATEMENT: Cormorant at 30-40px, the sentences that carry the thesis
+       - PRESS: Cormorant at 15px in narrow columns, the dense passages
+     Hufkens discipline holds in both: weight 400 except the promoted leads,
+     hierarchy from size and colour, hairline rules, zero chrome.
+     ═════════════════════════════════════════════════════════════════════ */
+  /* ═══════════════════════════════════════════════════════════════════════
+     THE NINE REGIONS, geometry derived from the Figma node coordinates by
+     derive_regions.py, not eyeballed. Widths are the node widths as a share
+     of the 16067-unit page column; butt-joins are the places where one
+     node's right edge IS the next node's left edge.
+
+     THE FITTING PRINCIPLE (Ivan's): never crop a work to force a ratio.
+     Paint the plate with the artwork's OWN sampled ground and let the image
+     sit in it contained. Plate ground == artwork ground, so the seam is
+     invisible, leftover space reads as part of the work, and the aspect
+     ratio stops constraining the layout.
+     ═════════════════════════════════════════════════════════════════════ */
+
+

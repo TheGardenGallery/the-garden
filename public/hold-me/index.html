@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<base href="/hold-me/">
+<title>Hold Me &middot; Movsum Alasgarov | The Garden</title>
+<meta name="description" content="The title is the caller speaking, someone on the other end asking to be held. Movsum Alasgarov never kept his phone on loud, so every call reached him as a vibration, heard or felt, the phone shaking on the table as if it were dancing.">
+<link rel="canonical" href="https://thegarden.art/hold-me">
+<meta property="og:site_name" content="The Garden">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://thegarden.art/hold-me">
+<meta property="og:title" content="Hold Me &middot; Movsum Alasgarov">
+<meta property="og:description" content="The title is the caller speaking, someone on the other end asking to be held. Movsum Alasgarov never kept his phone on loud, so every call reached him as a vibration, heard or felt, the phone shaking on the table as if it were dancing.">
+<meta property="og:image" content="https://thegarden.art/hold-me/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Movsum Alasgarov, png7, detail">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@chilltulpa">
+<meta name="twitter:creator" content="@chilltulpa">
+<meta name="twitter:title" content="Hold Me &middot; Movsum Alasgarov">
+<meta name="twitter:description" content="The title is the caller speaking, someone on the other end asking to be held. Movsum Alasgarov never kept his phone on loud, so every call reached him as a vibration, heard or felt, the phone shaking on the table as if it were dancing.">
+<meta name="twitter:image" content="https://thegarden.art/hold-me/og.jpg">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- FONT SYSTEM (4 families, two of which exist only to match the live site's nav)
+     Michroma  = the lockup. Vernon Adams' OFL adaptation of Eurostile Extended
+                 and its predecessor Microgramma (Novarese, 1952/1962). This is
+                 not a stylistic guess: Nokia's wordmark is Eurostile Extended,
+                 Sony Ericsson's own brand guidelines MANDATE Eurostile Regular
+                 for all advertising headlines, and Samsung shipped Eurostile as
+                 a selectable system font on E250-generation handsets. Three of
+                 the brands in Movsum's work converge on the same square
+                 grotesque, so Eurostile is the native letterform of the
+                 pre-smartphone handset. Michroma is the only legitimate free
+                 route to it. ONE weight (400), no italics: display use only.
+     Silkscreen = meta labels. Jason Kottke, 2001, relicensed OFL for Google
+                 Fonts. Genuinely contemporaneous with the 3310 and a true 1-bit
+                 bitmap on a ~5px cap grid, which is the actual constraint set
+                 of the PCD8544 84x48 display those phones used. Replaces
+                 Pixelify Sans, which is a videogame pixel face rather than a
+                 handset LCD one.
+     Cormorant = all body copy, 400 only.
+     Barlow 600 + Inter 700 = the nav and wordmark ONLY, reproduced from
+                 thegarden.art so this page's header matches the live site.
+     REMOVED: Jost, Fira Sans, Anton, Pixelify Sans. -->
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Silkscreen:wght@400;700&family=Azeret+Mono:wght@300;400;500;600&family=Barlow:wght@600&family=Inter:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/01-tokens.css">
+<link rel="stylesheet" href="css/02-cursor.css">
+<link rel="stylesheet" href="css/03-nav.css">
+<link rel="stylesheet" href="css/04-hero.css">
+<link rel="stylesheet" href="css/06-lightbox.css">
+<link rel="stylesheet" href="css/08-motion.css">
+<link rel="stylesheet" href="css/09-bands-shared.css">
+<link rel="stylesheet" href="css/10-region-b-spread.css">
+<link rel="stylesheet" href="css/11-region-c-white.css">
+<link rel="stylesheet" href="css/12-region-d-spine.css">
+<link rel="stylesheet" href="css/13-region-e-four.css">
+<link rel="stylesheet" href="css/14-region-f-room.css">
+<link rel="stylesheet" href="css/15-region-g-rail.css">
+<link rel="stylesheet" href="css/17-region-i-close.css">
+<link rel="stylesheet" href="css/18-atmosphere.css">
+<link rel="stylesheet" href="css/19-aura.css">
+<link rel="stylesheet" href="css/20-room-screen.css">
+<link rel="stylesheet" href="css/22-keyrail.css">
+<link rel="stylesheet" href="css/23-region-j-process.css">
+<link rel="stylesheet" href="css/25-region-g-orbit.css">
+<link rel="stylesheet" href="css/27-region-k-surface.css">
+<link rel="stylesheet" href="css/28-region-i2-queue.css">
+<link rel="stylesheet" href="css/29-loupe.css">
+<link rel="stylesheet" href="css/30-smooth-scroll.css">
+<link rel="stylesheet" href="css/32-pull.css">
+<link rel="stylesheet" href="css/33-mobile.css">
+<link rel="stylesheet" href="css/34-black-run.css">
+</head>
+<body>
+<div class="hero" data-ground="hero">
+  <nav>
+    <ul class="nav-links">
+      <li><a href="/artists">Artists</a></li>
+      <li><a href="/exhibitions">Exhibitions</a></li>
+      <li><a href="/interviews">Interviews</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+    <a class="logo" href="/" aria-label="The Garden, home">
+      <span class="the">THE </span><span class="grd">G<span class="triangle"><svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M50 0 L100 100 L0 100 Z M50 46 L67 79 L33 79 Z" fill="currentColor" fill-rule="evenodd"/></svg></span>RDEN</span>
+    </a>
+  </nav>
+
+  <!-- ═══════════════ THE TITLE, BLINKING ═══════════════
+       The series is Hold Me, and the header is now just the words on black.
+       The brick strip and the glass MOVSUM / FUTURA 250 lockup that stood here
+       are parked whole in _parked/brick-hero-and-colophon/ (markup, CSS and
+       all six JS behaviours), which is why their stylesheets and scripts are
+       still loaded: every one of those units guards on its hook and
+       early-returns, so they cost nothing while the markup is absent.
+
+       The two words are aria-hidden and the heading carries the label, so the
+       title is announced once as "Hold Me" rather than read out twice or read
+       in pieces as it blinks. -->
+  <!-- THE TITLE IS MICHROMA RUN THROUGH ASCII. The real 400-weight face was
+     rasterised and resampled onto a character grid, so these are not decorative
+     characters arranged to look like letters: they are the typeface, measured.
+     The grid keeps its proportion too, 3.60 wide to tall against Michroma's own
+     3.63, because the column count is derived from the ink box and the 0.6
+     advance of the mono that draws it.
+
+     WHY THIS AND NOT THE DITHER IT REPLACES. The middle beat of this sequence
+     is already an ASCII piece. Masking the words with a halftone made the hero
+     speak two languages at once, a screen effect and a character drawing. Now
+     every beat is the same material and the words and the artwork are the same
+     kind of object. -->
+<h1 class="hold" aria-label="Hold Me">
+<pre class="hold-w hold-1" aria-hidden="true">@#            %%                 *@.            *@
+@#            %%                 *@.            *@
+@#            %%   :*#######*-   *@.  .+#######+#@
+@#::::::::::::%#  :@#:.....:+@-  *@. .%%-:....:+@@
+@%############@#  +@.        @#  *@. -@-        #@
+@#            %%  *@.        %#  *@. =@:        *@
+@#            %#  +@.        @#  *@. -@:        #@
+@#            %%  :@*:.....:+@-  *@. .%#:.....:+@@
+%*            ##   :#%%%%%%%#-   +%.  .*%%%%%%#+*%</pre>
+<pre class="hold-w hold-2" aria-hidden="true">@@@:              *@@=
+@#*@-            *@=@=
+@# +@=         .#@.:@=   -########+.
+@#  =@+       .%%. :@=  +@=......-%#
+@#   -@*     :@#   :@=  %#........*@
+@#    :%#.  -@*    :@= .%%##########
+@#     .%%.-@+     :@=  %#         .
+@#       #@@=      :@=  +@=......:#@
+%*        -:       :%=   =#%%%%%%%#:</pre>
+</h1>
+<img class="hold-art" src="assets/hero/hold-me.png" alt="" aria-hidden="true" draggable="false">
+<pre class="hold-close" aria-hidden="true"> +#*   +##########+   =*                                      *#+
++%.   *%:........:%#  +@                   .                   .%*
+@+   .@-          -%. +%  .+#******-  .*#######+   +######*-    +@
+@+   .@-              +%  *%:.   .-@- *@      :#. *%.     -@.   =@
+@+   :@-              +%  @+       %* -%++++++=:  %#=+=++=+@-   =@
+@+   .@-          :*. +%  @+       %*  .------+@: %*-------:.   =@
+@+    #%.        .#%  +@  *%.     :@= =#      .@- *%.     :#.   +@
++%.   .+#********#*.  =#  .+#*****#=  :##*****#+  .+#*****#+   .%*
+ +%*     ........            ....        .....       .....    *#+</pre>
+</div>
+
+<!-- ═══════════════ INTERLUDE · png9 (black to red) ═══════════════
+     ALL FIVE INTERLUDES AND THE CLOSING SURFACE ARE LOCKED (Ivan, 2026-10-22)
+     to the framings he dragged to and sent: matched from his screenshots to
+     the masters, kept in view whole on a laptop screen (see
+     _tools/make_interludes.py). Interlude 2 is centred on its black gap.
+     Between two rooms of different colour, one fragment of an original at
+     native resolution, edge to edge and draggable across the whole drawing,
+     in the manner of the closing surface (Ivan: "more in the style of the
+     last one"). Same component, same framing (4384 x 2736 source px) and
+     the same three sizes; cut by _tools/make_interludes.py. -->
+<section class="band band-bleed band-surface band-interlude" data-ground="black" aria-label="Interlude, png9, detail">
+  <div class="surface-pan" data-pad=".08" data-tiles="assets/works/t/tiles/png9/"
+       data-view="6513 6644 3032 1960" aria-label="Movsum, png9, detail. Drag to explore the whole drawing." role="img">
+    <div class="surface-layer">
+      <img class="surface-start" src="assets/works/t/details/i-png9b-2400.webp"
+           srcset="assets/works/t/details/i-png9b-2400.webp 2400w,
+                   assets/works/t/details/i-png9b-full.webp 3032w"
+           sizes="100vw" alt="" draggable="false" decoding="async" loading="lazy">
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════ B · THE SPREAD ═══════════════
+     Red, and now the FIRST section below the hero. Two works at a quarter of
+     the column each, set on the diagonal with a lot of air around them, a
+     text block opposite each. The opening statement leads at upper left; the
+     research passage answers it at lower right.
+
+     The works' own grounds are the same red as the band, so each work
+     dissolves into the ground and only the handset reads: no plate edges
+     anywhere, just objects floating in red. -->
+<section class="band band-red" data-ground="red" aria-label="Research" data-arrive>
+  <div class="spread">
+
+    <!-- TWO ROWS, ALTERNATING (Ivan, 2026-10-22): text beside a work, then a
+         work beside text. Row 1: the statement, then the green stack with
+         png41. Row 2: the white pair, then the two sentences that follow
+         the statement. Every work in both rows shares one scale (--u, the
+         white pair's ink width), each text stands one --pair-gap off its
+         work's ink and is centred on it, flush left at a reading measure. -->
+    <div class="spread-rows">
+      <div class="spread-row spread-row--1" data-arrive>
+        <div class="spread-t1" data-reveal-seq>
+          <p class="band-lead">The title is the caller speaking, someone on the other end asking to be held. Movsum Alasgarov never kept his phone on loud, so every call reached him as a vibration, heard or felt, the phone shaking on the table as if it were dancing. It was a Samsung E250, the first phone his father bought him. Phones today barely make themselves felt. &ldquo;Hold Me&rdquo; is about the ones that did: the first phones made for everyone, in every colour and size, each saying something about the person who carried it. The exhibition is built the same way. Every room takes its own colour and every work its own scale, because no two of those phones were alike.</p>
+        </div>
+        <div class="spread-art spread-art--stack">
+          <figure class="plate spread-a2">
+            <img src="assets/works/b-pggg.webp" alt="Movsum, phone study" draggable="false">
+          </figure>
+          <!-- png41 is the handset the green stack repeats, standing beside it
+               on its own (final delivery, 2026-10-16) -->
+          <figure class="plate spread-s2">
+            <img src="assets/works/t/t-png41.webp" alt="Movsum, the handset the stack repeats" draggable="false">
+          </figure>
+        </div>
+      </div>
+      <div class="spread-row spread-row--2" data-arrive>
+        <div class="spread-art spread-art--pair">
+          <figure class="plate spread-a1">
+            <img src="assets/works/b-phph.webp" alt="Movsum, phone study" draggable="false">
+          </figure>
+        </div>
+        <div class="spread-t3" data-reveal-seq>
+          <p class="band-lead">His generation grew up through that change without noticing it. Its taste was shaped by clothes, music and films, and also by button phones: their shapes, interfaces, ringtones, screens and games. Moving from one handset to the next seemed ordinary. Only looking back is it clear how fast it happened, from a device for making calls to an object that holds almost a whole life. Movsum&rsquo;s own taste came largely from his mother, and from her love of flip phones, the kind you could snap open and shut in one movement. Hers was a Samsung SCH&#8209;X450, and it rang with &ldquo;Dilemma&rdquo; by Nelly and Kelly Rowland. To him they still look like the future.</p>
+        </div>
+      </div>
+    </div>
+    <!-- the frame, png28, and the second sentence running down its slanted
+         edge, centred as one group (Ivan, 2026-10-22) -->
+    <div class="spread-t2" data-reveal-seq>
+      <figure class="plate spread-a3">
+        <img src="assets/works/t/t-png28.webp" alt="Movsum, the phone opened into a frame" draggable="false">
+      </figure>
+      <p>Early in 2026, after WEATHERMAN, an intense collaboration that set out to go past the limits of consciousness using only art and a computer, he could not make anything. He felt he had reached the edge of the abstract, mathematical thinking his work had been built on, and the harder he pushed as a perfectionist, the worse the work became. In the end he stopped forcing it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ A PULL QUOTE ═══════════════
+     One of three (Ivan, 2026-10-26): his own words, a full screen each, set
+     large in Michroma, the page's Eurostile, the face of the handsets'
+     own branding. Hierarchy by size, never weight; no quote marks, the scale
+     and the attribution say it. css/32-pull.css -->
+<section class="band band-quote" data-ground="red" style="background:var(--g-red)" aria-label="Quote, the process">
+  <figure class="pull" data-reveal-seq>
+    <blockquote><p>The process itself is the highest manifestation of art, rather than the finished result.</p></blockquote>
+    <figcaption>Movsum Alasgarov</figcaption>
+  </figure>
+</section>
+
+<!-- ═══════════════ C · THE FULL BLEED ═══════════════
+     One work at 98.5% of the column, edge to edge. Its own ground is #fcfcfc,
+     so the work IS the white room: the region needs no band colour. -->
+<!-- ═══════════════ C · THE WHITE ROOM ═══════════════
+     The band itself is the white rectangle, and the work sits INSET inside
+     it rather than running edge to edge. Its own ground is pure #ffffff,
+     measured off the file, so band and work are one continuous white field
+     with no visible plate edge. Smaller box means the 2000px file is no
+     longer upscaled, so the linework renders sharp. Its ink spans the same
+     10% / 90% axes as the red band above it. -->
+<!-- THE ROOM FOLLOWS THE WORK. This slot held the same picture on white; the
+     new export is on #fe0b39, the red room's own token, measured at 99.7% edge
+     purity. Leaving the band white would have put a hard red rectangle on a
+     white field, which is the one thing this page never does: every ground
+     here IS the artwork's ground.
+
+     So the white room is gone and this joins the red one above it. They are
+     the same value and this band bleeds, so the two read as one continuous red
+     room with the spread above and these four handsets below, rather than as
+     two red panels stacked.
+
+     IT TAKES THE GROUND INLINE, NOT THE .band-red CLASS. .band-red is the
+     SPREAD's layout, not a colour: it carries min-height:100vh so that
+     composition can fill the window. Borrowing it for this band forced a full
+     viewport of height onto a single wide picture, and because the band is a
+     plain block the whole surplus piled up BELOW the work. Hence the red
+     skirt. One-off grounds are set inline here, the same way the orange solo
+     and the grey single already do it. -->
+<section class="band band-bleed" data-ground="red" style="background:var(--g-red)" aria-label="Evolution of phone">
+  <div class="bleed-one">
+    <figure class="plate">
+      <img src="assets/works/c-phone-3.webp" alt="Movsum, the evolution of the phone" draggable="false">
+    </figure>
+  </div>
+</section>
+
+<!-- ═══════════════ INTERLUDE · png9 (red to black) ═══════════════
+     Between two rooms of different colour, one fragment of an original at
+     native resolution, edge to edge and draggable across the whole drawing,
+     in the manner of the closing surface (Ivan: "more in the style of the
+     last one"). Same component, same framing (4384 x 2736 source px) and
+     the same three sizes; cut by _tools/make_interludes.py. -->
+<section class="band band-bleed band-surface band-interlude" data-ground="black" aria-label="Interlude, png9, detail">
+  <div class="surface-pan" data-pad=".08" data-tiles="assets/works/t/tiles/png9/"
+       data-view="3264 3656 3960 2560" aria-label="Movsum, png9, detail. Drag to explore the whole drawing." role="img">
+    <div class="surface-layer">
+      <img class="surface-start" src="assets/works/t/details/i-png9a-2400.webp"
+           srcset="assets/works/t/details/i-png9a-2400.webp 2400w,
+                   assets/works/t/details/i-png9a-3600.webp 3600w,
+                   assets/works/t/details/i-png9a-full.webp 3960w"
+           sizes="100vw" alt="" draggable="false" decoding="async" loading="lazy">
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════ D · THE SPINE ═══════════════
+     Black, 30270 units tall: twice any other region and the centre of gravity
+     of the page. Three works staggered down it at 44%, 43% and 18% of the
+     column, all on pure #000000 so they fuse into the void with no frame.
+     The dense text staircase descends alongside them. -->
+<section class="band band-void" data-ground="black" aria-label="Phones">
+  <div class="spine-a">
+    <figure class="plate plate--void">
+      <img src="assets/works/d-process35.webp" alt="Movsum, process" draggable="false">
+    </figure>
+    <!-- the same flip in a third state (png46, final delivery), at the pair's
+         height and the pair's own gap: three states of one phone -->
+    <figure class="plate plate--void spine-third">
+      <img src="assets/works/t/t-png46.webp" alt="Movsum, the same flip phone, a third state" draggable="false">
+    </figure>
+    <div class="spine-notes" data-reveal-seq>
+      <p>While working with a musician, he traced a violin and ran one of his own brushes along its lines. His brushes are strips of pattern he designs himself, which the software stretches to follow any line it is given. He enjoyed the result and set it aside. Three weeks later he came back to the idea. Since 2025 he had been saving images of old phones, and he took one, a Motorola V2260, and did the same with another brush. He saw then that he did not need the perfect approach, only something simple to start from, and the willingness to let it take him over. For days he looked at the result without showing it to anyone. Something in it was pulling at him, and he still cannot fully say what.</p>
+    </div>
+  </div>
+
+  <div class="spine-b">
+    <div class="stair" data-arrive>
+      <!-- SIGNAL BARS. Four passages at 12 characters a line in a monospace
+           face, copyfitted to EXACTLY 7 / 14 / 21 / 28 lines (1:2:3:4), and
+           JUSTIFIED so each bar is a solid block: every line is either a
+           full 12 characters or two or more words reaching 10. The copy was
+           rewritten line by line to meet that; review the wording with
+           Ivan. Any edit must keep both rules (check with a 12-char greedy
+           wrap, see CLAUDE.md). -->
+      <div class="stair-col">
+        <p>Up close, the phones are dense to the point of excess.</p>
+      </div>
+      <div class="stair-col">
+        <p>Each shell is built up layer over layer until hardly a bare patch remains: grain and dither, ornament stretched along every</p>
+      </div>
+      <div class="stair-col">
+        <p>traced line, flat hits of lime, magenta and cyan, laid down one over another like paper in a collage. The strokes that carry it are quick and playful, so all that weight never sits still. What they render is less</p>
+      </div>
+      <div class="stair-col">
+        <p>the phone than its charge, the calls and messages and the buzz on the table, turned into texture. The forms are pulled almost to chaos, yet each handset stays readable at a glance: a Motorola is still a Motorola from its outline alone. These are phones that still believe something is coming.</p>
+      </div>
+    </div>
+    <figure class="plate plate--void">
+      <img src="assets/works/t/t-png5.webp" alt="Movsum, two handsets" draggable="false">
+    </figure>
+  </div>
+
+  <div class="spine-c">
+    <!-- the closing work pins and opens into a spread: the artwork slides
+         right of centre while the passage slides in from the left to meet
+         it. Scrubbed by scroll position, so it tracks the reader exactly
+         and reverses on the way back up. -->
+    <div class="spine-c-scroll" data-spinec>
+      <div class="spine-c-stage">
+        <div class="spine-c-pair">
+          <div class="spine-c-text">
+            <p>The series grew from that first phone, the Motorola V2260. He first shared the works in their finished form, as phones turned into bricks, isometric compositions in conversation with the space around them. In time he found that most of the pleasure came earlier, while making the phone itself, and the exhibition gives that stage a place of its own. For Movsum the making counts for more than the finished thing. As a work nears completion the editor and the critic take over, and his unconscious has less freedom.</p>
+          </div>
+          <figure class="plate plate--void">
+            <img src="assets/works/d-brick7.webp" alt="Movsum, Brick 7" draggable="false">
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ INTERLUDE · png7 (black to orange) ═══════════════
+     Between two rooms of different colour, one fragment of an original at
+     native resolution, edge to edge and draggable across the whole drawing,
+     in the manner of the closing surface (Ivan: "more in the style of the
+     last one"). Same component, same framing (4384 x 2736 source px) and
+     the same three sizes; cut by _tools/make_interludes.py. -->
+<section class="band band-bleed band-surface band-interlude" data-ground="black" aria-label="Interlude, png7, detail">
+  <div class="surface-pan" data-pad=".08" data-tiles="assets/works/t/tiles/png7/"
+       data-view="5793 4508 3929 2540" aria-label="Movsum, png7, detail. Drag to explore the whole drawing." role="img">
+    <div class="surface-layer">
+      <img class="surface-start" src="assets/works/t/details/i-png7b-2400.webp"
+           srcset="assets/works/t/details/i-png7b-2400.webp 2400w,
+                   assets/works/t/details/i-png7b-3600.webp 3600w,
+                   assets/works/t/details/i-png7b-full.webp 3929w"
+           sizes="100vw" alt="" draggable="false" decoding="async" loading="lazy">
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════ E · THE FOUR, MEETING AT THE CENTRE ═══════════════
+     Two equal rows of two, butted with no gap, closing on one centre cross.
+     Each cell is painted its own work's measured ground, so the cell IS the
+     work's field and the ink can be placed absolutely: all four inks land at
+     88% of their cell starting at 6%, vertically centred, despite four
+     different file ratios and four different baked-in paddings. -->
+<section class="band band-bleed e-band" data-ground="orange" aria-label="Process">
+  <div class="e-scroll">
+    <div class="e-sticky">
+      <div class="e-grid">
+        <div class="e-cell e-osnd" data-slot="0">
+          <div class="e-plate"><img src="assets/works/e-osnd.jpg" alt="Movsum, process" draggable="false"></div>
+        </div>
+        <div class="e-cell e-sony" data-slot="1">
+          <div class="e-plate"><img src="assets/works/e-sonyny.webp" data-lb-src="assets/works/t/t-png13.webp" alt="Movsum, Sony" draggable="false"></div>
+        </div>
+        <!-- the fourth panel is TYPE, not a work, and it travels the ring with
+             the other three. One passage per state; the incoming work slides
+             OVER it and the swap happens underneath, unseen. The method
+             (Illustrator, Image Trace, by hand) is told once, in the spine's
+             signal bars; these passes carry the essay's closing paragraph,
+             a sentence each (Ivan, 2026-10-26: only the essay on the page). -->
+        <div class="e-cell e-text" data-slot="3">
+          <div class="e-plate">
+            <div class="e-pass on">
+              <p class="e-lead">BlackBerry, Nokia, Samsung and Motorola each had their own idea of what the future should look like, with its own shapes, buttons, proportions, materials and mechanics.</p>
+            </div>
+            <div class="e-pass">
+              <p class="e-lead">A phone could flip, slide or rotate, and you could tell what someone was holding from its silhouette.</p>
+            </div>
+            <div class="e-pass">
+              <p class="e-lead">They were imperfect, sometimes inconvenient, and full of character.</p>
+            </div>
+            <div class="e-pass">
+              <p class="e-lead">Then the technology grew more powerful and the object grew quieter, until every phone became the same flat rectangle, its personality moved inside the screen.</p>
+            </div>
+            <div class="e-pass">
+              <p class="e-lead">&ldquo;We used to laugh at the &lsquo;bricks&rsquo; of the past. And somehow, we ended up with the perfect brick. Only now, it&rsquo;s made of glass.&rdquo;</p>
+            </div>
+          </div>
+        </div>
+        <div class="e-cell e-mosh" data-slot="2">
+          <div class="e-plate"><img src="assets/works/e-mosh.jpg" alt="Movsum, process" draggable="false"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ THE SOLO, UNDER THE ORANGE ROOM ═══════════════
+     One work, centred, generous margin either side.
+
+     THE WORK CHANGED SHAPE. This slot held affa, a landscape at 1.456. It now
+     holds a portrait at 0.810, so the plate is sized by HEIGHT rather than by
+     a share of the column: 74.1% of the width on a portrait would have run it
+     well past the fold. Height is the axis under pressure for an upright work,
+     exactly as it is for the grey solo.
+
+     ITS GROUND IS THE ROOM'S, EXACTLY. The file arrived on #ff5500 against the
+     room's #ff5300 and was re-seated by a border-connected flood fill from the
+     frame edge, tapered across the antialiased skirt. Border-connected, never
+     a global match: 131,542 pixels of that same orange sit INSIDE the drawing
+     and a global match would have shifted them too. 54.7% of this work's edge
+     is flat ground, so it meets the band over long flat runs, which is the
+     case where 2/255 stops being invisible.
+
+     The band keeps the page's --rhythm top and bottom: band-bleed zeroes the
+     band padding, so that rule is the only thing holding the work off the
+     break above it and the break below. -->
+<section class="band band-bleed band-affa" data-ground="orange" style="background:var(--g-orange)" aria-label="Process, single work">
+  <div class="close-solo">
+    <figure class="plate">
+      <img src="assets/works/i-new20.webp" data-lb-src="assets/works/t/t-png27.webp" alt="Movsum, phone study" draggable="false">
+    </figure>
+  </div>
+</section>
+
+
+<!-- the green break: the same full-width system line as the black one, in
+     chroma green, marking the change of room between the orange and the grey.
+     Copy is a placeholder in the right register, swap it freely. -->
+
+<!-- ═══════════════ INTERLUDE · png36 (orange to grey) ═══════════════
+     Between two rooms of different colour, one fragment of an original at
+     native resolution, edge to edge and draggable across the whole drawing,
+     in the manner of the closing surface (Ivan: "more in the style of the
+     last one"). Same component, same framing (4384 x 2736 source px) and
+     the same three sizes; cut by _tools/make_interludes.py. -->
+<section class="band band-bleed band-surface band-interlude" data-ground="black" aria-label="Interlude, png36, detail">
+  <div class="surface-pan" data-pad=".08" data-tiles="assets/works/t/tiles/png36/"
+       data-view="6272 6656 3960 2560" aria-label="Movsum, png36, detail. Drag to explore the whole drawing." role="img">
+    <div class="surface-layer">
+      <img class="surface-start" src="assets/works/t/details/i-png36-2400.webp"
+           srcset="assets/works/t/details/i-png36-2400.webp 2400w,
+                   assets/works/t/details/i-png36-3600.webp 3600w,
+                   assets/works/t/details/i-png36-full.webp 3960w"
+           sizes="100vw" alt="" draggable="false" decoding="async" loading="lazy">
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════ F · THE EDITORIAL ROOM ═══════════════
+     Grey. Two works OVERLAPPING, which is the only place on the page that
+     happens: 331 at 57% of the column with 33442 laid over it, down and to
+     the right. 331's ground (#b8bcb8) is 8/255 from the band grey so it
+     dissolves into the room; 33442 (#e4e4e4) is clearly lighter and reads as
+     a plate sitting on that room. The reading room of the exhibition. -->
+<section class="band band-grey" data-ground="grey" aria-label="States">
+  <div class="room">
+    <!-- the type flanks the work, one column either side. DISTINCT classes for
+         the two flanks (--l / --r): a shared `.room-col` positional rule would
+         override whichever flank rule came first and stack them. -->
+    <div class="room-col--l">
+      <span class="room-wrap" aria-hidden="true"></span>
+      <div class="room-text" data-reveal-seq>
+      <p>The phone gradually stopped being just an image. He began using it as a way to express his own states.</p>
+      <p>Instead of directly representing emotions, he filters them through the aesthetics of old futurism, industrial design, and digital graphics.</p>
+      </div>
+    </div>
+    <div class="room-stack">
+      <div class="room-back">
+        <figure class="plate">
+          <img src="assets/works/f-331.webp" data-lb-src="assets/works/t/t-png1.webp" alt="Movsum, phone study" draggable="false">
+          <div class="room-screen" data-lcd aria-hidden="true"></div>
+        </figure>
+      </div>
+    </div>
+    <div class="room-col--r">
+      <span class="room-wrap" aria-hidden="true"></span>
+      <div class="room-text" data-reveal-seq>
+      <p>He wanted to move away from a single system and explore different states of the same phone:&nbsp;form, angles, proportions, space.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ G · FOUR BUTTED, THEN ONE ═══════════════
+     Grey, the same surface as F. Four works flush edge to edge across 90% of
+     the column in the layout's unequal widths: 20.7 / 25.5 / 21.3 / 22.2 per
+     cent. samsung-rot is 23% wider than new1 and that is deliberate, so the
+     widths are not normalised. Then hey alone at 29%. -->
+<!-- ═══════════════ G · THE FIELD ═══════════════
+     Six works butted into ONE continuous grey field, three across, two down.
+     Not a row of plates and no longer a rail.
+
+     WHY THE RAIL WENT. Its signature was never the dragging, it was the room
+     relighting to each work's own ground as the strip moved. Movsum's
+     homogenised files put every plate on #969b97, so that mechanism went inert
+     and what was left was a horizontal scroller, the most generic device there
+     is. It also carried the fault that retired this region once before: five
+     of six works held under blur at all times, so the room spent its life
+     hiding its own art.
+
+     WHY A BUTTED FIELD IS NOW POSSIBLE AT ALL. Every plate is an identical
+     1400x1400 square whose ground IS the band's grey, exact and flat. So the
+     cells can meet at gap:0 with no seam to see, and any sub-pixel rounding
+     between them shows the same grey through. Before the homogenisation this
+     would have drawn a lattice of mismatched edges across the whole figure.
+
+     WHAT IT BUYS. Six objects standing in one room rather than a queue of
+     pictures: nothing is hidden, nothing is blurred, and the set is read as a
+     set. The uniform square, which in the rail only served smoothness, now
+     does the real work of making six different ratios share one field.
+
+     The whole figure is sized to be seen at once, which is the point. -->
+<!-- ═══════════════ G · THE ORBIT ═══════════════
+     The six works of the series on one slow elliptical orbit, in real 3D:
+     the far side recedes and rides higher, works turn as they swing round,
+     distant ones soften and fade into the grey. Each keeps its own height, so
+     the ring reads as a constellation turning, not a merry-go-round. Hover
+     left or right of centre to steer; drag to spin; click a work to open it.
+     Transparent twins of the series files, so the room's grey and its field
+     run behind them. The earlier 3x2 grid with the snake is parked in
+     _parked/series-field/. From the layout studies (_explore, room 06b). -->
+<section class="band band-bleed band-grey band-orbit" data-ground="grey" aria-label="Series">
+  <div class="orbit-stage">
+    <figure class="plate orbit-item" data-y="-.16"><img src="assets/works/t/t-png3.webp" alt="Movsum, phone study" draggable="false"></figure>
+    <figure class="plate orbit-item" data-y=".12"><img src="assets/works/t/t-png10.webp" alt="Movsum, phone study" draggable="false"></figure>
+    <figure class="plate orbit-item" data-y="-.06"><img src="assets/works/t/t-png8.webp" alt="Movsum, phone study" draggable="false"></figure>
+    <figure class="plate orbit-item" data-y=".18"><img src="assets/works/t/t-png12.webp" alt="Movsum, phone study" draggable="false"></figure>
+    <figure class="plate orbit-item" data-y="-.2"><img src="assets/works/t/t-png7.webp" alt="Movsum, phone study" draggable="false"></figure>
+    <figure class="plate orbit-item" data-y=".04"><img src="assets/works/t/t-png6.webp" alt="Movsum, phone study" draggable="false"></figure>
+  </div>
+</section>
+
+<!-- the solo beat: ONE work, centred, air on all four sides. Its section takes
+     the same homogenised grey as the rail and the pair, so the plate has no
+     visible edge and the three grey beats read as one continuous room. -->
+<section class="band band-bleed" data-ground="grey" style="background:#969b97" aria-label="Series, single work">
+  <div class="g-solo">
+    <figure class="plate">
+      <img src="assets/works/g-hey.webp" data-lb-src="assets/works/t/t-png4.webp" alt="Movsum, phone study" draggable="false">
+    </figure>
+  </div>
+</section>
+
+<!-- The matched grey pair that sat here is gone: pgtg and new10 joined the
+     draggable strip above, so the region is ONE rail of six rather than a rail
+     of four followed by a pair. Its CSS (.band-pair / .h-pair in
+     16-region-h-pair) is left in place and is now inert. -->
+
+<!-- the orange break: the same full-width system line, in the page's orange,
+     marking the change of room between the grey and the green. Copy is a
+     placeholder in the right register, swap it freely. -->
+
+<!-- ═══════════════ INTERLUDE · png7 (grey to black) ═══════════════
+     Between two rooms of different colour, one fragment of an original at
+     native resolution, edge to edge and draggable across the whole drawing,
+     in the manner of the closing surface (Ivan: "more in the style of the
+     last one"). Same component, same framing (4384 x 2736 source px) and
+     the same three sizes; cut by _tools/make_interludes.py. -->
+<section class="band band-bleed band-surface band-interlude" data-ground="black" aria-label="Interlude, png7, detail">
+  <div class="surface-pan" data-pad=".08" data-tiles="assets/works/t/tiles/png7/"
+       data-view="616 899 3898 2520" aria-label="Movsum, png7, detail. Drag to explore the whole drawing." role="img">
+    <div class="surface-layer">
+      <img class="surface-start" src="assets/works/t/details/i-png7a-2400.webp"
+           srcset="assets/works/t/details/i-png7a-2400.webp 2400w,
+                   assets/works/t/details/i-png7a-3600.webp 3600w,
+                   assets/works/t/details/i-png7a-full.webp 3898w"
+           sizes="100vw" alt="" draggable="false" decoding="async" loading="lazy">
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════ I2 · THE QUEUE ═══════════════
+     The study's composition exactly (layout studies, room 13): whole works
+     at 66% of the window's height, each overlapping the one before by 6% of
+     its width, the line starting on the page's left axis and running off
+     the right edge, no text. It continues past the screen (blocks and pairs
+     alternating, each overlap set from the outlines by
+     _tools/queue_spacing.py to the opening's own depth): scroll sideways
+     (trackpad swipe, or drag) to walk the rest of the queue. Hovering
+     brings one forward; a click opens it; holding opens the loupe. -->
+<!-- THE SHOP WINDOW (Ivan, 2026-10-22). Every phone's INK is one
+     height H on its shelf and stands on one floor, every gap is H/4 ink to
+     ink; --a/--h/--x/--y are measured ink insets (_tools/make_queue.py). -->
+<section class="band band-queue" data-ground="black" aria-label="Queue">
+  <div class="queue-scroll">
+    <!-- one line: the boxy candybars of png40, large, straight and still,
+         like objects in a vitrine; cut at full resolution by
+         _tools/make_queue.py. (A second row of clamshells was tried and
+         removed, Ivan 2026-10-22.) -->
+    <div class="queue queue--boxy">
+        <figure class="plate queue-item" style="--a:0.383;--h:1.0;--x:-0.001;--y:-0.0"><img src="assets/works/t/singles/t-png40-1.webp" alt="Movsum, a candybar handset" draggable="false"></figure>
+        <figure class="plate queue-item" style="--a:0.41;--h:1.0;--x:-0.056;--y:-0.0"><img src="assets/works/t/singles/t-png40-2.webp" alt="Movsum, a candybar handset" draggable="false"></figure>
+        <figure class="plate queue-item" style="--a:0.403;--h:1.001;--x:-0.001;--y:-0.0"><img src="assets/works/t/singles/t-png40-3.webp" alt="Movsum, a candybar handset" draggable="false"></figure>
+        <figure class="plate queue-item" style="--a:0.427;--h:1.047;--x:-0.018;--y:-0.0"><img src="assets/works/t/singles/t-png40-4.webp" alt="Movsum, a candybar handset" draggable="false"></figure>
+        <figure class="plate queue-item" style="--a:0.414;--h:1.01;--x:-0.053;--y:-0.003"><img src="assets/works/t/singles/t-png40-5.webp" alt="Movsum, a candybar handset" draggable="false"></figure>
+        <figure class="plate queue-item" style="--a:0.389;--h:1.043;--x:-0.046;--y:0.0"><img src="assets/works/t/singles/t-png40-c6.webp" alt="Movsum, a candybar handset" draggable="false"></figure>
+        <figure class="plate queue-item" style="--a:0.428;--h:1.042;--x:-0.039;--y:-0.0"><img src="assets/works/t/singles/t-png40-c7.webp" alt="Movsum, a candybar handset" draggable="false"></figure>
+        <figure class="plate queue-item" style="--a:0.38;--h:1.001;--x:0.0;--y:-0.0"><img src="assets/works/t/singles/t-png40-6.webp" alt="Movsum, a candybar handset" draggable="false"></figure>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════ A PULL QUOTE ═══════════════
+     One of three (Ivan, 2026-10-26): his own words, a full screen each, set
+     large in Michroma, the page's Eurostile, the face of the handsets'
+     own branding. Hierarchy by size, never weight; no quote marks, the scale
+     and the attribution say it. css/32-pull.css -->
+<section class="band band-quote" data-ground="black" aria-label="Quote, the computer">
+  <figure class="pull" data-reveal-seq>
+    <blockquote><p>I call the computer a co&#8209;author rather than a passive machine.</p></blockquote>
+    <figcaption>Movsum Alasgarov</figcaption>
+  </figure>
+</section>
+
+<!-- ═══════════════ J · PROCESS ═══════════════
+     The Image Trace document, hung in a void room because the file's own
+     border measures pure black at every one of 1504 ring samples, so the
+     grab has no edge here at all.
+
+     The text below it is ruled by the DIALOG's columns, not by the page's:
+     its 2-Up divider falls at 0.4170 of the image width and its settings
+     column begins at 0.7623, which are the three grid tracks. The left
+     passage stands under the original pane, the right one under the
+     converted pane, and the last track is empty because what is above it
+     is the export settings, not a picture. -->
+<section class="band band-process" data-ground="black" aria-label="Process, Image Trace">
+  <div class="proc">
+    <!-- THE DOCUMENT AND THE MAKING, ONE FRAME (Ivan, 2026-10-26): the
+         Image Trace grab, and a swipe away Movsum's own screen recording of
+         a Nokia traced and brushed, 4 min 37 s played at 12x. Both panes are
+         the grab's size, so the columns below stay on the dialog's tracks. -->
+    <div class="proc-reel">
+      <div class="proc-reel-track">
+        <figure class="proc-doc">
+          <img src="assets/works/j-process.jpg"
+               alt="Movsum, Image Trace export in progress, Save for Web shown in 2-Up"
+               data-lb draggable="false">
+        </figure>
+        <figure class="proc-run">
+          <video src="assets/video/process-speedrun.mp4" poster="assets/video/process-speedrun.jpg"
+                 muted loop playsinline preload="none"
+                 aria-label="Movsum at work in Illustrator, a Nokia traced and brushed, at twelve times speed"></video>
+        </figure>
+      </div>
+      <div class="proc-reel-marks">
+        <button type="button" aria-label="The Image Trace document" aria-current="true"></button>
+        <button type="button" aria-label="The recording"></button>
+      </div>
+    </div>
+    <div class="proc-cols" data-reveal-seq>
+      <div class="proc-col proc-col--a">
+        <p>No AI is involved. Each work starts from a photograph of a phone found online. Image Trace in Illustrator turns it into vector outlines, around every key, seam and screen. He lays his brushes over those outlines, bands of stripes, grids and blocks of blue, yellow and magenta, and waits while the computer bends each one along every path. The vectors are so demanding for the computer that it can take ten attempts to get the result he wants.</p>
+      </div>
+      <div class="proc-col proc-col--b">
+        <p>The phone then goes to his iPad for colour. He picks each one with the eyedropper, and the iPad spreads it across the form differently every time, in combinations he did not plan. His hand comes in with the details and the composition.</p>
+        <p>Last comes Photoshop, on a canvas of at least 20,000 pixels, where he makes around fifteen compositions and palettes for each phone and mixes them. The phone is finished when it becomes one of his bricks.</p>
+      </div>
+      <div class="proc-col proc-col--c">
+      </div>
+    </div>
+    <!-- THE SAME 2-UP, AS OBJECTS (final delivery, 2026-10-16): one flip in
+         two states, png43 as Image Trace leaves it and png47 worked back over
+         by hand, standing in the dialog's two panes' tracks below the text,
+         each centred in its pane the way the dialog centres its previews.
+         The tags echo the dialog's own pane labels. -->
+    <div class="proc-cols proc-pair" data-hscroll>
+      <figure class="plate proc-col proc-col--a proc-ph proc-ph--a">
+        <img src="assets/works/t/t-png43.webp" alt="Movsum, a flip phone as Image Trace leaves it" draggable="false">
+      </figure>
+      <figure class="plate proc-col proc-col--b proc-ph proc-ph--b">
+        <img src="assets/works/t/t-png47.webp" alt="Movsum, the same flip phone, worked over by hand" draggable="false">
+      </figure>
+      <!-- and on to the right: more clamshells in the same treatment, one
+           ink height, one ink gap (the pair's own), swiping sideways (Ivan,
+           2026-10-22); cut at full resolution by _tools/make_queue.py -->
+      <figure class="plate proc-flip" style="--a:0.289;--h:1.002;--x:-0.0;--y:0.0"><img src="assets/works/t/singles/r-png3-4.webp" alt="Movsum, a clamshell handset" draggable="false"></figure>
+      <figure class="plate proc-flip" style="--a:0.491;--h:1.047;--x:-0.036;--y:-0.022"><img src="assets/works/t/singles/r-png10-1.webp" alt="Movsum, a clamshell handset" draggable="false"></figure>
+      <figure class="plate proc-flip" style="--a:0.289;--h:1.0;--x:0.0;--y:0.0"><img src="assets/works/t/singles/r-png3-1.webp" alt="Movsum, a clamshell handset" draggable="false"></figure>
+      <figure class="plate proc-flip" style="--a:0.493;--h:1.026;--x:-0.03;--y:-0.002"><img src="assets/works/t/singles/r-png10-3.webp" alt="Movsum, a clamshell handset" draggable="false"></figure>
+      <figure class="plate proc-flip" style="--a:0.295;--h:1.0;--x:-0.0;--y:0.0"><img src="assets/works/t/singles/r-png3-6.webp" alt="Movsum, a clamshell handset" draggable="false"></figure>
+      <figure class="plate proc-flip" style="--a:0.504;--h:1.042;--x:-0.04;--y:-0.012"><img src="assets/works/t/singles/r-png10-4.webp" alt="Movsum, a clamshell handset" draggable="false"></figure>
+      <figure class="plate proc-flip" style="--a:0.377;--h:1.001;--x:0.0;--y:-0.0"><img src="assets/works/t/singles/r-png3-3.webp" alt="Movsum, a clamshell handset" draggable="false"></figure>
+      <figure class="plate proc-flip" style="--a:0.498;--h:1.051;--x:-0.023;--y:-0.024"><img src="assets/works/t/singles/r-png10-6.webp" alt="Movsum, a clamshell handset" draggable="false"></figure>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════ K · THE SURFACE ═══════════════
+     The page's last image. The process room above ends on the surface
+     becoming his rather than the camera's; this answers it by showing that
+     surface, edge to edge. A fragment of png9 cut straight from Movsum's
+     original 11111 x 13719 file (4384 px wide), LOSSLESS (lossy WebP halves
+     colour resolution and fringed 15% of the pixels), served by srcset so the
+     screen never enlarges it on a MacBook or a 4K display. Drag (or swipe
+     sideways) to travel across the whole drawing at that same scale. No
+     caption: the room before it is the caption. From the layout studies (10e). -->
+<section class="band band-bleed band-surface" data-ground="black" aria-label="Surface, detail">
+  <!-- the whole drawing, pannable at native scale. The figure opens on the
+       same framing as before (the srcset image below is that framing, shown
+       instantly while tiles load around it); js/23-surface-pan.js lays the
+       tile pyramid around it and moves the layer. Not a .plate, so the
+       lightbox leaves it alone: the room is its own viewer. -->
+  <div class="surface-pan" data-tiles="assets/works/t/tiles/png9/"
+       data-view="5409 8398 3929 2540" aria-label="Movsum, png9, detail. Drag to explore the whole drawing." role="img">
+    <div class="surface-layer">
+      <img class="surface-start" src="assets/works/t/details/i-surface-2400.webp"
+           srcset="assets/works/t/details/i-surface-2400.webp 2400w,
+                   assets/works/t/details/i-surface-3600.webp 3600w,
+                   assets/works/t/details/i-surface-full.webp 3929w"
+           sizes="100vw" alt="" draggable="false" decoding="async" loading="lazy">
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════ A PULL QUOTE ═══════════════
+     One of three (Ivan, 2026-10-26): his own words, a full screen each, set
+     large in Michroma, the page's Eurostile, the face of the handsets'
+     own branding. Hierarchy by size, never weight; no quote marks, the scale
+     and the attribution say it. css/32-pull.css -->
+<section class="band band-quote" data-ground="black" aria-label="Quote, the future">
+  <figure class="pull" data-reveal-seq>
+    <blockquote><p>The future used to be searching for its own shape. Then it found one, and stopped looking.</p></blockquote>
+    <figcaption>Movsum Alasgarov</figcaption>
+  </figure>
+</section>
+
+<!-- THE GREEN DUO IS GONE. It held h-data1 and h-gpp side by side on the
+     29/255-apart green, and it was the page's last beat. Removed on request.
+     Its CSS (.band-duo / .h-duo / .duo-note / .h-screen) is left in place and
+     is now inert, the same treatment the close section got above.
+
+     The page now ends on the grey "Series, single work" room. -->
+
+<!-- I · THE CLOSE is gone. It held one work, affa, and that work has moved up
+     to sit under the orange room (see "affa, under the orange room" above).
+     Removing it rather than leaving it empty is deliberate: with its only work
+     gone the section rendered as a bare black strip of padding, which is not a
+     closing beat, it is a leftover. The page now ends on the green duo. Its
+     CSS (.band-close / .close-solo, 17-region-i-close) is left in place and is
+     now inert. -->
+
+
+<!-- ═══════════════ THE LIGHTBOX ═══════════════
+     One overlay serves every artwork on the page. Built once here rather than
+     injected by script so the backdrop, the plate and the arrows are all
+     inspectable in the markup, same as the rest of the page. -->
+<div class="lb" data-lenis-prevent hidden aria-modal="true" role="dialog" aria-label="Artwork viewer">
+  <div class="lb-bg" aria-hidden="true"></div>
+  <button class="lb-nav lb-prev" type="button" aria-label="Previous artwork">
+    <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M12 2 L5 9 L12 16" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/></svg>
+  </button>
+  <div class="lb-plate">
+    <div class="lb-zoom"><img alt="" draggable="false"></div>
+  </div>
+  <button class="lb-nav lb-next" type="button" aria-label="Next artwork">
+    <svg viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M6 2 L13 9 L6 16" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/></svg>
+  </button>
+</div>
+
+<div class="aura" aria-hidden="true"></div>
+
+<svg class="phone-reticle" viewBox="0 0 48 48" fill="none" aria-hidden="true" shape-rendering="geometricPrecision">
+  <g class="buzz">
+  <g transform="scale(-1,1) translate(-48,0)">
+    <path d="M16 5 L32 6.6 L31.5 21 L16.6 19.7 Z" fill="var(--ret-face)"/>
+    <path d="M32 6.6 L34.2 7.5 L33.7 21.9 L31.5 21 Z" fill="var(--ret-side)"/>
+    <path d="M18.4 8 L29.6 9.2 L29.2 17.8 L18.8 16.9 Z" fill="var(--ret-screen)"/>
+    <path d="M16.6 20.2 L31.5 21.5 L35 31.5 L19.4 30.4 Z" fill="var(--ret-face2)"/>
+    <path d="M31.5 21.5 L33.7 22.4 L37.2 32.4 L35 31.5 Z" fill="var(--ret-side)"/>
+    <path d="M19.4 30.4 L35 31.5 L34.5 33.6 L18.9 32.5 Z" fill="var(--ret-strip)"/>
+    <path d="M22 24 L31 24.8 M21.6 26.4 L30.6 27.2" stroke="var(--ret-keys)" stroke-width="0.9"/>
+  </g>
+  </g>
+</svg>
+
+<script src="js/01-cursor-reticle.js" defer></script>
+<script src="js/09-region-e-cycle.js" defer></script>
+<script src="js/11-cursor-bloom.js" defer></script>
+<script src="js/12-arrival.js" defer></script>
+<script src="js/13-reveal.js" defer></script>
+<script src="js/14-spine-c-scrub.js" defer></script>
+<script src="js/15-lightbox.js" defer></script>
+<script src="js/16-ground-sync.js" defer></script>
+<script src="js/18-aura.js" defer></script>
+<script src="js/19-handset-lcd.js" defer></script>
+<script src="js/21-keyrail.js" defer></script>
+<script src="js/22-orbit.js" defer></script>
+<script src="js/23-surface-pan.js" defer></script>
+<script src="js/24-loupe.js" defer></script>
+<script src="js/25-queue-scroll.js" defer></script>
+<script src="js/27-curtain.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
+<script src="js/28-smooth-scroll.js" defer></script>
+<script src="js/29-process-run.js" defer></script>
+</body>
+</html>

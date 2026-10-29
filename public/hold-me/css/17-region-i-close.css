@@ -1,0 +1,50 @@
+/* =======================================================================
+   I · THE CLOSE.
+   ======================================================================= */
+
+
+  
+
+
+  /* ── I · THE CLOSE ────────────────────────────────────────────────────
+     BLACK, not green. One work, centred, at 74% of the column with generous
+     margin either side. affa has no flat ground (purity .47) so the margin
+     around it is doing real work. The page ends on a single object.
+
+     Its ground is orange, which against the void reads as a deliberate plate
+     rather than a mistake: the work is the only colour in the region, exactly
+     as the spine's three works are the only light in theirs. */
+  /* the band sits inside the orange room and needs its own vertical air:
+     band-bleed zeroes the band padding, so this is the only thing holding the
+     work off the set above it and the grey room below. --rhythm is the page's
+     established vertical interval, so this does not introduce a new spacing
+     value. */
+  /* top cushion is --note-air, the same value the room above uses below the
+     rule note, so the note sits centred between them. The bottom keeps the
+     page's full --rhythm: that gap separates the work from the NEXT break and
+     is a different interval, not the other half of this one. */
+.band-affa{padding:var(--note-air) 0 var(--rhythm)}
+
+
+.close-solo{display:flex;justify-content:center}
+
+
+  /* SIZED BY HEIGHT, because the work in this slot is now upright. A width
+     share is the right control for a landscape (it was 74.1% when affa was
+     here) and the wrong one for a portrait: the same share would make an 0.81
+     work taller than the viewport. Width follows from the ratio. */
+.close-solo .plate{height:70vh;width:auto;aspect-ratio:1620/2000;min-width:0}
+
+
+  
+
+
+  
+
+
+  
+
+
+  
+
+

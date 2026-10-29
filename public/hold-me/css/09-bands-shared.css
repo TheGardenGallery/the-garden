@@ -1,0 +1,111 @@
+/* =======================================================================
+   BANDS, the shared chapter/plate system.
+   ======================================================================= */
+
+
+  /* Custom green 2-square phone cursor replaces the native one everywhere. */
+html.phone-cursor, html.phone-cursor *{cursor:none !important}
+
+
+  /* every artwork that opens the viewer says so on hover */
+[data-lb]{cursor:zoom-in}
+
+
+.band{position:relative;padding:var(--rhythm) var(--gutter);overflow:hidden}
+
+
+.band-bleed{padding:0}
+
+
+.plate{margin:0;position:relative;overflow:hidden;
+    display:flex;align-items:center;justify-content:center}
+
+
+.plate img{display:block;width:100%;height:100%;object-fit:contain}
+
+
+  /* transparent: the black rooms carry a slow texture and a little warmth,
+     so a work's own flat #000 ground showed as a rectangle (d-process35's
+     edge read clearly mid-room). Their grounds are keyed out
+     (_tools/make_transparent.py) and the room shows through. */
+.plate--void{background:transparent}
+
+
+  /* FALLBACK for builds with backdrop-filter disabled: filter the image
+     instead, LIGHT and lifted, never a dim murk. */
+
+
+  /* .band-num removed: every chapter numeral (I, III, IV and the staircase's
+     01-04) is gone from the page, so the rule and its Silkscreen tracking have
+     no markup left to style. */
+
+  /* a promoted sentence. 600 not 700: Cormorant at 700 goes chunky and breaks
+     the hairline register the rest of the page holds. */
+.band-lead{font-family:'Azeret Mono',ui-monospace,monospace;font-weight:500;
+    font-size:clamp(18px,1.77vw,27px);line-height:1.22;letter-spacing:-.006em;
+    max-width:19ch;margin:0}
+
+
+  /* body copy, statement register */
+.band p{font-family:'Azeret Mono',ui-monospace,monospace;font-weight:400;
+    font-size:15px;line-height:1.52;letter-spacing:0;max-width:46ch}
+
+
+.band p + p{margin-top:1.1em}
+
+
+  /* the promoted sentences again, AFTER .band p so they win the cascade: a
+     later rule of equal specificity was previously being overridden, which
+     flattened every lead and pull back to 21px/400. */
+.band .band-lead{font-weight:500;font-size:clamp(18px,1.77vw,27px);
+    line-height:1.22;letter-spacing:-.006em;max-width:19ch}
+
+
+  
+
+
+  
+
+
+  
+
+
+  
+
+
+  
+
+
+  
+
+
+  
+
+
+  
+
+
+  /* ── PRETTY TEXT ─────────────────────────────────────────────────────
+     Two rules, one aim: no line of this page may end on something that
+     leaves the reader hanging.
+
+     text-wrap:pretty makes the browser look at the whole paragraph before
+     it breaks, rather than greedily filling each line, so it will not leave
+     a single word stranded on the last line and will not cut a line at an
+     awkward place when a slightly earlier break reads better. It costs
+     nothing and it is the difference between set text and typed text.
+
+     A COLON MAY NEVER SIT AT A LINE EDGE. A colon is a promise that
+     something follows; hung at the end of a line with its clause on the
+     next one, it reads as a typo. The browser has no rule against it, so
+     every colon in the markup is bound to the word after it with a
+     non-breaking space, which makes the break physically impossible rather
+     than merely unlikely.
+
+     Hyphens stay off for the same reason, and the page uses a non-breaking
+     hyphen where a real one is needed. */
+.band p,.band-lead,.e-lead,.proc-col p,.spine-c-text p,
+.room-col--l p,.room-col--r p,.spread-t2 p,.spine-notes p{
+    text-wrap:pretty;
+    hyphens:none;
+    -webkit-hyphens:none}

@@ -1,0 +1,76 @@
+/* =======================================================================
+   THE REVEAL VOCABULARY, shared entrance grammar.
+   ======================================================================= */
+
+
+
+  /* ════════ THE REVEAL VOCABULARY ═══════════════════════════════════════
+     Editorial text on this page currently just exists: every passage is at
+     full opacity from load, so scrolling reveals nothing, it only exposes.
+     A gallery page should compose itself as you arrive at each room.
+
+     THE TECHNIQUE, from transitions.dev's "texts reveal": lines rise with
+     an offset stagger, THROUGH A SOFT BLUR. The blur is what separates this
+     from a generic fade-up. Type that fades in at full sharpness reads as
+     an element being switched on; type that resolves out of a slight blur
+     reads as something coming into focus, which is what reading actually
+     feels like. Three properties, one curve, one token scale.
+
+     COMPOSITED, NOT PAINTED. transform, opacity and filter only. Never
+     animate height, top, or mask-position on text: those repaint every
+     frame, and a repaint inside a filter chain re-runs the whole filter on
+     the CPU. (That is the trap transitions.dev calls out explicitly, and it
+     is the same class of bug as the mask-position note there.)
+
+     will-change is set only while the element is WAITING, and dropped the
+     moment it lands, so the page is not holding dozens of permanent
+     compositor layers. A layer that never stops being promoted is a slow
+     page, not a smooth one. */
+[data-reveal]{
+    opacity:0;
+    transform:translateY(var(--rise));
+    filter:blur(var(--soften));
+    will-change:transform,opacity,filter;
+    transition:opacity var(--t-reveal) var(--ease-arrive),
+               transform var(--t-reveal) var(--ease-arrive),
+               filter calc(var(--t-reveal) * .8) var(--ease-arrive);
+  }
+
+
+[data-reveal].shown{
+    opacity:1;transform:none;filter:blur(0);
+    will-change:auto;
+  }
+
+
+  /* the stagger is applied per CHILD when a block is marked data-reveal-seq,
+     so a paragraph group, a caption pair or a set of columns rises in
+     reading order rather than all at once. --n is written by the observer. */
+[data-reveal-seq] > *{
+    opacity:0;
+    transform:translateY(var(--rise));
+    filter:blur(var(--soften));
+    transition:opacity var(--t-reveal) var(--ease-arrive),
+               transform var(--t-reveal) var(--ease-arrive),
+               filter calc(var(--t-reveal) * .8) var(--ease-arrive);
+    transition-delay:calc(var(--n,0) * var(--stagger));
+  }
+
+
+[data-reveal-seq].shown > *{opacity:1;transform:none;filter:blur(0)}
+  /* a work in a sequence (png28 with its sentence) fades and rises with it
+     but is never blurred: softening is for type coming into focus */
+[data-reveal-seq] > .plate{filter:none}
+
+
+@media (prefers-reduced-motion:reduce){
+    [data-reveal],[data-reveal-seq] > *{
+      opacity:1;transform:none;filter:none;transition:none}
+}
+
+
+@keyframes frost-breathe{
+    0%,100%{opacity:.72}
+    50%{opacity:1}
+  }
+

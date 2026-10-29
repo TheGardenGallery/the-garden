@@ -1,0 +1,52 @@
+/* =======================================================================
+   THE ATMOSPHERE, tiny numerals adrift in each room.
+   ======================================================================= */
+
+
+  
+
+
+  /* ── THE ROOMS STAND IN FRONT OF IT ───────────────────────────────────
+     The canvas is fixed at z-index 1, so it paints above the bands' own
+     backgrounds. Every band's CONTENT is therefore lifted above it.
+
+     The wrappers are named one by one rather than caught with `.band > *`,
+     and that is deliberate: `.spread` is absolutely positioned, and a blanket
+     `position:relative` would have re-anchored it to the band and collapsed
+     the whole red composition. Only the static wrappers are given a position;
+     all of them are given the z-index. */
+.bleed-one,.spine-a,.spine-b,.spine-c,.e-scroll,.close-solo,
+.room,.g-solo{position:relative}
+  /* the red room's .spread was made static when it became rows (2026-10-22),
+     which silently voided its z-index: the field painted over every work in
+     the room. Relative keeps it in flow AND above the field. */
+.band-red .spread{position:relative}
+
+.spread,.bleed-one,.spine-a,.spine-b,.spine-c,.e-scroll,.close-solo,
+.room,.g-solo,.hold,.hold-art,.hold-close{z-index:2}
+
+
+  /* ── THE HERO MUST NOT MAKE A STACKING CONTEXT ───────────────────────
+     This carried z-index:0, which looks harmless and is not: a positioned
+     element with any numeric z-index opens a stacking context, and every
+     child is then trapped inside it. The hero's own children are lifted to 2
+     above, but the context itself sat at 0, BELOW the fixed field at 1, so
+     the field painted over the entire hero, title and artwork included.
+     Measured before the fix: the hero artwork read rgb(0,0,0) with the field
+     on against rgb(2,2,2) with it off.
+
+     Position only, no z-index. The hero's children carry their own 2 and
+     clear the field; the hero's ground stays beneath it and is lit like
+     every other room.
+
+     `nav` is deliberately NOT in the list above either: it already holds
+     z-index 200 in 03-nav.css, and naming it here would have quietly lowered
+     the fixed header to 2. */
+.hero{position:relative}
+
+
+@media (prefers-reduced-motion:reduce){
+    /* the field stays, the drift stops: see js/17-atmosphere.js, which draws
+       one still frame rather than hiding the layer. Nothing to declare here,
+       this note exists so the absence is read as a decision. */
+}

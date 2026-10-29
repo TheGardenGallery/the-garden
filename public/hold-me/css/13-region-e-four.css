@@ -1,0 +1,285 @@
+/* =======================================================================
+   E · THE FOUR, the counter-clockwise cycle.
+   ======================================================================= */
+
+
+  /* .col-num removed: the 01-04 numerals and the hairline rules under the
+     staircase are gone, and no other region used the class. */
+
+  /* ── E · THE FOUR, MEETING AT THE CENTRE ──────────────────────────────
+     A 2x2 closing on a single centre cross. Three works and ONE TEXT PANEL:
+        top left      e-osnd     the diagonal cascade, white ground
+        top right     e-sonyny   phone and green block, orange ground
+        bottom left   the Process passage, flat orange
+        bottom right  e-mosh     the dense tiled columns, white ground
+     e-new20 is deliberately NOT here, the fourth cell is type, and that is
+     what makes the grid a spread rather than a contact sheet.
+
+     THE PROBLEM THIS SOLVES. The three works have three different ratios
+     (0.8720, 0.8720, 0.8335) and three different amounts of dead ground
+     baked around the ink:
+        e-osnd    ink 95.36 x 93.50%   pad L 2.29  T 3.30   ground #ffffff
+        e-sonyny  ink 94.50 x 95.30%   pad L 2.75  T 2.35   ground #ff5300
+        e-mosh    ink 93.40 x 94.30%   pad L 3.30  T 2.85   ground #ffffff
+     Butt those as-is and nothing lines up: `object-fit:contain` centres each
+     file in its cell, so every visible edge sits at a different inset and the
+     centre cross is three different distances away.
+
+     THE MECHANISM, COLOUR-MATCHED CELLS, ABSOLUTE INK. Each cell is painted
+     its work's OWN measured ground, so the cell IS the work's field and any
+     slack inside it is invisible. The image is then placed absolutely and
+     scaled by the reciprocal of its own ink fraction.
+
+     EVERY WORK IS WHOLE, NOTHING IS CROPPED. Sizing all three inks to 88% of
+     the cell WIDTH would overflow: the cell is ratio 0.85 but the inks are
+     taller than that (0.889, 0.865, 0.826), so a width-driven fit pushes the
+     top and bottom of the art outside the cell and `overflow:hidden` eats it.
+     So each work is fitted to whichever axis BINDS. osnd and sonyny bind on
+     width and land ink at 6%..94% horizontally; mosh is the tallest ink and
+     binds on height, landing 6%..94% vertically at 91.5% width. Verified
+     every ink sits fully inside its cell on both axes, no clipping. */
+  /* NO negative margin here. The section is `band-bleed`, which sets
+     `padding:0`, so there is no gutter to cancel, a `margin:0 -80px` made the
+     grid 160px WIDER than the viewport, which oversized every cell and pushed
+     the art out of frame (that is the "artworks not fully shown" bug). Spine A
+     and B need the negative margin because their band keeps its padding; this
+     one must not have it. */
+  /* ── THE CYCLE ─────────────────────────────────────────────────────────
+     The 2x2 pins and the works slide COUNTER-CLOCKWISE around it, one step
+     per screen of scroll, until the orange has been round every corner and
+     is home. Then the page is released into the grey region below.
+
+     ONLY ONE PANEL MOVES PER STEP, AND NOTHING EVER OVERLAPS.
+
+     That is a geometric result, not a preference. If all four panels cycle
+     at once they MUST overlap: while the top-left descends it still occupies
+     the top-left corner, and the top-right panel travelling left is already
+     entering it. Two tiles want the same corner for the whole of the
+     transit. The only ways out are to shrink every plate below half its cell
+     (absurdly small), to rotate the block as one rigid body (which is the
+     circular motion that was rejected), or to move ONE panel at a time.
+
+     One at a time is possible here because the fourth panel is TYPE on the
+     region's own orange, with no plate and no edge, so it is visually an
+     EMPTY SLOT. Each step, the artwork sitting clockwise of that empty slot
+     slides one cell into it, straight down, across, up or back, always on a
+     single axis. It moves into space that is already vacant, so there is
+     nothing to overlap and nothing to cover. The empty slot walks the other
+     way around the ring, which is what makes every work's travel
+     counter-clockwise.
+
+     Four steps and the orange has visited all four corners and come back to
+     the one it started in. Each arrival is a new passage in a corner that
+     was a picture a moment ago, which is the whole idea of the region.
+
+     WHAT "A FULL CYCLE" MEANS HERE, precisely: the ORANGE completes its
+     circuit and every artwork has advanced exactly one corner
+     counter-clockwise. It is not the identity arrangement. Returning all
+     three works to their original corners under single-tile slides takes
+     TWELVE moves, verified by simulation, which would be twelve screens of
+     scroll for one section. Four is the honest cycle: the empty slot is a
+     closed loop and the reader sees all four passages.
+
+     THE AIR GOES AROUND THE FIGURE, NOT BETWEEN THE CELLS. Insetting each
+     plate inside its own cell shrank every work and pulled the two white
+     grounds apart at the centre cross, where they are meant to meet. The
+     cells stay butted; the square itself is inset from the viewport
+     instead.
+
+     THE GROUND IS THE WORK'S OWN ORANGE (#ff5300, measured off e-sonyny),
+     not black and not white. Black read as a hole. White would fight the
+     two white-ground plates and make them look like they were floating on
+     slightly wrong paper. */
+  /* A MEASURE OF ORANGE ON BOTH SIDES OF THE 2x2 ROOM. band-bleed zeroes this
+     band's padding and this file loads after it, so this is what restores it.
+
+     The top was missing: only the bottom was ever restored, so the room began
+     the instant the band did and the 2x2 started roughly 50px under whatever
+     sat above it, while the other end had a full --note-air. The sticky inside
+     cannot supply this, because a sticky element's offset positions it DURING
+     the scroll; it does nothing about where the scroll region starts.
+
+     a measure of orange after the 2x2 room, so the black rule note below it
+     is held off the artwork. band-bleed zeroes this band's padding, and this
+     file loads after it, so this is what restores it. --note-air is the shared
+     cushion, also read by .band-affa on the other side of the line, so the two
+     are equal by construction and the note lands in the middle of one orange
+     room rather than against the set above it. */
+.e-band{overflow:visible;background:var(--g-orange);
+    padding-top:var(--note-air);
+    padding-bottom:var(--note-air)}
+
+   /* .band sets overflow:hidden, which kills sticky */
+  /* ── THE TRACK IS SIZED BY THE STEP, NOT BY A ROUND NUMBER ───────────
+     500dvh gave a 4528px travel for a cycle of four steps: 1132px of
+     scrolling between one state and the next, which is a FULL SCREEN of
+     nothing happening before the works move. Measured on the page, this
+     room alone held 3500px - 3.13 screens - in which nothing on screen
+     moved at all, and it reads both as "there is a ton of empty orange to
+     scroll" and as "the rotation is broken", because by the time the next
+     state arrives you have stopped believing the first one was connected to
+     your scrolling.
+
+     The index is ROUNDED, so a state holds for a whole step and then cuts.
+     That makes the step length the only thing that matters, and it should
+     be about half a screen: long enough to read the state, short enough
+     that the cut always feels caused.
+
+     300dvh leaves travel = 3351 - 1057 = 2294px, so a step costs 573px,
+     just over half a screen. */
+.e-scroll{position:relative;height:300dvh}
+
+     /* 5 states, ~1 screen of travel each */
+  /* TRANSPARENT, not orange. The stage sits above the aura (z-index 2), so
+     a painted orange here was a screen-sized flat rectangle while the
+     room's own orange around it moved with the field: a visible seam at the
+     stage's edges. The band below is the same orange, so nothing changes
+     except that the field now runs through the stage like the rest. */
+.e-sticky{position:sticky;top:60px;height:calc(100dvh - 60px);
+    display:flex;align-items:center;justify-content:center;
+    background:transparent;overflow:hidden}
+
+
+  /* the square the panels travel around. 94% of whichever axis binds: enough
+     orange to read as a margin, not so much that the works go small. */
+.e-grid{position:relative;
+    width:min(94vw,calc((100dvh - 60px) * .94));aspect-ratio:1}
+
+
+  /* the cells are BUTTED and the plate fills its cell, which is what lets
+     the two white grounds meet at the centre cross. */
+.e-cell{position:absolute;left:0;top:0;width:50%;height:50%;
+    transform:translate(var(--x,0%),var(--y,0%))}
+
+
+  /* ── THE CELLS OVERLAP BY HALF A PIXEL, SO THE SEAM CANNOT OPEN ──────
+     The sticky behind this grid is painted --g-orange, and the cells sit at
+     FRACTIONAL positions: the grid is sized in vw, so a cell is 496.8px wide
+     and is translated by 100% of itself. Two plates that butt at x = 863.98
+     therefore leave a sub-pixel crack, and the orange behind them shows
+     through it as a hairline. Between two white works that line is the only
+     thing in the figure that is not the artwork, which is exactly what must
+     never happen here.
+
+     Region G has the same butted construction and never shows it, because
+     there the backing IS the cells' own grey, so a crack reveals a colour
+     identical to its neighbours. That trick is unavailable here: the backing
+     has to stay orange for the type panel.
+
+     So the plates are outset half a pixel instead and overlap each other by
+     one. No gap can exist for the ground to come through, and because every
+     work's ink is inset 4% inside its plate, the overlap only ever covers
+     plate ground, never a drawing. Half a pixel rather than one: at a white
+     against orange boundary a full pixel would visibly move the join, a half
+     resolves into the antialiasing. */
+.e-plate{position:absolute;inset:-.5px;overflow:hidden}
+
+
+  /* One panel, one axis, one move. Nearly linear with a short settle, so it
+     reads as a mechanism moving something between two detents rather than
+     as a drift. Armed by JS one frame in, so nothing slides on load. */
+  /* ── THE SLIDE IS SHORTER, AND THE TYPE FOLLOWS IT BY DERIVATION ─────
+     It was --t4, 0.72s. These cells travel one cell width, which the motion
+     scale calls a considered move, but the panel is driven by SCROLL: the
+     viewer has already decided, and a three-quarter-second ease afterwards
+     reads as the page catching up rather than as weight. --t3 is the token
+     for a room changing, which is what this is.
+
+     --e-slide exists so the passage delay below can be solved FROM it rather
+     than copied beside it. The delay was a hand-written .74s chosen to clear
+     a .72s slide, which is precisely the kind of pair that silently comes
+     apart the moment one of them is edited. */
+.e-grid{--e-slide:var(--t3)}
+
+
+.e-grid.live .e-cell{transition:transform var(--e-slide) var(--ease-mech)}
+
+
+.e-cell[data-slot="0"]{--x:0%;  --y:0%}
+
+
+.e-cell[data-slot="1"]{--x:100%;--y:0%}
+
+
+.e-cell[data-slot="2"]{--x:100%;--y:100%}
+
+
+.e-cell[data-slot="3"]{--x:0%;  --y:100%}
+
+
+  /* contain, not fill: the plates are square and the works are not, so a
+     stretch would distort them. The 4% inset is the work's own field inside
+     its plate, matching the ~6%..94% margin the measured placement gave. */
+.e-cell img{position:absolute;left:4%;top:4%;width:92%;height:92%;
+    max-width:none;object-fit:contain}
+
+
+.e-osnd .e-plate{background:#ffffff}
+
+
+.e-mosh .e-plate{background:#ffffff}
+
+
+  /* ── EVERY PLATE PAINTS ITS OWN WORK'S GROUND, INCLUDING THIS ONE ────
+     e-sony had no background at all and simply let the orange sticky show
+     through. It looked correct, because e-sonyny's measured ground IS
+     #ff5500, the same value the band wears. But a plate that depends on what
+     happens to be behind it is not painting the work's ground, it is
+     borrowing the room's, and the two are only equal by luck: re-seat this
+     file or re-tone the room and the cell silently stops matching its work.
+     Stated explicitly, every cell in the ring now owns its own field. */
+  /* transparent since the aura: the room shows through, so no rectangle */
+.e-sony .e-plate{background:transparent}
+
+
+  /* the empty slot. No ground of its own: the orange it would paint is
+     already the room, which is exactly why it reads as space rather than as
+     a fourth panel, and why an artwork can move into it. It is NOT
+     transitioned, it simply is wherever the gap is. */
+.e-text{color:#1a0700}
+
+
+.e-text .e-plate{background:transparent}
+
+
+  /* the copy is hidden the instant a step begins and returns only once the
+     slide has landed, so type is never in the air and never under a moving
+     work. No crossfade: it is absent, then it is there. */
+.e-text .e-pass{position:absolute;left:7%;right:7%;top:50%;
+    transform:translateY(-50%);opacity:0;transition:opacity 0s}
+
+
+.e-text .e-pass.on{opacity:1;
+    transition:opacity var(--t2) ease calc(var(--e-slide) + .02s)}
+
+
+@media (prefers-reduced-motion:reduce){
+    .e-grid.live .e-cell{transition:none}
+    .e-text .e-pass.on{transition:none}
+}
+
+
+  /* Narrow: no pin, no cycle. The figure has to be seen whole for a slide to
+     read, and a phone cannot hold four legible quadrants at once. */
+@media(max-width:900px){
+    .e-scroll{height:auto}
+    .e-sticky{position:static;height:auto;padding:40px 0}
+    .e-grid{width:92%}
+    .e-grid.live .e-cell{transition:none}
+    .e-text .e-pass{position:static;transform:none}
+}
+
+
+
+  /* ── E · text panel type ──────────────────────────────────────────────
+     MUST come after `.band p`, whose 21px/46ch would otherwise govern this
+     cell. Weight 400, the page's one weight (the 500 was for Cormorant's
+     hairlines; Azeret Mono holds its stroke on orange as it does on red).
+     The lead is promoted by size alone, no bold. */
+.band .e-text p{font-weight:400;font-size:clamp(10px,0.91vw,14px);
+    line-height:1.5;letter-spacing:.001em;max-width:none;margin:0}
+
+
+.band .e-text .e-lead{font-size:clamp(13px,1.22vw,19px);line-height:1.26;
+    letter-spacing:-.005em;margin-bottom:1.1em}
+

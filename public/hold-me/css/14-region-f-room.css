@@ -1,0 +1,257 @@
+/* =======================================================================
+   F · THE EDITORIAL ROOM, grey, flanked type.
+   ======================================================================= */
+
+
+.band-grey{background:var(--g-grey);color:#141414}
+
+
+  /* type for this panel lives in the "E · text panel type" block near the end
+     of the stylesheet, because `.band p` sits between here and there. */
+
+  /* ── F · THE EDITORIAL ROOM ───────────────────────────────────────────
+     Grey. ONE work dead centre with the reading text split to either side of
+     it. 331's ground (#b8bcb8) is 8/255 from the band grey, so the work has no
+     visible plate edge and the type can sit right up against the handset
+     without a frame between them.
+
+     The overlapping second plate (33442) was REMOVED: it lay on top of this
+     work and hid it. Its 22% reservation padding went with it.
+
+     THE CENTRING IS REAL, NOT APPROXIMATE. A three-column grid with equal
+     outer tracks (`1fr auto 1fr`) puts the work's box on the page's centre
+     line at every width, and 331's ink is near-symmetric in its file (2.0%
+     left, 1.8% right) so the handset itself lands centred too. Anchoring the
+     two text columns to the INNER edge of their track, right-aligned on the
+     left, left-aligned on the right, is what lets the prose approach the
+     phone: the ragged edges face outward, the clean edges face the work.
+
+     The columns are deliberately NARROW (a ~30ch measure rather than the
+     page's 46ch): the type is flanking an object, not running as a page of
+     body copy, and a long line either side would swamp the work in the
+     middle. */
+  /* ── F · THE EDITORIAL ROOM ───────────────────────────────────────────
+     Grey. One work centred, the text in two columns either side of it.
+
+     MEASURED OFF f-331: the handset occupies a constant vertical band from
+     x 31.6% to 70.5% for the work's whole height (ink density per 5% column
+     slice: ~7% outside that band, ~91% inside). So the file carries wide empty
+     grey margins of its own, and the band's grey is now that SAME measured
+     value (--g-grey, now #969b97). Page and work are therefore one continuous
+     surface: the flanking text reads as type sitting in the work's own field,
+     with no plate rectangle anywhere and no need to position anything on top
+     of the artwork.
+
+     A three-track grid does the work, text, object, text, rather than
+     absolute placement inside the image. Equal outer tracks centre the object
+     on the page at every width, and there is no z-order or overlap to get
+     wrong. THE PREVIOUS ATTEMPT positioned both columns absolutely inside the
+     figure and they collided: the left column carries BOTH `.room-col` and
+     `.room-col--l`, so the later `.room-col{left:73.5%}` beat the earlier
+     `.room-col--l{left:2.5%}` on source order and stacked the two passages on
+     top of each other. Hence the distinct `--l` / `--r` classes below, with no
+     shared positional rule to override. */
+  /* THE FLANKS REACH INTO THE WORK'S OWN GREY.
+     Measured off f-331: the handset's ink only occupies x 31.6% to 70.5% of
+     the file, so the plate carries a dead grey margin ~31% of its own width on
+     the left and ~29% on the right. With the work at 56vw that is ~268px of
+     empty grey sitting INSIDE the plate on each side, while the text was
+     crammed into the ~253px track outside it, half the available space, which
+     is why the columns read as tall ragged ribbons two or three words wide.
+
+     Because the band's grey IS the work's grey (--g-grey, #969b97, Movsum's
+     file), the plate's edge is invisible, so the columns can simply overlap
+     into that margin. Each flank is widened by the dead grey's width via a
+     negative inner margin and lifted above the plate: measure goes from ~32 to
+     ~63 characters at 1512px without the work shrinking at all, and nothing
+     ever touches the handset.
+
+     The inner gap is what keeps the type off the object, 5.5% of the plate
+     between the text's inner edge and where the ink begins. */
+  /* ── ONE PLATE WIDTH, SHARED ─────────────────────────────────────────
+     The comment below already states the intent: "the flanks follow it
+     automatically: their reach is a share of this same width". They did not.
+     The work was sized by min(clamp(...), height term) while --reach was a
+     share of the CLAMP ALONE, so the moment the height term governed - which
+     it does at every window I measured - the flanks were still reaching for a
+     920px plate that was only 844px wide, and walked 76px further in than
+     anyone intended.
+
+     The width is declared ONCE here and both the work and the flanks read it,
+     so the two can no longer disagree. The third term is f-331's native
+     resolution: 1667px of file at 2 device pixels per CSS pixel is 833px, past
+     which the browser is inventing detail. */
+.room{display:grid;grid-template-columns:1fr auto 1fr;
+    gap:0;align-items:center;
+    --fit-h:calc(100vh - var(--nav-h) - 2 * var(--fit-air));
+    --plate-w:min(clamp(520px,56vw,920px), calc(var(--fit-h) * .8336), 833px);
+    --room-gap:clamp(40px,3.4vw,60px)}
+
+
+.room-stack{grid-column:2;position:relative;z-index:1}
+
+
+  /* ── THE WORK MUST FIT THE SCREEN ─────────────────────────────────────
+     This was clamp(520px,56vw,920px): a WIDTH, with no height term anywhere
+     in the room. A portrait work sized only by width cannot fit a short
+     window, and this one did not. Measured ink heights against the usable
+     viewport (the window less the fixed nav):
+
+       1728x1117 fullscreen   1051 tall in 1057   -   6px of clearance
+       1728x904  windowed     1051 tall in  844   -   207px OFF SCREEN
+       1440x820               1051 tall in  760   -   161px OFF SCREEN
+
+     So the editorial room was whole ONLY at full screen, and resizing the
+     window pushed the bottom of the work under the fold. That is the exact
+     failure the C bleed and the B spread were already given a height cap for;
+     this room never got one.
+
+     The second term is that cap, in the work's own ratio (9089/10904, which
+     is f-331's measured ink ratio, not a guess), so whichever of width or
+     height runs out first governs and the work is never cropped at any
+     window. The flanks follow it automatically: their reach is a share of
+     this same width, so the type keeps its constant distance from the work
+     as the work resizes. */
+.room-back{width:var(--plate-w)}
+
+
+  /* transparent since the aura: the room shows through, so no rectangle */
+.room-back .plate{aspect-ratio:9089/10904;background:transparent}
+
+
+  /* ── THE TYPE STAYS OFF THE WORK ──────────────────────────────────────
+     This used to pull each flank 26% of the plate INWARD, on the stated
+     premise that it "only ever crosses grey": that the plate carries a wide
+     band of dead ground the type can sit on without touching the picture.
+
+     Measured, that premise is false for this file. f-331's ink runs from
+     2.34% to 97.6% of its width, so the dead grey is about 20px a side on an
+     844px plate, not 220. The flanks were crossing roughly 219px of actual
+     ink, which is why all four passages were sitting on the handset.
+
+     There is no reach now. The type stands outside the work with a real
+     gutter, and the gutter is a positive, visible distance rather than a
+     negative margin that has to be guessed against each file's margins. A
+     file with genuine dead ground can be hung larger instead; it does not
+     need the type walking into it. */
+.room-col--l,.room-col--r{position:relative;z-index:2}
+
+
+.room-col--l{grid-column:1;justify-self:end;text-align:right;
+    padding-right:var(--room-gap)}
+
+
+.room-col--r{grid-column:3;justify-self:start;text-align:left;
+    padding-left:var(--room-gap)}
+
+
+  /* the reach fills the grey, but on a wide display the flank would run to 84
+     characters and beyond, which is past readable. The cap holds the measure
+     at a comfortable line and lets the surplus stay as grey on the OUTER edge,
+     where it belongs, the type still meets the work at a constant distance. */
+.room-col--l > *,.room-col--r > *{max-width:52ch}
+
+
+.room-col--l > *{margin-left:auto}
+
+
+  /* small register: this type annotates the object beside it rather than
+     running as a page of body copy, so it stays quiet and lets the work hold
+     the centre. */
+/* SIZE PARITY WITH THE MONOLITH, STATED EXPLICITLY.
+     This column WANTS the small annotating register below (10-12px), and the
+     comment above still argues for it. It does not get it: in the single-file
+     build `.band p` (15px) is the same specificity (0,1,1) and simply came
+     LATER in the stylesheet, so it won and these flanks rendered at 15px.
+     Modularising removed that accident and the type dropped to ~11px, which
+     was a visual change the restructure had no business making.
+     So the 15px is reinstated here DELIBERATELY, as a real declaration rather
+     than a side effect of file order. Changing the room's register is a design
+     decision to take on its own; when it is taken, edit this one line.
+     The intended small value is kept beside it so nothing is lost. */
+  .room-col--l p,.room-col--r p{font-size:15px;   /* intended: clamp(10px,0.75vw,12px) */
+    line-height:1.52;max-width:46ch;margin:0}   /* intended: 1.6 */
+  /* max-width:46ch, not the `none` this rule asks for, for the SAME reason as
+     the size above: `.band p` carries a 46ch cap at equal specificity and won
+     on source order in the single-file build, so the flanks measured 448px.
+     Reinstated explicitly to hold parity. Intended value: none. */
+
+
+.room-col--l p + p,.room-col--r p + p{margin-top:1.1em}  /* intended: 1.4em;
+    `.band p + p` won on source order in the single-file build. Parity. */
+
+
+
+
+  /* ── THE TYPE FOLLOWS THE SILHOUETTE ─────────────────────────────────
+     With f-331 transparent the room can finally do what it always wanted:
+     hold the passages against the handset itself rather than a gutter away
+     from its box. Ivan: the type sat "too far away from everything".
+
+     Each flank now spans INTO the work's track (1/3 and 2/4, overlapping the
+     stack), and carries an invisible float the exact size and place of the
+     work whose shape-outside is the file's own alpha. Lines therefore run up
+     to the handset's outline, a constant --wrap-gap off it, and step out
+     around the base where the drawing widens. The work and the float read
+     the same --plate-w, so they cannot drift apart.
+
+     Both passages start level with the phone's display (24% down the work),
+     so the text sits against the face of the object, not its antenna. The
+     flank's width is the work plus a 30ch measure, which keeps every line a
+     readable length whatever the window. */
+.room{--wrap-gap:clamp(28px,2.2vw,38px);align-items:start}
+.room-stack{grid-row:1}
+.room-col--l,.room-col--r{grid-row:1;padding:0;
+    width:min(100%, calc(var(--plate-w) + 30ch))}
+.room-col--l{grid-column:1 / 3;justify-self:end}
+.room-col--r{grid-column:2 / 4;justify-self:start}
+.room-col--l > *,.room-col--r > *{max-width:none}
+
+.room-wrap{display:block;width:var(--plate-w);aspect-ratio:1667 / 2000;
+  /* traced from f-331.webp's alpha (row by row, stray hairlines ignored),
+     in percentages so it scales with the work, and straightened: runs of
+     rows within 1.5% of each other share their OUTERMOST edge, so a straight
+     side wraps as a straight side and the shape never cuts inside the ink. Not url(): Chrome lays an
+     image shape out at the image's NATIVE size (1667px) rather than the
+     float's, which put the outline twice too far out and let the type run
+     across the handset. */
+    shape-outside:polygon(31.4% 2.0%, 31.4% 89.0%, 1.9% 89.0%, 1.9% 98.0%, 72.8% 98.0%, 72.8% 97.0%, 97.8% 97.0%, 97.8% 89.0%, 70.4% 89.0%, 70.4% 2.0%);
+    shape-margin:var(--wrap-gap)}
+.room-col--l .room-wrap{float:right}
+.room-col--r .room-wrap{float:left}
+
+.room-text{padding-top:calc(var(--plate-w) / .8336 * .24)}
+@media (min-width:901px){
+  /* The passages stand the page's one --pair-gap off the handset's outline.
+     Vertically they stay level with its DISPLAY (24% down, above), not its
+     top: Ivan tried the page-wide hang from the ink here and preferred the
+     text nearer the middle of the phone. */
+  .room{--wrap-gap:var(--pair-gap)}
+}
+.band .room-text p{max-width:none}
+
+@media(max-width:900px){
+    .room-wrap{display:none}
+    /* this file loads after 12-region-d-spine.css, whose narrow rules
+       stack the room, so the spans above must be undone here explicitly */
+    .room-stack{grid-row:auto}
+    .room-col--l,.room-col--r{grid-row:auto;grid-column:1;justify-self:stretch;width:auto;
+        text-align:left}
+    .room-text{padding-top:0}
+    /* stacked, the work is sized to the column (the desktop width ran it off
+       a phone's edge) and sits centred over the passages, which read flush
+       left at the page's body size */
+    .room{grid-template-columns:1fr;gap:40px;--plate-w:min(78vw, calc(var(--fit-h) * .8336))}
+    .room-stack{grid-column:1;justify-self:center}
+    .room-back{max-width:none}
+    .band .room-col--l p,.band .room-col--r p{font-size:15px}
+}
+
+  /* the two passages per flank were 1.1em apart and read as one block */
+.band .room-text p + p{margin-top:1.9em}
+
+
+  /* the text columns now reach across the work (they wrap its outline), so
+     they let the pointer through: a click or a held loupe lands on the
+     phone, not on the empty box of the column above it */
+.room-col--l,.room-col--r{pointer-events:none}

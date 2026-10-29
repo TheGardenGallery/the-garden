@@ -1,0 +1,140 @@
+/* =======================================================================
+   C · THE FULL BLEED (formerly the white room; its .band-white is gone).
+   ======================================================================= */
+
+
+  /* Internal rhythm, see the note by .band .band-lead below: these live
+     AFTER that rule in the file so they actually win the cascade. */
+
+  /* ── C · THE FULL BLEED ───────────────────────────────────────────────
+     Previously this work ran full bleed at 100% of the column, which made it
+     the biggest object on the page and forced the browser to upscale a
+     2000px file across a 1440px-plus viewport: soft edges on a work whose
+     whole subject is precise industrial linework.
+
+     So the BAND now carries the white, and the work is inset inside it. The
+     white rectangle Ivan asked for is the band itself, the work's own ground
+     is pure #ffffff, measured off the file, so the two are one continuous
+     white field with no visible plate edge anywhere. The work simply sits
+     smaller inside its own room, and 2000px across ~1150px of layout is now
+     comfortably above 1x: it renders sharp instead of interpolated.
+
+     IT SHARES THE RED BAND'S VERTICAL AXES. The work's INK spans axis L to
+     the mirrored right margin (10% to 90%), the same two lines that govern
+     artwork 2 and text 1 in the band above, so scrolling from red to white
+     the composition does not jump: one edge carries down the whole page.
+
+     Sized by ink again, not by file: c-phone-3 carries 2.00% dead white on
+     its right and 1.32% on its bottom (left and top are flush). The box is
+     therefore 80% / 0.98 = 81.63% wide so the INK measures exactly 80%, and
+     since the left padding is zero the box starts on axis L directly. */
+  
+
+
+  /* Air cut to --note-air (--rhythm less 30%), the same cushion the rule
+     notes use: this is a wide, low picture, so the band is mostly margin
+     unless the vertical is tightened to match.
+
+     THE GAP IS MEASURED INK TO INK ACROSS BOTH RED BANDS, which is why the
+     two paddings are not the same number. Above this work the red is not just
+     this band's padding: the spread above ends its last row --spread-tail
+     short of its own bottom edge, and that tail is the same unbroken red. So
+     the eye sees tail + padding over the picture and padding alone under it,
+     which is the asymmetry left once min-height:100vh was taken off this band.
+
+     The bottom therefore carries that tail as well, less the work's own skirt
+     (0.00% dead red on its top edge, 1.40% on its bottom; the plate is 90vw
+     wide at 2000/1216 so it is 0.5472vw tall, and 1.40% of that is 0.766vw).
+     Written as tokens and a ratio rather than as a resolved number so it holds
+     at every window size. */
+.bleed-one{width:100%;box-sizing:border-box;
+    padding:var(--note-air) 0
+            calc(var(--note-air) + var(--spread-tail) - 0.766vw)}
+
+
+  /* CENTRED, AND SIZED BY INK. This was margin-left:var(--ax-c-l), an axis
+     declared on .band-white so the work would hang off the same 10% line as
+     the red band above it. That construction died with the white room: the
+     token went with the class, var() resolved to nothing, the declaration
+     became invalid and the margin collapsed to 0, which is why the work sat
+     flush left with 18% of red stranded on its right.
+
+     It is centred now because it no longer has a neighbouring room to share
+     an axis with: it IS the red room, together with the spread above.
+
+     The width is still measured, not chosen. This export carries 0.00% dead
+     red on its left and 2.05% on its right, so a 90% box puts the INK at
+     88.2% of the viewport.
+
+     THE NUDGE CENTRES THE PICTURE, NOT THE FILE. That 2.05% skirt is all on
+     the right, so centring the box leaves the ink sitting left of centre by
+     half the skirt. The box therefore moves RIGHT by 0.92% of the viewport,
+     which is translateX(1.025%) here because a percentage translate is a
+     share of the ELEMENT's own width, and this element is 90% of the viewport
+     rather than all of it. */
+  /* THE WORK MUST FIT THE SCREEN. width:90% alone is driven by width only, so
+     on a short window the height runs past the viewport: measured 106.6% of
+     the viewport height at 1591x904, meaning the piece could never be seen
+     whole. The width is now additionally capped by the height the screen can
+     actually give it, so whichever constraint is tighter wins. 1.6447 is the
+     file's own ratio (2000/1216), so the cap is expressed in the work's terms
+     rather than a guessed number. */
+  /* ── THE WORK SPANS THE PAGE AXIS, AND IS CENTRED ON ITS INK ──────────
+     Two corrections, both from re-measuring the file properly.
+
+     THE WIDTH IS THE AXIS, CAPPED BY THE SCREEN. It was a flat 90% of the
+     viewport, a third vertical line answering to nothing: measured at
+     1728x1117 the ink ran 166.1 to 1606.0 while the nav, the spread above and
+     every text column on the page sit on 80 and 1648. The first term below is
+     now that axis span, converted through the work's own ink share so the
+     DRAWING lands on the line rather than the file. The second term is
+     unchanged in purpose, the height the screen can actually give it, so a
+     short window still shrinks the work instead of cropping it: whichever is
+     tighter wins, and at full screen that is the axis.
+
+     THE NUDGE WAS BACKWARDS, AND TOO BIG. It assumed 0.00% dead red on the
+     left and 2.05% on the right. Re-measured with a detector calibrated
+     against a known-good hand figure (_tools/ink.py), the file carries 3.0%
+     on the left and 2.1% on the right, so the heavier skirt is the LEFT one
+     and the old +1.025% pushed the picture further off centre rather than
+     onto it: the ink centre measured 22px right of the page centre. The
+     correction is half the DIFFERENCE of the two skirts, which is 0.45% of
+     the element, and it goes left.
+
+     --fit-air drops to 2vh so the axis term can win at full screen; it is a
+     guarantee the work is never cropped, not the air you see, which the
+     band's own padding above provides. */
+.bleed-one .plate{
+    --ink-share:.949;                       /* 1 - .030 left - .021 right */
+    --fit-h:calc(100vh - var(--nav-h) - 2 * var(--fit-air));
+
+
+  /* ── CAPPED AT WHAT THE FILE CAN ACTUALLY HOLD ───────────────────────
+     Third term, and the one that governs. The other two size the work to
+     the room; this one sizes it to its own resolution.
+
+     c-phone-3.jpg is 2000 x 1216. The width term alone put it at 1652px of
+     CSS, which on a 2x screen asks the browser for 3305 device pixels out
+     of a 2000 pixel file: a 1.65x upscale. Every other work on the page
+     measured at or below 1.0, the next worst being f-331 at 1.01, so this
+     was the one piece on the page actually being enlarged past its own
+     detail, and it read exactly as that - soft, and less impressive than
+     the work is.
+
+     1000px is 2000 / 2: the largest the file can be shown at without the
+     browser inventing a single pixel on a retina screen. The work is now
+     hung in the red room with air around it instead of stretched to the
+     walls, which is also the more correct presentation for a polyptych:
+     four panels need a margin to read as four.
+
+     A larger master would buy a larger hang. Until there is one, this is
+     the size the work supports. */
+    --native-cap:1000px;                    /* 2000px file / 2 device px per css px */
+
+
+    width:min(calc((100% - 2 * var(--gutter)) / var(--ink-share)),
+              calc(var(--fit-h) * 1.6447),
+              var(--native-cap));
+    margin-left:auto;margin-right:auto;
+    transform:translateX(-.45%)}
+

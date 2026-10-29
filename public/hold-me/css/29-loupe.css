@@ -1,0 +1,47 @@
+/* =======================================================================
+   THE LOUPE: rest the cursor on any work; it opens into a viewfinder.
+   ======================================================================= */
+
+
+  /* Square, ONE hairline, nothing else. No shadow and no second rule: a
+     drop shadow is chrome, and the page's own baseline is zero chrome. The
+     line is drawn in the ink of the room the work hangs in, the same values
+     the header's type uses there, so on red it is the red room's near-black
+     and in the void it is the void's off-white: it belongs to the room, not
+     to an interface laid over it. It opens from the size of the flip-phone
+     cursor it replaces, so it reads as the cursor opening. */
+.loupe{position:fixed;left:0;top:0;z-index:300;pointer-events:none;
+    width:clamp(150px,12.5vw,220px);aspect-ratio:1;   /* a smidge smaller (Ivan, 2026-10-23) */
+    opacity:0;scale:.16;
+    transition:opacity .16s var(--ease),scale .24s var(--ease)}
+.loupe.on{opacity:1;scale:1}
+
+.loupe{--ink:#f5f3ef}
+.loupe[data-ground="red"],.loupe[data-ground="straddle"]{--ink:#170006}
+.loupe[data-ground="orange"]{--ink:#2a0d00}
+.loupe[data-ground="grey"]{--ink:#141614}
+.loupe[data-ground="green"]{--ink:#08240c}
+.loupe[data-ground="white"]{--ink:#141414}
+
+.loupe-view{position:absolute;inset:0;
+    box-shadow:0 0 0 1px var(--ink)}
+
+  /* a hairline cross at the exact point being magnified */
+.loupe-view::before,.loupe-view::after{content:"";position:absolute;left:50%;top:50%;z-index:5;
+    background:var(--ink);opacity:.7}
+.loupe-view::before{width:9px;height:1px;translate:-50% -.5px}
+.loupe-view::after{width:1px;height:9px;translate:-.5px -50%}
+
+  /* while the loupe is open, the flip-phone cursor gives way to the frame */
+html.loupe-on .phone-reticle{opacity:0 !important}
+html.loupe-on, html.loupe-on *{cursor:none !important;user-select:none}
+
+
+  /* the original's tiles behind the glass, a scaled copy of the work laid
+     exactly over the magnified picture; clipped by the frame */
+.loupe-view{overflow:hidden}
+.loupe-plane{position:absolute;left:0;top:0;will-change:transform}
+.loupe-pic{position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none}
+.loupe-tiles{position:absolute;inset:0}
+.loupe-tile{position:absolute;display:block;max-width:none;opacity:0;transition:opacity .3s var(--ease)}
+.loupe-tile.in{opacity:1}

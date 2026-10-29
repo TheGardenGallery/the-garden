@@ -1,0 +1,229 @@
+/* =======================================================================
+   J · PROCESS, the Image Trace document.
+   ======================================================================= */
+
+
+  /* ── THE ROOM IS THE FILE'S OWN BORDER ───────────────────────────────
+     Measured, not chosen: the jpeg's border ring samples pure black at all
+     1504 points, zero variance. So a void room makes the screenshot's own
+     margin disappear completely and the dialog floats with no edge at all,
+     which is the only honest way to hang this particular object. It is not
+     a work on a wall. It is a screen grab of a screen, and in a black room
+     it reads as one, seen at night on the artist's own monitor.
+
+     Every other room on this page matches its ground to its work. This one
+     gets it for free. */
+.band-process{background:#000;
+    padding:var(--rhythm) 0 calc(var(--rhythm) * 1.15)}
+  /* straight after the Queue's shelves: a short step, not a full rhythm */
+.band-queue + .band-process{padding-top:0}   /* the Queue's own black is the gap */
+
+
+.proc{margin:0 var(--gutter)}
+
+
+  /* ── THE DOCUMENT ────────────────────────────────────────────────────
+     Held to the page axis, so it spans exactly the measure every other room
+     is built on. The second term is the file's own resolution: 3168px at 2
+     device pixels per CSS pixel is 1584px, just past the axis span, so the
+     axis governs at every window and the browser never invents a pixel. */
+.proc-doc{margin:0 auto;position:relative;
+    width:min(100%, 1584px)}
+
+
+.proc-doc img{display:block;width:100%;height:auto;
+    cursor:zoom-in}
+
+
+  /* ── THE DIALOG'S OWN COLUMNS, CONTINUED INTO THE PAGE ───────────────
+     This is the whole idea of the section, and none of it is invented: the
+     two numbers are measured off the image.
+
+     The grab is Save for Web in 2-Up mode, which is a picture OF
+     translation: the same artwork twice, once as it arrived and once after
+     the conversion. The text is about the same thing, the phones as they
+     were and then what he does to them, so it is set as a 2-Up too.
+
+     The dialog's divider between its two preview panes falls at 0.4170 of
+     the image width. The boundary where the previews end and the settings
+     column begins falls at 0.7623. Those are the three track widths below:
+     0.4170 / 0.3453 / 0.2377. So the left passage sits under the original
+     pane, the right passage sits under the converted one, and the last
+     track stays EMPTY because what is above it is not a picture, it is the
+     export settings.
+
+     The hairlines are the dialog's own rules carried downward out of the
+     image, so the picture and the text read as one object rather than a
+     caption placed under a plate. Align the page to the artwork, never the
+     artwork to the page. */
+.proc-cols{display:grid;
+    /* the columns ARE the dialog's tracks, so they share its width and its
+       centring: past 1744px the dialog stops growing and they must too */
+    width:min(100%, 1584px);margin-left:auto;margin-right:auto;
+    grid-template-columns:0.4170fr 0.3453fr 0.2377fr;
+    margin-top:calc(var(--rhythm) * .52)}
+@media (min-width:901px){
+  /* THE PAGE-WIDE RULE, below a work: the columns' first capitals sit one
+     --pair-gap under the dialog's ink (its bottom edge is 7.09% up the
+     grab, the rest is black). The figure is min(100%, 1584px) wide at
+     3168:2088. Leading 1.52, the page's body leading, puts Azeret's cap top
+     .4287em into the line. */
+  .proc-cols{margin-top:calc(var(--pair-gap) - min(100%, 1584px) * .6591 * .0709)}
+  .proc-col > :first-child{margin-top:-.4287em}
+}
+
+
+.proc-col{padding:0 26px;position:relative}
+
+
+.proc-col--a{padding-left:0}
+
+
+  /* the rules sit ON the grid lines, which ARE the dialog's dividers */
+.proc-col--b,.proc-col--c{border-left:1px solid rgba(245,243,239,.17)}
+
+
+  /* ── THE THIRD TRACK CARRIES THE TAG ─────────────────────────────────
+     This track stands under the dialog's SETTINGS column, which is where
+     the file's own metadata lives on screen. So the page's metadata goes
+     there too, directly beneath it: the label is in the same place in the
+     page that it is in the picture.
+
+     The words are "Working file" rather than "behind the scenes" or
+     "process insight", because this room already IS the process and a tag
+     that announces it twice is a caption apologising for its picture. A
+     working file is what the thing on screen literally is, it is what a
+     studio would call it, and it leaves the viewer to notice what that
+     means rather than being told. */
+.proc-col--c{min-height:1px}
+
+
+.proc-tag,.proc-col p.proc-tag{font-family:'Azeret Mono',ui-monospace,monospace;
+    font-weight:400;font-size:clamp(9px,.62vw,11px);
+    letter-spacing:.14em;text-transform:uppercase;
+    color:#f5f3ef;opacity:.46;margin:0;
+    /* sits on the first line of the passages beside it */
+    line-height:1.52}
+
+
+.proc-col p{font-family:'Azeret Mono',ui-monospace,monospace;font-weight:400;
+    font-size:15px;line-height:1.52;   /* the page's body size */
+    color:#f5f3ef;margin:0;
+    /* no hyphen may land on a line edge anywhere on this page */
+    hyphens:none}
+
+
+.proc-col p + p{margin-top:1.15em}
+
+
+  /* ── THE COLUMNS ARE A DESKTOP IDEA ──────────────────────────────────
+     A 2-Up needs two panes side by side to mean anything. Below 900px there
+     is no room for that, so the structure stops pretending: the passages
+     stack, the rules go, and the document simply sits above its text. */
+@media(max-width:900px){
+    .proc{margin:0 20px}
+    .proc-cols{grid-template-columns:1fr;gap:1.15em}
+    .proc-col{padding:0}
+    .proc-col--b,.proc-col--c{border-left:0}
+    .proc-col--c{display:none}
+}
+
+
+  /* ── THE 2-UP AS OBJECTS (final delivery) ────────────────────────────
+     png43 (as Image Trace leaves it) and png47 (worked over by hand) are one
+     flip in two states, so they stand in the same tracks as the dialog's two
+     panes, the rules carried down through them, each phone's INK centred in
+     its track as the dialog centres its previews. Both inks are one height,
+     --ph, and stand one --pair-gap below the passages' last baseline (the
+     line box holds .4565em of Azeret under the baseline at this leading).
+       png43  958 x 2400, ink 16.70% / 12.53% in, 0.13% / 2.88% down/up
+       png47  710 x 2400, ink 0 / 0.14% in, 0 / 0.04% down/up (its export
+              frame removed, see the catalogue note) */
+.proc-pair{--ph:min(70svh, 760px);
+    font-size:clamp(12px,1.01vw,15px);
+    margin-top:calc(var(--pair-gap) - .4565em) !important;
+    align-items:start}
+.proc-ph{margin:0;background:transparent;overflow:visible;
+    display:flex;flex-direction:column;align-items:center}
+.proc-pair .proc-col > :first-child{margin-top:0}
+.proc-ph img{display:block;max-width:none;cursor:zoom-in}
+.proc-pair .proc-ph--a img{height:calc(var(--ph) / .9699);width:auto;
+    margin-top:calc(var(--ph) / .9699 * -.0013);
+    margin-bottom:calc(var(--ph) / .9699 * -.0288);
+    /* track a has no left padding, so its content centre is 13px left of
+       the track's: put that back so the INK sits on the pane's centre */
+    transform:translateX(calc((.5 - .5208) * 100% + 13px))}
+.proc-pair .proc-ph--b img{height:calc(var(--ph) / .9996);width:auto;
+    margin-bottom:calc(var(--ph) / .9996 * -.0004);
+    transform:translateX(calc((.5 - .4993) * 100%))}
+  /* the pane's label, 22px under its phone's INK floor (each file's empty
+     strip below the drawing is taken off above), on the track's text edge,
+     so both labels sit on one line */
+.proc-ph .proc-tag{align-self:flex-start;margin-top:22px}
+@media(max-width:900px){
+    .proc-pair{--ph:56svh;margin-top:48px !important}
+    .proc-ph + .proc-ph{margin-top:40px}
+}
+
+
+  /* ── THE PAIR CONTINUES TO THE RIGHT (Ivan, 2026-10-22) ──────────────
+     The pair keeps its two dialog tracks; after them the row runs on past
+     the page's right edge as a sideways strip of clamshells, scrolled by
+     trackpad or drag like the Queue. Every flip's ink is --ph tall on the
+     pair's floor, and every ink gap is the pair's own (the distance between
+     its two track centres less the two half inks, .2935 --ph). */
+@media(min-width:901px){
+    .proc{container-type:inline-size}
+    .proc-pair{--dw:min(100cqw, 1584px);--fg:calc(var(--dw) * .38115 - var(--ph) * .2935);
+        display:flex;align-items:flex-start;overflow-x:auto;overflow-y:hidden;
+        scrollbar-width:none;cursor:grab;overscroll-behavior-x:contain;
+        width:auto;margin-left:0;margin-right:calc(-1 * var(--gutter));padding-right:var(--gutter);
+        /* the pair starts under the dialog's left edge, the strip still runs
+           out past the page's right edge */
+        padding-left:calc((100cqw - var(--dw)) / 2)}
+    .proc-pair::-webkit-scrollbar{display:none}
+    .proc-pair.dragging{cursor:grabbing}
+    .proc-pair .proc-ph--a{flex:0 0 calc(var(--dw) * .4170)}
+    .proc-pair .proc-ph--b{flex:0 0 calc(var(--dw) * .3453)}
+    .proc-flip{position:relative;flex:none;margin:0 0 0 var(--fg);background:transparent;overflow:visible;
+        width:calc(var(--a) * var(--ph));height:var(--ph)}
+    .proc-ph--b + .proc-flip{margin-left:calc(var(--fg) - (var(--dw) * .3453 / 2 - var(--ph) * .1479))}
+    .proc-flip img{position:absolute;max-width:none;width:auto;cursor:zoom-in;
+        height:calc(var(--h) * var(--ph));left:calc(var(--x) * var(--ph));bottom:calc(var(--y) * var(--ph))}
+}
+@media(max-width:900px){
+    .proc-flip{display:none}
+}
+
+
+  /* ── THE DOCUMENT AND THE MAKING, ONE FRAME ──────────────────────────
+     The grab, and a swipe away his screen recording, in one frame of the
+     grab's own size (3168:2088), so nothing below moves: the columns still
+     stand on the dialog's tracks. Trackpad or touch swipes, a mouse drags,
+     and each pane snaps whole. The recording stands exactly where the
+     dialog's window stands in the grab (measured: 3.64% down, 3.54% in
+     from each side, 7.09% up), and the two windows are nearly one shape
+     (1.579 and 1.593), so a swipe changes what is on the screen, not
+     where the screen is. */
+.proc-reel{position:relative;margin:0 auto;width:min(100%, 1584px)}
+.proc-reel-track{display:flex;overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x mandatory;overscroll-behavior-x:contain;
+    scrollbar-width:none;cursor:grab}
+.proc-reel-track::-webkit-scrollbar{display:none}
+.proc-reel-track.dragging{cursor:grabbing;scroll-snap-type:none}
+.proc-reel-track > figure{flex:0 0 100%;width:100%;margin:0;scroll-snap-align:start}
+.proc-reel .proc-doc img{cursor:grab}
+.proc-run{position:relative;aspect-ratio:3168 / 2088;background:#000}
+.proc-run video{position:absolute;display:block;object-fit:contain;
+    top:3.64%;bottom:7.09%;left:3.54%;right:3.54%;width:92.92%;height:89.27%}
+
+  /* where you are: two of the dialog's hairlines, in the black band at the
+     frame's foot (both windows end 7.09% up it) */
+.proc-reel-marks{position:absolute;left:50%;bottom:calc(100% * .0709 / 2);
+    transform:translate(-50%, 50%);display:flex;gap:6px}
+.proc-reel-marks button{appearance:none;border:0;background:none;padding:10px 0;cursor:pointer;
+    width:28px}
+.proc-reel-marks button::before{content:"";display:block;height:1px;background:#f5f3ef;
+    opacity:.28;transition:opacity .5s var(--ease-arrive)}
+.proc-reel-marks button[aria-current="true"]::before{opacity:.86}
+.proc-reel-marks button:focus-visible{outline:1px solid rgba(245,243,239,.5);outline-offset:2px}

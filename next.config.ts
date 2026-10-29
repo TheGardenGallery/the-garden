@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
   // images don't need to live inside the function — Vercel serves them
   // straight from the CDN — so we exclude them from the trace.
   outputFileTracingExcludes: {
-    "*": ["public/images/**"],
+    "*": ["public/images/**", "public/hold-me/**"],
   },
   // Several call sites pass `quality={90}` to next/image (the artwork
   // posters, in particular). Next 16 will require these qualities to be
@@ -43,6 +43,48 @@ const nextConfig: NextConfig = {
             value: "public, max-age=31536000, immutable",
           },
         ],
+      },
+      // Hold Me (public/hold-me/) is a static page served as-is. Its
+      // HTML, CSS and JS revalidate on every visit so a redeploy shows
+      // at once; the artwork files are content-stable and cache for a
+      // day. Never immutable: these URLs are not versioned.
+      {
+        source: "/hold-me",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, must-revalidate",
+          },
+        ],
+      },
+      {
+        source: "/hold-me/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, must-revalidate",
+          },
+        ],
+      },
+      {
+        source: "/hold-me/assets/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400",
+          },
+        ],
+      },
+    ];
+  },
+  // Hold Me is a static page whose CSS, JS, fetches and media are all
+  // relative. Its <base href="/hold-me/"> resolves them, so it is served
+  // at /hold-me like every other page (Next already sends /hold-me/ here).
+  async rewrites() {
+    return [
+      {
+        source: "/hold-me",
+        destination: "/hold-me/index.html",
       },
     ];
   },
