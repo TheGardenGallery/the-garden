@@ -23,11 +23,11 @@
 
   .band-queue + .band-quote{padding:0 var(--gutter)}
   .band-queue + .band-quote .pull{margin-top:calc(var(--rhythm) - .345em)}
-  .band-queue + .band-quote .pull figcaption{margin-bottom:-.36em}
+  .band-queue + .band-quote .pull figcaption{margin-bottom:-.16em}   /* Azeret's baseline is .2 to .27em above its box's foot; .36em pushed the capitals under the band's edge, which clipped them */
 
   .band-quote + .band-process{
-    padding:calc(var(--rhythm) - min(100vw - 2 * var(--gutter), 1584px) * .6591 * .0364) 0 var(--rhythm)}
-  .band-process .proc-cols{margin-top:calc(var(--rhythm) - min(100%, 1584px) * .6591 * .0709)}
+    padding:calc(var(--rhythm) - min(100vw - 2 * var(--gutter), 1584px, var(--fit)) * .6591 * .0364) 0 var(--rhythm)}
+  .band-process .proc-cols{margin-top:calc(var(--rhythm) - min(100%, 1584px, var(--fit)) * .6591 * .0709)}
   .band-process .proc-pair{margin-top:calc(var(--rhythm) - .4565em) !important}
 
   .band-surface + .band-quote{padding:0 var(--gutter) var(--rhythm)}

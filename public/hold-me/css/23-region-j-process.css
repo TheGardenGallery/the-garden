@@ -14,7 +14,12 @@
      Every other room on this page matches its ground to its work. This one
      gets it for free. */
 .band-process{background:#000;
-    padding:var(--rhythm) 0 calc(var(--rhythm) * 1.15)}
+    padding:var(--rhythm) 0 calc(var(--rhythm) * 1.15);
+    /* the frame fits the window (Ivan, 2026-10-29): the dialog's window
+       (89.27% of the grab's height) takes at most 90% of the screen under
+       the bar, so the frame is never wider than this. Every width below
+       that follows the frame takes it as a third term. */
+    --fit:calc((100svh - var(--nav-h)) * .9 / .8927 * 3168 / 2088)}
   /* straight after the Queue's shelves: a short step, not a full rhythm */
 .band-queue + .band-process{padding-top:0}   /* the Queue's own black is the gap */
 
@@ -59,7 +64,7 @@
 .proc-cols{display:grid;
     /* the columns ARE the dialog's tracks, so they share its width and its
        centring: past 1744px the dialog stops growing and they must too */
-    width:min(100%, 1584px);margin-left:auto;margin-right:auto;
+    width:min(100%, 1584px, var(--fit));margin-left:auto;margin-right:auto;
     grid-template-columns:0.4170fr 0.3453fr 0.2377fr;
     margin-top:calc(var(--rhythm) * .52)}
 @media (min-width:901px){
@@ -68,7 +73,7 @@
      grab, the rest is black). The figure is min(100%, 1584px) wide at
      3168:2088. Leading 1.52, the page's body leading, puts Azeret's cap top
      .4287em into the line. */
-  .proc-cols{margin-top:calc(var(--pair-gap) - min(100%, 1584px) * .6591 * .0709)}
+  .proc-cols{margin-top:calc(var(--pair-gap) - min(100%, 1584px, var(--fit)) * .6591 * .0709)}
   .proc-col > :first-child{margin-top:-.4287em}
 }
 
@@ -174,7 +179,7 @@
      its two track centres less the two half inks, .2935 --ph). */
 @media(min-width:901px){
     .proc{container-type:inline-size}
-    .proc-pair{--dw:min(100cqw, 1584px);--fg:calc(var(--dw) * .38115 - var(--ph) * .2935);
+    .proc-pair{--dw:min(100cqw, 1584px, var(--fit));--fg:calc(var(--dw) * .38115 - var(--ph) * .2935);
         display:flex;align-items:flex-start;overflow-x:auto;overflow-y:hidden;
         scrollbar-width:none;cursor:grab;overscroll-behavior-x:contain;
         width:auto;margin-left:0;margin-right:calc(-1 * var(--gutter));padding-right:var(--gutter);
@@ -205,7 +210,7 @@
      from each side, 7.09% up), and the two windows are nearly one shape
      (1.579 and 1.593), so a swipe changes what is on the screen, not
      where the screen is. */
-.proc-reel{position:relative;margin:0 auto;width:min(100%, 1584px)}
+.proc-reel{position:relative;margin:0 auto;width:min(100%, 1584px, var(--fit))}
 .proc-reel-track{display:flex;overflow-x:auto;overflow-y:hidden;
     scroll-snap-type:x mandatory;overscroll-behavior-x:contain;
     scrollbar-width:none;cursor:grab}
