@@ -24,7 +24,7 @@
   /* DWELL runs from ENTERING a work and is not restarted by moving across
      it, so the glass opens as the cursor arrives (Ivan: instantly), not
      once it rests; it only spares a work the cursor merely crosses. */
-  const DWELL = 60, MIN = 1.5, MAX = 6;
+  const DWELL = 60, MIN = 1.5, FLOOR = 1.25, MAX = 6;
   /* every artwork has the glass (Ivan, 2026-10-23), the orbit's included;
      only the panels that are their own viewers (the interludes and the
      closing surface) and the chrome are left out */
@@ -150,6 +150,9 @@
      this file, the original's tiles take over (registered to the page
      image by _tools/register_pages.py). */
   const sharpest = img => {
+    /* a master cut from Movsum's original in the page's framing
+       (data-loupe-src), where the page ships no tiles for the work */
+    if (img.dataset.loupeSrc) return img.dataset.loupeSrc;
     const src = img.currentSrc || img.src;
     if (/\/works\/t\/t-[^/]+\.webp$/.test(src)) return src.replace('/works/t/', '/works/t/hi/');
     return src;
@@ -249,19 +252,21 @@
   /* ── NEVER A PIXEL HE DID NOT MAKE ───────────────────────────────────
      The deepest the loupe can go on a work is where its sharpest source
      runs out: the original (through its tiles) where one exists, else the
-     file itself. A work whose file runs out before 1.5x still opens at
-     1.5x (Ivan, 2026-10-23: the glass on every work) and goes no further:
-     on a Retina screen the JPEG-sized drop-ins are slightly enlarged there. */
+     file itself. A work whose file runs out before 1.5x opens at
+     its own limit, never under FLOOR (Ivan, 2026-10-29: crisp first, the
+     glass still on every work), so at worst a few are enlarged at 1.25x. */
   const maxMagFor = (img, entry) => {
     const d = drawn(img), dpr = devicePixelRatio || 1;
     const src = img.currentSrc || img.src;
-    const srcW = entry ? entry.box[2] : (/\/works\/t\/t-[^/]+\.webp$/.test(src) ? img.naturalWidth * 2 : img.naturalWidth);
+    const srcW = entry ? entry.box[2] : img.dataset.loupeW ? +img.dataset.loupeW
+      : (/\/works\/t\/t-[^/]+\.webp$/.test(src) ? img.naturalWidth * 2 : img.naturalWidth);
     return Math.min(MAX, srcW / (d.w * dpr));
   };
 
   const open = img => {
     const entry = tileFor(img);
-    const cap = Math.max(MIN, maxMagFor(img, entry));
+    const cap = Math.max(FLOOR, maxMagFor(img, entry));
+    const least = Math.min(MIN, cap);                   /* where it opens */
     refused = null;
     const moving = !!active;                            /* straight from one work to another */
     active = { img, entry, hiW: 0, cap };
@@ -274,8 +279,8 @@
        as that work's file allows. */
     /* the picture is at its magnification from the first frame: only the
        frame opens, so nothing zooms or slides while it appears */
-    if (moving) mag = Math.max(MIN, Math.min(cap, mag));
-    else { mag = MIN; shownMag = MIN; }
+    if (moving) mag = Math.max(least, Math.min(cap, mag));
+    else { mag = least; shownMag = least; }
     hook(); lastX = lastY = NaN;
     const hi = sharpest(img), page = img.currentSrc || img.src;
     view.style.backgroundColor = groundOf(img);
@@ -344,7 +349,7 @@
   addEventListener('wheel', e => {
     if (!active || !e.ctrlKey) return;
     e.preventDefault();
-    mag = Math.max(MIN, Math.min(active.cap, mag * Math.exp(-Math.max(-40, Math.min(40, e.deltaY)) * .01)));
+    mag = Math.max(Math.min(MIN, active.cap), Math.min(active.cap, mag * Math.exp(-Math.max(-40, Math.min(40, e.deltaY)) * .01)));
     schedule();
   }, { passive: false });
 })();
