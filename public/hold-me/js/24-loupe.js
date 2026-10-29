@@ -150,9 +150,6 @@
      this file, the original's tiles take over (registered to the page
      image by _tools/register_pages.py). */
   const sharpest = img => {
-    /* a master cut from Movsum's original in the page's framing
-       (data-loupe-src), where the page ships no tiles for the work */
-    if (img.dataset.loupeSrc) return img.dataset.loupeSrc;
     const src = img.currentSrc || img.src;
     if (/\/works\/t\/t-[^/]+\.webp$/.test(src)) return src.replace('/works/t/', '/works/t/hi/');
     return src;
@@ -258,8 +255,7 @@
   const maxMagFor = (img, entry) => {
     const d = drawn(img), dpr = devicePixelRatio || 1;
     const src = img.currentSrc || img.src;
-    const srcW = entry ? entry.box[2] : img.dataset.loupeW ? +img.dataset.loupeW
-      : (/\/works\/t\/t-[^/]+\.webp$/.test(src) ? img.naturalWidth * 2 : img.naturalWidth);
+    const srcW = entry ? entry.box[2] : (/\/works\/t\/t-[^/]+\.webp$/.test(src) ? img.naturalWidth * 2 : img.naturalWidth);
     return Math.min(MAX, srcW / (d.w * dpr));
   };
 
