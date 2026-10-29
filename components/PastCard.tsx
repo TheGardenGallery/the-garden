@@ -1,5 +1,6 @@
 "use client";
 
+import { exhibitionHref } from "@/lib/exhibition-href";
 import type { Exhibition } from "@/lib/types";
 import { TransitionLink } from "./TransitionLink";
 import { useScrollReveal } from "@/lib/useScrollReveal";
@@ -10,7 +11,7 @@ export function PastCard({ exhibition }: { exhibition: Exhibition }) {
   return (
     <TransitionLink
       ref={ref}
-      href={`/exhibitions/${exhibition.slug}`}
+      href={exhibitionHref(exhibition)}
       className={`past-card${visible ? " past-card--visible" : ""}`}
     >
       <div className="past-artist">{exhibition.artistName}</div>

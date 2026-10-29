@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from "motion/react";
 type HeroArtworkProps = {
   src: string;
   alt: string;
+  unoptimized?: boolean;
 };
 
 /**
@@ -18,7 +19,7 @@ type HeroArtworkProps = {
  *
  * Respects prefers-reduced-motion (disabled entirely in that case).
  */
-export function HeroArtwork({ src, alt }: HeroArtworkProps) {
+export function HeroArtwork({ src, alt, unoptimized }: HeroArtworkProps) {
   const reduced = useReducedMotion();
 
   return (
@@ -43,6 +44,7 @@ export function HeroArtwork({ src, alt }: HeroArtworkProps) {
         alt={alt}
         fill
         priority
+        unoptimized={unoptimized}
         sizes="100vw"
         style={{ objectFit: "contain" }}
       />

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { exhibitionHref } from "@/lib/exhibition-href";
 import type { Exhibition } from "@/lib/types";
 import { AutoPlayVideo } from "./AutoPlayVideo";
 import { DisplayName, DisplayTitle, MetaLine, Stack } from "@/components/ds";
@@ -12,7 +13,7 @@ import { DisplayName, DisplayTitle, MetaLine, Stack } from "@/components/ds";
  * To change how an artist name looks, change <DisplayName>'s CSS once.
  */
 export function ExhibitionCard({ exhibition }: { exhibition: Exhibition }) {
-  const href = `/exhibitions/${exhibition.slug}`;
+  const href = exhibitionHref(exhibition);
   const coverImage =
     exhibition.cardImage ?? exhibition.hero ?? exhibition.works?.[0]?.image;
 

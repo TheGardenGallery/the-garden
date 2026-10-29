@@ -11,8 +11,8 @@
      to an interface laid over it. It opens from the size of the flip-phone
      cursor it replaces, so it reads as the cursor opening. */
 .loupe{position:fixed;left:0;top:0;z-index:300;pointer-events:none;
-    width:clamp(150px,12.5vw,220px);aspect-ratio:1;   /* a smidge smaller (Ivan, 2026-10-23) */
-    opacity:0;scale:.16;
+    width:clamp(123px,10.25vw,180px);aspect-ratio:1;   /* 18% smaller again (Ivan, 2026-10-29) */
+    opacity:0;scale:.195;                               /* still opens from the cursor's size */
     transition:opacity .16s var(--ease),scale .24s var(--ease)}
 .loupe.on{opacity:1;scale:1}
 

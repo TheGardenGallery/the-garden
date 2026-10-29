@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { artists } from "@/lib/data/artists";
+import { exhibitionHref } from "@/lib/exhibition-href";
 import { exhibitions } from "@/lib/data/exhibitions";
 import { interviews } from "@/lib/data/interviews";
 
@@ -29,7 +30,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // exhibitions.ts has a few duplicate slugs (e.g. deluge, new-life-to-still-life).
   // Dedupe before emitting URLs so the sitemap is valid.
-  const exhibitionSlugs = Array.from(new Set(exhibitions.map((e) => e.slug)));
+  const exhibitionPaths = Array.from(
+    new Set(exhibitions.map((e) => exhibitionHref(e)))
+  );
 
   return [
     ...staticEntries.map((e) => ({
@@ -44,8 +47,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),
-    ...exhibitionSlugs.map((slug) => ({
-      url: `${siteOrigin}/exhibitions/${slug}`,
+    ...exhibitionPaths.map((path) => ({
+      url: `${siteOrigin}${path}`,
       lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.8,

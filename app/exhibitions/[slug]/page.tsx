@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { fetchExhibition, fetchExhibitions } from "@/lib/verse-api";
 import { WorksGrid } from "@/components/WorksGrid";
 import { FeaturedArtworks } from "@/components/FeaturedArtworks";
@@ -94,6 +94,7 @@ export default async function ExhibitionDetailPage({
   const { slug } = await params;
   const exhibition = await fetchExhibition(slug);
   if (!exhibition) notFound();
+  if (exhibition.pageUrl) redirect(exhibition.pageUrl);
 
   // Unified zoomable artwork collection for split-logic — hero +
   // inline-artwork videos + piece-grid items, in that document order.

@@ -15,6 +15,24 @@ const SPLIT_LOGIC_POSTER_VERSIONS: Record<number, number> = {
 export const exhibitions: Exhibition[] = [
   // === UPCOMING ===
   {
+    // A standalone static page (public/hold-me/), not the shared
+    // exhibition template: every link goes to pageUrl.
+    slug: "hold-me",
+    artistSlug: "movsum-alasgarov",
+    artistName: "Movsum Alasgarov",
+    title: "Hold Me",
+    year: 2026,
+    month: "Nov",
+    date: "November 5, 2026",
+    status: "upcoming",
+    pageUrl: "/hold-me",
+    hero: "/images/movsum-alasgarov/hold-me-hero.webp",
+    homepageHero: "/images/movsum-alasgarov/hold-me-hero.webp",
+    heroUnoptimized: true,
+    heroTheme: "dark",
+    frameColor: "#000000",
+  },
+  {
     slug: "split-logic",
     artistSlug: "ricky-retouch",
     artistName: "Ricky Retouch",

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { Exhibition } from "@/lib/types";
+import { exhibitionHref } from "@/lib/exhibition-href";
 import type { Palette } from "@/lib/palette";
 import { HeroCardReveal } from "./HeroCardReveal";
 import { HeroArtwork } from "./HeroArtwork";
@@ -210,7 +211,7 @@ export function Hero({ slides }: HeroProps) {
             transition={{ duration: SLIDE_S, ease: EASE }}
           >
             <Link
-              href={`/exhibitions/${ex.slug}`}
+              href={exhibitionHref(ex)}
               className="slide-link"
               aria-label={`View ${ex.artistName}, ${ex.title}`}
             >
@@ -238,6 +239,7 @@ export function Hero({ slides }: HeroProps) {
                 <HeroArtwork
                   src={(ex.homepageHero ?? ex.hero)!}
                   alt={`${ex.artistName}, ${ex.title}`}
+                  unoptimized={ex.heroUnoptimized}
                 />
               )}
             </Link>
@@ -258,7 +260,7 @@ export function Hero({ slides }: HeroProps) {
                 transition={{ duration: CARD_FADE_S, ease: EASE }}
               >
                 <Link
-                  href={`/exhibitions/${ex.slug}`}
+                  href={exhibitionHref(ex)}
                   className="hero-card-link"
                 >
                   <div className="hero-headline">

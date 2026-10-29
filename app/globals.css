@@ -951,6 +951,21 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
      split-logic; other slides keep their 64px symmetric padding. */
   padding-top:clamp(72px, 12vh, 152px);
 }
+/* Black plate: a still work on pure black, framed exactly like Split
+   Logic's homepage plate (same 800px / 88vmin ceiling, same caption
+   reservation and top air), with no vignette and no drop shadow. */
+.hero[data-hero-treatment="black-plate"]{background:#000000;}
+.hero[data-hero-treatment="black-plate"]::after{display:none;}
+.hero[data-hero-treatment="black-plate"] .slide{
+  padding-top:clamp(72px, 12vh, 152px);
+  padding-bottom:220px;
+  transition:opacity 600ms ease;
+}
+.hero[data-hero-treatment="black-plate"] .slide-frame{
+  max-width:min(800px, 88vmin);
+  max-height:min(800px, 88vmin);
+}
+.hero[data-hero-treatment="black-plate"] .slide img{filter:none;}
 /* Slightly larger hero card lockup for dense featured homepage works. */
 .hero[data-hero-copy-treatment="featured-lockup"] .hero-artist,
 .hero[data-hero-copy-treatment="featured-lockup"] .hero-title{font-size:clamp(28px, calc(1vw + 19px), 38px);}
