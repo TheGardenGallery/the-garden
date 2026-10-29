@@ -7,6 +7,8 @@ type HeroArtworkProps = {
   src: string;
   alt: string;
   unoptimized?: boolean;
+  /** Fill the frame (crop) instead of fitting the whole work inside it. */
+  cover?: boolean;
 };
 
 /**
@@ -19,7 +21,7 @@ type HeroArtworkProps = {
  *
  * Respects prefers-reduced-motion (disabled entirely in that case).
  */
-export function HeroArtwork({ src, alt, unoptimized }: HeroArtworkProps) {
+export function HeroArtwork({ src, alt, unoptimized, cover }: HeroArtworkProps) {
   const reduced = useReducedMotion();
 
   return (
@@ -46,7 +48,7 @@ export function HeroArtwork({ src, alt, unoptimized }: HeroArtworkProps) {
         priority
         unoptimized={unoptimized}
         sizes="100vw"
-        style={{ objectFit: "contain" }}
+        style={{ objectFit: cover ? "cover" : "contain" }}
       />
     </motion.div>
   );

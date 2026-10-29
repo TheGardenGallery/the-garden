@@ -12,14 +12,17 @@ export const homepagePastPicks = [
   "imagined-wreckage",
 ] as const;
 
-export type HeroTreatment = "full-bleed-video" | "black-plate";
+export type HeroTreatment =
+  | "full-bleed-video"
+  | "full-bleed-detail";
 
 export const heroTreatments: Record<string, HeroTreatment> = {
   // Split Logic's homepage MP4 is authored against pure black; overlays
   // and the default dark surface create visible bands around the video.
   "split-logic": "full-bleed-video",
-  // Hold Me's transparent handset on pure black, framed like Split Logic.
-  "hold-me": "black-plate",
+  // Hold Me: a native-resolution detail of png9 filling the hero edge to
+  // edge, the way the exhibition's own interludes show a drawing.
+  "hold-me": "full-bleed-detail",
 };
 
 export function getHeroTreatment(slug: string): HeroTreatment | undefined {

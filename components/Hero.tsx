@@ -240,6 +240,7 @@ export function Hero({ slides }: HeroProps) {
                   src={(ex.homepageHero ?? ex.hero)!}
                   alt={`${ex.artistName}, ${ex.title}`}
                   unoptimized={ex.heroUnoptimized}
+                  cover={getHeroTreatment(ex.slug) === "full-bleed-detail"}
                 />
               )}
             </Link>
