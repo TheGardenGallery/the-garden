@@ -124,7 +124,13 @@ export type Exhibition = {
       listing rows, or facts sidebar, which all key off `date`. Plain
       display string; not parsed. */
   homepageDate?: string;
-  location: string;
+  /** Sale platform shown in the listing and facts sidebar. Optional so a
+      show can be announced before its platform is confirmed. */
+  location?: string;
+  /** Standalone exhibition page (e.g. "/hold-me", a static page in
+      public/). When set, every link to the show points here instead of
+      /exhibitions/{slug}, and that route redirects here. */
+  pageUrl?: string;
   /** When set, the facts-sidebar "Platform" value links out to this URL.
       Opt-in per show; absent everywhere else so only the intended page
       gets a linked platform name. */
@@ -150,6 +156,7 @@ export type Exhibition = {
   heroTheme?: "dark" | "paper";  // hero backdrop — cream for light-surface pieces, dark for digital
   titleTypewriter?: boolean;     // when true, animate the artist/title in word-by-word with a blinking cursor at the end
   descriptionTypewriter?: boolean; // when true, render the description prose as terminal-style character-by-character type-in (mono font, on-dark colors, scroll-triggered). Plain-text descriptions only.
+  heroUnoptimized?: boolean;     // serve hero/homepageHero untouched by next/image (fine pixel work that resampling would soften)
   frameColor?: string;           // background of the exhibitions-list image frame, matched to the artwork's palette
   listImageScale?: number;       // multiplier for the exhibitions-list thumbnail, compensating for mattes baked into the hero file
   disableListHoverZoom?: boolean; // skip the hover scale on the exhibitions-list row when fine patterns in the artwork would shimmer under sub-pixel scaling

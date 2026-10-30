@@ -1,0 +1,233 @@
+/* =======================================================================
+   33 · THE PAGE ON A PHONE (Ivan, 2026-10-26)
+   One pass, loaded last and scoped to narrow screens, so nothing here can
+   touch the desktop composition. The rules it keeps:
+
+   1. ONE EDGE. Every passage and every work stands on the same gutter.
+      Before this pass the rooms each had their own (60px in the red room,
+      80 beside the flips, 15 in the orange cell, 20 in the process room),
+      so the page's left edge wandered from room to room.
+   2. THE WORKS LEAD AT FULL MEASURE. A phone screen is narrow, so a work
+      that is not given the whole measure reads as a thumbnail. Each is
+      sized to the gutter-to-gutter width, capped by the screen's height
+      where it is tall, and centred on the page's axis.
+   3. EVERY SENTENCE OF THE ESSAY IS READABLE. Nothing that carries text is
+      hidden, faded or set under 11px.
+   4. THE FIGURES KEEP THEIR IDEA. The signal bars still rise as four
+      columns on one baseline; the orange room is still the 2x2 closing on
+      its centre cross.
+   ======================================================================= */
+
+/* iOS Safari enlarges small type on its own unless told not to. The title
+   is drawn in 6px characters and the signal bars are copyfitted to the
+   character, so an enlarged face would push the title past the screen's
+   edge and break every bar's line count. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+
+@media(max-width:600px){
+    :root{--gutter:24px}
+    /* the bar held four links and the wordmark at desktop spacing, so the
+       last link and THE GARDEN sat off the right edge of the screen. A
+       phone shows the wordmark alone, on the gutter. */
+    nav .nav-links{display:none}
+    /* the black rooms: a little more night between each work and its
+       passage (Ivan, 2026-10-27) */
+    .spine-a,.band .spine-b,.spine-c-pair{gap:72px}
+    .proc-reel + .proc-cols{margin-top:72px}
+    .proc-pair{margin-top:72px !important}
+}
+
+@media(max-width:900px){
+
+  /* ── THE HERO, ONE VISIBLE SCREEN ─────────────────────────────────────
+     100vh on iOS is the screen with its toolbars hidden, so the hero ran
+     taller than what shows and "Me", set on its foot, sat under Safari's
+     bar. The small viewport is what is actually visible. */
+    .hero{height:100svh}
+    /* and the work keeps its proportions: its height was fixed to the
+       screen while its width was capped at 78vw, so on a phone it was
+       squeezed sideways by a third. It is sized by width now (1329:1500). */
+    .hero .hold-art{height:auto;width:min(78vw, calc(62svh * .886))}
+    .lb-plate{width:min(760px, 88vw, calc(74svh * var(--lb-ar,1)))}
+
+  /* ── THE BAR ───────────────────────────────────────────────────────── */
+    nav{padding:0 var(--gutter)}
+    .nav-links{gap:28px}
+
+  /* ── RED ROOM ──────────────────────────────────────────────────────── */
+    /* the band already stands on the gutter; the spread's own 20px inset
+       came on top of it */
+    .band-red .spread{padding-left:0;padding-right:0}
+    /* the works centre on the axis under their passages, row 1's stack at
+       the full measure, row 2's white pair given the same presence */
+    .spread-rows .spread-row .spread-art{align-self:center}
+    /* an older narrow cap (78%) shrank the pair inside its own ink box */
+    .spread-rows .spread-art .plate{max-width:none}
+    .spread-rows .spread-row{--u:calc(100cqw / 1.5545)}
+    .spread-rows .spread-row--2{--u:min(calc(100cqw * .8), calc(72svh / 1.2284))}
+    /* png28 and its passage: the frame was hidden on narrow screens, so the
+       passage stood alone and the work never appeared. It leads, centred,
+       and the passage reads under it; the traced wrap is a desktop move. */
+    .spread-t2 .spread-a3{display:block;float:none;shape-outside:none;
+        width:100%;margin:0 auto 40px;height:auto}
+    .band .spread-t2 p{padding-top:0;margin-left:0;margin-right:0;max-width:none}
+
+  /* ── THE SPINE ─────────────────────────────────────────────────────── */
+    /* spine A carried the gutter twice, once on the band and again on itself */
+    .spine-a{padding-left:0;padding-right:0}
+    .spine-a .plate{max-width:none;width:100%;align-self:center}
+    .spine-notes{margin-left:0;margin-right:0;max-width:none}
+    /* the signal bars: four columns of exactly 12 characters (Azeret's
+       advance is .653em, so 12ch is 7.84em) on one baseline, set as large
+       as the measure allows: 10.3px on a 390 screen, 15px on a tablet. Four
+       12-character columns cannot reach 11px inside a phone's measure, and
+       the 12-character wrap is what makes the copyfit, so the size gives. */
+    .spine-b{gap:48px}
+    .stair{gap:6px;width:100%;justify-content:space-between}
+    .band .stair-col p{font-size:clamp(9.5px, calc((100vw - 2 * var(--gutter) - 18px) / 31.4), 15px);
+        line-height:1.5}
+    /* the four columns hold 12 characters each and stand together as one
+       figure, centred, however wide the screen */
+    .stair{justify-content:center}
+    .stair .stair-col{flex:0 0 auto}
+    .band .stair-col p{width:12ch}
+    .spine-b .plate{width:100%;max-width:none;align-self:center}
+    .spine-c .plate{width:100%;align-self:center}
+    /* Brick 7 is tall: a little over half the measure, as it stands */
+    .spine-c .plate img{max-width:62%}
+    .spine-c-pair{align-items:center}
+
+  /* ── ORANGE ROOM ───────────────────────────────────────────────────── */
+    /* The 2x2 stays, edge to edge. The text cell used to keep only its first
+       sentence (the cycle that turns its passes does not run on a phone),
+       so four of the essay's five sentences were invisible. The square
+       keeps its three works where they stand and the passes read under it,
+       all five, as prose. */
+    .e-sticky{padding:var(--rhythm) 0 calc(var(--rhythm) * .6)}
+    .e-grid{width:100%;aspect-ratio:auto}
+    .e-grid::before{content:"";display:block;padding-top:100%}
+    .e-grid .e-cell{height:auto;aspect-ratio:1}
+    .e-grid .e-text{position:static;transform:none;width:auto;aspect-ratio:auto;
+        margin:40px var(--gutter) 0}
+    .e-text .e-plate{position:static;inset:auto;height:auto}
+    .e-text .e-pass,.e-text .e-pass.on{position:static;transform:none;opacity:1;transition:none}
+    .e-text .e-pass + .e-pass{margin-top:1.1em}
+    .band .e-text .e-lead{font-size:15px;line-height:1.52;letter-spacing:0;margin:0}
+
+  /* ── GREY ROOM: the handset at the full measure, like every other work */
+    .room-back{max-width:none;width:100%}
+
+  /* ── EVERY WORK, ONE CEILING ───────────────────────────────────────
+     At the full measure a tall work outgrows the screen on a tablet (Brick 7
+     ran to 1064px on a 1024 screen), so every stacked work stops at 78% of
+     the screen's height and stays centred on the axis. */
+    .spine-a .plate img,.spine-b .plate img,.spine-c .plate img,
+    .room-back img,.spread-t2 .spread-a3 img{display:block;width:auto;height:auto;
+        max-width:100%;max-height:78svh;margin:0 auto}
+    .spine-c .plate img{max-width:62%}
+
+  /* ── ONE MEASURE ─────────────────────────────────────────────────────
+     On a phone the gutter sets the line; on a tablet the full width would
+     run a passage to 76 characters, so passages hold a 60-character
+     measure, centred on the axis like the works above them. */
+    .band .spread-rows .band-lead,.band .spread-t2 p,.spine-notes,.spine-c-text,
+    .room-text,.proc-cols{max-width:60ch;margin-left:auto;margin-right:auto}
+    /* the orange passes stand under a full-bleed square, so they carry the
+       gutter themselves */
+    .e-grid .e-text{max-width:min(60ch, calc(100% - 2 * var(--gutter)));margin:40px auto 0}
+    .spread-rows .spread-t1,.spread-rows .spread-t3{align-self:stretch}
+
+  /* ── THE ORBIT ON A PHONE: vertical swipes scroll the page, sideways
+     ones turn the ring (js/22-orbit.js) */
+    .band-orbit{touch-action:pan-y;overflow:hidden}
+    .orbit-item img{height:30svh}
+
+  /* ── PROCESS ROOM ──────────────────────────────────────────────────── */
+    .proc{margin:0 var(--gutter)}
+    /* the pair and the clamshells after it are one shelf you swipe, as on
+       desktop, instead of a column you scroll past: every phone's INK is one
+       height --ph and every ink gap a quarter of it (the Queue's ratio),
+       each phone snapping to the gutter. The clamshells' insets are their
+       measured ink (index.html); png43's file is wider than its drawing, so
+       its dead sides (16.70% and 12.53%) are pulled outside its box. */
+    .band-process .proc-pair{--ph:min(56svh, 118vw);
+        display:flex;align-items:flex-end;gap:calc(var(--ph) / 4);
+        overflow-x:auto;overflow-y:hidden;scrollbar-width:none;
+        scroll-snap-type:x mandatory;scroll-padding:0 var(--gutter);
+        overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;
+        width:auto;max-width:none;
+        margin-left:calc(-1 * var(--gutter));margin-right:calc(-1 * var(--gutter));
+        padding:0 var(--gutter)}
+    .band-process .proc-pair::-webkit-scrollbar{display:none}
+    .band-process .proc-pair > figure{flex:none;margin:0;scroll-snap-align:start}
+    .band-process .proc-ph + .proc-ph{margin-top:0}
+    .band-process .proc-pair .proc-ph--a img{transform:none;
+        margin-left:calc(var(--ph) / .9699 * .39917 * -.1670);
+        margin-right:calc(var(--ph) / .9699 * .39917 * -.1253)}
+    .band-process .proc-pair .proc-ph--b img{transform:none}
+    .band-process .proc-flip{display:block;position:relative;background:transparent;overflow:visible;
+        width:calc(var(--a) * var(--ph));height:var(--ph)}
+    .band-process .proc-flip img{position:absolute;max-width:none;width:auto;
+        height:calc(var(--h) * var(--ph));left:calc(var(--x) * var(--ph));bottom:calc(var(--y) * var(--ph))}
+}
+
+/* ── ONE SPACING SYSTEM ON A PHONE (Ivan, 2026-10-27) ─────────────────────
+   The page's gaps ran anywhere from 36 to 300px with no relation between
+   them. Now there are two, measured ink to ink (a drawing's edge, a
+   capital's top, a last line's baseline, never a file's or a box's edge):
+     --m-pair  64px   a work and its own passage, inside one unit
+     --m-room 128px   one unit to the next, and around every panel and quote
+   and one paragraph gap (36px, cap to baseline). Each value below is the
+   rule that sets one gap, solved so that gap lands on its token; files'
+   transparent margins are why some of them look odd (Brick 7's file has
+   186px of air above its drawing at this size, hence its negative margin).
+   Verified at 375, 390 and 430 wide. */
+@media(max-width:600px){
+    :root{--m-pair:64px;--m-room:128px}
+
+  /* red room */
+    .band-red{padding-top:116px;padding-bottom:0}
+    .band-red .spread{padding-top:0;padding-bottom:0}
+    .spread-rows .spread-row{gap:53px}
+    .spread-rows .spread-row + .spread-row{margin-top:142px}
+    .spread-t2{margin-top:116px}
+    .spread-t2 .spread-a3{margin-bottom:52px}
+    .band-quote[aria-label="Quote, the process"]{padding-top:109px}
+    section[aria-label="Evolution of phone"] .bleed-one{padding-top:61px;padding-bottom:125px}
+
+  /* the spine */
+    section[aria-label="Phones"]{padding-top:126px;padding-bottom:0}
+    .spine-a{gap:46px}
+    .band .spine-b{margin-top:81px;gap:57px}
+    .spine-c{margin-top:120px;margin-bottom:123px}
+    .spine-c-pair{gap:0}
+    /* Brick 7's frame kept its desktop height (88vh), so the brick floated
+       in a box far taller than itself; the frame is the brick now */
+    .spine-c .plate{height:auto;aspect-ratio:auto;margin-top:48px}
+
+  /* orange */
+    .e-band{padding-top:0;padding-bottom:0}
+    .e-sticky{padding-top:128px;padding-bottom:128px}
+    .band-affa{padding-top:0;padding-bottom:128px}
+
+  /* grey */
+    section[aria-label="States"]{padding-top:120px}
+    .room{gap:0}
+    .room-stack{margin-bottom:46px}
+    .room-col--r{margin-top:17px}
+    .band .room-col--l p + p{margin-top:16.5px}
+    .band-orbit{height:62svh;min-height:0}
+    /* the ring's stacks are sized and spread by the screen's height, so
+       the black around them is too: 10.78svh above, 10.37svh below */
+    section[aria-label="States"]{padding-bottom:calc(128px - 10.78svh)}
+    .g-solo{margin-top:calc(128px - 10.37svh);margin-bottom:128px}
+    .e-grid .e-text{margin-top:58px}
+
+  /* the black run */
+    .band-queue{height:auto;min-height:0;padding:128px 0 0}
+    .band-quote[aria-label="Quote, the computer"]{padding-top:121px}
+    .band-quote + .band-process{padding-top:61px;padding-bottom:142px}
+    .band-process .proc-cols{margin-top:56px}
+    .band-process .proc-pair{margin-top:53px !important}
+    .band-quote[aria-label="Quote, the future"]{padding-top:121px;padding-bottom:125px}
+}

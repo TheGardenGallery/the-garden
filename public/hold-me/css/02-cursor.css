@@ -1,0 +1,97 @@
+/* =======================================================================
+   THE CURSOR, green flip-phone reticle and its buzz.
+   ======================================================================= */
+
+
+.phone-reticle{
+    position:fixed;top:0;left:0;width:40px;height:40px;z-index:9999;
+    pointer-events:none;will-change:transform;
+    transform:translate(-100px,-100px);   /* offscreen until first move */
+    filter:drop-shadow(0 0 2px var(--ret-glow));
+    transition:none}
+
+
+  /* ── THE RETICLE'S PALETTE ────────────────────────────────────────────
+     The phone is a faceted solid: a lit top face, a darker right side, a near
+     black screen, a second face and side below the hinge, a base strip and
+     the key strokes. Recolouring it is therefore not "set a fill", it is
+     keeping SIX values in the same lightness relationship while the hue moves,
+     or the solid stops reading as a solid and flattens into a sticker.
+
+     So every palette is written in hsl() from one hue with the ORIGINAL
+     green's saturations and lightnesses held fixed. The facet relationships
+     survive every colour by construction, and a new ground is one line.
+
+     White and black are the two that cannot be a hue, so they drop saturation
+     to zero and move the lightness ramp instead, with the screen INVERTED on
+     the black palette: on a dark reticle the screen has to be the light part
+     or the whole form reads as a silhouette. */
+html{
+    --ret-h:134;
+    --ret-face:hsl(var(--ret-h),94%,56%);
+    --ret-side:hsl(var(--ret-h),70%,25%);
+    --ret-screen:hsl(var(--ret-h),45%,5%);
+    --ret-face2:hsl(var(--ret-h),72%,48%);
+    --ret-strip:hsl(var(--ret-h),76%,18%);
+    --ret-keys:hsl(var(--ret-h),71%,13%);
+    --ret-glow:hsl(var(--ret-h),94%,56%,.28)}
+
+html[data-cursor="green"] {--ret-h:134}
+html[data-cursor="red"]   {--ret-h:349}
+html[data-cursor="orange"]{--ret-h:20}
+
+html[data-cursor="white"]{
+    --ret-face:hsl(0,0%,97%);
+    --ret-side:hsl(0,0%,58%);
+    --ret-screen:hsl(0,0%,14%);
+    --ret-face2:hsl(0,0%,86%);
+    --ret-strip:hsl(0,0%,45%);
+    --ret-keys:hsl(0,0%,32%);
+    --ret-glow:hsl(0,0%,100%,.26)}
+
+html[data-cursor="black"]{
+    --ret-face:hsl(0,0%,20%);
+    --ret-side:hsl(0,0%,9%);
+    --ret-screen:hsl(0,0%,78%);
+    --ret-face2:hsl(0,0%,15%);
+    --ret-strip:hsl(0,0%,7%);
+    --ret-keys:hsl(0,0%,5%);
+    --ret-glow:hsl(0,0%,0%,.30)}
+
+
+  /* Only stand down on genuinely touch-only devices. Embedded webviews (the
+     Hermes preview pane) can report hover:none while still driving a real
+     mouse, which would wrongly restore the native arrow. */
+@media (any-hover:none) and (any-pointer:coarse){
+    html.phone-cursor, html.phone-cursor *{cursor:auto !important} .phone-reticle{display:none}
+}
+
+
+
+  /* Phone-buzz: the reticle's own transform is driven by JS each frame, so
+     the shake lives on an inner <g> wrapper, the two compose instead of
+     fighting. Short, tight, mechanical: a real handset vibrating. */
+.phone-reticle .buzz{transform-box:view-box;transform-origin:50% 50%}
+
+
+.phone-reticle.buzzing .buzz{animation:phone-buzz .42s linear}
+
+
+@keyframes phone-buzz{
+    0%{transform:translate(0,0) rotate(0deg)}
+    8%{transform:translate(-1.7px,1.1px) rotate(-2.4deg)}
+    17%{transform:translate(1.9px,-.9px) rotate(2.1deg)}
+    26%{transform:translate(-2.1px,-1.2px) rotate(-1.8deg)}
+    35%{transform:translate(1.6px,1.4px) rotate(2.4deg)}
+    45%{transform:translate(-1.3px,-1.5px) rotate(-1.5deg)}
+    56%{transform:translate(1.4px,1.1px) rotate(1.4deg)}
+    67%{transform:translate(-1px,.8px) rotate(-1deg)}
+    78%{transform:translate(.7px,-.6px) rotate(.7deg)}
+    89%{transform:translate(-.4px,.3px) rotate(-.35deg)}
+    100%{transform:translate(0,0) rotate(0deg)}
+  }
+
+
+@media (prefers-reduced-motion:reduce){ .phone-reticle.buzzing .buzz{animation:none}
+}
+

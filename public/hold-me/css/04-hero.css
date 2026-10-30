@@ -1,0 +1,172 @@
+/* =======================================================================
+   THE HERO, brick rail, and the mirrored echo.
+   ======================================================================= */
+
+
+.hero{position:relative;width:100%;height:100vh;background:var(--void);overflow:hidden}
+
+  
+
+
+                 
+
+
+                 
+
+
+  /* ── THE TITLE, BLINKING ──────────────────────────────────────────────
+     Black screen, the series name in the page's display face, white, huge.
+
+     CENTRED, WHICH BREAKS THIS PAGE'S OWN CAPTION RULE ON PURPOSE. The glass
+     colophon sat bottom-left on the 80px gutter because an identity lockup is
+     a caption and captions hang left. This is not a caption. A word that
+     switches on, is joined by a second, and goes dark again is a SCREEN EVENT,
+     and centring is what makes it read as the handset's own display rather
+     than as a label on a wall. Left-aligning it would make it look like the
+     old lockup with a bug.
+
+     BOTH LINES AT THE SAME SIZE, which is the Garden exhibition-title
+     template: no hierarchy between the two words, they are one name. */
+  /* --hold-cycle drives every beat in the sequence below */
+    /* the title's type, named once. (Close) reads it too, so the two can never
+     drift apart the way two copied clamp() values silently would. */
+  /* Michroma is still the typeface; it is just drawn with characters now, so
+     the face token names the MONO that does the drawing and the grid geometry
+     is baked into the markup.
+
+     --ascii-size IS A CHARACTER SIZE, NOT A TITLE SIZE, and ONE value now
+     carries all three beats. There is no separate size for (Close): the three
+     are the same type at the same scale, so what differs between them is only
+     how many characters each word is. "(Close)" is 66 columns against "Hold"
+     at 50, so it is simply the longer word, not the bigger one. That is what
+     same-size means on a character grid.
+
+     Width follows from the column count: a word measures cols x 0.65 x this.
+     Changing this value changes every beat together, which is the point. */
+.hero{--hold-cycle:5.4s;
+      /* a hero literal, NOT a room token. The rooms' colours are measured off
+         the artwork and have to stay welded to it; this is the title's own
+         value, so tying it to --g-white would mean a later nudge to either
+         one silently moving the other. */
+    --hold-ink:#ffffff;
+    --ascii-face:'Azeret Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --ascii-size:clamp(5.95px,0.616vw,11.05px)}   /* 0.85x: -15% on every term, so the words shrink by 15% at every width */
+
+
+  /* THE THREE BEATS SIT ON A DIAGONAL: Hold top left, Me bottom right,
+     (Close) dead centre. The h1 is only the frame; each beat places itself,
+     so nothing is in flow and the sequence cannot shift the others when one
+     switches on.
+
+     line-height:1 is load-bearing. The grid was built assuming a row is
+     exactly one em tall and a column 0.65 of one, which is Azeret Mono's real
+     advance (0.65, not the 0.6 most monos use). Any other line-height
+     stretches or squashes the letterforms off Michroma's proportion. */
+.hold{position:absolute;inset:0;margin:0;pointer-events:none;user-select:none}
+
+
+.hold-w,.hold-close{position:absolute;margin:0;
+    font-family:var(--ascii-face);font-weight:400;
+    font-size:var(--ascii-size);line-height:1;letter-spacing:0;
+    white-space:pre;color:var(--hold-ink);
+    pointer-events:none;user-select:none}
+
+
+.hold-1{left:var(--gutter);top:calc(60px + var(--gutter))}   /* clears the nav */
+.hold-2{right:var(--gutter);bottom:var(--gutter)}
+
+
+  /* ── THE SEQUENCE CROSS-FADES, AND IT HAS ROOM TO ─────────────────────
+     This ran on `step-end`, which means every one of the six beats arrived
+     and left as an instantaneous opacity cut, at 800ms a beat. Two faults
+     compounding: the switch was hard, and it was fast enough to read as a
+     strobe rather than as a sequence. On a gallery page a title should be
+     set down, not flashed.
+
+     THE TEMPO. 800ms a beat with hard cuts was a strobe; 10.8s with 0.45s
+     ramps was the overcorrection, slow enough to feel like a slideshow
+     dissolving. 7.2s is 1.2s a beat: 0.2s rising, 0.8s standing still, 0.2s
+     leaving. The ramp is short enough to read as a switch rather than as a
+     fade, and the held middle is now two thirds of the beat, which is the
+     part that makes it a sequence instead of a transition.
+
+     EACH BEAT STILL HAS THE STAGE TO ITSELF. The ramps are adjacent rather
+     than overlapped, so the outgoing beat reaches zero exactly as the next
+     one leaves it. That keeps the blink the piece is built on, and it avoids
+     the one ugly case an overlap would create: (Close) and the artwork are
+     both dead centre, and dissolving one through the other would print text
+     across the picture.
+
+     The curve is --ease-mech, the page's existing symmetric A-to-B curve. No
+     new easing is invented here; the motion tokens file is explicit that the
+     page gets three curves and this is the one for a move along a track. */
+@keyframes hold-1    {0%{opacity:0}       1.6667%{opacity:1}
+                      15%{opacity:1}      16.6667%{opacity:0}
+                      100%{opacity:0}}
+
+@keyframes hold-2    {0%{opacity:0}       33.3334%{opacity:0}
+                      35%{opacity:1}      48.3333%{opacity:1}
+                      50%{opacity:0}      100%{opacity:0}}
+
+@keyframes hold-close{0%{opacity:0}       66.6667%{opacity:0}
+                      68.3334%{opacity:1} 81.6666%{opacity:1}
+                      83.3334%{opacity:0} 100%{opacity:0}}
+
+@keyframes hold-art  {0%{opacity:0}
+                      16.6667%{opacity:0} 18.3334%{opacity:1}
+                      31.6666%{opacity:1} 33.3334%{opacity:0}
+                      50%{opacity:0}      51.6667%{opacity:1}
+                      64.9999%{opacity:1} 66.6667%{opacity:0}
+                      83.3334%{opacity:0} 85.0001%{opacity:1}
+                      98.3333%{opacity:1} 100%{opacity:0}}
+
+.hold-w,.hold-art,.hold-close{
+    animation-duration:var(--hold-cycle);
+    animation-iteration-count:infinite;
+    animation-timing-function:var(--ease-mech);
+      /* the ASCII beats are large runs of live text and the artwork is a
+         full-height image; promoting them means each ramp composites an
+         existing layer instead of repainting type every frame, which is the
+         difference between a smooth fade and a fade that stutters on the
+         first cycle. */
+    will-change:opacity}
+
+.hold-1{animation-name:hold-1}
+
+.hold-2{animation-name:hold-2}
+
+
+  /* centred on the hero, sized by HEIGHT so the viewport's vertical budget is
+     what governs it, with a vw cap so a short wide window cannot push it past
+     the sides. Opacity 0 at rest: the sequence turns it on. */
+.hold-art{position:absolute;left:50%;top:50%;
+    transform:translate(-50%,-50%);
+    height:62vh;width:auto;max-width:78vw;
+    opacity:0;animation-name:hold-art;
+    pointer-events:none;user-select:none;-webkit-user-drag:none}
+
+
+  /* ── (Close) ──────────────────────────────────────────────────────────
+     SAME FACE AS THE TITLE, ONE STEP DOWN IN SIZE. Both sizes are tokens on
+     .hero and both are clamps with the same shape, so they scale together and
+     hold their ratio (0.53) at every width instead of drifting apart the way
+     two hand-tuned values would. It is still the third word of the sequence
+     rather than a UI label, just spoken a little quieter.
+
+     IT STAYS IN THE CORNER. Hold and Me are centred because they are the
+     name; this one is pinned bottom-right on the page gutter because that is
+     where a handset prints its right soft key. Same type, different station ,
+     the contrast is positional now instead of typographic.
+
+     right/bottom on --gutter so it lines up with the nav above it. At this
+     size the word is wide, so it is allowed to set its own line and is
+     anchored from the right edge: it grows leftward into the hero's empty
+     centre, which is dark on its beat anyway. */
+.hold-close{left:50%;top:50%;transform:translate(-50%,-50%);
+    opacity:0;animation-name:hold-close}
+
+
+  /* reduced motion: the sequence RUNS (Ivan, 2026-10-27). Nothing in it
+     travels, scales or flashes: each beat fades in place, one change every
+     1.8s, which is not the movement Reduce Motion guards against. Stopped,
+     the page opened on a still frame that read as broken. */

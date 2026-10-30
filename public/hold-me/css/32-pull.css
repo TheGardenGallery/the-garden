@@ -1,0 +1,24 @@
+/* =======================================================================
+   THE PULL QUOTES, three of his sentences, a full screen each.
+   ======================================================================= */
+  /* Michroma, the page's Eurostile: the display face of the handsets' own
+     branding, so his words are set in the type of the objects he draws. One
+     weight (400), so the quote is lifted by SIZE alone. The block is centred
+     on the page and set flush left inside it, its lines balanced, at a
+     measure of about twenty characters (Michroma is extended, so its lines
+     run short in characters and long in width). The attribution is the
+     page's label voice: the small, tracked, capitalised mono of the process
+     room's tags. Ink follows the room, like the loupe's hairline. */
+.band-quote{display:grid;place-items:center;
+    /* no longer a full screen (Ivan: too much emphasis): the room's own
+       rhythm above and below, a little less than a room's */
+    padding:calc(var(--rhythm) * .8) var(--gutter);background:#000;--ink:#f5f3ef}
+.band-quote[data-ground="red"]{--ink:#170006}
+.pull{position:relative;z-index:2;margin:0;width:min(100%, 15.5em);
+    font-family:'Michroma',sans-serif;font-size:clamp(26px,3.1vw,56px);color:var(--ink)}
+.pull blockquote{margin:0}
+.band .pull p{font:inherit;font-weight:400;line-height:1.32;letter-spacing:-.012em;
+    max-width:none;margin:0;text-wrap:balance;hyphens:none}
+.pull figcaption{font-family:'Azeret Mono',ui-monospace,monospace;font-weight:400;
+    font-size:clamp(10px,.7vw,12px);letter-spacing:.14em;text-transform:uppercase;
+    margin-top:clamp(28px,3.2vw,52px);opacity:.6}

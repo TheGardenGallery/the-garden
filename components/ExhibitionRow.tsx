@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { TransitionLink } from "./TransitionLink";
 import type { CSSProperties } from "react";
+import { exhibitionHref } from "@/lib/exhibition-href";
 import type { Exhibition } from "@/lib/types";
 import { AllowlistMintBeat } from "./AllowlistMintBeat";
 import { SL_ALLOWLIST_OPEN_FALLBACK } from "@/lib/split-logic-mint";
@@ -11,7 +12,7 @@ type ExhibitionRowProps = {
 };
 
 export function ExhibitionRow({ exhibition, variant = "card" }: ExhibitionRowProps) {
-  const href = `/exhibitions/${exhibition.slug}`;
+  const href = exhibitionHref(exhibition);
   const video = exhibition.cardVideo ?? exhibition.heroVideo;
   const image =
     exhibition.cardImage ??

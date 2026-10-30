@@ -1,0 +1,255 @@
+{
+ "assets/works/t/t-png7.webp": {
+  "tiles": "png7",
+  "w": 10224,
+  "h": 12624,
+  "box": [
+   0,
+   0,
+   10224,
+   12624
+  ]
+ },
+ "assets/works/e-osnd.jpg": {
+  "tiles": "loupe-e-osnd",
+  "w": 3192,
+  "h": 3661,
+  "box": [
+   0,
+   0,
+   3192,
+   3661
+  ]
+ },
+ "assets/works/e-sonyny.webp": {
+  "tiles": "loupe-e-sonyny",
+  "w": 3192,
+  "h": 3661,
+  "box": [
+   0,
+   0,
+   3192,
+   3661
+  ]
+ },
+ "assets/works/e-mosh.jpg": {
+  "tiles": "loupe-e-mosh",
+  "w": 3056,
+  "h": 3666,
+  "box": [
+   0,
+   0,
+   3056,
+   3666
+  ]
+ },
+ "assets/works/i-new20.webp": {
+  "tiles": "loupe-i-new20",
+  "w": 4860,
+  "h": 6000,
+  "box": [
+   0,
+   0,
+   4860,
+   6000
+  ]
+ },
+ "assets/works/f-331.webp": {
+  "tiles": "loupe-f-331",
+  "w": 5001,
+  "h": 6000,
+  "box": [
+   0,
+   0,
+   5001,
+   6000
+  ]
+ },
+ "assets/works/g-hey.webp": {
+  "tiles": "loupe-g-hey",
+  "w": 4852,
+  "h": 5990,
+  "box": [
+   0,
+   0,
+   4852,
+   5990
+  ]
+ },
+ "assets/works/t/singles/t-png40-1.webp": {
+  "tiles": "loupe-t-png40-1",
+  "w": 2112,
+  "h": 5498,
+  "box": [
+   0,
+   0,
+   2112,
+   5498
+  ]
+ },
+ "assets/works/t/singles/t-png40-2.webp": {
+  "tiles": "loupe-t-png40-2",
+  "w": 2968,
+  "h": 5720,
+  "box": [
+   0,
+   0,
+   2968,
+   5720
+  ]
+ },
+ "assets/works/t/singles/t-png40-3.webp": {
+  "tiles": "loupe-t-png40-3",
+  "w": 2204,
+  "h": 5457,
+  "box": [
+   0,
+   0,
+   2204,
+   5457
+  ]
+ },
+ "assets/works/t/singles/t-png40-4.webp": {
+  "tiles": "loupe-t-png40-4",
+  "w": 2630,
+  "h": 5773,
+  "box": [
+   0,
+   0,
+   2630,
+   5773
+  ]
+ },
+ "assets/works/t/singles/t-png40-5.webp": {
+  "tiles": "loupe-t-png40-5",
+  "w": 2752,
+  "h": 5752,
+  "box": [
+   0,
+   0,
+   2752,
+   5752
+  ]
+ },
+ "assets/works/t/singles/t-png40-c6.webp": {
+  "tiles": "loupe-t-png40-c6",
+  "w": 2774,
+  "h": 5898,
+  "box": [
+   0,
+   0,
+   2774,
+   5898
+  ]
+ },
+ "assets/works/t/singles/t-png40-c7.webp": {
+  "tiles": "loupe-t-png40-c7",
+  "w": 2774,
+  "h": 5950,
+  "box": [
+   0,
+   0,
+   2774,
+   5950
+  ]
+ },
+ "assets/works/t/singles/t-png40-6.webp": {
+  "tiles": "loupe-t-png40-6",
+  "w": 2149,
+  "h": 5654,
+  "box": [
+   0,
+   0,
+   2149,
+   5654
+  ]
+ },
+ "assets/works/t/singles/r-png3-4.webp": {
+  "tiles": "loupe-r-png3-4",
+  "w": 640,
+  "h": 2210,
+  "box": [
+   0,
+   0,
+   640,
+   2210
+  ]
+ },
+ "assets/works/t/singles/r-png10-1.webp": {
+  "tiles": "loupe-r-png10-1",
+  "w": 2688,
+  "h": 5275,
+  "box": [
+   0,
+   0,
+   2688,
+   5275
+  ]
+ },
+ "assets/works/t/singles/r-png3-1.webp": {
+  "tiles": "loupe-r-png3-1",
+  "w": 636,
+  "h": 2200,
+  "box": [
+   0,
+   0,
+   636,
+   2200
+  ]
+ },
+ "assets/works/t/singles/r-png10-3.webp": {
+  "tiles": "loupe-r-png10-3",
+  "w": 2771,
+  "h": 5159,
+  "box": [
+   0,
+   0,
+   2771,
+   5159
+  ]
+ },
+ "assets/works/t/singles/r-png3-6.webp": {
+  "tiles": "loupe-r-png3-6",
+  "w": 654,
+  "h": 2207,
+  "box": [
+   0,
+   0,
+   654,
+   2207
+  ]
+ },
+ "assets/works/t/singles/r-png10-4.webp": {
+  "tiles": "loupe-r-png10-4",
+  "w": 2713,
+  "h": 5140,
+  "box": [
+   0,
+   0,
+   2713,
+   5140
+  ]
+ },
+ "assets/works/t/singles/r-png3-3.webp": {
+  "tiles": "loupe-r-png3-3",
+  "w": 840,
+  "h": 2216,
+  "box": [
+   0,
+   0,
+   840,
+   2216
+  ]
+ },
+ "assets/works/t/singles/r-png10-6.webp": {
+  "tiles": "loupe-r-png10-6",
+  "w": 2614,
+  "h": 5205,
+  "box": [
+   0,
+   0,
+   2614,
+   5205
+  ]
+ }
+}

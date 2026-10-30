@@ -1,0 +1,235 @@
+/* =======================================================================
+   THE LIGHTBOX, port of Split Logic's expanded viewer.
+   ======================================================================= */
+
+
+
+  /* ============ LIGHTBOX ============
+     A faithful port of the Split Logic (Ricky) expanded viewer:
+     components/ExpandedArtwork.tsx + the .piece-grid-overlay block in
+     app/globals.css. Same numbers, same gestures, same backdrop recipe, so
+     opening a work here feels identical to opening one on the live site.
+
+     Every artwork on the page opens it EXCEPT the hero bricks, which are
+     their own draggable object and whose tap-to-flip belongs to the hero. */
+.lb{position:fixed;inset:0;z-index:600;background:#000;
+    display:flex;align-items:center;justify-content:center;
+    padding:48px;cursor:zoom-out;border:0;overflow:hidden;
+    /* JS owns all touch here. Without this the browser tries to scroll or
+       pinch-zoom on a swipe, which fights the gesture detection and reads
+       as lag. */
+    touch-action:none;
+    opacity:0;transition:opacity var(--t1) ease-out}
+
+
+.lb.open{opacity:1}
+
+
+.lb[hidden]{display:none}
+
+
+  /* ── THE ROOM IS THE WORK'S OWN GROUND ────────────────────────────────
+     The backdrop was a heavily blurred, scaled copy of the open work. That
+     builds the room out of the ENTIRE piece, so the light behind a work was
+     an average of everything in it: every drawing, whatever its ground,
+     resolved to the same muddy brown-grey pool, and two works from the same
+     room lit the viewer differently for no reason a viewer could name.
+
+     It is now a FLAT FIELD OF THE WORK'S OWN GROUND COLOUR, sampled off the
+     file itself at open (see groundOf() in 15-lightbox.js). Every work on
+     this page is drawn on one measured flat ground, and that ground is
+     already the thing the page is built from: the bands wear it, the nav
+     takes it, the plates dissolve into it. Opening a work now puts it in a
+     room painted its own colour, which is what the whole page has been doing
+     from the top, rather than in a blur of itself.
+
+     NO blur, no scale, no copy of the picture: there is nothing to blur any
+     more, so two 57px passes, the saturate/contrast correction they needed,
+     and a full-size background-image decode all go with it.
+
+     The colour CROSS-FADES on navigation, so arrowing through the works
+     re-lights the room each time instead of cutting. */
+.lb-bg{position:absolute;inset:0;z-index:0;pointer-events:none;
+    background-color:var(--lb-ground,#000);
+    transition:background-color var(--t4) var(--ease),opacity var(--t5) var(--ease)}
+
+
+  /* ── THE LIGHT ON TOP OF IT ───────────────────────────────────────────
+     THE ROOM IS THE WORK'S GROUND, AT FULL STRENGTH. The veil that used to
+     darken it is gone, and so is the lift that replaced it on the void
+     works. Both were solving the same problem the wrong way round: they
+     tried to separate the work from its room by changing the room's colour,
+     which is exactly what the exhibition page refuses to do.
+
+     So the backdrop is now the measured ground, undarkened. The work
+     dissolves into it with no edge at the canvas, the way a plate dissolves
+     into its band upstairs, and the piece reads as large as it actually is.
+
+     WHAT TELLS YOU IT IS A ROOM IS THE FIELD MOVING IN IT. The same Gabor
+     wavelets that light the page run here, slowly, and lean toward the
+     cursor: the ground breathes, so the viewer is unmistakably open, and
+     nothing has been drawn around the artwork to say so. On the void works
+     that movement is the only thing in the frame besides the piece, which is
+     precisely how a dark room reads. */
+.lb-field{position:absolute;inset:0;z-index:0;pointer-events:none;
+    mix-blend-mode:soft-light;opacity:.55}
+
+
+.lb-field canvas{width:100%;height:100%;display:block}
+
+
+  /* THE GRAIN IS GONE WITH THE BLUR. It existed to break up banding in a
+     heavily blurred 8-bit copy of the artwork. There is no blurred copy any
+     more, and the field that replaced it dithers below the quantiser in the
+     shader itself, which is the correct place to do it. A noise texture laid
+     over a flat measured ground would only be one more artifact. */
+
+
+  /* the plate. Capped at 720px or 70vmin so the work reads as a centred
+     object with air around it, never edge to edge. NO shadow or radius: at
+     zoom the artwork scales past this frame and any styling on it would
+     show as a ghost box behind the work. The frame is a layout anchor
+     only.
+
+     THE OPEN, after transitions.dev's "image open tilt": the work does not
+     simply fade up, it arrives THROUGH a shallow 3D tilt, coming forward
+     out of the plane and settling flat. On a gallery page this is the
+     difference between a modal appearing and a work being brought out and
+     turned to face you.
+
+     Deliberately restrained: 7 degrees, -60px of Z, and it resolves in one
+     move with no overshoot. The reference does a bigger, springier version
+     that is right for a product UI and would be undignified here.
+
+     The tilt lives on .lb-plate while .lb-zoom (the child) carries the
+     user's own zoom and pan, so the entrance and the interaction can never
+     fight over one transform. That separation is the same reason Ricky's
+     component splits the container from the zoomable inner div. */
+  /* SIZED AGAINST BOTH AXES, which it was not. The width was min(720px,70vmin)
+     and the height was DERIVED from the ratio, so a portrait work simply grew
+     downwards: at 0.81 a 662px plate is 817px tall, and on any window shorter
+     than that the bottom of the artwork was off screen. A viewer that crops
+     the work is worse than no viewer.
+
+     The third term is the fix: `82vh * ratio` is the width at which the height
+     comes out to exactly 82vh, so taking the smallest of the three guarantees
+     the whole work is on screen whatever its proportions. 82 rather than 100
+     leaves the arrows and the backdrop room to read as a room. */
+.lb-plate{position:relative;z-index:1;
+    width:min(760px, 72vw, calc(82vh * var(--lb-ar,1)));
+    aspect-ratio:var(--lb-aspect,1);overflow:visible;
+    transform-origin:50% 55%;
+    transform:perspective(1400px) rotateX(7deg) translateZ(-60px) scale(.965);
+    opacity:0;
+    transition:transform var(--t5) var(--ease-far),
+               opacity var(--t4) var(--ease);
+    will-change:transform,opacity}
+
+
+.lb.open .lb-plate{
+    transform:perspective(1400px) rotateX(0deg) translateZ(0) scale(1);
+    opacity:1}
+
+
+  /* ── NO MOUNT, NO HALO ───────────────────────────────────────────────
+     A band of the work's ground was faded out around the plate so the work
+     could breathe instead of ending at a hard rectangle. The intent was
+     right and the instrument was wrong: a soft gradient at the canvas edge
+     reads as a blur on the artwork, which is the one thing a viewer must
+     never do to a work. It is gone.
+
+     The breathing comes from the ROOM instead. The backdrop is now the
+     work's exact measured ground at full strength, undarkened, so there is
+     no edge at the canvas at all: the work dissolves into its room exactly
+     as its plate dissolves into its band upstairs, which is the behaviour
+     that made it read larger in the first place. Nothing is drawn around the
+     work, so nothing can look drawn around the work.
+
+     What tells you the room is a room is the FIELD moving in it, not a
+     vignette. See .lb-bg. */
+
+
+  /* the backdrop resolves a beat behind the work, so the room settles after
+     the object rather than with it.
+
+     THIS DECLARES BOTH TRANSITIONS, not just opacity. `transition` is a
+     shorthand: restating it here with one property silently dropped the
+     background-color cross-fade declared above, so navigating between works
+     cut hard from ground to ground instead of re-lighting. */
+.lb-bg{transition:background-color var(--t4) var(--ease),
+                  opacity var(--t5) var(--ease)}
+
+
+@media (prefers-reduced-motion:reduce){
+    .lb-plate{transform:none;opacity:1;transition:none}
+    .lb.open .lb-plate{transform:none}
+}
+
+
+  /* NO will-change here. With it, Chrome rasterises the image once at its
+     opening size and only stretches that bitmap when the viewer zooms, so a
+     4800px master looked like a blown-up screenshot at 6x. Without it the
+     browser re-renders the picture at each zoom level from the full file. */
+.lb-zoom{width:100%;height:100%;display:block}
+
+
+.lb-zoom img{width:100%;height:100%;display:block;object-fit:contain;
+    user-select:none;-webkit-user-drag:none}
+
+
+  /* prev / next, the site's house arrows: same opacity ramp and 3px travel
+     as the homepage hero. */
+.lb-nav{position:absolute;top:50%;z-index:2;
+    background:transparent;border:0;padding:18px;cursor:pointer;
+    color:#f5f3ef;opacity:.32;
+    transition:opacity var(--t3) var(--ease),
+               transform var(--t3) var(--ease)}
+
+
+.lb-nav svg{display:block;width:18px;height:18px}
+
+
+.lb-prev{left:32px;transform:translateY(-50%)}
+
+
+.lb-next{right:32px;transform:translateY(-50%)}
+
+
+@media (hover:hover){
+    .lb-prev:hover{opacity:1;transform:translate(-3px,-50%)}
+    .lb-next:hover{opacity:1;transform:translate(3px,-50%)}
+}
+
+
+@media (hover:none){ .lb-nav{opacity:.5}
+}
+
+
+.lb-nav:focus-visible{outline:1px solid rgba(245,243,239,.55);outline-offset:4px}
+
+
+@media(max-width:900px){
+    .lb{padding:20px}
+    .lb-plate{width:min(760px, 88vw, calc(74vh * var(--lb-ar,1)))}
+    .lb-prev{left:-12px} .lb-next{right:-12px}
+}
+
+
+@media (prefers-reduced-motion:reduce){ .lb{transition:none}
+}
+
+
+
+
+  /* the deep-zoom tiles: laid over the picture in percentages of it, so they
+     scale and pan with .lb-zoom. Clipped to the picture; each fades in as it
+     arrives, so the view sharpens rather than snapping. */
+.lb-zoom{position:relative}
+.lb-tiles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.lb-tile{position:absolute;display:block;max-width:none;opacity:0;
+    transition:opacity .35s cubic-bezier(.22,1,.36,1)}
+.lb-tile.in{opacity:1}
+
+  /* past the work's native resolution its own pixels are enlarged as hard
+     squares, never smoothed into detail he did not draw (js/15-lightbox.js) */
+.lb-zoom.past-native img,.lb-zoom.past-native .lb-tile{image-rendering:pixelated}

@@ -1,0 +1,107 @@
+/* =======================================================================
+   THE KEYPAD FIELD, a handset lattice under every room.
+   ======================================================================= */
+
+
+  /* ── THE REFERENCE, MEASURED ─────────────────────────────────────────
+     Ricky's Split Logic page was read off the live site rather than
+     remembered: a 40px square lattice of 3-4px dots at about rgb(4) on
+     black, roughly 2% luminance. Two things about it matter more than the
+     numbers.
+
+     First, it is not a pair of rails. It is ONE full-bleed field behind
+     everything on the page, and the left-and-right rails you notice are
+     emergent: the lattice is only perceptible where the page happens to be
+     empty, which on his layout is the two outer margins. Authoring it as
+     two gutter strips instead produces something that looks similar in a
+     screenshot and behaves nothing like it.
+
+     This page proved that the hard way. Built as gutter strips, the rail
+     vanished in the void room, because the spine artwork runs out to x=18
+     and there is no empty margin there to stand in. Built as a field, that
+     case needs no handling at all: the work covers the lattice, exactly as
+     it should.
+
+     Second, a square dot grid is the grammar of a DIGITAL INTERFACE, which
+     is the right grammar for his work and the wrong one for this show. Hold
+     Me is about handsets, so the tile here is a KEYPAD: three columns, four
+     rows, keys wider than tall, with the wider gap after the block that
+     every phone in this exhibition has between its keypad and its soft keys.
+     Same whisper, same job, but the geometry belongs to the subject rather
+     than to a drawing program.
+
+     ── WHAT THIS PAGE NEEDS THAT HIS DOES NOT ──────────────────────────
+     His page is black from top to bottom, so a single ink serves it. This
+     one changes room every band, so one field would be invisible in half of
+     them. The field is therefore drawn PER BAND in that room's measured ink,
+     the same values the header uses. Stacked, the bands read as one
+     continuous lattice running the height of the page that changes value as
+     the rooms change, which his page has no occasion to do. */
+  /* ── A PLANE, NOT A PAIR OF RAILS ────────────────────────────────────
+     This was pinned to the gutter, exactly --gutter wide on each side, and
+     that is the wrong behaviour even though it looks identical in a wide
+     screenshot. A gutter-width rail is always equally present: squeeze the
+     window and it is still there at full strength, which reads as a device
+     bolted to the sides of the page.
+
+     The reference behaves the other way round. It is one plane at a fixed
+     density across the whole page, and the content simply covers more of it
+     as the window narrows, so the lattice RECEDES as you squeeze and OPENS
+     UP as you widen. Nobody authored that; it falls out of being a
+     background rather than a border.
+
+     So the field spans the whole room again. The tile is still exactly one
+     gutter wide, which keeps the columns on the page module and puts three
+     clean ones in the left gutter, but nothing is reserved for it: it is
+     seen wherever the room happens to be empty, and nowhere else. */
+.keyfield{position:absolute;inset:0;
+    pointer-events:none;
+    z-index:0;
+    color:var(--rail-ink,#f5f3ef);
+    opacity:var(--rail-op,.1);
+    overflow:hidden}
+
+
+.keyfield svg{display:block;width:100%;height:100%}
+
+
+  /* ── THE STRIP FADES IN FROM ITS INNER EDGE ──────────────────────────
+     A strip that stops dead at its inner edge draws a vertical line out of
+     dots. The last 48px toward the centre fade to nothing, so the lattice
+     thins out of the margin rather than ending at a ruled boundary.
+     --kf-l / --kf-r are the strip widths set by js/21-keyrail.js. */
+.keyfield{
+    -webkit-mask-image:linear-gradient(90deg,
+        #000 0, #000 max(0px, calc(var(--kf-l,0px) - 48px)), transparent var(--kf-l,0px),
+        transparent calc(100% - var(--kf-r,0px)),
+        #000 min(100%, calc(100% - var(--kf-r,0px) + 48px)), #000 100%);
+            mask-image:linear-gradient(90deg,
+        #000 0, #000 max(0px, calc(var(--kf-l,0px) - 48px)), transparent var(--kf-l,0px),
+        transparent calc(100% - var(--kf-r,0px)),
+        #000 min(100%, calc(100% - var(--kf-r,0px) + 48px)), #000 100%)}
+
+
+  /* ── THE ROOM MUST NOT CLIP ITSELF ───────────────────────────────────
+     This was `.band,.hero{overflow:hidden}`, added so a room could not let
+     its lattice escape onto its neighbour. It also silently killed every
+     position:sticky on the page, because sticky does not work inside an
+     ancestor with overflow:hidden.
+
+     The damage was not subtle and it was not local. Measured afterwards:
+     .e-sticky's top read -279, -1079, -1679 as the page scrolled, where a
+     pinned stage must hold at +60. The entire rotation room scrolled past
+     as one tall strip, so the four works went by in a single pass instead
+     of cycling, and the rest of the room was empty orange. The same applied
+     to the spine's sticky stage.
+
+     It was never needed. .keyfield is absolutely positioned at inset:0 with
+     its own overflow:hidden, so it already clips its lattice to the room's
+     box. The band needs no clipping of its own. */
+
+
+@media(max-width:600px){
+    /* By now the content has covered nearly all of it anyway - that is the
+       point of a plane. This only stops the last slivers sitting directly
+       under type at reading size. */
+    .keyfield{display:none}
+}

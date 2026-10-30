@@ -1,0 +1,85 @@
+/* =======================================================================
+   THE AURA, a cursor-modulated Gabor field laid over the whole page.
+   ======================================================================= */
+
+
+  /* ── THE REFERENCE, AND WHAT WAS ACTUALLY TAKEN FROM IT ───────────────
+     pixlpa, "Gabor FM Gradient Study 1" (hicetnunc 32293). A Gabor wavelet
+     is a sine wave multiplied by a Gaussian envelope; the piece sums a
+     handful of them and runs a MODULATOR pass that varies each wavelet's
+     frequency by spatial lookup, so the bands wander instead of marching.
+
+     Measured off the file rather than described from memory: its structure is
+     DUAL-FREQUENCY. Everything is either very low frequency, soft colour
+     fields with no edge shorter than about 60px of ramp, or very high
+     frequency, a hard 4-6px line screen carrying only 8-15 levels of
+     amplitude. The mid band is empty, and that emptiness is the look. Both
+     halves are reproduced here: the canvas carries the wavelets, the rule
+     below carries the screen.
+
+     ── WHY IT IS OVER THE PAGE AND NOT BEHIND IT ────────────────────────
+     This is the one decision that matters. Every band on this page wears the
+     measured ground of the works standing in it, exactly, so a plate has no
+     visible edge: that is the page's whole construction, and the tokens file
+     records moving --g-orange two units rather than re-seat an artist's file,
+     because at a flat seam 2/255 reads.
+
+     A reactive gradient painted BEHIND the content would modulate the room
+     while the artwork, a flat JPEG of that same ground, stayed fixed. Every
+     work on the page would acquire a visible rectangle the moment the cursor
+     moved. Laid OVER everything, the field crosses the plate boundary with
+     the same value on both sides, so the seam stays invisible and the works
+     stay dissolved in their rooms. The reference does the same thing: its
+     screen is an overlay, not an underlay.
+
+     It is therefore LIGHT, not background. Which is also why it is
+     achromatic: soft-light preserves the hue underneath it, so the red room
+     lights red and the green room lights green without this layer
+     introducing a single colour of its own. The artwork keeps supplying all
+     the colour on the page. */
+  /* ── IT LIGHTS THE ROOMS, IT DOES NOT SIT ON THE WORK ────────────────
+     z-index 1 puts the field above each band's ground and BELOW every work
+     and every line of type, which are lifted to 2 by css/18-atmosphere.css.
+     It was 3, over the whole page: light laid on top of an artwork is a
+     filter on the artwork, and this page's only colour is meant to come from
+     the work itself.
+
+     soft-light keeps that true even here. It preserves the hue underneath
+     and moves only luminance, so the red room lights red and the green room
+     lights green, and this layer introduces no colour of its own anywhere. */
+.aura{position:fixed;inset:0;z-index:1;pointer-events:none;
+    mix-blend-mode:soft-light;
+    opacity:0;transition:opacity 1.2s var(--ease);
+    contain:strict}
+
+
+.aura.live{opacity:.62}
+
+
+  /* full device resolution, evaluated per pixel in a shader. There is no
+     upscale here and nothing to interpolate, which is the whole point: see
+     js/18-aura.js for why the first canvas build read as low-resolution
+     grading. */
+.aura canvas{width:100%;height:100%;display:block}
+
+
+  /* ── NO LINE SCREEN ──────────────────────────────────────────────────
+     The reference carries a hard 4-6px diagonal screen at 8-15 levels, and
+     it was reproduced here as a repeating gradient masked to a pool that
+     followed the cursor. It is removed.
+
+     It was the one piece of STRUCTURE in a layer whose whole job is to have
+     none. A crisp repeating pattern laid over flat rooms of measured colour
+     is a texture on the page, and at any amplitude you can see it reads as
+     an overlay rather than as light. The reference can carry it because the
+     screen is part of a picture; here the picture is Movsum's, and the only
+     structure on this page should be his.
+
+     What is kept from the reference is the part that matters: the wavelets,
+     the frequency modulation, and the dithered ramp. */
+
+
+@media (prefers-reduced-motion:reduce){
+    .aura{transition:none}
+    /* the field is drawn once and left still: see js/18-aura.js */
+}

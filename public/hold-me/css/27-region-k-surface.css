@@ -1,0 +1,36 @@
+/* =======================================================================
+   K · THE SURFACE, the page closes on one fragment, and the rest of the
+   drawing is behind it.
+   ======================================================================= */
+
+
+  /* One screen exactly, no gutter, no caption. The surface opens on one
+     framing of png9 and can be dragged anywhere across the whole drawing at
+     that same native scale (js/23-surface-pan.js). Lifted to z 2 like every
+     room's content, so the aura and the atmosphere stay behind it.
+
+     touch-action pan-y: on a phone a vertical swipe still scrolls the page
+     and only a sideways swipe moves the drawing. */
+.band-surface{height:100svh;min-height:520px;background:#000}
+
+.surface-pan{position:absolute;inset:0;z-index:2;overflow:hidden;
+    cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.surface-pan.dragging{cursor:grabbing}
+
+.surface-layer{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+
+.surface-layer img{position:absolute;display:block;max-width:none;
+    pointer-events:none;-webkit-user-drag:none}
+
+  /* tiles fade in as they arrive, so the half-resolution layer underneath
+     sharpens into the full one rather than snapping */
+.surface-layer .tile{opacity:0;transition:opacity .45s var(--ease)}
+.surface-layer .tile.in{opacity:1}
+
+
+  /* ── THE CURTAIN (js/27-curtain.js) ──────────────────────────────────
+     The room before an interlude pins its last screen; the interlude, a
+     stacking context above it, slides over. The interlude is opaque black
+     with its drawing, so nothing of the room shows through as it passes. */
+.curtain-under{position:sticky}
+.curtain-over{position:relative;z-index:3}

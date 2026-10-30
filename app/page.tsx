@@ -56,12 +56,12 @@ export default async function HomePage() {
   const exhibitions = await fetchExhibitions();
   const journal = await fetchJournalEntries();
 
-  // Homepage hero locked to Ricky Retouch / Split Logic — single
+  // Homepage hero locked to Movsum Alasgarov / Hold Me — single
   // featured exhibition, no rotation, no prev/next arrows. The Hero
   // component handles a single slide gracefully (auto-rotation
   // suppressed when slides.length < 2; nav buttons gated on > 1).
   const heroExhibitions = [
-    exhibitions.find((e) => e.slug === "split-logic"),
+    exhibitions.find((e) => e.slug === "hold-me"),
   ].filter(
     (e): e is NonNullable<typeof e> =>
       Boolean(e && (e.hero || e.homepageHeroVideo))

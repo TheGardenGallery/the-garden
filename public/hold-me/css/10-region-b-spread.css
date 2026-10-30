@@ -1,0 +1,756 @@
+/* =======================================================================
+   B · THE SPREAD, red.
+   ======================================================================= */
+
+
+.band-red{background:var(--g-red);color:#000000;
+    /* NO -webkit-font-smoothing here. On macOS `antialiased` makes type
+       LIGHTER, not heavier, it is the trick for white-on-dark, and applying
+       it to black-on-red would thin exactly the strokes we are trying to
+       thicken. The default (subpixel) rendering is the heavier one, so the
+       right move is to leave it alone and carry the weight in the font. */
+    text-rendering:optimizeLegibility}
+
+
+  /* ── B · THE SPREAD ───────────────────────────────────────────────────
+     Red, and the sparsest kind of spread: two works at ONE QUARTER of the
+     column each, set on the diagonal with a lot of air around them, and a
+     text block opposite each. Measured off Ivan's reference: work 1 upper
+     right at 25% of the band width, work 2 lower left at 25%, each row about
+     40% of the band height, text 1 upper left, text 2 lower right.
+
+     The works' own grounds are the SAME red as the band (#e8454a vs the
+     band's #eb443a, ~5/255 apart, unified), so each work dissolves into the
+     ground and only the handset reads. That is the whole effect of the
+     region: no visible plate edges anywhere, just objects floating in red. */
+  /* THE WHOLE REGION FITS ONE SCREEN, and the four elements sit where Ivan's
+     reference puts them. That frame gave four independent percentages per
+     element, and several of them landed within half a per cent of each other
+     (t1 15.3 against a2 13.3 on the left, a1 55.7 against t2 56.2 on the
+     right). Half a per cent is an assembly accident, not an intention, so
+     they are unified here into ONE system of four axes:
+
+       axis L   (14%)  left edge of text 1 and of artwork 2
+       axis R   (56%)  left edge of artwork 1 and of text 2
+       right    (86%)  right edge of artwork 1 and of text 2, mirroring axis L
+       vertical  (9%)  artwork 1's top and artwork 2's bottom, mirrored
+
+     Nothing sits on the 80px page gutter: the whole composition is inset by
+     14% and floats in the red with generous margin either side. That inset,
+     not the gutter, is what makes four objects read as a composed spread.
+
+     WHY EACH OBJECT IS ANCHORED TO ITS NEAREST EDGE: a work has to keep its
+     true proportion, so its height is derived from its width by aspect-ratio
+     and cannot ALSO be a fixed percentage of the band's height. Anchoring
+     artwork 1 from the top and artwork 2 from the bottom makes both outer
+     margins exactly equal at every window height, with the slack absorbed in
+     the middle where the two works already overlap. Previously both were
+     percentage boxes, so the cell's ratio drifted with the window's aspect
+     and the spacing drifted with it. No JS, one source of truth. */
+.band-red{min-height:100vh;box-sizing:border-box;padding:0;
+    position:relative;overflow:hidden}
+
+
+  /* THE TAIL OF RED BELOW THE SPREAD'S LAST LINE, published as a token
+     because the next band has to know it. The two red sections are one
+     continuous room now, so the gap the eye reads above the four handsets is
+     this tail PLUS that band's own top padding. Keeping the number here and
+     copying it there is how the two drift apart; .bleed-one reads this.
+
+     --vin is 5% of the band and the band is exactly 100vh (min-height, and
+     every child is absolutely positioned), so 5vh is the same measurement
+     expressed in a unit a different section can also use. */
+  /* THE COMPOSITION'S VERTICAL FRAME, in one unit so the two ends can be
+     equal. --vin was 5% of the band and --spread-tail was calc(5vh + 30px):
+     different units measuring the same thing from opposite ends, which is why
+     at 1728x998 the top air measured 49px against the bottom's 104px. Both
+     now resolve from --vin, so they are equal by construction at every
+     window instead of by coincidence at one. */
+html{--vin:5vh;--spread-tail:var(--vin)}
+
+
+  /* INSET BELOW THE NAV, not from the band's top. The bar is fixed, opaque
+     and 60px tall, so the first 60px of a 100vh band is simply not visible
+     space. Measured: artwork 1's ink began at y49 and 11px of it lived behind
+     the bar. Anchoring the whole composition at --nav-h means every inset
+     inside it is measured against the area a viewer can actually see. */
+.spread{position:absolute;inset:var(--nav-h) 0 0 0;
+      /* THE PAGE AXIS. This was 10%, a second vertical line competing with the
+         80px the nav, the hero and every .band already sit on. One page, one
+         axis: the compositions come OUT to the gutter rather than the nav
+         coming in, which is both the Hufkens value (their gutter is 80px) and
+         the direction that makes the artwork larger instead of smaller. */
+    --ax-l:var(--gutter);  /* left axis, and the mirrored right margin */
+      /* THE COLUMN, AS A SHARE, SO BOTH ROWS CAN STATE IT. A percentage in
+         CSS re-resolves against whatever element reads it, and row 2 is inset
+         by the gutters while row 1 is not: the same `36%` therefore meant 622px
+         in one row and 565px in the other, which is why the two text columns
+         were written as 36% and 45% and still did not match (measured 622.1
+         against 705.6). The SHARE is the single source of truth and each
+         consumer reconstructs the page width it needs. */
+    --col-share:.36;
+    --col:calc(var(--col-share) * 100%);    /* row 1 reads this directly */
+    --ax-r:calc(100% - var(--ax-l) - var(--col));   /* right axis, derived */
+      /* A CEILING IN THE OTHER AXIS. Everything above is a share of WIDTH, so
+         on a wide short window the works grow past the screen and march over
+         the type: measured 738px of artwork in 904px of window, 82%, with
+         63.5% of the right column's type printed on ink. This is the height
+         the screen can actually give a work, and every width below is capped
+         by it, so the composition keeps its pinwheel of air instead of
+         filling up whenever the window is wide. */
+    --art-max-h:calc((100vh - var(--nav-h)) * var(--art-h-share));
+    --art-ar:.8345;        /* both works' ink ratio, w/h */
+    --w-ratio:1669/2000}
+
+   /* both works are 1669x2000 in the files */
+  /* only the four CELLS are positioned. A `.spread > *` rule also caught the
+     figures nested inside them, which broke out of their boxes and rendered at
+     100% of the section (measured 100% wide, 100% tall, art spilling across
+     the band). Name the cells explicitly instead. */
+.spread-t1,.spread-a1,.spread-a2,.spread-t2{position:absolute}
+
+
+  /* row 1: text upper left on axis L, work upper right on axis R */
+  /* ── THE LEAD TAKES A WIDER COLUMN THAN THE BODY ─────────────────────
+     At --col exactly, the new opening passage set to ten lines and finished
+     11px above the lower work's BOX. That cleared on paper and did not
+     clear on screen: a screenshot showed the green work covering its last
+     three lines. 11px is not a margin, it is a rounding error, and a box
+     test cannot see it coming because the collision is with the work's INK,
+     which starts further in.
+
+     A lead is not body copy and does not have to share the body's measure.
+     Widening it sets the same words in seven lines instead of ten, which
+     buys real clearance, reads better as a paragraph, and fills the hollow
+     centre this spread otherwise leaves. The upper right work does not
+     begin until x 1272, so there is nothing in the way. */
+.spread-t1{left:var(--ax-l);top:12%;
+    width:min(calc(var(--col) * 1.3), calc(100% - var(--gutter) * 2 - var(--col) * .72))}
+
+
+  /* ── A SHORT WINDOW GETS A WIDER LEAD, NOT A SMALLER ONE ─────────────
+     Narrowing the window squeezes this passage twice over: the column gets
+     narrower, so the paragraph needs MORE lines, while the air above the
+     work gets shorter. Shrinking the type cannot keep up with that, because
+     line count rises as the column narrows. Measured with a size term
+     alone, it still ran 14px into the work at 1440x820 and 45px at
+     1280x800.
+
+     So on a short window the lead takes the width it needs instead. There
+     is room for it: the upper right work does not begin until well past
+     this column, and the pinwheel has already lost its tall proportion at
+     these heights. The passage stays the same size and simply sets in
+     fewer, longer lines. */
+@media (max-height:1000px){
+    .spread-t1{width:min(calc(var(--col) * 1.55), calc(100% - var(--gutter) * 2 - var(--col) * .72))}
+}
+
+
+  
+
+
+.spread-a2{position:relative;
+    flex:0 0 min(37.5%, calc(var(--art-max-h) * var(--art-ar)));width:auto;
+    aspect-ratio:var(--w-ratio);transform:translateY(3.6%)}
+
+
+  /* the text column: first line on the work's ink top, last on its ink
+     bottom. `space-between` puts every unit of slack into the paragraph gap,
+     so both edges stay flush instead of the block drifting to the top. */
+  /* the text column: first line on the work's ink top, last on its ink
+     bottom. `space-between` puts every unit of slack into the paragraph gap,
+     so both edges stay flush instead of the block drifting to the top.
+
+     IT IS THE SAME COLUMN AS ROW 1, STATED IN ROW UNITS. This row is inset by
+     a gutter at each end, so a percentage here resolves against 1568 where
+     row 1's resolves against 1728. Adding the two gutters back reconstructs
+     the page width and the share then lands on exactly the same pixel column
+     as .spread-t1 (622.1 at 1728), instead of the 705.6 the hand-converted
+     45% produced. Convert the share, never the number. */
+.spread-t2{position:relative;
+    --col-row:calc(var(--col-share) * (100% + 2 * var(--gutter)));
+    flex:0 0 var(--col-row);width:var(--col-row);
+    padding-top:6.4%;box-sizing:border-box;
+    display:flex;flex-direction:column;justify-content:space-between}
+
+
+  /* ARTWORK 1, SIZED BY ITS INK RATHER THAN BY ITS FILE.
+     Measured off the JPGs themselves, each one carries its own baked in red
+     padding around the handset:
+        b-phph   left 7.0%   right 0.0%   top 4.8%   bottom 0.0%
+        b-pggg   left 0.0%   right 0.1%   top 2.6%   bottom 3.6%
+     so the visible object does not sit where its box sits. b-phph is the
+     offender: dropped in naively its handset starts 7% inside axis R and its
+     top hangs 4.8% below the vertical axis, which is 27px and 23px of quiet
+     wrongness on a composition whose whole subject is where things sit.
+
+     The box is therefore widened by the reciprocal of the ink's own width
+     (30% / 0.930 = 32.26%) and pulled back left by its own left padding, so
+     the INK spans axis R to the right margin exactly, one column wide. The
+     vertical correction rides a percentage translate, which resolves against
+     the element's own height and is the one unit that can express "rise by
+     your own top padding" without knowing the rendered pixel value.
+     Artwork 2 drops by its bottom padding for the same reason. It carries NO
+     left padding (0.0% above), so it needs no horizontal correction either: a
+     30px pull sat here for a while and was not one. On the old 10% axis that
+     overhang read as a gesture into a generous margin; against the page's
+     real 80px axis it just crowded the window edge and put this one work 29px
+     off a line every other block lands on.
+
+     All of this is free because the grounds ARE the band's red, sampled from
+     these files: moving the box moves nothing the eye can see except the
+     handset. */
+  /* ── BOTH WORKS TAP AN OUTER AXIS, AND THEY DO IT ON THEIR INK ────────
+     The pinwheel only reads as one figure if its four corners relate to the
+     page the same way. They did not. Measured at 1728x1117: artwork 2's INK
+     began at 109.8 and artwork 1's ink ENDED at 1373.4, so the lower-left
+     work was 30px shy of the left axis while the upper-right work stopped
+     275px shy of the right one and simply floated. The central air came out
+     at 324px in row 1 against 481px in row 2, which is the asymmetry you see
+     before you can name it.
+
+     Now each work pushes to the outer axis of its own corner, exactly as
+     each text block already does: t1 and artwork 2 land on 80, artwork 1 and
+     t2 land on 1648. Every element touches the page's own two lines and all
+     the air collects in one central column, equal in both rows by
+     construction rather than by coincidence.
+
+     ON INK, NOT ON THE BOX. b-phph carries 7.2% of dead red on its left and
+     7.4% on its right, b-pggg 7.4% and 5.9%, measured off the files by
+     _tools/ink.py. Those margins are invisible here because the grounds ARE
+     the band, so a box that lands on the axis puts the DRAWING 30px inside
+     it. Each correction below is that work's own measured padding and
+     nothing else. */
+.spread-a1{--a1-w:min(calc(var(--col) / .930), calc(var(--art-max-h) * var(--art-ar)));
+    width:var(--a1-w);
+      /* right ink edge on the right axis: the box overhangs by its own
+         right padding, so the drawing lands on the line */
+    left:calc(100% - var(--gutter) - .926 * var(--a1-w));
+    top:var(--vin);aspect-ratio:var(--w-ratio);
+    transform:translate(var(--sx,0),-4.8%)}
+
+
+  /* left ink edge on the left axis: the box starts at the row's own left
+     edge, which IS the axis, so it is pulled back by its 7.4% left padding.
+     A percentage translate resolves against the element's own width, which
+     is the one unit that can say "by your own padding" without knowing the
+     rendered pixel. */
+.spread-a2{transform:translate(calc(var(--sx,0) - 7.4%),3.6%)}
+
+
+  /* ── THE ARRIVAL ──────────────────────────────────────────────────────
+     The two handsets slide into place as the spread comes into view, in
+     OPPOSITE directions: artwork 1 travels leftward from off the right
+     edge, artwork 2 travels rightward from off the left. They cross, which
+     is what makes the pair read as one composition assembling itself rather
+     than as two elements each doing an entrance.
+
+     The travel is carried on --sx and COMPOSED into the existing transform
+     rather than replacing it. Both works already carry a vertical nudge
+     (-4.8% and 3.6%) that fine-tunes their optical alignment, and a
+     `transform:translateX(...)` written as a separate rule would silently
+     discard it and drop both handsets back onto the wrong baseline. One
+     custom property, one transform, nothing overwritten.
+
+     `transform` only, never `left`: a transform is composited on the GPU
+     and cannot reflow the page, whereas animating `left` on an absolutely
+     positioned element inside a 100vh band repaints the whole section every
+     frame.
+
+     Distance is in vw so the works always start beyond the viewport edge
+     regardless of window width. Duration is long and the curve is a pure
+     decelerate, no overshoot: these are heavy objects being set down, and a
+     bounce would read as a UI animation rather than as a hang. At 2.5s the
+     slide is slow enough that the eye TRACKS the object across the band
+     instead of registering that it has appeared. */
+  /* 0px, NOT 0. a2's travel is composed as calc(var(--sx) - 30px), and a
+     unitless zero makes that calc(0 - 30px): a number minus a length, which
+     is invalid, which makes the whole `transform` invalid at computed value
+     time and resets it to none. That silently threw away BOTH the 30px axis
+     nudge AND the 3.6% ink correction, so artwork 2's ink stopped 22px short
+     of the row's bottom edge with nothing in the source looking wrong.
+     A length-typed zero keeps the calc valid. */
+.spread-a1,.spread-a2{--sx:0px}
+
+
+.band-red[data-arrive] .spread-a1{--sx:62vw}
+
+    /* off the right edge */
+.band-red[data-arrive] .spread-a2{--sx:-62vw}
+
+   /* off the left edge */
+.band-red[data-arrive] .spread-a1,
+  .band-red[data-arrive] .spread-a2{
+    transition:transform var(--t6) var(--ease-far)}
+
+
+  /* artwork 2 leaves a clear beat later, so the eye follows one and then
+     the other instead of tracking two objects at once. The gap scales with
+     the longer duration. */
+.band-red[data-arrive] .spread-a2{transition-delay:.34s}
+
+
+.band-red[data-arrive].arrived .spread-a1,
+  .band-red[data-arrive].arrived .spread-a2{--sx:0px}
+
+
+@media (prefers-reduced-motion:reduce){
+    .band-red[data-arrive] .spread-a1,
+    .band-red[data-arrive] .spread-a2{--sx:0px;transition:none}
+}
+
+
+  /* the works fill their cell and keep their own ratio; grounds match the band
+     so any slack inside the box is invisible.
+     NOTE: the figure IS the cell (class="plate spread-a1"), so these target the
+     element itself, a descendant selector like `.spread-a1 .plate` matches
+     nothing here.
+
+     PAINTED WITH THE BAND COLOUR, not transparent. The files carry #fe0b39
+     across 99% of their border pixels, so the box must be the same value or
+     any slack inside it shows as a lighter rectangle. (While the band was
+     grey these were transparent, because the works had been rebuilt onto
+     #babfbb and the metal needed to read through; back on red the baked-in
+     ground is the ground again.) */
+  /* transparent since the aura: the room shows through, so no rectangle */
+.spread-a1.plate,.spread-a2.plate{background:transparent}
+
+
+.spread-a1.plate img,.spread-a2.plate img{width:100%;height:100%;
+    object-fit:contain}
+
+
+  /* ── B · text fit ─────────────────────────────────────────────────────
+     These MUST sit after .band .band-lead / .band .pull above, or the caps
+     and sizes there win on source order and re-break the columns.
+
+     THE REGISTER OF THIS BAND. Everywhere else on the page the promoted
+     sentences run 26 to 38px at weight 600. In here that was wrong twice
+     over. First, 38px inside a 30% column is about eighteen characters per
+     line, so the lead broke into a narrow ragged stack with a torn right
+     edge. Second, and this is the Hufkens rule the rest of the page already
+     honours, HIERARCHY IS BUILT FROM SIZE AND ITALIC, NEVER FROM WEIGHT.
+     A 600 lead is the one piece of bold on an otherwise 400 page.
+
+     So: everything in this band is weight 400, the lead comes down to about
+     22px, and the body to 17px on 1.62. Small type is what earns the air
+     here. The two texts are the quiet element and the two handsets are the
+     loud one, and at 38px the caption was competing with the artwork it is
+     supposed to annotate. At 17px a full passage fits a 30% column at a
+     comfortable 44 characters per line, four objects hold one screen with
+     real red between them, and the type reads as press caption rather than
+     as a headline. The pull is then promoted by ITALIC alone. */
+.band .spread-t1 .band-lead,
+  .band .spread-t2 p{max-width:none}
+
+
+  /* WEIGHT IN THIS BAND. Azeret Mono is a monolinear face: its strokes are
+     one even weight with no thick/thin modulation, so it holds up on the
+     saturated red where a hairline serif did not. This band used to run at
+     500 because Cormorant's fine strokes partly dissolved into the red;
+     Plex does not have that problem, so 400 is enough and is also the
+     page's standard body weight. The pull stays heavier so it still reads
+     as the landing sentence rather than merging with the body. */
+  /* ── LEADING, AND WHY IT CAME DOWN ───────────────────────────────────
+     2.1 was set when this lead was a single 160-character sentence, where
+     the air read as a held pause. The opening passage is now the full first
+     paragraph, and at 2.1 it stood 504px tall and ran 375 x 152px into the
+     work below it. Over-leading also stopped it being a paragraph: at more
+     than two line-heights apart the lines read as separate statements
+     rather than as one thought.
+
+     1.6 is still clearly a lead rather than body copy, it reads as a
+     paragraph, and it brings the block back inside the air above the work.
+     The top moved with it, because the longer passage needs the room. */
+  /* balanced: the four lines share the text evenly, so no two-word orphan
+     ("it led.") is left alone on the last line */
+.band .spread-t1 .band-lead{font-weight:400;text-wrap:balance;
+  /* THE SIZE ANSWERS TO HEIGHT AS WELL AS WIDTH. With a width-only clamp
+     the passage kept its size on a short window while the air above the
+     work shrank with the viewport, so it fitted at 1920x1200 and 1728x1117
+     and then ran 105px into the work at 1440x820 and 68px at 1280x800. The
+     vh term is what the room actually has to give. */
+    font-size:clamp(15px,min(1.57vw,2.4vh),24px);line-height:1.6;
+    letter-spacing:-.006em;margin:0}
+
+
+.band .spread-t2 p{font-weight:400;
+    font-size:clamp(12px,1.12vw,16px);line-height:1.5;letter-spacing:.001em}
+
+
+  /* no fixed paragraph gap in row 2: the flex `space-between` above owns the
+     vertical distribution, and a margin here would fight it. */
+.band .spread-t2 p + p{margin-top:0}
+
+
+  
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   THE ROOM REBUILT ON PAIRS
+   Everything above this line describes the absolute pinwheel construction
+   that used to live here: lead upper left, work upper right, work lower
+   left, passage lower right. It is superseded and kept only because the
+   measurements in those notes are still the record of how the ink axes and
+   the column share were derived.
+
+   WHY IT WENT. A pinwheel is four elements in four corners with nothing
+   holding the middle, so the centre of the room was a crater, the reading
+   order jumped across the diagonal twice, and the two halves of ONE
+   continuous passage sat at two different type sizes, which reads as the
+   second paragraph having been demoted by accident rather than by
+   intention. The only element touching an edge was the lower work, cut by
+   the band's foot, so the single bleed on the page looked like a mistake
+   instead of a decision.
+
+   WHAT REPLACED IT, AND WHY THIS AND NOT SOMETHING ELSE. The room contains
+   ONE OBJECT SEEN TWICE: b-phph and b-pggg are the same subject put through
+   different processing. So the room is built on pairs, and the structure is
+   taken from the work instead of imposed on it.
+
+       the statement   two columns, holding the full axis
+       the studies     a diptych, equal width, one baseline
+       the closing     single, under the left study only
+
+   The closing sentence is the one thing in the room that is not doubled,
+   which is why it is allowed to sit alone and why the right half of that
+   last line is left open: the room exhales where the pairing stops.
+
+   Every element now holds the same measure, so there is no crater and no
+   diagonal to hunt along, and the reading order is simply downward.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+
+.band-red{min-height:0;height:auto}
+
+
+.spread{position:static;inset:auto;
+    display:block;
+    padding:calc(var(--nav-h) + var(--rhythm) * .5) var(--gutter)
+            calc(var(--rhythm) * .92)}
+
+
+  /* ── THE STATEMENT ───────────────────────────────────────────────────
+     Two columns across the full measure. A single column at this measure
+     would run past 100 characters a line, which is unreadable; two columns
+     give about 52, which is a set line, and they state the room's pairing
+     before the works do. The rule between them is the same hairline weight
+     the process room uses for the dialog's own dividers. */
+  /* ── ONE BLOCK, NOT TWO COLUMNS ──────────────────────────────────────
+     Ivan's call: the statement reads as one paragraph. Split into columns
+     it broke mid-sentence across the gutter and needed a rule to hold the
+     halves apart. */
+.spread{--lead-fs:clamp(15px,min(1.33vw,2.2vh),21px)}
+
+.spread-t1{position:relative;width:auto;left:auto;top:auto}
+
+
+  /* the reveal ends on filter:blur(0), which is still a filter and leaves
+     the text on its own raster layer; once arrived it carries none */
+.spread-t1.shown > *{filter:none}
+
+
+  /* ── THE OPENING QUOTE HANGS ─────────────────────────────────────────
+     The statement opens on a quotation mark, and set flush it pushes the
+     first letter one cell in from the axis every other line and both
+     studies hang from. Hung outside the measure, as a typesetter would,
+     the H of Hold sits on the axis and the quote reads as punctuation in
+     the margin. In this mono face the mark is exactly one ch. Balanced
+     wrapping shares the lines evenly, so no "it led." is left alone. */
+.band .spread-t1 .band-lead{font-weight:400;text-wrap:balance;
+    font-size:var(--lead-fs);line-height:1.68;
+    letter-spacing:-.004em;margin:0;text-indent:-1ch}
+
+
+  /* ── THE DIPTYCH ─────────────────────────────────────────────────────
+     Equal columns with the page gutter between them, so the red column
+     dividing the pair is the same 80px module the whole page is measured
+     on rather than a gap chosen by eye. Both studies are portrait and share
+     a ratio, so one baseline falls out of equal widths and nothing has to
+     be nudged. */
+  /* ── THE DIPTYCH IS HUNG BY INK ──────────────────────────────────────
+     A plain two-column grid hung these by their BOXES, and these files
+     carry wide flat ground margins: b-phph is padded 7.2% left and 7.4%
+     right, b-pggg 7.4% and 5.9%. So the left study's ink began at 133.6
+     while the statement's margin sat at 80, and the wall was hung 54px off
+     the type's plumb line. Everywhere else on this page the axis is the
+     ink; this room was the exception by accident.
+
+     Solved from the ink inwards instead. The room's module is one number,
+     the gutter, and it now governs the whole row:
+
+         80 | ink 744 | 80 | ink 744 | 80
+
+     The boxes that carry that ink are wider than their share and start
+     outside it, which is why the two overlap by 48px in the middle. That
+     overlap is pure ground against pure ground, the same measured red on
+     both, so nothing of either work is hidden and nothing shows a seam.
+
+     The vertical fell out rather than being set: solving each box from its
+     own ink width puts the two ink CENTRES within 0.0016 of the ink width
+     of each other, which is under 2px here, so both hang from one top and
+     the pair reads on a single centre line the way a pair should. */
+  /* ── BOTH STUDIES ON ONE SCREEN ──────────────────────────────────────
+     Sized by width alone, each study came out about 1040px tall on a
+     1117px fullscreen, so with the statement above it the pair was cut by
+     360 to 470px on every MacBook size: you never saw either work whole.
+
+     The statement and the pair now share one block exactly the height of
+     the screen below the room's top padding, less --fit-air top and
+     bottom. The statement takes what it needs and the pair is a size
+     container holding the rest, so --ink-w is the SMALLER of the width
+     share and the height that is actually left (1.4031 is the taller
+     study's height over its ink width). Nothing is estimated: the text's
+     real height decides. When height binds, the pair keeps its 80px module
+     between the inks and centres on the page via --inset. */
+.spread-fold{display:flex;flex-direction:column;
+    height:calc(100svh - var(--nav-h) - var(--rhythm) * .5 - var(--fit-air) * 1.5)}
+
+  /* ── STACKED: THE PAIR CENTRES ───────────────────────────────────────
+     When height binds the stacked pair, the diptych stays on the page's
+     centre line (Ivan's call at 16" fullscreen, over hanging it from the
+     type's left axis), with the spare width shared by both margins and the
+     gap between the studies.
+     --inset-l / --inset-r say which side takes the spare width. */
+.spread-pair{position:relative;flex:1 1 0;min-height:0;
+    container-type:size;
+    --ink-w:min((100cqw - var(--gutter)) / 2, 100cqh / 1.4031);
+    --spare:calc(100cqw - var(--ink-w) * 2 - var(--gutter));
+    /* spare width is split in THIRDS: one to each outer margin and one to
+       the gap between the studies, so a height-bound pair opens up instead
+       of standing 80px apart in the middle of a wide room */
+    --inset-l:calc(var(--spare) / 3);
+    --inset-r:calc(var(--spare) / 3);
+    margin-top:calc(var(--rhythm) * .36)}
+
+
+  /* (The wide-window variant, statement as a column beside the pair, is
+     removed: Ivan wants the statement on top and the works below at every
+     window.) */
+
+
+  /* ── THE TALLER STUDY SETS THE ROOM'S HEIGHT ─────────────────────────
+     The height was written as calc(--ink-w * 1.4031), which is correct
+     arithmetic and wrong CSS: --ink-w carries a percentage, and a
+     percentage inside a HEIGHT resolves against the height of the
+     containing block, not its width. The band collapsed from 1933px to
+     942px on that one substitution.
+
+     So nothing declares the height. The taller of the two studies stays in
+     flow and IS the height, at any width, with no number to keep in sync.
+     It is shifted by `left` rather than by margin, which moves it without
+     moving the box the row is measured from. */
+  /* top:auto matters. The superseded construction above sets a `top` on
+     this element, and position:relative HONOURS it, so the study hung
+     55.8px lower than the one beside it and the pair lost its centre line
+     to a value nobody had re-read. */
+.spread-a1{position:relative;margin:0;transform:none;top:auto;bottom:auto;
+    left:calc(var(--inset-l) + var(--ink-w) * -0.0843);
+    width:calc(var(--ink-w) * 1.1710)}
+
+
+  /* the shorter study hangs off the same top. Solving both from their own
+     ink widths puts the ink centres 1.1px apart, so no vertical correction
+     is applied: a sub-2px nudge is below the threshold of the thing it
+     would be correcting. */
+.spread-a2{position:absolute;margin:0;transform:none;top:0;bottom:auto;
+    right:calc(var(--inset-r) + var(--ink-w) * -0.0680);
+    width:calc(var(--ink-w) * 1.1534)}
+
+
+.spread-pair .plate img{display:block;width:100%;height:auto}
+
+
+  /* ── THE CLOSING SENTENCE ────────────────────────────────────────────
+     Held to the left study's column so the pairing's module still governs
+     it, and set at the SAME size as the statement, because it is the same
+     voice continuing. The two sizes in the old build were the clearest
+     symptom that the passage had been placed rather than composed. */
+.spread-t2{position:static;left:auto;top:auto;width:auto;
+    display:grid;grid-template-columns:1fr 1fr;gap:var(--gutter);
+    margin-top:calc(var(--rhythm) * .52)}
+
+
+  /* ── THE CLOSING SENTENCE SITS RIGHT ─────────────────────────────────
+     It was under the left study, which left the whole right half of the
+     room's last line empty and read as the composition giving up rather
+     than finishing. On the right it closes the room where the eye leaves
+     it, and the room's rhythm becomes a deliberate shift: the statement
+     holds both bays, the studies hold both bays, the single sentence steps
+     to one. The empty bay is then on the side you have already read. */
+.band .spread-t2 p{grid-column:2;font-weight:400;
+    font-size:clamp(15px,min(1.33vw,2.2vh),21px);line-height:1.68;
+    letter-spacing:-.004em;margin:0}
+
+
+  /* ── THE CLOSING SENTENCE RUNS ALONG THE WORK ────────────────────────
+     The sentence stepped to the right bay and left the left bay as open red.
+     That bay now holds png28, the handset opened out into a frame, hung
+     LARGE (Hufkens: confident art, never timid) with its ink on the left
+     axis, and the sentence is no longer a block beside it: it flows along
+     the frame's outer edge. That edge runs diagonally across the top two
+     thirds of the work, so the sentence's left edge becomes a diagonal that
+     follows the drawing, a fixed --a3-gap off its ink.
+
+     The outline is a polygon traced from the file's alpha in percentages
+     (url() shapes are laid out at the image's native size in Chrome, see
+     14-region-f-room.css), so it scales with the work. The sentence takes
+     the statement register above it, and starts a little below the frame's
+     top so the diagonal has the whole passage to travel. Desktop only. */
+@media(min-width:901px){
+    /* the measure is held to about 32 characters beside the work, so the
+       sentence runs ~10 lines down the slant: a long diagonal, and a
+       readable line, where the full bay gave 5 lines of ~70 characters */
+    .spread-t2{display:block;
+        /* the frame's height: the window's, or, in a tall narrow window,
+           whatever leaves the sentence its measure inside the gutters (at
+           1000 wide the group ran past the right edge) */
+        --a3-h:min(76svh, 860px, calc((100vw - 2 * var(--gutter) - min(36vw,540px)) / .6958));
+        width:calc(var(--a3-h) * .6958 + min(36vw,540px));
+        /* the frame and its sentence are one group, centred on the page,
+           rather than pinned to the left edge with the right half empty */
+        margin-left:auto;margin-right:auto}
+    .spread-a3{float:left;margin:0;background:transparent;
+        width:calc(var(--a3-h) * .6958);height:var(--a3-h);
+        shape-outside:polygon(0.0% 0.0%, 64.5% 0.0%, 64.5% 2.0%, 65.7% 2.0%, 65.7% 4.0%, 66.7% 4.0%, 66.7% 6.0%, 67.9% 6.0%, 67.9% 8.0%, 69.1% 8.0%, 69.1% 10.0%, 70.0% 10.0%, 70.0% 12.0%, 71.2% 12.0%, 71.2% 14.0%, 72.4% 14.0%, 72.4% 16.0%, 73.4% 16.0%, 73.4% 18.0%, 74.6% 18.0%, 74.6% 20.0%, 75.8% 20.0%, 75.8% 22.0%, 76.7% 22.0%, 76.7% 24.0%, 77.9% 24.0%, 77.9% 26.0%, 79.1% 26.0%, 79.1% 28.0%, 80.3% 28.0%, 80.3% 30.0%, 81.3% 30.0%, 81.3% 32.0%, 82.5% 32.0%, 82.5% 34.0%, 83.7% 34.0%, 83.7% 36.0%, 84.7% 36.0%, 84.7% 38.0%, 85.9% 38.0%, 85.9% 40.0%, 87.1% 40.0%, 87.1% 42.0%, 88.0% 42.0%, 88.0% 44.0%, 89.2% 44.0%, 89.2% 46.0%, 90.4% 46.0%, 90.4% 48.0%, 91.4% 48.0%, 91.4% 50.0%, 92.6% 50.0%, 92.6% 52.0%, 93.8% 52.0%, 93.8% 54.0%, 94.7% 54.0%, 94.7% 56.0%, 95.9% 56.0%, 95.9% 58.0%, 97.1% 58.0%, 97.1% 60.0%, 98.1% 60.0%, 98.1% 62.0%, 99.3% 62.0%, 99.3% 64.0%, 100.0% 64.0%, 100.0% 66.0%, 100.0% 66.0%, 100.0% 68.0%, 100.0% 68.0%, 100.0% 70.0%, 100.0% 70.0%, 100.0% 72.0%, 100.0% 72.0%, 100.0% 74.0%, 100.0% 74.0%, 100.0% 76.0%, 100.0% 76.0%, 100.0% 78.0%, 100.0% 78.0%, 100.0% 80.0%, 100.0% 80.0%, 100.0% 82.0%, 100.0% 82.0%, 100.0% 84.0%, 100.0% 84.0%, 100.0% 86.0%, 100.0% 86.0%, 100.0% 88.0%, 100.0% 88.0%, 100.0% 90.0%, 100.0% 90.0%, 100.0% 92.0%, 98.8% 92.0%, 98.8% 94.0%, 96.6% 94.0%, 96.6% 96.0%, 94.7% 96.0%, 94.7% 98.0%, 92.6% 98.0%, 92.6% 100.0%, 0.0% 100.0%) border-box;
+        /* the wrap cannot reach past the float's margin box: a margin well past
+           the gap lets the gap hold along the frame's straight right side too */
+        margin-right:calc(var(--a3-gap,clamp(40px,3.4vw,60px)) + 40px);
+        shape-margin:var(--a3-gap,clamp(40px,3.4vw,60px))}   /* more air off the frame (Ivan, 2026-10-23) */
+    .spread-a3 img{width:100%;height:100%}
+    .band .spread-t2 p{grid-column:auto;
+        /* centred on the frame's height (Ivan, 2026-10-23), not hung near its
+           top: half the frame less half the passage (essay paragraph 3,
+           about eleven lines of 1.68em as it wraps along the slant) */
+        padding-top:calc(var(--a3-h) / 2 - 9.26em);
+        /* the room's one text size: the same register as the two rows */
+        font-size:var(--lead-fs);line-height:1.68;letter-spacing:-.004em;max-width:none}
+    .spread-t2::after{content:"";display:block;clear:both}
+    /* two sentences, two paragraphs, with a full line of air between them;
+       only the first carries the top offset that starts it down the slant */
+    .band .spread-t2 p + p{padding-top:0;margin-top:1.68em}
+}
+
+
+@media(max-width:900px){
+    .spread-a3{display:none}
+    .spread{padding:calc(var(--nav-h) + 40px) 20px 60px}
+    .spread-t1{columns:1}
+    /* narrow screens scroll the pair as before: width-sized, no fold */
+    .spread-fold{display:block;height:auto}
+    .spread-pair{flex:none;container-type:inline-size;
+        --ink-w:calc((100cqw - var(--gutter)) / 2);--inset-l:0px;--inset-r:0px}
+    .spread-t2{grid-template-columns:1fr}
+}
+
+
+
+
+  /* ── THE PAIR GROWS INTO A ROW OF SINGLES (Ivan, final delivery) ─────
+     Each study takes its single on its OUTER side, so the diptych grows
+     outward symmetrically and keeps its centre gap:
+        png42 | b-phph (two phones)  ...  b-pggg (the stack) | png41
+     Units are --ink-w, a study's ink width, measured off the files:
+       b-phph   phones 668px wide, 1748 tall, 88 apart in a 1423px ink
+                -> phone height 1.2284, gap .0618, ink top .0710 below its top
+       png42    ink 838 x 2199 of 1081 x 2400 (left 10px, top 8px): at the
+                phones' height its ink is .4682 wide (theirs .4694, same model)
+       b-pggg   stack 1444 wide, 1866 tall -> height 1.2922, ink top .0381
+       png41    ink 838 x 2198 of 1404 x 2400 (left 333px, top 9px): at the
+                stack's height its ink is .4927 wide
+     png42 was removed again (Ivan, 2026-10-22), so the row is b-phph, the
+     gap, b-pggg and png41: 2.5545 ink widths plus the centre gap, and
+     --ink-w is re-solved for that; the height limit is unchanged. */
+@media(min-width:901px){
+    .spread-pair{
+        --ink-w:min((100cqw - var(--gutter)) / 2.5545, 100cqh / 1.4031);
+        --spare:calc(100cqw - var(--ink-w) * 2.5545 - var(--gutter))}
+    .spread-a2{right:calc(var(--inset-r) + var(--ink-w) * (.4927 + .0618 - .0680))}
+    .spread-s2{position:absolute;margin:0;background:transparent;
+        transform:translate(var(--sx,0px),0)}
+    .spread-s2{right:calc(var(--inset-r) - var(--ink-w) * .1369);
+        top:calc(var(--ink-w) * .0328);width:calc(var(--ink-w) * .8254)}
+    .spread-s2 img{display:block;width:100%;height:auto}
+    /* each single arrives with its study */
+    .band-red[data-arrive] .spread-s2{--sx:-62vw;transition:transform var(--t6) var(--ease-far) .34s}
+    .band-red[data-arrive].arrived .spread-s2{--sx:0px}
+}
+@media(max-width:900px){
+    .spread-s2{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+    .band-red[data-arrive] .spread-s2{--sx:0px;transition:none}
+}
+
+
+  /* ── THE ARRIVAL: EACH ROW'S WORK SLIDES IN FROM ITS OWN SIDE ─────────
+     (Ivan, 2026-10-22) Each row triggers on its own as it comes into view
+     (data-arrive on the row, js/12-arrival.js). Row 1's work, which stands
+     right of its text, slides in from the right toward it; row 2's work,
+     left of its text, slides in from the left. The work moves as one group
+     (the stack and png41 together), a short distance, easing to rest, and
+     fades up as it travels; the text stays put. Nothing crosses. */
+@media(min-width:901px){
+    .spread-rows .spread-art{transition:opacity var(--t-reveal) var(--ease-arrive), translate var(--t-arrive) var(--ease-arrive)}
+    /* the old per-figure arrival offsets (--sx) are retired: the group moves */
+    .spread-rows .spread-art .plate{transform:none;transition:none}
+    .spread-row--1[data-arrive] .spread-art{opacity:0;translate:6vw 0;will-change:translate,opacity}
+    .spread-row--2[data-arrive] .spread-art{opacity:0;translate:-6vw 0;will-change:translate,opacity}
+    .spread-row[data-arrive].arrived .spread-art{opacity:1;translate:0 0}
+}
+@media (prefers-reduced-motion:reduce){
+    .spread-row[data-arrive] .spread-art{opacity:1;translate:none;transition:none}
+}
+
+
+  /* ── TWO ROWS, ALTERNATING (Ivan, 2026-10-22) ────────────────────────
+     Text beside a work, then a work beside text. One scale for every work
+     in both rows: --u is the white pair's ink width, measured off the files
+       b-pggg  ink 1444 of 1669 px wide, 1866 tall, 55 down
+               -> box 1.1534u, ink .9979u x 1.2896u, ink .0380u down, .0854u in
+       png41   at the stack's height, ink .4927u, box .8254u (see above)
+       b-phph  box 1.1710u, ink 1u x 1.2284u, ink .0710u down, .0843u in
+     Each art group IS its ink box (the files' dead edges are pulled outside
+     it), so centring the text on the group centres it on the drawing, and
+     the group's gap to the text is the page's --pair-gap, ink to text. --u
+     is the smaller of what leaves the statement 40 characters beside the
+     wider row and what lets a row stand in 78% of the screen. */
+.spread-rows{container-type:inline-size;
+    font-family:'Azeret Mono',ui-monospace,monospace;font-size:var(--lead-fs)}
+.spread-rows .spread-row{display:flex;align-items:center;justify-content:center;
+    gap:var(--pair-gap);
+    --u0:min(calc((100cqw - var(--pair-gap) - 40ch) / 1.5545),
+            calc((100svh - var(--nav-h)) * .78 / 1.2896));
+    --u:var(--u0)}
+  /* row 2 carries the same ink AREA as row 1 (Ivan, 2026-10-22: the pair
+     read small), sqrt(1.5545 * 1.2896 / 1.2284) = 1.2775, kept inside 86%
+     of the screen's height */
+.spread-rows .spread-row--2{
+    --u:min(calc(var(--u0) * 1.2775), calc((100svh - var(--nav-h)) * .86 / 1.2284))}
+.spread-rows .spread-row + .spread-row{margin-top:calc(var(--rhythm) * .7)}   /* row 2 a touch higher (Ivan) */
+.spread-rows .spread-t1,.spread-rows .spread-t3{position:static;left:auto;top:auto;width:auto;
+    flex:0 1 62ch;min-width:0;columns:auto}
+.band .spread-rows .band-lead{margin:0;max-width:none;text-align:left;text-wrap:pretty;
+    font-size:var(--lead-fs);line-height:1.68;letter-spacing:-.004em;font-weight:400}
+.band .spread-rows .spread-t1 .band-lead{text-indent:0}
+.band .spread-rows .spread-t3 .band-lead{text-indent:0}
+.band .spread-rows .spread-t3 .band-lead + .band-lead{margin-top:1.68em}
+.spread-rows .spread-art{position:relative;flex:none}
+.spread-rows .spread-art--stack{width:calc(var(--u) * 1.5545);height:calc(var(--u) * 1.2896)}
+.spread-rows .spread-art--pair{width:var(--u);height:calc(var(--u) * 1.2284)}
+.spread-rows .spread-art .plate{position:absolute;margin:0;right:auto;bottom:auto;
+    background:transparent;overflow:visible}
+.spread-rows .spread-art .plate img{display:block;width:100%;height:auto}
+.spread-rows .spread-a2{left:calc(var(--u) * -.0854);top:calc(var(--u) * -.0380);width:calc(var(--u) * 1.1534)}
+.spread-rows .spread-art .spread-s2{left:auto;right:calc(var(--u) * -.1369);top:calc(var(--u) * -.0052);width:calc(var(--u) * .8254)}
+.spread-rows .spread-a1{left:calc(var(--u) * -.0843);top:calc(var(--u) * -.0710);width:calc(var(--u) * 1.1710)}
+  /* the frame and its sentence: the sloping layout above (float + traced
+     shape-outside), centred as one group, one --rhythm below row 2 */
+.spread-t2{margin-top:var(--rhythm)}
+@media(max-width:900px){
+    .spread-rows .spread-row{flex-direction:column;align-items:flex-start;gap:40px;
+        --u:calc(100cqw / 1.62)}
+    .spread-rows .spread-row--2{flex-direction:column-reverse}
+    .spread-rows .spread-t1,.spread-rows .spread-t3{flex:none}
+    .spread-rows .spread-art .spread-s2{display:block}
+}

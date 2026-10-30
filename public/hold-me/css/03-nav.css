@@ -1,0 +1,90 @@
+/* =======================================================================
+   THE HEADER, reproduced from the live thegarden.art nav.
+   ======================================================================= */
+
+
+
+  /* ---- classic Garden header (reproduced from Nav.tsx + globals.css),
+         in its dark-hero treatment: black bar, cream text, hairline rule.
+         Barlow-600 uppercase links left, Inter-700 THE G△RDEN wordmark right. */
+nav{
+    position:fixed;top:0;left:0;right:0;z-index:200;
+    display:flex;align-items:center;justify-content:space-between;
+    height:60px;padding:20px 80px;
+    background:var(--nav-bg,#000);color:var(--nav-fg,#f5f3ef);
+    border-bottom:1px solid var(--nav-rule,rgba(245,243,239,0.08));
+    transition:background-color var(--t3) var(--ease),
+               color var(--t3) var(--ease),
+               border-color var(--t3) var(--ease);
+  }
+
+
+  /* ── THE HEADER TAKES THE ROOM IT IS STANDING IN ──────────────────────
+     The bar is fixed, so the page scrolls a different ground under it all the
+     way down. These are the same room tokens the bands paint with, never
+     copies, so the header cannot drift from the section behind it.
+
+     THE INK IS CHOSEN BY MEASURED CONTRAST, not by light/dark feel. On the
+     grey (#969b97, luminance 0.32) white type scores 2.8 and near black 7.4;
+     on the green (0.71) white is 1.4 and near black 15.2. Both of those would
+     have gone the wrong way on instinct, so each ground's ink is the one that
+     actually wins, warmed toward its own hue so the bar belongs to its room.
+
+     The hairline follows the ink rather than staying cream, or it disappears
+     on the light grounds and glares on the dark ones. */
+html[data-nav="hero"],
+html[data-nav="black"] {--nav-bg:var(--void);      --nav-fg:#f5f3ef; --nav-rule:rgba(245,243,239,.08)}
+html[data-nav="red"]   {--nav-bg:var(--g-red);     --nav-fg:#170006; --nav-rule:rgba(23,0,6,.16)}
+html[data-nav="white"] {--nav-bg:var(--g-white);   --nav-fg:#141414; --nav-rule:rgba(20,20,20,.14)}
+html[data-nav="orange"]{--nav-bg:var(--g-orange);  --nav-fg:#2a0d00; --nav-rule:rgba(42,13,0,.18)}
+html[data-nav="grey"]  {--nav-bg:var(--g-grey);    --nav-fg:#141614; --nav-rule:rgba(20,22,20,.18)}
+html[data-nav="green"] {--nav-bg:var(--g-green);   --nav-fg:#08240c; --nav-rule:rgba(8,36,12,.20)}
+  /* the straddle room: the bar stays SOLID RED, the room it comes from
+     (Ivan). Split down the middle it cut a word in half and repeated the
+     room's seam above the work's own; the seam belongs to the work. */
+html[data-nav="straddle"]{--nav-bg:var(--g-red);   --nav-fg:#170006; --nav-rule:rgba(23,0,6,.16)}
+
+
+.nav-links{display:flex;gap:44px;list-style:none;align-items:center;margin:0;padding:0}
+
+
+.nav-links a{font-family:'Barlow',sans-serif;font-weight:600;font-size:13px;
+    letter-spacing:.5px;text-transform:uppercase;color:inherit;line-height:1;
+    text-decoration:none;padding-bottom:2px;
+    position:relative;transition:color var(--t2) var(--ease)}
+
+
+  /* the underline grows from the left rather than fading in, and retracts to
+     the left on the way out, so the gesture has a direction and reads as
+     drawn. A hairline at 1px, cream, no accent colour: the artwork is still
+     the only colour on the page.
+     scaleX on a pseudo-element, never width or border-bottom, since those
+     two repaint on every frame of the hover while a transform composites. */
+.nav-links a::after{content:"";position:absolute;left:0;right:0;bottom:0;
+    height:1px;background:currentColor;
+    transform:scaleX(0);transform-origin:0 50%;
+    transition:transform var(--t2) var(--ease)}
+
+
+.nav-links a:hover{color:inherit}
+
+
+.nav-links a:hover::after{transform:scaleX(1)}
+
+
+@media (prefers-reduced-motion:reduce){
+    .nav-links a::after{transition:none}
+}
+
+
+.logo{font-family:'Inter',sans-serif;font-weight:700;font-size:20.9px;
+    letter-spacing:-.4px;text-transform:uppercase;display:inline-flex;align-items:baseline;
+    line-height:1;color:inherit;text-decoration:none}
+
+
+.logo .triangle{display:inline-block;width:.73em;height:.73em;vertical-align:baseline;
+    line-height:1;margin:0 .02em 0 -.05em;position:relative;top:0}
+
+
+.logo .triangle svg{display:block;width:100%;height:100%;overflow:visible;color:inherit}
+

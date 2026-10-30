@@ -951,6 +951,17 @@ footer{background:#000;color:var(--on-dark-fg);padding:72px var(--gutter) 40px;}
      split-logic; other slides keep their 64px symmetric padding. */
   padding-top:clamp(72px, 12vh, 152px);
 }
+/* Full-bleed detail: one fragment of a drawing at native resolution,
+   cropped to fill the whole hero under the nav (no padding, no shadow).
+   A low black fade under the caption keeps the lockup readable over
+   dense work without tinting the rest of the frame. */
+.hero[data-hero-treatment="full-bleed-detail"]{background:#000000;}
+.hero[data-hero-treatment="full-bleed-detail"] .slide{padding:0;transition:opacity 600ms ease;}
+.hero[data-hero-treatment="full-bleed-detail"] .slide img{filter:none;}
+.hero[data-hero-treatment="full-bleed-detail"] .hero-slides::after{
+  content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(to top, rgba(0,0,0,.86) 0%, rgba(0,0,0,.62) 20%, rgba(0,0,0,0) 46%);
+}
 /* Slightly larger hero card lockup for dense featured homepage works. */
 .hero[data-hero-copy-treatment="featured-lockup"] .hero-artist,
 .hero[data-hero-copy-treatment="featured-lockup"] .hero-title{font-size:clamp(28px, calc(1vw + 19px), 38px);}
