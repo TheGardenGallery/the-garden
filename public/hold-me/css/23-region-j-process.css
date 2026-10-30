@@ -253,7 +253,12 @@
 
     /* a cell is a column plus half the gap either side, so each phone is
        centred under its stage and each hairline falls mid-gap */
+    /* and every phone keeps air from its hairlines: the widest ink is .504
+       of its height, so the height is capped where that ink fills 70% of a
+       cell, leaving 15% clear either side (the hairline sat against the
+       wide clamshells on windows taller than they are wide) */
   .proc-pair{--cell:calc((var(--dw) + var(--pg)) / 3);column-gap:0;
+      --ph:min(70svh, 760px, calc(var(--cell) * .70 / .504));
       margin-left:calc(var(--pg) / -2)}
   .proc-pair .proc-ph--a,.proc-pair .proc-ph--b{flex:0 0 var(--cell);padding:0}
   .proc-pair .proc-ph--a img{transform:translateX(calc((.5 - .5208) * 100%))}
