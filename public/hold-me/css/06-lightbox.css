@@ -29,60 +29,30 @@
 
 
   /* ── THE ROOM IS THE WORK'S OWN GROUND ────────────────────────────────
-     The backdrop was a heavily blurred, scaled copy of the open work. That
-     builds the room out of the ENTIRE piece, so the light behind a work was
-     an average of everything in it: every drawing, whatever its ground,
-     resolved to the same muddy brown-grey pool, and two works from the same
-     room lit the viewer differently for no reason a viewer could name.
+     A flat field of the open work's ground colour, measured off the file
+     (groundOf() in 15-lightbox.js). NO blur, no scale, no copy of the
+     picture.
 
-     It is now a FLAT FIELD OF THE WORK'S OWN GROUND COLOUR, sampled off the
-     file itself at open (see groundOf() in 15-lightbox.js). Every work on
-     this page is drawn on one measured flat ground, and that ground is
-     already the thing the page is built from: the bands wear it, the nav
-     takes it, the plates dissolve into it. Opening a work now puts it in a
-     room painted its own colour, which is what the whole page has been doing
-     from the top, rather than in a blur of itself.
-
-     NO blur, no scale, no copy of the picture: there is nothing to blur any
-     more, so two 57px passes, the saturate/contrast correction they needed,
-     and a full-size background-image decode all go with it.
-
-     The colour CROSS-FADES on navigation, so arrowing through the works
-     re-lights the room each time instead of cutting. */
+     THE COLOUR DOES NOT TRANSITION. It used to fade over 0.72s, and since
+     the picture changed at once the room was always still arriving at the
+     last work's colour while the next one stood in it. The next work's
+     colour is measured before the arrow is pressed and set on the same
+     frame as the picture, so the room and the work change together. Only
+     the viewer's own opening and closing fade (opacity, below). */
 .lb-bg{position:absolute;inset:0;z-index:0;pointer-events:none;
     background-color:var(--lb-ground,#000);
-    transition:background-color var(--t4) var(--ease),opacity var(--t5) var(--ease)}
+    transition:opacity var(--t5) var(--ease)}
 
 
   /* ── THE LIGHT ON TOP OF IT ───────────────────────────────────────────
-     THE ROOM IS THE WORK'S GROUND, AT FULL STRENGTH. The veil that used to
-     darken it is gone, and so is the lift that replaced it on the void
-     works. Both were solving the same problem the wrong way round: they
-     tried to separate the work from its room by changing the room's colour,
-     which is exactly what the exhibition page refuses to do.
-
-     So the backdrop is now the measured ground, undarkened. The work
-     dissolves into it with no edge at the canvas, the way a plate dissolves
-     into its band upstairs, and the piece reads as large as it actually is.
-
-     WHAT TELLS YOU IT IS A ROOM IS THE FIELD MOVING IN IT. The same Gabor
-     wavelets that light the page run here, slowly, and lean toward the
-     cursor: the ground breathes, so the viewer is unmistakably open, and
-     nothing has been drawn around the artwork to say so. On the void works
-     that movement is the only thing in the frame besides the piece, which is
-     precisely how a dark room reads. */
+     The same Gabor wavelets that light the page run here, slowly, leaning
+     toward the cursor: the ground breathes, so the viewer is unmistakably
+     open, and nothing has been drawn around the artwork to say so. */
 .lb-field{position:absolute;inset:0;z-index:0;pointer-events:none;
     mix-blend-mode:soft-light;opacity:.55}
 
 
 .lb-field canvas{width:100%;height:100%;display:block}
-
-
-  /* THE GRAIN IS GONE WITH THE BLUR. It existed to break up banding in a
-     heavily blurred 8-bit copy of the artwork. There is no blurred copy any
-     more, and the field that replaced it dithers below the quantiser in the
-     shader itself, which is the correct place to do it. A noise texture laid
-     over a flat measured ground would only be one more artifact. */
 
 
   /* the plate. Capped at 720px or 70vmin so the work reads as a centred
@@ -136,28 +106,8 @@
      could breathe instead of ending at a hard rectangle. The intent was
      right and the instrument was wrong: a soft gradient at the canvas edge
      reads as a blur on the artwork, which is the one thing a viewer must
-     never do to a work. It is gone.
-
-     The breathing comes from the ROOM instead. The backdrop is now the
-     work's exact measured ground at full strength, undarkened, so there is
-     no edge at the canvas at all: the work dissolves into its room exactly
-     as its plate dissolves into its band upstairs, which is the behaviour
-     that made it read larger in the first place. Nothing is drawn around the
-     work, so nothing can look drawn around the work.
-
-     What tells you the room is a room is the FIELD moving in it, not a
-     vignette. See .lb-bg. */
-
-
-  /* the backdrop resolves a beat behind the work, so the room settles after
-     the object rather than with it.
-
-     THIS DECLARES BOTH TRANSITIONS, not just opacity. `transition` is a
-     shorthand: restating it here with one property silently dropped the
-     background-color cross-fade declared above, so navigating between works
-     cut hard from ground to ground instead of re-lighting. */
-.lb-bg{transition:background-color var(--t4) var(--ease),
-                  opacity var(--t5) var(--ease)}
+     never do to a work. It is gone, and the room is the work's own flat ground (.lb-bg):
+     nothing is drawn around the work, so nothing can look drawn around it. */
 
 
 @media (prefers-reduced-motion:reduce){
@@ -174,7 +124,13 @@
 
 
 .lb-zoom img{width:100%;height:100%;display:block;object-fit:contain;
-    user-select:none;-webkit-user-drag:none}
+    user-select:none;-webkit-user-drag:none;
+    transition:opacity var(--t1) var(--ease)}
+
+
+  /* navigating: the room takes the next work's colour at once and the
+     picture rises over it, the 0.18s Split Logic's viewer uses */
+.lb-zoom img.lb-in{opacity:0;transition:none}
 
 
   /* prev / next, the site's house arrows: same opacity ramp and 3px travel

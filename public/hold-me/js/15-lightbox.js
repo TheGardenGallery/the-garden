@@ -129,99 +129,80 @@
     scheduleTiles(animate ? 300 : 60);
   };
 
-  /* ── THE WORK'S OWN GROUND, MEASURED OFF THE FILE ─────────────────────
-     The viewer's room is painted the open work's ground colour, and that
-     colour is SAMPLED, never looked up. A table of grounds would be a second
-     place to maintain: every new file Movsum delivers would need an entry,
-     and a wrong entry shows as a visible step between the work and the room
-     it is standing in. Reading it off the pixels cannot drift.
+  /* ── THE ROOM IS THE WORK'S OWN GROUND, AND IT CHANGES WITH THE WORK ──
+     Every work stands in a room painted its own ground colour, measured off
+     the file (never a table of grounds to keep in step with new deliveries).
 
-     THE BORDER RING, NOT ONE CORNER. A single corner pixel is one JPEG
-     artifact away from being wrong. Eight points around the frame are
-     sampled and the most common value wins, so a work whose drawing touches
-     one edge (g-hey, h-gpp and i-new20 all fill their files) still reports
-     the ground the other seven points agree on.
+     It was measured on the FULL file: the whole 2000px picture drawn into a
+     canvas and read back on the main thread, which froze the viewer for
+     close to half a second on each new work, and the room then faded to its
+     colour over 0.72s while the picture had already cut, so the two never
+     arrived together. Then it went black (2026-10-30), which was smooth but
+     lost the colour. Now (Ivan, 2026-10-30) the colour is back and it lands
+     ON THE SAME FRAME as the work, with no fade:
 
-     Cached by src: the ring is the same every time a work is opened, and
-     re-decoding a 2000px file into a canvas to re-learn one colour is work
-     the viewer should not be doing on every arrow press.
+       the ground is read off a 96px copy of the file, decoded from its
+       bytes by createImageBitmap OFF the main thread. Drawing the <img>
+       itself into a canvas, even a small one, forces the full picture to
+       decode on the main thread (60 to 90ms measured); from a Blob it costs
+       the page nothing. A flat margin is just as flat at 96px
 
-     Falls back to the ground token of the SECTION the work was clicked in,
-     which is the same colour by construction on this page, and finally to
-     black. A tainted canvas (file:// rather than a server) takes that path
-     rather than throwing. */
+       the works either side of the open one are decoded and measured AHEAD,
+       so by the time an arrow is pressed the next picture and its colour
+       are both already in hand
+
+       the swap sets the colour and the picture together, and the colour
+       does not transition at all (see .lb-bg)
+
+     THE BORDER RING, NOT ONE CORNER. Eight points around the frame, the
+     value six of them agree on wins, so a drawing touching one edge cannot
+     repaint the room. A ring that does not agree means the file has no
+     margin, and the dominant colour of the whole picture answers instead.
+     A ring that is mostly empty is a transparent work, made to stand on its
+     room: the section's own ground token answers. */
+  const RING = 96;
   const groundCache = new Map();
-  const groundOf = (img, fromEl) => {
-    const key = img.currentSrc || img.src;
+  const keyOfSrc = src => new URL(src, document.baseURI).href;
+  const groundOf = (key, fromEl, small) => {
     if(groundCache.has(key)) return groundCache.get(key);
     let out = null;
     try{
-      const w = img.naturalWidth, h = img.naturalHeight;
-      if(w && h){
+      if(small){
         const c = document.createElement('canvas');
-        c.width = w; c.height = h;
+        c.width = c.height = RING;
         const ctx = c.getContext('2d', {willReadFrequently:true});
-        ctx.drawImage(img, 0, 0);
-        const e = 2, mx = (w >> 1), my = (h >> 1);
-        const pts = [[e,e],[w-1-e,e],[e,h-1-e],[w-1-e,h-1-e],
-                     [mx,e],[mx,h-1-e],[e,my],[w-1-e,my]];
+        ctx.drawImage(small, 0, 0, RING, RING);
+        const d = ctx.getImageData(0, 0, RING, RING).data;
+        const at = (x, y) => (y * RING + x) * 4;
+        const e = 1, m = RING >> 1, z = RING - 1 - e;
         const tally = new Map();
-        /* ── A TRANSPARENT FILE HAS NO GROUND TO SAMPLE ────────────────
-           The works whose ground matched their room are now transparent
-           webp, and an empty pixel reads rgb(0,0,0): eight of them agree,
-           and the viewer would paint itself black. A ring that is mostly
-           empty means the work was MADE to stand on the room, so the
-           room's own token (the fallback below) is the honest answer. */
         let clear = 0;
-        for(const [x,y] of pts){
-          const d = ctx.getImageData(x, y, 1, 1).data;
-          if(d[3] < 8){ clear++; continue; }
-          /* quantised to 8 levels per channel so eight samples of one flat
-             ground agree with each other despite compression noise */
-          const k = (d[0]>>3)+','+(d[1]>>3)+','+(d[2]>>3);
+        for(const [x, y] of [[e,e],[z,e],[e,z],[z,z],[m,e],[m,z],[e,m],[z,m]]){
+          const i = at(x, y);
+          if(d[i+3] < 8){ clear++; continue; }
+          /* quantised to 8 levels per channel so samples of one flat ground
+             agree with each other despite compression noise */
+          const k = (d[i]>>3)+','+(d[i+1]>>3)+','+(d[i+2]>>3);
           const cur = tally.get(k) || {n:0, rgb:[0,0,0]};
-          cur.n++; cur.rgb = [d[0], d[1], d[2]];
+          cur.n++; cur.rgb = [d[i], d[i+1], d[i+2]];
           tally.set(k, cur);
         }
         let best = null;
         for(const v of tally.values()) if(!best || v.n > best.n) best = v;
-
-
-  /* ── A RING THAT AGREES IS A GROUND; ONE THAT DOES NOT IS A PICTURE ──
-     The threshold used to be three of eight, which is not agreement, it is
-     a plurality. On a work whose drawing fills the file there is no flat
-     border to find, so three points landing on the same vivid element won
-     and the room was painted a colour the work never reads as. Measured:
-     h-gpp took rgb(7,254,13), a saturated chroma green off some edge
-     detail, while the work itself reads lime, and i-new20 took the orange
-     of its neighbour band. Those two were the only works on the page with a
-     visible boundary, at 179 and 131 levels against 0 to 2 everywhere else.
-
-     Six of eight is agreement. Below that the file HAS no ground, and the
-     honest answer is not a better border sample but a different question:
-     what colour is this work, overall. That is the modal colour of the
-     whole image, which is what a viewer would call its ground even though
-     no margin of it exists. */
         if(clear >= 4){
-          /* leave `out` empty: the section token below takes over */
+          /* transparent: the section token below takes over */
         } else if(best && best.n >= 6){
           out = `rgb(${best.rgb[0]},${best.rgb[1]},${best.rgb[2]})`;
         } else {
-          /* no flat margin: take the dominant colour of the picture itself,
-             off a 64px thumbnail so this stays cheap, quantised coarsely to
-             gather a gradient into one bin, then averaged inside the winning
-             bin so the answer is a real colour rather than a bin centre */
-          const t = document.createElement('canvas');
-          t.width = 64; t.height = 64;
-          const tc = t.getContext('2d', {willReadFrequently:true});
-          tc.drawImage(img, 0, 0, 64, 64);
-          const td = tc.getImageData(0, 0, 64, 64).data;
+          /* no flat margin: the dominant colour of the picture, quantised
+             coarsely, then averaged inside the winning bin so the answer is
+             a real colour rather than a bin centre */
           const bins = new Map();
-          for(let i = 0; i < td.length; i += 4){
-            if(td[i+3] < 128) continue;
-            const k = (td[i]>>4)+','+(td[i+1]>>4)+','+(td[i+2]>>4);
+          for(let i = 0; i < d.length; i += 4){
+            if(d[i+3] < 128) continue;
+            const k = (d[i]>>4)+','+(d[i+1]>>4)+','+(d[i+2]>>4);
             const cur = bins.get(k) || {n:0, r:0, g:0, b:0};
-            cur.n++; cur.r += td[i]; cur.g += td[i+1]; cur.b += td[i+2];
+            cur.n++; cur.r += d[i]; cur.g += d[i+1]; cur.b += d[i+2];
             bins.set(k, cur);
           }
           let top = null;
@@ -240,17 +221,41 @@
     groundCache.set(key, out);
     return out;
   };
-
-  const paintGround = (el) => {
-    const apply = () => {
-      /* the room is the work's measured ground, at full strength. Nothing is
-         darkened, nothing is lifted, nothing is drawn around the work: the
-         field below supplies the movement that makes it read as a room. */
-      lb.style.setProperty('--lb-ground', groundOf(imgEl, el));
-    };
-    if(imgEl.complete && imgEl.naturalWidth) apply();
-    else imgEl.addEventListener('load', apply, {once:true});
+  /* measure() resolves to the work's ground, decoding its 96px copy off the
+     main thread; without createImageBitmap the section token answers */
+  const measure = (src, el) => {
+    const key = keyOfSrc(src);
+    if(groundCache.has(key)) return Promise.resolve(groundCache.get(key));
+    if(!window.createImageBitmap) return Promise.resolve(groundOf(key, el));
+    return fetch(src).then(r => r.blob())
+      .then(b => createImageBitmap(b, {resizeWidth:RING, resizeHeight:RING, resizeQuality:'low'}))
+      .then(bm => { const g = groundOf(key, el, bm); if(bm.close) bm.close(); return g; })
+      .catch(() => groundOf(key, el));
   };
+  const setGround = (g) => lb.style.setProperty('--lb-ground', g);
+
+  /* ── THE NEXT WORK IS READY BEFORE IT IS ASKED FOR ────────────────────
+     prepare() decodes a work off screen and measures its ground. Only the
+     open work and its two neighbours are held, so arrowing through forty
+     works never keeps forty decoded 2000px pictures alive. */
+  const wrap = i => (i % works.length + works.length) % works.length;
+  const srcOf = i => { const w = works[wrap(i)]; return w.dataset.lbSrc || w.currentSrc || w.src; };
+  const ready = new Map();
+  const prepare = (i) => {
+    const src = srcOf(i), el = works[wrap(i)];
+    if(ready.has(src)) return ready.get(src);
+    const pre = new Image(); pre.src = src;
+    const decoded = (pre.decode ? pre.decode() : new Promise(r => { pre.onload = pre.onerror = r; })).catch(() => {});
+    const p = Promise.all([decoded, measure(src, el)]).then(([, g]) => ({pre, g}));
+    ready.set(src, p);
+    return p;
+  };
+  const prepareAround = () => {
+    const keep = new Set([srcOf(index - 1), srcOf(index), srcOf(index + 1)]);
+    for(const k of ready.keys()) if(!keep.has(k)) ready.delete(k);
+    prepare(index + 1); prepare(index - 1);
+  };
+  let swapToken = 0;
 
 
   /* ── THE FIELD IN THE ROOM ───────────────────────────────────────────
@@ -299,6 +304,28 @@
        viewer at 1:1 with 14% of padding baked round it. data-lb-src names the
        real file; anything without one is already the work. */
     const src = works[index].dataset.lbSrc || works[index].currentSrc || works[index].src;
+    const token = ++swapToken, el = works[index];
+    /* opening: the plate's own entrance is the transition, swap at once */
+    if(!lb.classList.contains('open')){
+      imgEl.classList.remove('lb-in');
+      swap(src);
+      measure(src, el).then(g => { if(token === swapToken) setGround(g); });
+      prepareAround();
+      return;
+    }
+    /* navigating: colour and picture change on the same frame, the colour
+       at once, the picture rising over it in 0.18s */
+    prepare(index).then(({g}) => {
+      if(token !== swapToken || !open) return;
+      setGround(g);
+      imgEl.classList.add('lb-in');
+      swap(src);
+      requestAnimationFrame(() => requestAnimationFrame(() => imgEl.classList.remove('lb-in')));
+      prepareAround();
+    });
+  };
+
+  const swap = (src) => {
     imgEl.src = src;
     /* ── THEN THE MASTER ─────────────────────────────────────────────────
        The page shows the 2400px file of each transparent work; its 4800px
@@ -309,8 +336,11 @@
     const master = /\/works\/t\/t-[^/]+\.webp$/.test(src) ? src.replace('/works/t/', '/works/t/hi/') : null;
     if (master) {
       const want = index, pre = new Image();
-      pre.onload = () => { if (index === want && open) imgEl.src = master; };
+      /* decoded BEFORE it goes in: assigning a 4000px file that has only
+         loaded makes the browser decode it on the main thread at the next
+         paint, a freeze of about 300ms just after every work opens */
       pre.src = master;
+      pre.decode().then(() => { if (index === want && open) imgEl.src = master; }).catch(() => {});
     }
     imgEl.alt = works[index].alt || '';
     tileLayer.textContent = ''; tilesMade.clear();
@@ -319,8 +349,6 @@
       fetch(`assets/works/t/tiles/${entry.tiles}/meta.json`).then(r => r.json()).then(m => { metas.set(entry.tiles, m); updateTiles(); }).catch(() => {});
     }
     zoomMax = ZOOM_MAX; nativeMax = ZOOM_MAX;
-    bg.style.backgroundImage = '';
-    paintGround(works[index]);
     /* the plate takes the WORK's own ratio, so nothing is cropped and the
        frame is never larger than the picture in it. naturalWidth is 0 until
        the file decodes, hence the onload fallback. */
@@ -495,11 +523,13 @@
 
   /* ---- the arrow keys are PACED to the room. A held key auto-repeats
      about thirty times a second, and every step repaints the room in the
-     next work's ground, so holding one strobed the colours. A held key now
-     steps once per ground fade (--t4, .72s), so each room settles before
-     the next; a fresh press steps at once, with a short floor so drumming
-     the key cannot strobe it either. */
-  const HOLD_MS = 720, TAP_MS = 260;
+     next work's ground, so holding one strobed the colours. The ground no
+     longer fades (it changes with the work, see show()), so the pace is set
+     by the work's own .18s fade-up instead of the old .72s ground fade: a
+     fresh press steps at once but never inside a fade-up, and a held key
+     steps once per fade-up plus a beat to see the work, about three works
+     a second, brisk without strobing. */
+  const HOLD_MS = 320, TAP_MS = 180;
   let lastStep = 0;
   window.addEventListener('keydown', (e) => {
     if(!open) return;
