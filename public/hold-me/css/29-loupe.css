@@ -45,3 +45,5 @@ html.loupe-on, html.loupe-on *{cursor:none !important;user-select:none}
 .loupe-tiles{position:absolute;inset:0}
 .loupe-tile{position:absolute;display:block;max-width:none;opacity:0;transition:opacity .3s var(--ease)}
 .loupe-tile.in{opacity:1}
+.loupe-lcd{position:absolute;z-index:3;display:block;image-rendering:pixelated}
+.loupe-lcd[hidden]{display:none}

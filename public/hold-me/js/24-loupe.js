@@ -38,12 +38,16 @@
      only (composited, never repainted), with the original's tiles laid over
      it on the same plane: a background-image repainted the whole master on
      every move, which is what made the glass stutter */
-  el.innerHTML = '<div class="loupe-view"><div class="loupe-plane"><img class="loupe-pic" alt="" decoding="async"><div class="loupe-tiles"></div></div></div>';
+  el.innerHTML = '<div class="loupe-view"><div class="loupe-plane"><img class="loupe-pic" alt="" decoding="async"><div class="loupe-tiles"></div><canvas class="loupe-lcd" hidden></canvas></div></div>';
   document.body.appendChild(el);
   const view = el.querySelector('.loupe-view');
   const plane = el.querySelector('.loupe-plane');
   const pic = el.querySelector('.loupe-pic');
   const tilesEl = el.querySelector('.loupe-tiles');
+  /* a live screen drawn over the work (js/19-handset-lcd.js) is not in the
+     file, so the glass copies its canvas every frame, at the same place on
+     the plane, or the phone goes blank green under the loupe */
+  const lcd = el.querySelector('.loupe-lcd'), lcdCtx = lcd.getContext('2d');
 
   /* ── THE SAME TILES AS THE LIGHTBOX ──────────────────────────────────
      Where a work has a tile pyramid from Movsum's original, the viewfinder
@@ -206,6 +210,17 @@
       plane.style.width = W.toFixed(1) + 'px'; plane.style.height = H.toFixed(1) + 'px';
     }
     plane.style.transform = `translate3d(${(S / 2 - (cx - d.x) * shownMag).toFixed(1)}px,${(S / 2 - (cy - d.y) * shownMag).toFixed(1)}px,0)`;
+    const src = active.lcd;
+    if (src && src.width) {
+      const r = src.getBoundingClientRect(), dpr = devicePixelRatio || 1;
+      const w = Math.min(4096, Math.round(r.width * shownMag * dpr)), h = Math.min(4096, Math.round(r.height * shownMag * dpr));
+      if (lcd.width !== w || lcd.height !== h) { lcd.width = w; lcd.height = h; }
+      lcd.style.left = ((r.left - d.x) / d.w * 100) + '%'; lcd.style.top = ((r.top - d.y) / d.h * 100) + '%';
+      lcd.style.width = (r.width / d.w * 100) + '%'; lcd.style.height = (r.height / d.h * 100) + '%';
+      lcdCtx.imageSmoothingEnabled = false;
+      lcdCtx.clearRect(0, 0, w, h); lcdCtx.drawImage(src, 0, 0, w, h);
+      lcd.hidden = false;
+    }
     el.dataset.mag = (Math.round(shownMag * 2) / 2).toString();   /* read by _tools/loupe-audit.mjs; not shown */
     const en = active.entry, meta = en && metas.get(en.tiles);
     if (meta) {
@@ -265,7 +280,8 @@
     const least = Math.min(MIN, cap);                   /* where it opens */
     refused = null;
     const moving = !!active;                            /* straight from one work to another */
-    active = { img, entry, hiW: 0, cap };
+    active = { img, entry, hiW: 0, cap, lcd: img.parentElement.querySelector('[data-lcd] canvas') };
+    lcd.hidden = true;
     el.dataset.ground = (img.closest('[data-ground]') || {}).dataset?.ground || 'black';
     tilesEl.textContent = '';
     if (entry && !metas.has(entry.tiles)) fetch(`assets/works/t/tiles/${entry.tiles}/meta.json`).then(r => r.json()).then(m => { metas.set(entry.tiles, m); schedule(); }).catch(() => {});
