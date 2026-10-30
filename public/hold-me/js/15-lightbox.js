@@ -523,11 +523,13 @@
 
   /* ---- the arrow keys are PACED to the room. A held key auto-repeats
      about thirty times a second, and every step repaints the room in the
-     next work's ground, so holding one strobed the colours. A held key now
-     steps once per ground fade (--t4, .72s), so each room settles before
-     the next; a fresh press steps at once, with a short floor so drumming
-     the key cannot strobe it either. */
-  const HOLD_MS = 720, TAP_MS = 260;
+     next work's ground, so holding one strobed the colours. The ground no
+     longer fades (it changes with the work, see show()), so the pace is set
+     by the work's own .18s fade-up instead of the old .72s ground fade: a
+     fresh press steps at once but never inside a fade-up, and a held key
+     steps once per fade-up plus a beat to see the work, about three works
+     a second, brisk without strobing. */
+  const HOLD_MS = 320, TAP_MS = 180;
   let lastStep = 0;
   window.addEventListener('keydown', (e) => {
     if(!open) return;
