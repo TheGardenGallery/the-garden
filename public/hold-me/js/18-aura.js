@@ -282,5 +282,7 @@ window.GaborField = (host, opts) => {
 /* the page's own field */
 (() => {
   const h = document.querySelector('.aura');
-  if (h) window.GaborField(h, {});
+  /* named so the viewer can stop it: behind the opaque lightbox it was
+     still drawing a full-window shader every frame */
+  if (h) window.pageAura = window.GaborField(h, {});
 })();
