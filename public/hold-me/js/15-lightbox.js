@@ -21,7 +21,6 @@
      added to any region later is in the viewer automatically. ===== */
   const lb    = document.querySelector('.lb');
   if(!lb) return;
-  const bg    = lb.querySelector('.lb-bg');
   const plate = lb.querySelector('.lb-plate');
   const zoomEl= lb.querySelector('.lb-zoom');
   const imgEl = lb.querySelector('.lb-zoom img');
@@ -129,165 +128,39 @@
     scheduleTiles(animate ? 300 : 60);
   };
 
-  /* ── THE WORK'S OWN GROUND, MEASURED OFF THE FILE ─────────────────────
-     The viewer's room is painted the open work's ground colour, and that
-     colour is SAMPLED, never looked up. A table of grounds would be a second
-     place to maintain: every new file Movsum delivers would need an entry,
-     and a wrong entry shows as a visible step between the work and the room
-     it is standing in. Reading it off the pixels cannot drift.
+  /* ── THE ROOM IS BLACK ────────────────────────────────────────────────
+     The room used to be each work's own ground, sampled off the file on
+     every open: the whole 2000px picture drawn into a canvas and read back,
+     on the main thread, which stalled the viewer for close to half a second
+     on each new work, and then a 0.72s colour fade that ran on while the
+     picture itself had already cut. A Gabor field breathed on top of it.
 
-     THE BORDER RING, NOT ONE CORNER. A single corner pixel is one JPEG
-     artifact away from being wrong. Eight points around the frame are
-     sampled and the most common value wins, so a work whose drawing touches
-     one edge (g-hey, h-gpp and i-new20 all fill their files) still reports
-     the ground the other seven points agree on.
+     Now every work stands in the same black room (Ivan, 2026-10-30), the way
+     Split Logic's viewer reads in the promo cut. The transparent works were
+     drawn to stand on a ground and black is the ground that never argues
+     with any of them; the ones with a ground of their own read as plates.
+     Nothing to sample, nothing to fade but the works themselves. */
 
-     Cached by src: the ring is the same every time a work is opened, and
-     re-decoding a 2000px file into a canvas to re-learn one colour is work
-     the viewer should not be doing on every arrow press.
-
-     Falls back to the ground token of the SECTION the work was clicked in,
-     which is the same colour by construction on this page, and finally to
-     black. A tainted canvas (file:// rather than a server) takes that path
-     rather than throwing. */
-  const groundCache = new Map();
-  const groundOf = (img, fromEl) => {
-    const key = img.currentSrc || img.src;
-    if(groundCache.has(key)) return groundCache.get(key);
-    let out = null;
-    try{
-      const w = img.naturalWidth, h = img.naturalHeight;
-      if(w && h){
-        const c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        const ctx = c.getContext('2d', {willReadFrequently:true});
-        ctx.drawImage(img, 0, 0);
-        const e = 2, mx = (w >> 1), my = (h >> 1);
-        const pts = [[e,e],[w-1-e,e],[e,h-1-e],[w-1-e,h-1-e],
-                     [mx,e],[mx,h-1-e],[e,my],[w-1-e,my]];
-        const tally = new Map();
-        /* ── A TRANSPARENT FILE HAS NO GROUND TO SAMPLE ────────────────
-           The works whose ground matched their room are now transparent
-           webp, and an empty pixel reads rgb(0,0,0): eight of them agree,
-           and the viewer would paint itself black. A ring that is mostly
-           empty means the work was MADE to stand on the room, so the
-           room's own token (the fallback below) is the honest answer. */
-        let clear = 0;
-        for(const [x,y] of pts){
-          const d = ctx.getImageData(x, y, 1, 1).data;
-          if(d[3] < 8){ clear++; continue; }
-          /* quantised to 8 levels per channel so eight samples of one flat
-             ground agree with each other despite compression noise */
-          const k = (d[0]>>3)+','+(d[1]>>3)+','+(d[2]>>3);
-          const cur = tally.get(k) || {n:0, rgb:[0,0,0]};
-          cur.n++; cur.rgb = [d[0], d[1], d[2]];
-          tally.set(k, cur);
-        }
-        let best = null;
-        for(const v of tally.values()) if(!best || v.n > best.n) best = v;
-
-
-  /* ── A RING THAT AGREES IS A GROUND; ONE THAT DOES NOT IS A PICTURE ──
-     The threshold used to be three of eight, which is not agreement, it is
-     a plurality. On a work whose drawing fills the file there is no flat
-     border to find, so three points landing on the same vivid element won
-     and the room was painted a colour the work never reads as. Measured:
-     h-gpp took rgb(7,254,13), a saturated chroma green off some edge
-     detail, while the work itself reads lime, and i-new20 took the orange
-     of its neighbour band. Those two were the only works on the page with a
-     visible boundary, at 179 and 131 levels against 0 to 2 everywhere else.
-
-     Six of eight is agreement. Below that the file HAS no ground, and the
-     honest answer is not a better border sample but a different question:
-     what colour is this work, overall. That is the modal colour of the
-     whole image, which is what a viewer would call its ground even though
-     no margin of it exists. */
-        if(clear >= 4){
-          /* leave `out` empty: the section token below takes over */
-        } else if(best && best.n >= 6){
-          out = `rgb(${best.rgb[0]},${best.rgb[1]},${best.rgb[2]})`;
-        } else {
-          /* no flat margin: take the dominant colour of the picture itself,
-             off a 64px thumbnail so this stays cheap, quantised coarsely to
-             gather a gradient into one bin, then averaged inside the winning
-             bin so the answer is a real colour rather than a bin centre */
-          const t = document.createElement('canvas');
-          t.width = 64; t.height = 64;
-          const tc = t.getContext('2d', {willReadFrequently:true});
-          tc.drawImage(img, 0, 0, 64, 64);
-          const td = tc.getImageData(0, 0, 64, 64).data;
-          const bins = new Map();
-          for(let i = 0; i < td.length; i += 4){
-            if(td[i+3] < 128) continue;
-            const k = (td[i]>>4)+','+(td[i+1]>>4)+','+(td[i+2]>>4);
-            const cur = bins.get(k) || {n:0, r:0, g:0, b:0};
-            cur.n++; cur.r += td[i]; cur.g += td[i+1]; cur.b += td[i+2];
-            bins.set(k, cur);
-          }
-          let top = null;
-          for(const v of bins.values()) if(!top || v.n > top.n) top = v;
-          if(top) out = `rgb(${Math.round(top.r/top.n)},${Math.round(top.g/top.n)},${Math.round(top.b/top.n)})`;
-        }
-      }
-    }catch(_){ /* tainted canvas: fall through to the section's token */ }
-    if(!out && fromEl){
-      const sec = fromEl.closest('[data-ground]');
-      const tok = sec && sec.getAttribute('data-ground');
-      if(tok) out = getComputedStyle(document.documentElement)
-                      .getPropertyValue('--g-' + tok).trim() || null;
-    }
-    out = out || '#000';
-    groundCache.set(key, out);
-    return out;
-  };
-
-  const paintGround = (el) => {
-    const apply = () => {
-      /* the room is the work's measured ground, at full strength. Nothing is
-         darkened, nothing is lifted, nothing is drawn around the work: the
-         field below supplies the movement that makes it read as a room. */
-      lb.style.setProperty('--lb-ground', groundOf(imgEl, el));
-    };
-    if(imgEl.complete && imgEl.naturalWidth) apply();
-    else imgEl.addEventListener('load', apply, {once:true});
-  };
-
-
-  /* ── THE FIELD IN THE ROOM ───────────────────────────────────────────
-     The same Gabor shader that lights the page, running at a third of its
-     speed and a little stronger, so the ground breathes slowly behind the
-     work and leans toward the cursor. This is what says "the viewer is
-     open" now that nothing is painted around the artwork to say it.
-
-     Built once, on first open, and only if WebGL is there: a viewer that
-     cannot render a field still shows the work on its correct ground. */
-  let field = null;
-  const ensureField = () => {
-    if(field || typeof window.GaborField !== 'function') return;
-    const holder = document.createElement('div');
-    holder.className = 'lb-field';
-    holder.setAttribute('aria-hidden', 'true');
-    bg.after(holder);
-    /* ── AMPLITUDE IS SET BY THE EDGE, NOT BY TASTE ───────────────────
-       At amp .11 behind an opacity of .7 this printed a visible halo round
-       every work, and it was read as a blur at the canvas edge. Nothing was
-       blurred: the room matched the work's ground EXACTLY with the field off
-       (measured rgb(150,155,151) on both sides of the boundary, no step at
-       all), and the field then lifted the room to rgb(153..159) while the
-       artwork stayed flat. A smooth gradient running up to a flat rectangle
-       is a glow, which is the one thing a viewer must never draw around a
-       work.
-
-       The step at the boundary IS the field's local amplitude, so there is
-       no spatial trick that removes it: a mask that fades the field near the
-       work is a vignette, which is the same halo drawn deliberately.
-
-       What makes both possible is that the eye finds MOVEMENT at far lower
-       contrast than it finds a static edge. So the amplitude drops until the
-       boundary step is under two levels, and the rate drops with it so the
-       room reads as breathing rather than shimmering. You see the light
-       move; you cannot find the rectangle. */
-    field = window.GaborField(holder, { amp: .028, rate: .17 });
+  /* ── ONE WORK DISSOLVES INTO THE NEXT ─────────────────────────────────
+     The next file is decoded OFF SCREEN first and only then put in the
+     plate, so there is never a blank frame while it decodes. At that moment
+     the outgoing picture is copied into a ghost at its exact place on
+     screen and both fade together, the new one up, the old one out: a cross
+     dissolve, not a cut. Arrowing faster than the fade simply retires the
+     older ghost; only the latest request is ever swapped in. */
+  let swapToken = 0;
+  const clearGhosts = () => lb.querySelectorAll('.lb-ghost').forEach(g => g.remove());
+  const ghostOut = () => {
+    const src = imgEl.currentSrc || imgEl.src;
+    if(!src || !imgEl.naturalWidth) return;
+    clearGhosts();
+    const r = imgEl.getBoundingClientRect();
+    const g = new Image();
+    g.className = 'lb-ghost'; g.alt = ''; g.draggable = false; g.src = src;
+    Object.assign(g.style, {left:r.left+'px', top:r.top+'px', width:r.width+'px', height:r.height+'px'});
+    lb.insertBefore(g, plate);
+    requestAnimationFrame(() => requestAnimationFrame(() => g.classList.add('out')));
+    setTimeout(() => g.remove(), 700);
   };
 
   const show = (i) => {
@@ -299,6 +172,20 @@
        viewer at 1:1 with 14% of padding baked round it. data-lb-src names the
        real file; anything without one is already the work. */
     const src = works[index].dataset.lbSrc || works[index].currentSrc || works[index].src;
+    const token = ++swapToken;
+    /* opening: the plate's own entrance is the transition, swap at once */
+    if(!lb.classList.contains('open')){ imgEl.classList.remove('lb-in'); swap(src); return; }
+    const pre = new Image(); pre.src = src;
+    (pre.decode ? pre.decode() : Promise.resolve()).catch(() => {}).then(() => {
+      if(token !== swapToken || !open) return;
+      ghostOut();
+      imgEl.classList.add('lb-in');
+      swap(src);
+      requestAnimationFrame(() => requestAnimationFrame(() => imgEl.classList.remove('lb-in')));
+    });
+  };
+
+  const swap = (src) => {
     imgEl.src = src;
     /* ── THEN THE MASTER ─────────────────────────────────────────────────
        The page shows the 2400px file of each transparent work; its 4800px
@@ -319,8 +206,6 @@
       fetch(`assets/works/t/tiles/${entry.tiles}/meta.json`).then(r => r.json()).then(m => { metas.set(entry.tiles, m); updateTiles(); }).catch(() => {});
     }
     zoomMax = ZOOM_MAX; nativeMax = ZOOM_MAX;
-    bg.style.backgroundImage = '';
-    paintGround(works[index]);
     /* the plate takes the WORK's own ratio, so nothing is cropped and the
        frame is never larger than the picture in it. naturalWidth is 0 until
        the file decodes, hence the onload fallback. */
@@ -346,9 +231,6 @@
     lastFocused = from || document.activeElement;
     open = true;
     lb.hidden = false;
-    ensureField();
-    if(field) field.resize();
-    if(field && field.start) field.start();
     show(i);
     requestAnimationFrame(() => lb.classList.add('open'));
     document.documentElement.style.overflow = 'hidden';
@@ -359,9 +241,7 @@
     lb.classList.remove('open');
     document.documentElement.style.overflow = '';
     /* wait out the fade before hiding, so it does not blink off */
-    /* the field stops with the viewer hidden: it was drawing a full-window
-       shader on every frame behind display:none for the rest of the visit */
-    setTimeout(() => { if(!open){ lb.hidden = true; imgEl.removeAttribute('src'); if(field) field.stop(); } }, 190);
+    setTimeout(() => { if(!open){ lb.hidden = true; imgEl.removeAttribute('src'); clearGhosts(); } }, 190);
     if(lastFocused && lastFocused.focus) lastFocused.focus();
   };
 
