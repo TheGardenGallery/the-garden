@@ -49,7 +49,7 @@ const nextConfig: NextConfig = {
       // at once; the artwork files are content-stable and cache for a
       // day. Never immutable: these URLs are not versioned.
       {
-        source: "/hold-me",
+        source: "/exhibitions/hold-me",
         headers: [
           {
             key: "Cache-Control",
@@ -78,15 +78,18 @@ const nextConfig: NextConfig = {
     ];
   },
   // Hold Me is a static page whose CSS, JS, fetches and media are all
-  // relative. Its <base href="/hold-me/"> resolves them, so it is served
-  // at /hold-me like every other page (Next already sends /hold-me/ here).
+  // relative. Its <base href="/hold-me/"> resolves them to public/hold-me/,
+  // so the page itself can live at /exhibitions/hold-me like every other
+  // show. beforeFiles so it wins over the app/exhibitions/[slug] route.
   async rewrites() {
-    return [
-      {
-        source: "/hold-me",
-        destination: "/hold-me/index.html",
-      },
-    ];
+    return {
+      beforeFiles: [
+        {
+          source: "/exhibitions/hold-me",
+          destination: "/hold-me/index.html",
+        },
+      ],
+    };
   },
   // The Interview section moved from /journal → /interviews so its URL
   // structure matches /artists and /exhibitions (list at plural, detail
@@ -95,6 +98,13 @@ const nextConfig: NextConfig = {
   // without breaking POST bodies if any ever existed.
   async redirects() {
     return [
+      // Hold Me launched at /hold-me before moving under /exhibitions.
+      // Only the page itself moves; its assets stay at /hold-me/*.
+      {
+        source: "/hold-me",
+        destination: "/exhibitions/hold-me",
+        permanent: true,
+      },
       {
         source: "/journal",
         destination: "/interviews",

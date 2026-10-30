@@ -32,7 +32,8 @@ import type { Metadata } from "next";
 
 export async function generateStaticParams() {
   const all = await fetchExhibitions();
-  return all.map((e) => ({ slug: e.slug }));
+  // Standalone pages (pageUrl) are served outside this template.
+  return all.filter((e) => !e.pageUrl).map((e) => ({ slug: e.slug }));
 }
 
 export async function generateMetadata({
@@ -94,7 +95,12 @@ export default async function ExhibitionDetailPage({
   const { slug } = await params;
   const exhibition = await fetchExhibition(slug);
   if (!exhibition) notFound();
-  if (exhibition.pageUrl) redirect(exhibition.pageUrl);
+  if (exhibition.pageUrl) {
+    // A pageUrl at this same path is a next.config rewrite; landing here
+    // means it did not match, so redirecting would loop.
+    if (exhibition.pageUrl === `/exhibitions/${slug}`) notFound();
+    redirect(exhibition.pageUrl);
+  }
 
   // Unified zoomable artwork collection for split-logic — hero +
   // inline-artwork videos + piece-grid items, in that document order.
