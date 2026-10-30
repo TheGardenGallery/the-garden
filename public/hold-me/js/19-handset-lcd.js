@@ -139,6 +139,10 @@
 
     size();
     addEventListener('resize', size);
+    /* the aperture can still be 0 tall when this runs (Safari lays the
+       plate out after the script), which left a 1px canvas: a blank green
+       screen. Re-measure whenever the aperture itself changes size. */
+    if (window.ResizeObserver) new ResizeObserver(size).observe(host);
     if (matchMedia('(prefers-reduced-motion:reduce)').matches) { state = { mode: 'dial', digits: NUMBERS[0] }; draw(); return; }
     new IntersectionObserver(([e]) => {
       if (e.isIntersecting && !running) { running = true; loop(++token); }
