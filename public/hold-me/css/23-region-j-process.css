@@ -31,9 +31,11 @@
      Held to the page axis, so it spans exactly the measure every other room
      is built on. The second term is the file's own resolution: 3168px at 2
      device pixels per CSS pixel is 1584px, just past the axis span, so the
-     axis governs at every window and the browser never invents a pixel. */
+     axis governs at every window and the browser never invents a pixel.
+     --fit keeps the whole grab on screen on a short window, the same term
+     the columns and phones below are measured from. */
 .proc-doc{margin:0 auto;position:relative;
-    width:min(100%, 1584px)}
+    width:min(100%, 1584px, var(--fit))}
 
 
 .proc-doc img{display:block;width:100%;height:auto;
@@ -201,37 +203,6 @@
 }
 
 
-  /* ── THE DOCUMENT AND THE MAKING, ONE FRAME ──────────────────────────
-     The grab, and a swipe away his screen recording, in one frame of the
-     grab's own size (3168:2088), so nothing below moves: the columns still
-     stand on the dialog's tracks. Trackpad or touch swipes, a mouse drags,
-     and each pane snaps whole. The recording stands exactly where the
-     dialog's window stands in the grab (measured: 3.64% down, 3.54% in
-     from each side, 7.09% up), and the two windows are nearly one shape
-     (1.579 and 1.593), so a swipe changes what is on the screen, not
-     where the screen is. */
-.proc-reel{position:relative;margin:0 auto;width:min(100%, 1584px, var(--fit))}
-.proc-reel-track{display:flex;overflow-x:auto;overflow-y:hidden;
-    scroll-snap-type:x mandatory;overscroll-behavior-x:contain;
-    scrollbar-width:none;cursor:grab}
-.proc-reel-track::-webkit-scrollbar{display:none}
-.proc-reel-track.dragging{cursor:grabbing;scroll-snap-type:none}
-.proc-reel-track > figure{flex:0 0 100%;width:100%;margin:0;scroll-snap-align:start}
-.proc-reel .proc-doc img{cursor:grab}
-.proc-run{position:relative;aspect-ratio:3168 / 2088;background:#000}
-.proc-run video{position:absolute;display:block;object-fit:contain;
-    top:3.64%;bottom:7.09%;left:3.54%;right:3.54%;width:92.92%;height:89.27%}
-
-  /* where you are: two of the dialog's hairlines, in the black band at the
-     frame's foot (both windows end 7.09% up it) */
-.proc-reel-marks{position:absolute;left:50%;bottom:calc(100% * .0709 / 2);
-    transform:translate(-50%, 50%);display:flex;gap:6px}
-.proc-reel-marks button{appearance:none;border:0;background:none;padding:10px 0;cursor:pointer;
-    width:28px}
-.proc-reel-marks button::before{content:"";display:block;height:1px;background:#f5f3ef;
-    opacity:.28;transition:opacity .5s var(--ease-arrive)}
-.proc-reel-marks button[aria-current="true"]::before{opacity:.86}
-.proc-reel-marks button:focus-visible{outline:1px solid rgba(245,243,239,.5);outline-offset:2px}
 
 
   /* ── ONE GRID FOR THE ROOM (2026-10-30) ──────────────────────────────

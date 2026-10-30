@@ -33,7 +33,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     /* the black rooms: a little more night between each work and its
        passage (Ivan, 2026-10-27) */
     .spine-a,.band .spine-b,.spine-c-pair{gap:72px}
-    .proc-reel + .proc-cols{margin-top:72px}
+    .proc-doc + .proc-cols{margin-top:72px}
     .proc-pair{margin-top:72px !important}
 }
 
