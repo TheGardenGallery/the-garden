@@ -493,11 +493,23 @@
   prevB.addEventListener('click', (e) => { e.stopPropagation(); show(index - 1); });
   nextB.addEventListener('click', (e) => { e.stopPropagation(); show(index + 1); });
 
+  /* ---- the arrow keys are PACED to the room. A held key auto-repeats
+     about thirty times a second, and every step repaints the room in the
+     next work's ground, so holding one strobed the colours. A held key now
+     steps once per ground fade (--t4, .72s), so each room settles before
+     the next; a fresh press steps at once, with a short floor so drumming
+     the key cannot strobe it either. */
+  const HOLD_MS = 720, TAP_MS = 260;
+  let lastStep = 0;
   window.addEventListener('keydown', (e) => {
     if(!open) return;
-    if(e.key === 'Escape')      close();
-    if(e.key === 'ArrowLeft')   show(index - 1);
-    if(e.key === 'ArrowRight')  show(index + 1);
+    if(e.key === 'Escape') { close(); return; }
+    if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    const now = performance.now();
+    if(now - lastStep < (e.repeat ? HOLD_MS : TAP_MS)) return;
+    lastStep = now;
+    show(index + (e.key === 'ArrowLeft' ? -1 : 1));
   });
 
   /* a resize can leave a pan outside the new clamp */
