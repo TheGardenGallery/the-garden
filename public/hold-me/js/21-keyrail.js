@@ -234,7 +234,11 @@
       /* every room gets one, bleed rooms included: where the work covers the
          lattice it is simply not seen, which is the correct outcome and
          needs no special case */
-      if (getComputedStyle(band).position === 'static') band.style.position = 'relative';
+      /* No inline position here. Every band and the hero are already
+         positioned in CSS (09-bands-shared, 18-atmosphere). Safari can run
+         this before the stylesheets land, read 'static', and pin an inline
+         `relative` that beat .curtain-under's sticky: the curtain's negative
+         top then lifted whole rooms over the ones above them. */
       const f = makeField(gutter, ink);
       band.insertBefore(f, band.firstChild);
       fitToContent(band, f);
