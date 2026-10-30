@@ -21,6 +21,7 @@
      added to any region later is in the viewer automatically. ===== */
   const lb    = document.querySelector('.lb');
   if(!lb) return;
+  const bg    = lb.querySelector('.lb-bg');
   const plate = lb.querySelector('.lb-plate');
   const zoomEl= lb.querySelector('.lb-zoom');
   const imgEl = lb.querySelector('.lb-zoom img');
@@ -128,39 +129,170 @@
     scheduleTiles(animate ? 300 : 60);
   };
 
-  /* ── THE ROOM IS BLACK ────────────────────────────────────────────────
-     The room used to be each work's own ground, sampled off the file on
-     every open: the whole 2000px picture drawn into a canvas and read back,
-     on the main thread, which stalled the viewer for close to half a second
-     on each new work, and then a 0.72s colour fade that ran on while the
-     picture itself had already cut. A Gabor field breathed on top of it.
+  /* ── THE ROOM IS THE WORK'S OWN GROUND, AND IT CHANGES WITH THE WORK ──
+     Every work stands in a room painted its own ground colour, measured off
+     the file (never a table of grounds to keep in step with new deliveries).
 
-     Now every work stands in the same black room (Ivan, 2026-10-30), the way
-     Split Logic's viewer reads in the promo cut. The transparent works were
-     drawn to stand on a ground and black is the ground that never argues
-     with any of them; the ones with a ground of their own read as plates.
-     Nothing to sample, nothing to fade but the works themselves. */
+     It was measured on the FULL file: the whole 2000px picture drawn into a
+     canvas and read back on the main thread, which froze the viewer for
+     close to half a second on each new work, and the room then faded to its
+     colour over 0.72s while the picture had already cut, so the two never
+     arrived together. Then it went black (2026-10-30), which was smooth but
+     lost the colour. Now (Ivan, 2026-10-30) the colour is back and it lands
+     ON THE SAME FRAME as the work, with no fade:
 
-  /* ── ONE WORK DISSOLVES INTO THE NEXT ─────────────────────────────────
-     The next file is decoded OFF SCREEN first and only then put in the
-     plate, so there is never a blank frame while it decodes. At that moment
-     the outgoing picture is copied into a ghost at its exact place on
-     screen and both fade together, the new one up, the old one out: a cross
-     dissolve, not a cut. Arrowing faster than the fade simply retires the
-     older ghost; only the latest request is ever swapped in. */
+       the ground is read off a 96px copy of the file, decoded from its
+       bytes by createImageBitmap OFF the main thread. Drawing the <img>
+       itself into a canvas, even a small one, forces the full picture to
+       decode on the main thread (60 to 90ms measured); from a Blob it costs
+       the page nothing. A flat margin is just as flat at 96px
+
+       the works either side of the open one are decoded and measured AHEAD,
+       so by the time an arrow is pressed the next picture and its colour
+       are both already in hand
+
+       the swap sets the colour and the picture together, and the colour
+       does not transition at all (see .lb-bg)
+
+     THE BORDER RING, NOT ONE CORNER. Eight points around the frame, the
+     value six of them agree on wins, so a drawing touching one edge cannot
+     repaint the room. A ring that does not agree means the file has no
+     margin, and the dominant colour of the whole picture answers instead.
+     A ring that is mostly empty is a transparent work, made to stand on its
+     room: the section's own ground token answers. */
+  const RING = 96;
+  const groundCache = new Map();
+  const keyOfSrc = src => new URL(src, document.baseURI).href;
+  const groundOf = (key, fromEl, small) => {
+    if(groundCache.has(key)) return groundCache.get(key);
+    let out = null;
+    try{
+      if(small){
+        const c = document.createElement('canvas');
+        c.width = c.height = RING;
+        const ctx = c.getContext('2d', {willReadFrequently:true});
+        ctx.drawImage(small, 0, 0, RING, RING);
+        const d = ctx.getImageData(0, 0, RING, RING).data;
+        const at = (x, y) => (y * RING + x) * 4;
+        const e = 1, m = RING >> 1, z = RING - 1 - e;
+        const tally = new Map();
+        let clear = 0;
+        for(const [x, y] of [[e,e],[z,e],[e,z],[z,z],[m,e],[m,z],[e,m],[z,m]]){
+          const i = at(x, y);
+          if(d[i+3] < 8){ clear++; continue; }
+          /* quantised to 8 levels per channel so samples of one flat ground
+             agree with each other despite compression noise */
+          const k = (d[i]>>3)+','+(d[i+1]>>3)+','+(d[i+2]>>3);
+          const cur = tally.get(k) || {n:0, rgb:[0,0,0]};
+          cur.n++; cur.rgb = [d[i], d[i+1], d[i+2]];
+          tally.set(k, cur);
+        }
+        let best = null;
+        for(const v of tally.values()) if(!best || v.n > best.n) best = v;
+        if(clear >= 4){
+          /* transparent: the section token below takes over */
+        } else if(best && best.n >= 6){
+          out = `rgb(${best.rgb[0]},${best.rgb[1]},${best.rgb[2]})`;
+        } else {
+          /* no flat margin: the dominant colour of the picture, quantised
+             coarsely, then averaged inside the winning bin so the answer is
+             a real colour rather than a bin centre */
+          const bins = new Map();
+          for(let i = 0; i < d.length; i += 4){
+            if(d[i+3] < 128) continue;
+            const k = (d[i]>>4)+','+(d[i+1]>>4)+','+(d[i+2]>>4);
+            const cur = bins.get(k) || {n:0, r:0, g:0, b:0};
+            cur.n++; cur.r += d[i]; cur.g += d[i+1]; cur.b += d[i+2];
+            bins.set(k, cur);
+          }
+          let top = null;
+          for(const v of bins.values()) if(!top || v.n > top.n) top = v;
+          if(top) out = `rgb(${Math.round(top.r/top.n)},${Math.round(top.g/top.n)},${Math.round(top.b/top.n)})`;
+        }
+      }
+    }catch(_){ /* tainted canvas: fall through to the section's token */ }
+    if(!out && fromEl){
+      const sec = fromEl.closest('[data-ground]');
+      const tok = sec && sec.getAttribute('data-ground');
+      if(tok) out = getComputedStyle(document.documentElement)
+                      .getPropertyValue('--g-' + tok).trim() || null;
+    }
+    out = out || '#000';
+    groundCache.set(key, out);
+    return out;
+  };
+  /* measure() resolves to the work's ground, decoding its 96px copy off the
+     main thread; without createImageBitmap the section token answers */
+  const measure = (src, el) => {
+    const key = keyOfSrc(src);
+    if(groundCache.has(key)) return Promise.resolve(groundCache.get(key));
+    if(!window.createImageBitmap) return Promise.resolve(groundOf(key, el));
+    return fetch(src).then(r => r.blob())
+      .then(b => createImageBitmap(b, {resizeWidth:RING, resizeHeight:RING, resizeQuality:'low'}))
+      .then(bm => { const g = groundOf(key, el, bm); if(bm.close) bm.close(); return g; })
+      .catch(() => groundOf(key, el));
+  };
+  const setGround = (g) => lb.style.setProperty('--lb-ground', g);
+
+  /* ── THE NEXT WORK IS READY BEFORE IT IS ASKED FOR ────────────────────
+     prepare() decodes a work off screen and measures its ground. Only the
+     open work and its two neighbours are held, so arrowing through forty
+     works never keeps forty decoded 2000px pictures alive. */
+  const wrap = i => (i % works.length + works.length) % works.length;
+  const srcOf = i => { const w = works[wrap(i)]; return w.dataset.lbSrc || w.currentSrc || w.src; };
+  const ready = new Map();
+  const prepare = (i) => {
+    const src = srcOf(i), el = works[wrap(i)];
+    if(ready.has(src)) return ready.get(src);
+    const pre = new Image(); pre.src = src;
+    const decoded = (pre.decode ? pre.decode() : new Promise(r => { pre.onload = pre.onerror = r; })).catch(() => {});
+    const p = Promise.all([decoded, measure(src, el)]).then(([, g]) => ({pre, g}));
+    ready.set(src, p);
+    return p;
+  };
+  const prepareAround = () => {
+    const keep = new Set([srcOf(index - 1), srcOf(index), srcOf(index + 1)]);
+    for(const k of ready.keys()) if(!keep.has(k)) ready.delete(k);
+    prepare(index + 1); prepare(index - 1);
+  };
   let swapToken = 0;
-  const clearGhosts = () => lb.querySelectorAll('.lb-ghost').forEach(g => g.remove());
-  const ghostOut = () => {
-    const src = imgEl.currentSrc || imgEl.src;
-    if(!src || !imgEl.naturalWidth) return;
-    clearGhosts();
-    const r = imgEl.getBoundingClientRect();
-    const g = new Image();
-    g.className = 'lb-ghost'; g.alt = ''; g.draggable = false; g.src = src;
-    Object.assign(g.style, {left:r.left+'px', top:r.top+'px', width:r.width+'px', height:r.height+'px'});
-    lb.insertBefore(g, plate);
-    requestAnimationFrame(() => requestAnimationFrame(() => g.classList.add('out')));
-    setTimeout(() => g.remove(), 700);
+
+
+  /* ── THE FIELD IN THE ROOM ───────────────────────────────────────────
+     The same Gabor shader that lights the page, running at a third of its
+     speed and a little stronger, so the ground breathes slowly behind the
+     work and leans toward the cursor. This is what says "the viewer is
+     open" now that nothing is painted around the artwork to say it.
+
+     Built once, on first open, and only if WebGL is there: a viewer that
+     cannot render a field still shows the work on its correct ground. */
+  let field = null;
+  const ensureField = () => {
+    if(field || typeof window.GaborField !== 'function') return;
+    const holder = document.createElement('div');
+    holder.className = 'lb-field';
+    holder.setAttribute('aria-hidden', 'true');
+    bg.after(holder);
+    /* ── AMPLITUDE IS SET BY THE EDGE, NOT BY TASTE ───────────────────
+       At amp .11 behind an opacity of .7 this printed a visible halo round
+       every work, and it was read as a blur at the canvas edge. Nothing was
+       blurred: the room matched the work's ground EXACTLY with the field off
+       (measured rgb(150,155,151) on both sides of the boundary, no step at
+       all), and the field then lifted the room to rgb(153..159) while the
+       artwork stayed flat. A smooth gradient running up to a flat rectangle
+       is a glow, which is the one thing a viewer must never draw around a
+       work.
+
+       The step at the boundary IS the field's local amplitude, so there is
+       no spatial trick that removes it: a mask that fades the field near the
+       work is a vignette, which is the same halo drawn deliberately.
+
+       What makes both possible is that the eye finds MOVEMENT at far lower
+       contrast than it finds a static edge. So the amplitude drops until the
+       boundary step is under two levels, and the rate drops with it so the
+       room reads as breathing rather than shimmering. You see the light
+       move; you cannot find the rectangle. */
+    field = window.GaborField(holder, { amp: .028, rate: .17 });
   };
 
   const show = (i) => {
@@ -172,16 +304,24 @@
        viewer at 1:1 with 14% of padding baked round it. data-lb-src names the
        real file; anything without one is already the work. */
     const src = works[index].dataset.lbSrc || works[index].currentSrc || works[index].src;
-    const token = ++swapToken;
+    const token = ++swapToken, el = works[index];
     /* opening: the plate's own entrance is the transition, swap at once */
-    if(!lb.classList.contains('open')){ imgEl.classList.remove('lb-in'); swap(src); return; }
-    const pre = new Image(); pre.src = src;
-    (pre.decode ? pre.decode() : Promise.resolve()).catch(() => {}).then(() => {
+    if(!lb.classList.contains('open')){
+      imgEl.classList.remove('lb-in');
+      swap(src);
+      measure(src, el).then(g => { if(token === swapToken) setGround(g); });
+      prepareAround();
+      return;
+    }
+    /* navigating: colour and picture change on the same frame, the colour
+       at once, the picture rising over it in 0.18s */
+    prepare(index).then(({g}) => {
       if(token !== swapToken || !open) return;
-      ghostOut();
+      setGround(g);
       imgEl.classList.add('lb-in');
       swap(src);
       requestAnimationFrame(() => requestAnimationFrame(() => imgEl.classList.remove('lb-in')));
+      prepareAround();
     });
   };
 
@@ -196,8 +336,11 @@
     const master = /\/works\/t\/t-[^/]+\.webp$/.test(src) ? src.replace('/works/t/', '/works/t/hi/') : null;
     if (master) {
       const want = index, pre = new Image();
-      pre.onload = () => { if (index === want && open) imgEl.src = master; };
+      /* decoded BEFORE it goes in: assigning a 4000px file that has only
+         loaded makes the browser decode it on the main thread at the next
+         paint, a freeze of about 300ms just after every work opens */
       pre.src = master;
+      pre.decode().then(() => { if (index === want && open) imgEl.src = master; }).catch(() => {});
     }
     imgEl.alt = works[index].alt || '';
     tileLayer.textContent = ''; tilesMade.clear();
@@ -231,6 +374,9 @@
     lastFocused = from || document.activeElement;
     open = true;
     lb.hidden = false;
+    ensureField();
+    if(field) field.resize();
+    if(field && field.start) field.start();
     show(i);
     requestAnimationFrame(() => lb.classList.add('open'));
     document.documentElement.style.overflow = 'hidden';
@@ -241,7 +387,9 @@
     lb.classList.remove('open');
     document.documentElement.style.overflow = '';
     /* wait out the fade before hiding, so it does not blink off */
-    setTimeout(() => { if(!open){ lb.hidden = true; imgEl.removeAttribute('src'); clearGhosts(); } }, 190);
+    /* the field stops with the viewer hidden: it was drawing a full-window
+       shader on every frame behind display:none for the rest of the visit */
+    setTimeout(() => { if(!open){ lb.hidden = true; imgEl.removeAttribute('src'); if(field) field.stop(); } }, 190);
     if(lastFocused && lastFocused.focus) lastFocused.focus();
   };
 

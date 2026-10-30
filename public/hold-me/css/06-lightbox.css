@@ -28,14 +28,31 @@
 .lb[hidden]{display:none}
 
 
-  /* ── THE ROOM IS BLACK ──────────────────────────────────────────────
-     It was each work's own ground, sampled off the file, re-lighting as you
-     navigated, with a Gabor field breathing over it. Every work now stands
-     in the same black room (Ivan, 2026-10-30): the transparent works read
-     clean against it and the viewer has nothing to compute between works,
-     so arrowing through is a dissolve from one piece to the next. See "ONE
-     WORK DISSOLVES INTO THE NEXT" in 15-lightbox.js. */
-.lb-bg{position:absolute;inset:0;z-index:0;pointer-events:none;background:#000}
+  /* ── THE ROOM IS THE WORK'S OWN GROUND ────────────────────────────────
+     A flat field of the open work's ground colour, measured off the file
+     (groundOf() in 15-lightbox.js). NO blur, no scale, no copy of the
+     picture.
+
+     THE COLOUR DOES NOT TRANSITION. It used to fade over 0.72s, and since
+     the picture changed at once the room was always still arriving at the
+     last work's colour while the next one stood in it. The next work's
+     colour is measured before the arrow is pressed and set on the same
+     frame as the picture, so the room and the work change together. Only
+     the viewer's own opening and closing fade (opacity, below). */
+.lb-bg{position:absolute;inset:0;z-index:0;pointer-events:none;
+    background-color:var(--lb-ground,#000);
+    transition:opacity var(--t5) var(--ease)}
+
+
+  /* ── THE LIGHT ON TOP OF IT ───────────────────────────────────────────
+     The same Gabor wavelets that light the page run here, slowly, leaning
+     toward the cursor: the ground breathes, so the viewer is unmistakably
+     open, and nothing has been drawn around the artwork to say so. */
+.lb-field{position:absolute;inset:0;z-index:0;pointer-events:none;
+    mix-blend-mode:soft-light;opacity:.55}
+
+
+.lb-field canvas{width:100%;height:100%;display:block}
 
 
   /* the plate. Capped at 720px or 70vmin so the work reads as a centred
@@ -89,7 +106,7 @@
      could breathe instead of ending at a hard rectangle. The intent was
      right and the instrument was wrong: a soft gradient at the canvas edge
      reads as a blur on the artwork, which is the one thing a viewer must
-     never do to a work. It is gone, and the room is plain black (.lb-bg):
+     never do to a work. It is gone, and the room is the work's own flat ground (.lb-bg):
      nothing is drawn around the work, so nothing can look drawn around it. */
 
 
@@ -108,16 +125,12 @@
 
 .lb-zoom img{width:100%;height:100%;display:block;object-fit:contain;
     user-select:none;-webkit-user-drag:none;
-    transition:opacity var(--t2) var(--ease)}
+    transition:opacity var(--t1) var(--ease)}
 
 
-  /* the cross dissolve between works: the incoming picture starts at .lb-in
-     and rises while the outgoing one, copied into a ghost at its exact place
-     on screen, falls away under it */
+  /* navigating: the room takes the next work's colour at once and the
+     picture rises over it, the 0.18s Split Logic's viewer uses */
 .lb-zoom img.lb-in{opacity:0;transition:none}
-.lb-ghost{position:fixed;z-index:1;object-fit:contain;pointer-events:none;
-    opacity:1;transition:opacity var(--t2) var(--ease)}
-.lb-ghost.out{opacity:0}
 
 
   /* prev / next, the site's house arrows: same opacity ramp and 3px travel
