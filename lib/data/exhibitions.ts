@@ -25,7 +25,7 @@ export const exhibitions: Exhibition[] = [
     month: "Nov",
     date: "November 5, 2026",
     status: "upcoming",
-    pageUrl: "/hold-me",
+    pageUrl: "/exhibitions/hold-me",
     hero: "/images/movsum-alasgarov/hold-me-hero.webp",
     homepageHero: "/images/movsum-alasgarov/hold-me-hero.webp",
     heroUnoptimized: true,

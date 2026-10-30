@@ -127,9 +127,10 @@ export type Exhibition = {
   /** Sale platform shown in the listing and facts sidebar. Optional so a
       show can be announced before its platform is confirmed. */
   location?: string;
-  /** Standalone exhibition page (e.g. "/hold-me", a static page in
-      public/). When set, every link to the show points here instead of
-      /exhibitions/{slug}, and that route redirects here. */
+  /** Standalone exhibition page (e.g. "/exhibitions/hold-me", a static
+      page in public/ rewritten in next.config.ts). When set, every link
+      points here and the shared [slug] template is never rendered for it;
+      if it differs from /exhibitions/{slug}, that route redirects here. */
   pageUrl?: string;
   /** When set, the facts-sidebar "Platform" value links out to this URL.
       Opt-in per show; absent everywhere else so only the intended page
