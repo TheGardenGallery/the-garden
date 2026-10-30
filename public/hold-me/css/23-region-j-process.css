@@ -257,12 +257,10 @@
       margin-left:calc(var(--pg) / -2)}
   .proc-pair .proc-ph--a,.proc-pair .proc-ph--b{flex:0 0 var(--cell);padding:0}
   .proc-pair .proc-ph--a img{transform:translateX(calc((.5 - .5208) * 100%))}
-  .proc-pair .proc-ph--b,
-  .proc-pair .proc-flip{box-shadow:-1px 0 0 rgba(245,243,239,.17)}
     /* a flip's box is its ink, so its cell is made from equal margins
        either side, and its hairline is drawn at the cell's left edge */
   .proc-flip,.proc-ph--b + .proc-flip{
-      margin:0 calc((var(--cell) - var(--a) * var(--ph)) / 2);box-shadow:none}
+      margin:0 calc((var(--cell) - var(--a) * var(--ph)) / 2)}
   .proc-flip::before{content:"";position:absolute;top:0;bottom:0;width:1px;
       left:calc((var(--cell) - var(--a) * var(--ph)) / -2);
       background:rgba(245,243,239,.17)}
