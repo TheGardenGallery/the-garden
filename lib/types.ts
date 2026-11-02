@@ -151,6 +151,7 @@ export type Exhibition = {
   heroIframeRandomize?: boolean; // when true, the client replaces the payload's `hash` field with a fresh 64-char hex value on every mount, so the genart re-rolls visibly on every page load (most generative bundles are hash-deterministic — bumping just a cache-buster won't visibly change the output).
   heroVerseUrl?: string;         // override for the hero plate's outbound link; falls back to `verseSeriesUrl`. Use when the hero presents a single specific work distinct from the series page.
   homepageHero?: string;         // used on homepage hero — may differ from detail hero
+  homepageHeroPlaceholder?: string; // tiny inline data URI shown (blurred) until homepageHero arrives, so the welcome gate's gaps show the work from the first frame
   homepageHeroVideo?: string;    // if set, the homepage hero renders this muted autoplay loop instead of homepageHero/hero
   homepageHeroVideoPoster?: string; // poster frame for homepageHeroVideo
   releaseDate?: string;          // ISO timestamp for upcoming exhibitions — drives the flip-clock countdown on the detail page

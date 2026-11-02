@@ -9,6 +9,8 @@ type HeroArtworkProps = {
   unoptimized?: boolean;
   /** Fill the frame (crop) instead of fitting the whole work inside it. */
   cover?: boolean;
+  /** Tiny inline image shown blurred until the file arrives. */
+  placeholder?: string;
 };
 
 /**
@@ -21,7 +23,7 @@ type HeroArtworkProps = {
  *
  * Respects prefers-reduced-motion (disabled entirely in that case).
  */
-export function HeroArtwork({ src, alt, unoptimized, cover }: HeroArtworkProps) {
+export function HeroArtwork({ src, alt, unoptimized, cover, placeholder }: HeroArtworkProps) {
   const reduced = useReducedMotion();
 
   return (
@@ -46,7 +48,13 @@ export function HeroArtwork({ src, alt, unoptimized, cover }: HeroArtworkProps) 
         alt={alt}
         fill
         priority
+        /* Next's `priority` preloads but leaves the fetch at default
+           priority, so the 1.7MB hero queued behind the scripts and was
+           still arriving as the welcome's flaps fell */
+        fetchPriority="high"
         unoptimized={unoptimized}
+        placeholder={placeholder ? "blur" : "empty"}
+        blurDataURL={placeholder}
         sizes="100vw"
         style={{ objectFit: cover ? "cover" : "contain" }}
       />

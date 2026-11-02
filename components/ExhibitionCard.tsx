@@ -40,6 +40,10 @@ export function ExhibitionCard({ exhibition }: { exhibition: Exhibition }) {
               height={1500}
               sizes="(min-width: 960px) 30vw, (min-width: 600px) 46vw, 92vw"
               quality={90}
+              /* below the fold but inside the lazy-load margin, so they
+                 started with the page and split the bandwidth with the
+                 1.7MB hero while the welcome gate was up */
+              fetchPriority="low"
             />
           ) : null}
         </div>

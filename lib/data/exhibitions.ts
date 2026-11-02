@@ -28,6 +28,10 @@ export const exhibitions: Exhibition[] = [
     pageUrl: "/exhibitions/hold-me",
     hero: "/images/movsum-alasgarov/hold-me-hero.webp",
     homepageHero: "/images/movsum-alasgarov/hold-me-hero.webp",
+    // 32x20 of the hero: the welcome gate's gaps show colour from the
+    // first frame instead of black until the 1.7MB file lands
+    homepageHeroPlaceholder:
+      "data:image/webp;base64,UklGRuYBAABXRUJQVlA4INoBAAAwCgCdASogABQAPrVInkmnJCKhMAgA4BaJbACdMoMgvYDeAeLN6Jv63dTN1gHoX9Jn+4vpd1gJow4CQAo6fJPM78aGoB0lwOkiSKerv87aefW/GlrcdOdUsPQA+/8TuoH6Vniom+/OYX5mscUZ/Ix6Cpu/F7reDLp17XxUJA8KCG9h5OWq6L8hM8cNq3rWnr5AsgeZ6/suL3s4DvtKGDECKSZEcJ+923P/we3sCx9Pw57foei7MUd1THT8TKkAjEsi/EPpaB3znEzbXouav4lD+B7ysHCL8XHO0PAuTWCN7waEkDtknx+zUTUkqXz15AaHjyD/c2qvCCGTQwrcCeGaf86CjQDv8aC/ItjkeeQm+C+x6CK+r1aBcxCYlmjQ4wEDp+hvxaJ4nKAo2+jG4RbXFY2rX9IXjWeVS87hfXQ+uAE2Rg6p76qVuroo3k/U/P3eDFxz5Jgp5INs6mPfPpAbWIn9x+r55xVY9nZ2Bt6G6X6Q7Kxo6szDbc/fzyVvG6OXIMmNJDCn1OhvuYC7vVM9rT5Evz//4GV/P8mxdqMfxfsQ/5dmjc//0rnJ2r52cR2iJlaE2gwqf6Nm5hNsx/5jF44PiyzqJTcFbcWzjr/kS4FqZiZutiAAAAA=",
     heroUnoptimized: true,
     heroTheme: "dark",
     frameColor: "#000000",
