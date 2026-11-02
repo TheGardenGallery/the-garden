@@ -66,13 +66,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* The site mixes paper and dark surfaces page-to-page; declaring
             both schemes lets the browser style native UI (scrollbars,
             form controls, autofill) appropriately on either surface
             instead of always rendering with the system default. */}
         <meta name="color-scheme" content="light dark" />
+        {/* The welcome gate only mounts after hydration, so on a first
+            visit the server HTML painted first: the header alone on
+            black for 50 to 300ms, then hidden under the gate. This runs
+            before first paint and, when the gate is going to play,
+            marks the document so CSS draws the gate's split surface
+            from the first frame (see .wf-pending in globals.css).
+            WelcomeOverlay takes over and clears the mark. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(location.pathname==="/"&&!sessionStorage.getItem("garden-session")){document.documentElement.classList.add("wf-pending");window.__gardenWelcome="pending"}}catch(e){}`,
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

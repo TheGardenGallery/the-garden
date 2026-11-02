@@ -39,10 +39,25 @@ const TEXT_HOLD = 215;       // dwell at full opacity
 const TEXT_OUT = 250;        // fade-out duration (matches button transition)
 const PRE_FALL = 63;         // anticipation between text gone and curtain
 // Total ≈ 2.16s before the cascade begins.
+/* The text's in/hold/out now runs as one CSS animation (wfText in
+   globals.css, 898ms = OPEN_HOLD + TEXT_IN + TEXT_HOLD + TEXT_OUT): as
+   React-state transitions the hydration frame stalled its fade-in. */
 
-/* refined easings — easeOutExpo in, easeInQuad out */
-const EASE_IN = "cubic-bezier(0.16, 1, 0.3, 1)";
-const EASE_OUT = "cubic-bezier(0.5, 0, 0.75, 0)";
+/* The header and the hero's title card come in while the last flaps are
+   still falling, not after the gate unmounts: at this share of the
+   cascade the gate adds .wf-releasing and announces the release. */
+const RELEASE_AT = 0.55;
+const RELEASE_EVENT = "garden:welcome-release";
+
+/* tell the page the gate has let go (HeroCardReveal waits for this) */
+function announceRelease() {
+  const w = window as Window & { __gardenWelcome?: string };
+  if (w.__gardenWelcome === "released") return;
+  w.__gardenWelcome = "released";
+  window.dispatchEvent(new Event(RELEASE_EVENT));
+}
+
+/* the early-click fade (the text's own easings live in wfText) */
 const EASE_CLICK_OUT = "cubic-bezier(0.32, 0, 0.67, 0)";
 
 /* ── seeded PRNG ─────────────────────────────────────────────── */
@@ -72,7 +87,6 @@ export function WelcomeOverlay() {
   const [mounted, setMounted] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [cachedAway, setCachedAway] = useState(false);
-  const [textVisible, setTextVisible] = useState(false);
   const flippingRef = useRef(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -91,28 +105,24 @@ export function WelcomeOverlay() {
     setMounted(true);
   }, []);
 
+  /* hand over from the pre-hydration cover: by the time this runs the
+     gate itself is in the DOM (or is not going to play at all) */
+  useEffect(() => {
+    if (!mounted) return;
+    document.documentElement.classList.remove("wf-pending");
+    if (cachedAway || pathname !== "/") announceRelease();
+  }, [mounted, cachedAway, pathname]);
+
   /* ── auto-play sequence ── */
   useEffect(() => {
     if (!mounted || dismissed || cachedAway || pathname !== "/") return;
 
-    // 1. After the opening silence, fade "Welcome." in.
-    const tIn = setTimeout(() => setTextVisible(true), OPEN_HOLD);
-
-    // 2. Once it has dwelt, fade it back out on its own — separate from
-    //    the curtain — so the word completes a full breath before the
-    //    flaps start falling.
-    const tOut = setTimeout(
-      () => setTextVisible(false),
-      OPEN_HOLD + TEXT_IN + TEXT_HOLD,
-    );
-
-    // 3. After a beat of anticipation, drop the curtain.
+    // "Welcome." breathes in and out on its own (CSS, see above); after a
+    // beat of anticipation, drop the curtain.
     const fallDelay = OPEN_HOLD + TEXT_IN + TEXT_HOLD + TEXT_OUT + PRE_FALL;
     autoTimerRef.current = setTimeout(triggerCurtain, fallDelay);
 
     return () => {
-      clearTimeout(tIn);
-      clearTimeout(tOut);
       if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -134,9 +144,15 @@ export function WelcomeOverlay() {
     /* fade button — only matters on early click (auto-mode has already
        dissolved the text via setTextVisible(false) by the time we land
        here, so this is a no-op in that path) */
-    if (btnRef.current) {
-      btnRef.current.style.transition = `opacity 280ms ${EASE_CLICK_OUT}`;
-      btnRef.current.style.opacity = "0";
+    const btn = btnRef.current;
+    if (btn) {
+      /* freeze the CSS animation where it is, then fade out from there */
+      const now = getComputedStyle(btn).opacity;
+      btn.style.animation = "none";
+      btn.style.opacity = now;
+      void btn.offsetWidth;
+      btn.style.transition = `opacity 280ms ${EASE_CLICK_OUT}`;
+      btn.style.opacity = "0";
     }
 
     /* collect strips */
@@ -167,6 +183,10 @@ export function WelcomeOverlay() {
 
     /* shrink frame + unmount */
     const totalAnim = NUM_FLAPS * STAGGER + 760;
+    setTimeout(() => {
+      root.classList.add("wf-releasing");
+      announceRelease();
+    }, Math.round(totalAnim * RELEASE_AT));
     const frame = root.querySelector<HTMLDivElement>(".wf-frame");
     if (frame) {
       setTimeout(() => {
@@ -227,12 +247,6 @@ export function WelcomeOverlay() {
         className="wf-btn"
         onClick={handleClick}
         type="button"
-        style={{
-          opacity: textVisible ? 1 : 0,
-          transition: textVisible
-            ? `opacity ${TEXT_IN}ms ${EASE_IN}`
-            : `opacity ${TEXT_OUT}ms ${EASE_OUT}`,
-        }}
       >
         Welcome.
       </button>

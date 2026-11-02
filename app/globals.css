@@ -8219,16 +8219,71 @@ a.ex-fact-value-link:hover{text-decoration-color:currentColor;}
   outline-offset:-4px;
 }
 
-/* ── body lockdown while gate is mounted ── */
+/* ── body lockdown while gate is mounted ──
+   The header used to stay hidden until the gate UNMOUNTED, then cut in on
+   one frame, about 1.7s after the hero was already visible. The gate now
+   adds .wf-releasing as its last flaps fall and the header fades in under
+   them, so it arrives with the hero instead of after it. */
 body:has(.wf-root){
   overflow:hidden;
 }
-body:has(.wf-root) > nav,
-body:has(.wf-root) > header,
-body:has(.wf-root) footer{
+body:has(.wf-root:not(.wf-releasing)) > nav,
+body:has(.wf-root:not(.wf-releasing)) > header,
+body:has(.wf-root:not(.wf-releasing)) footer{
   opacity:0 !important;
   visibility:hidden;
   pointer-events:none;
+}
+body:has(.wf-root.wf-releasing) > nav,
+body:has(.wf-root.wf-releasing) > header,
+body:has(.wf-root.wf-releasing) footer{
+  transition:opacity 560ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* ── before hydration: the gate's surface from the first frame ──
+   app/layout.tsx marks <html> with .wf-pending (before first paint)
+   when the gate will play. Until WelcomeOverlay mounts, CSS draws the
+   same split, the same 22 strips with 1px gaps (as a mask, so the page
+   shows through the gaps exactly as it does between the real strips)
+   and the same 20px white frame, and keeps the header hidden, so the
+   first painted frame is the gate rather than a bare header. If the
+   script never takes over, the cover lets go after 6s on its own. */
+html.wf-pending body > nav,
+html.wf-pending body > header,
+html.wf-pending body footer{
+  opacity:0 !important;
+  visibility:hidden;
+}
+html.wf-pending body::after{
+  --wf-h:calc((100vh - 21px) / 22);
+  content:"";
+  position:fixed;inset:0;z-index:9998;pointer-events:none;
+  /* an image, not a gradient: a gradient is not "content" to the browser,
+     so with it the first contentful paint fell to whenever the header came
+     back (3.3s on a slowed phone) */
+  background:#ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 1' preserveAspectRatio='none'%3E%3Crect width='1' height='1'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  -webkit-mask-image:repeating-linear-gradient(to bottom, #000 0 var(--wf-h), transparent var(--wf-h) calc(var(--wf-h) + 1px));
+  mask-image:repeating-linear-gradient(to bottom, #000 0 var(--wf-h), transparent var(--wf-h) calc(var(--wf-h) + 1px));
+  box-shadow:inset 0 0 0 20px #ffffff;
+  animation:wfPendingGiveUp 0s linear 6s forwards;
+}
+@keyframes wfPendingGiveUp{ to{ visibility:hidden; } }
+
+/* ── "Welcome." in and out, on the compositor ──
+   Was two React-state transitions; the hydration frame (60 to 160ms
+   measured) landed on the fade-in and stalled it. One CSS animation
+   runs off the main thread. Timings are WelcomeOverlay's: 63ms silence,
+   370ms in (easeOutExpo), 215ms hold, 250ms out (easeInQuad) = 898ms. */
+.wf-btn{
+  opacity:0;
+  animation:wfText 898ms linear both;
+}
+@keyframes wfText{
+  0%{opacity:0;}
+  7.02%{opacity:0;animation-timing-function:cubic-bezier(0.16, 1, 0.3, 1);}
+  48.22%{opacity:1;}
+  72.16%{opacity:1;animation-timing-function:cubic-bezier(0.5, 0, 0.75, 0);}
+  100%{opacity:0;}
 }
 
 
