@@ -23,7 +23,7 @@ export const exhibitions: Exhibition[] = [
     title: "Hold Me",
     year: 2026,
     month: "Nov",
-    date: "November 5, 2026",
+    date: "November 17, 2026",
     status: "upcoming",
     pageUrl: "/exhibitions/hold-me",
     hero: "/images/movsum-alasgarov/hold-me-hero.webp",
