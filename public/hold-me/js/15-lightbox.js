@@ -28,7 +28,7 @@
   const prevB = lb.querySelector('.lb-prev');
   const nextB = lb.querySelector('.lb-next');
 
-  const ZOOM_MIN = 1, ZOOM_MAX = 8, ZOOM_FLOOR = 4, ZOOM_STEP = 0.0018, DRAG_TOL = 4;
+  const ZOOM_MIN = 1, ZOOM_MAX = 8, ZOOM_FLOOR = 4, ZOOM_STEP = 0.0018, PINCH_STEP = 0.01, DRAG_TOL = 4;
 
   /* Collect the works. EXCLUDES: the hero rail's bricks, the dithered
      lockup canvases, and the reticle. Everything else that is an artwork
@@ -241,12 +241,16 @@
   const wrap = i => (i % works.length + works.length) % works.length;
   const srcOf = i => { const w = works[wrap(i)]; return w.dataset.lbSrc || w.currentSrc || w.src; };
   const ready = new Map();
+  const dims = new Map();   /* decoded size per file, so the plate's ratio is known before the <img> reports it */
   const prepare = (i) => {
     const src = srcOf(i), el = works[wrap(i)];
     if(ready.has(src)) return ready.get(src);
     const pre = new Image(); pre.src = src;
     const decoded = (pre.decode ? pre.decode() : new Promise(r => { pre.onload = pre.onerror = r; })).catch(() => {});
-    const p = Promise.all([decoded, measure(src, el)]).then(([, g]) => ({pre, g}));
+    const p = Promise.all([decoded, measure(src, el)]).then(([, g]) => {
+      if(pre.naturalWidth) dims.set(src, [pre.naturalWidth, pre.naturalHeight]);
+      return {pre, g};
+    });
     ready.set(src, p);
     return p;
   };
@@ -305,11 +309,15 @@
        real file; anything without one is already the work. */
     const src = works[index].dataset.lbSrc || works[index].currentSrc || works[index].src;
     const token = ++swapToken, el = works[index];
-    /* opening: the plate's own entrance is the transition, swap at once */
+    /* opening: the plate's own entrance is the transition. openAt() has
+       already waited for prepare(), so the colour and the picture's ratio
+       are in hand and both land before the first visible frame */
     if(!lb.classList.contains('open')){
       imgEl.classList.remove('lb-in');
+      const g = groundCache.get(keyOfSrc(src));
+      if(g) setGround(g);
       swap(src);
-      measure(src, el).then(g => { if(token === swapToken) setGround(g); });
+      if(!g) measure(src, el).then(m => { if(token === swapToken) setGround(m); });
       prepareAround();
       return;
     }
@@ -340,7 +348,15 @@
          loaded makes the browser decode it on the main thread at the next
          paint, a freeze of about 300ms just after every work opens */
       pre.src = master;
-      pre.decode().then(() => { if (index === want && open) imgEl.src = master; }).catch(() => {});
+      pre.decode().then(() => {
+        if (index !== want || !open) return;
+        imgEl.src = master;
+        /* the native limit is the MASTER's now: measured off the page file
+           it stayed at half, and past-native drew a work that had the
+           detail as hard squares from about 1.3x */
+        setZoomMax();
+        zoomEl.classList.toggle('past-native', zoom > nativeMax * 1.02);
+      }).catch(() => {});
     }
     imgEl.alt = works[index].alt || '';
     tileLayer.textContent = ''; tilesMade.clear();
@@ -352,8 +368,9 @@
     /* the plate takes the WORK's own ratio, so nothing is cropped and the
        frame is never larger than the picture in it. naturalWidth is 0 until
        the file decodes, hence the onload fallback. */
+    const known = dims.get(src);
     const setRatio = () => {
-      const w = imgEl.naturalWidth, h = imgEl.naturalHeight;
+      const w = imgEl.naturalWidth || (known && known[0]), h = imgEl.naturalHeight || (known && known[1]);
       if(w && h){
         plate.style.setProperty('--lb-aspect', w + '/' + h);
         /* the numeric ratio too: the plate needs it to cap its WIDTH off the
@@ -370,22 +387,39 @@
     zoom = 1; panX = panY = 0; paint(false);
   };
 
+  /* OPENING WAITS FOR THE WORK, briefly. The viewer used to fade in on the
+     PREVIOUS work's room colour and plate ratio, then snap to this one's
+     about 100ms in (measured on a phone: the grey room's work opened on
+     black for 138ms). The viewer is still invisible (opacity 0) while the
+     work decodes and its ground is measured, usually a few tens of ms, so
+     waiting costs nothing seen; past 250ms it opens anyway and the colour
+     follows. */
+  const OPEN_WAIT_MS = 250;
+  let openToken = 0;
   const openAt = (i, from) => {
     lastFocused = from || document.activeElement;
     open = true;
+    const my = ++openToken;
     lb.hidden = false;
     ensureField();
     if(field) field.resize();
     if(field && field.start) field.start();
-    show(i);
-    requestAnimationFrame(() => lb.classList.add('open'));
+    /* the page's own field is behind an opaque viewer: stop drawing it */
+    if(window.pageAura) window.pageAura.stop();
     document.documentElement.style.overflow = 'hidden';
+    index = wrap(i);
+    Promise.race([prepare(index), new Promise(r => setTimeout(r, OPEN_WAIT_MS))]).then(() => {
+      if(!open || my !== openToken) return;
+      show(index);
+      requestAnimationFrame(() => lb.classList.add('open'));
+    });
   };
 
   const close = () => {
     open = false;
     lb.classList.remove('open');
     document.documentElement.style.overflow = '';
+    if(window.pageAura && window.pageAura.start) window.pageAura.start();
     /* wait out the fade before hiding, so it does not blink off */
     /* the field stops with the viewer hidden: it was drawing a full-window
        shader on every frame behind display:none for the rest of the visit */
@@ -443,10 +477,29 @@
   lb.addEventListener('wheel', (e) => {
     if(!open) return;
     e.preventDefault();
-    zoom = Math.max(ZOOM_MIN, Math.min(zoomMax, zoom * (1 + e.deltaY * ZOOM_STEP)));
+    if(e.ctrlKey && gestureFrom !== null) return;   /* Safari's gesture events own the pinch */
+    /* a trackpad pinch arrives as ctrl+wheel with deltaY NEGATIVE for
+       fingers apart, the opposite sign to scrolling down, so it zoomed
+       backwards: spreading the fingers shrank the work */
+    const d = e.ctrlKey ? -e.deltaY * PINCH_STEP : e.deltaY * ZOOM_STEP;
+    zoom = Math.max(ZOOM_MIN, Math.min(zoomMax, zoom * (1 + d)));
     const p = clampPan(panX, panY, zoom); panX = p.x; panY = p.y;
     paint(true);
   }, {passive:false});
+
+  /* ---- Safari pinch. Safari reports a trackpad pinch as gesture events,
+     not ctrl+wheel, and left alone it zoomed the whole page behind the
+     viewer. Scale is relative to the zoom at the gesture's start. */
+  let gestureFrom = null;
+  lb.addEventListener('gesturestart', (e) => { if(!open) return; e.preventDefault(); gestureFrom = zoom; });
+  lb.addEventListener('gesturechange', (e) => {
+    if(!open || gestureFrom === null) return;
+    e.preventDefault();
+    zoom = Math.max(ZOOM_MIN, Math.min(zoomMax, gestureFrom * e.scale));
+    const p = clampPan(panX, panY, zoom); panX = p.x; panY = p.y;
+    paint(false);
+  });
+  lb.addEventListener('gestureend', (e) => { if(gestureFrom === null) return; e.preventDefault(); gestureFrom = null; paint(true); });
 
   /* ---- mouse: drag to pan, click (no drag) at zoom 1 to close ---- */
   let drag = null;
