@@ -24,6 +24,7 @@ export const exhibitions: Exhibition[] = [
     year: 2026,
     month: "Nov",
     date: "November 24, 2026",
+    location: "OpenSea",
     status: "upcoming",
     pageUrl: "/exhibitions/hold-me",
     hero: "/images/movsum-alasgarov/hold-me-hero.webp",
