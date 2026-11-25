@@ -13,7 +13,7 @@ const SPLIT_LOGIC_POSTER_VERSIONS: Record<number, number> = {
 };
 
 export const exhibitions: Exhibition[] = [
-  // === UPCOMING ===
+  // === CURRENT ===
   {
     // A standalone static page (public/hold-me/), not the shared
     // exhibition template: every link goes to pageUrl.
@@ -25,7 +25,7 @@ export const exhibitions: Exhibition[] = [
     month: "Nov",
     date: "November 24, 2026",
     location: "Randomized mint via OpenSea",
-    status: "upcoming",
+    status: "current",
     pageUrl: "/exhibitions/hold-me",
     hero: "/images/movsum-alasgarov/hold-me-hero.webp",
     homepageHero: "/images/movsum-alasgarov/hold-me-hero.webp",
@@ -37,6 +37,7 @@ export const exhibitions: Exhibition[] = [
     heroTheme: "dark",
     frameColor: "#000000",
   },
+  // === PAST — 2026 ===
   {
     slug: "split-logic",
     artistSlug: "ricky-retouch",
@@ -50,7 +51,7 @@ export const exhibitions: Exhibition[] = [
     location: "Verse",
     locationUrl: "https://verse.works/series/split-logic-by-ricky-retouch",
     verseSeriesUrl: "https://verse.works/series/split-logic-by-ricky-retouch",
-    status: "current",
+    status: "past",
     liveStart: "2026-06-03T16:00:00Z",
     workCount: 100,
     chain: "Ethereum",
